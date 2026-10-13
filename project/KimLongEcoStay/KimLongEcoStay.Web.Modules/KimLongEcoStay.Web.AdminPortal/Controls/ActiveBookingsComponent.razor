@@ -1,8 +1,12 @@
 @using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services
+@using KimLongEcoStay.CoreBusiness.Services.Interfaces
 @using KimLongEcoStay.UseCases.PluginInterfaces.DataStore
 @using KimLongEcoStay.UseCases.AdminPortal.CheckInCheckOutScreen
 @inject IOrderRepository OrderRepository
 @inject ICheckInCheckOutUseCase CheckInCheckOutUseCase
+@inject IEmailService EmailService
+@inject IBookingService BookingService
 @inject AuthenticationStateProvider AuthStateProvider
 
 <div class="card shadow-sm border-0 my-3">
@@ -36,7 +40,7 @@
                         <tr>
                             <th>Mã Booking</th>
                             <th>Khách Lưu Trú</th>
-                            <th>SĐT / Zalo</th>
+                            <th>Email & SĐT / Zalo</th>
                             <th>Khoảng Ngày / Giờ</th>
                             <th class="text-center">Số Đêm</th>
                             <th class="text-end">Tổng Tiền</th>
@@ -58,8 +62,13 @@
                                 <td class="fw-bold text-dark">
                                     @ord.CustomerName
                                 </td>
-                                <td class="small text-muted font-monospace">
-                                    @ord.CustomerAddress
+                                <td class="small">
+                                    <div class="font-monospace text-primary mb-1">
+                                        <i class="bi bi-envelope-fill me-1"></i>@(string.IsNullOrEmpty(ord.CustomerEmail) ? "—" : ord.CustomerEmail)
+                                    </div>
+                                    <div class="text-muted">
+                                        <i class="bi bi-telephone-fill me-1"></i>@ord.CustomerAddress
+                                    </div>
                                 </td>
                                 <td class="small">
                                     @(string.IsNullOrEmpty(ord.CustomerStateProvince) ? ord.DatePlaced?.ToString("dd/MM/yyyy") : ord.CustomerStateProvince)
@@ -105,6 +114,10 @@
                                                 <i class="bi bi-box-arrow-right me-1"></i>Check-out (12h)
                                             </button>
                                         }
+
+                                        <button class="btn btn-sm btn-outline-info rounded-pill me-1" @onclick="() => HandleSendPinEmail(ord)" title="Gửi mã PIN SmartLock và phiếu xác nhận về email khách">
+                                            <i class="bi bi-envelope-at me-1"></i>Gửi PIN Email
+                                        </button>
 
                                         <button class="btn btn-sm btn-outline-danger rounded-pill" @onclick="() => HandleCancel(ord.OrderID ?? 0)" title="Áp dụng quy tắc hoàn cọc / phạt 1 đêm 48h">
                                             <i class="bi bi-x-circle"></i> Hủy
@@ -190,5 +203,22 @@
         isError = false;
         notificationMessage = $"Đã xử lý hủy đơn #{orderId}. {policy.Message}";
         LoadOrders();
+    }
+
+    private async Task HandleSendPinEmail(Order ord)
+    {
+        try
+        {
+            string pin = BookingService.GenerateSmartLockPin(ord.UniqueId ?? "KLE", ord.CustomerAddress ?? "000000");
+            string room = ord.LineItems?.FirstOrDefault()?.Product?.Name ?? "Phòng Nghỉ Dưỡng Sinh Thái Kim Long";
+            var res = await EmailService.SendBookingConfirmationEmailAsync(ord, pin, room);
+            notificationMessage = res.StatusMessage;
+            isError = false;
+        }
+        catch (Exception ex)
+        {
+            notificationMessage = $"Lỗi khi gửi email: {ex.Message}";
+            isError = true;
+        }
     }
 }

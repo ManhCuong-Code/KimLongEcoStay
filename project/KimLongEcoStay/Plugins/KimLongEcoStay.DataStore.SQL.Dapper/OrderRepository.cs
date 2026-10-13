@@ -20,6 +20,7 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
                 OrderID = 1,
                 UniqueId = "KLE-20261015-01",
                 CustomerName = "Trần Hải Đăng",
+                CustomerEmail = "haidang.hue@gmail.com",
                 CustomerAddress = "0912.345.678 — 45 Lê Lợi, TP. Huế",
                 CustomerCity = "046098001234",
                 CustomerStateProvince = "14:00 chiều",
@@ -49,6 +50,7 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
                 OrderID = 2,
                 UniqueId = "KLE-20261016-02",
                 CustomerName = "Lê Thị Mai Anh",
+                CustomerEmail = "maianh.travel@gmail.com",
                 CustomerAddress = "0988.765.432 — Cầu Giấy, Hà Nội",
                 CustomerCity = "001198005678",
                 CustomerStateProvince = "15:30 chiều",
@@ -106,13 +108,13 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
                     INSERT INTO [dbo].[Order] 
                     (
                         [DatePlaced], [DateProcessing], [DateProcessed],
-                        [CustomerName], [CustomerAddress], [CustomerCity],
+                        [CustomerName], [CustomerEmail], [CustomerAddress], [CustomerCity],
                         [CustomerStateProvince], [CustomerCountry], [AdminUser], [UniqueId]
                     )
                     VALUES 
                     (
                         @DatePlaced, @DateProcessing, @DateProcessed,
-                        @CustomerName, @CustomerAddress, @CustomerCity,
+                        @CustomerName, @CustomerEmail, @CustomerAddress, @CustomerCity,
                         @CustomerStateProvince, @CustomerCountry, @AdminUser, @UniqueId
                     );
                     SELECT CAST(SCOPE_IDENTITY() as int);";
@@ -123,6 +125,7 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
                     order.DateProcessing,
                     order.DateProcessed,
                     order.CustomerName,
+                    order.CustomerEmail,
                     order.CustomerAddress,
                     order.CustomerCity,
                     order.CustomerStateProvince,

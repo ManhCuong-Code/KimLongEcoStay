@@ -12,7 +12,8 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <p><strong>Khách Hàng:</strong> @order.CustomerName</p>
-                    <p><strong>Địa Chỉ:</strong> @order.CustomerAddress, @order.CustomerCity, @order.CustomerStateProvince, @order.CustomerCountry</p>
+                    <p><strong>Email Nhận PIN:</strong> <span class="font-monospace text-success fw-bold">@(order.CustomerEmail ?? "Chưa cung cấp")</span></p>
+                    <p><strong>Địa Chỉ & SĐT:</strong> @order.CustomerAddress, @order.CustomerCity, @order.CustomerStateProvince, @order.CustomerCountry</p>
                 </div>
                 <div class="col-md-6">
                     <p><strong>Ngày Đặt:</strong> @order.DatePlaced?.ToString("dd/MM/yyyy HH:mm:ss")</p>

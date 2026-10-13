@@ -1,6 +1,10 @@
 @using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services.Interfaces
 @using KimLongEcoStay.UseCases.SmartLockScreen
+@using KimLongEcoStay.UseCases.PluginInterfaces.DataStore
 @inject ISmartLockUseCase SmartLockUseCase
+@inject IEmailService EmailService
+@inject IOrderRepository OrderRepository
 @inject AuthenticationStateProvider AuthStateProvider
 
 <div class="card shadow-sm border-0 my-3">
@@ -66,10 +70,14 @@
                             </div>
 
                             <!-- Nút thao tác từ xa -->
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-1 flex-wrap">
                                 <button class="btn btn-sm btn-outline-warning text-dark flex-grow-1 rounded-pill fw-semibold" 
                                         @onclick="() => HandleRegeneratePin(dev.RoomNumber)">
                                     <i class="bi bi-arrow-repeat me-1"></i>Đổi PIN
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary flex-grow-1 rounded-pill fw-semibold" 
+                                        @onclick="() => HandleSendPinEmail(dev)">
+                                    <i class="bi bi-envelope-at me-1"></i>Email PIN
                                 </button>
                                 <button class="btn btn-sm btn-outline-success flex-grow-1 rounded-pill fw-semibold" 
                                         @onclick="() => HandleRemoteUnlock(dev.RoomNumber)">
@@ -155,6 +163,30 @@
         {
             message = $"Lệnh mở khóa từ xa đã gửi tới phòng {roomNumber}. Chốt khóa đã mở thành công trong 1 giây.";
             LoadData();
+        }
+    }
+
+    private async Task HandleSendPinEmail(SmartLockDevice dev)
+    {
+        try
+        {
+            var allOrders = OrderRepository.GetOrders();
+            var order = allOrders.FirstOrDefault(o => o.CustomerAddress != null && o.CustomerAddress.Contains(dev.AssignedGuestPhone))
+                        ?? allOrders.FirstOrDefault(o => o.CustomerName != null && o.CustomerName.Contains(dev.AssignedGuestName))
+                        ?? new Order
+                        {
+                            UniqueId = $"KLE-{dev.RoomNumber}",
+                            CustomerName = dev.AssignedGuestName,
+                            CustomerAddress = dev.AssignedGuestPhone,
+                            CustomerEmail = "khachhang@kimlongecostay.vn"
+                        };
+
+            var res = await EmailService.SendBookingConfirmationEmailAsync(order, dev.CurrentPin, dev.RoomName);
+            message = $"[SmartLock IoT] {res.StatusMessage} (Mã PIN: {dev.CurrentPin} - Phòng: {dev.RoomNumber})";
+        }
+        catch (Exception ex)
+        {
+            message = $"Không thể gửi email: {ex.Message}";
         }
     }
 }

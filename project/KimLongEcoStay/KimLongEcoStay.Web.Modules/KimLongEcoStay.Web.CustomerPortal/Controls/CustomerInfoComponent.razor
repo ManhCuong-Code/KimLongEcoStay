@@ -13,6 +13,16 @@
     </div>
 
     <div class="form-group mb-3">
+        <label for="email" class="form-label fw-bold small text-dark">
+            <i class="bi bi-envelope-at-fill text-danger me-1"></i>Địa Chỉ Email Nhận Mã PIN & Xác Nhận <span class="text-danger">*</span>:
+        </label>
+        <InputText id="email" class="form-control" @bind-Value="customer.CustomerEmail" placeholder="Ví dụ: hoang.nguyen@gmail.com"></InputText>
+        <div class="form-text small text-muted">
+            <i class="bi bi-shield-lock-fill text-success me-1"></i>Mã PIN SmartLock 6 số mở cửa phòng sẽ được tự động gửi về Email này ngay khi xác nhận.
+        </div>
+    </div>
+
+    <div class="form-group mb-3">
         <label for="address" class="form-label fw-bold small text-dark">
             <i class="bi bi-telephone-fill text-primary me-1"></i>Số Điện Thoại & Địa Chỉ <span class="text-danger">*</span>:
         </label>

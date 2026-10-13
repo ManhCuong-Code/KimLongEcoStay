@@ -28,6 +28,7 @@ using KimLongEcoStay.UseCases.BookingLookupScreen;
 using KimLongEcoStay.UseCases.AdminPortal.CheckInCheckOutScreen;
 using KimLongEcoStay.UseCases.AdminPortal.OccupancyReportScreen;
 using KimLongEcoStay.UseCases.SmartLockScreen;
+using KimLongEcoStay.CoreBusiness.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,9 @@ builder.Services.AddScoped<IBookingRepository, KimLongEcoStay.DataStore.SQL.Dapp
 builder.Services.AddScoped<IUserRepository, KimLongEcoStay.DataStore.SQL.Dapper.UserRepository>();
 
 // 4. CORE SERVICES & USE CASES (PART 1, 2, 3, 4)
+var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>() ?? new EmailSettings();
+builder.Services.AddSingleton(emailSettings);
+builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 
 // Customer Portal Use Cases (Part 1, 2, 3)

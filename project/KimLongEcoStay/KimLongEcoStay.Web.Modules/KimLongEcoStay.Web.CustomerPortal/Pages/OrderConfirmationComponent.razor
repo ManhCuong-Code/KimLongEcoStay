@@ -2,8 +2,12 @@
 @rendermode InteractiveServer
 
 @using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services
+@using KimLongEcoStay.CoreBusiness.Services.Interfaces
 @using KimLongEcoStay.UseCases.OrderConfirmationScreen
 @inject IOrderConfirmationUseCase orderConfirmationUseCase
+@inject IEmailService emailService
+@inject IBookingService bookingService
 
 <PageTitle>Phiếu Xác Nhận Đặt Phòng — Kim Long EcoStay</PageTitle>
 
@@ -25,6 +29,82 @@
                 <p class="text-white-50 mb-0 small">
                     Kính chúc quý khách có một kỳ nghỉ an yên, hòa mình cùng di sản thiên nhiên Cố đô Huế
                 </p>
+            </div>
+
+            <!-- HỘP THÔNG BÁO XÁC NHẬN EMAIL & MÃ PIN SMARTLOCK -->
+            <div class="p-4 bg-light border-bottom">
+                <div class="card border-0 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #073B2B 0%, #0F5C43 100%); color: white;">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center g-3">
+                            <div class="col-lg-8">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-warning text-dark fw-bold px-3 py-1">
+                                        <i class="bi bi-envelope-check-fill me-1"></i>EMAIL XÁC NHẬN & MÃ PIN SMARTLOCK
+                                    </span>
+                                    @if (emailResult != null && emailResult.IsSuccess)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-all me-1"></i>@(emailResult.IsSimulated ? "Đã gửi (Mô phỏng IoT)" : "Đã gửi qua SMTP")
+                                        </span>
+                                    }
+                                    else if (isSendingEmail)
+                                    {
+                                        <span class="badge bg-light text-dark">
+                                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>Đang gửi email...
+                                        </span>
+                                    }
+                                </div>
+                                <h4 class="font-serif fw-bold text-white mb-2">
+                                    Mã PIN Mở Phòng 24/7 & Hướng Dẫn Đã Được Gửi Tới Email Khách Hàng
+                                </h4>
+                                <p class="text-white-50 small mb-0">
+                                    Địa chỉ nhận thư: <strong class="text-warning font-monospace fs-6">@(order.CustomerEmail ?? "khachhang@kimlongecostay.vn")</strong>
+                                    — Quý khách có thể mở email bất cứ lúc nào để xem mã PIN ngay cả khi không có kết nối mạng tại cửa phòng.
+                                </p>
+                            </div>
+                            <div class="col-lg-4 text-lg-end">
+                                <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+                                    <button class="btn btn-warning fw-bold rounded-pill px-3 py-2 shadow-sm" @onclick="ResendEmail" disabled="@isSendingEmail">
+                                        @if (isSendingEmail)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                            <span>Đang gửi...</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-arrow-repeat me-1"></i>
+                                            <span>Gửi Lại Email</span>
+                                        }
+                                    </button>
+                                    <button class="btn btn-outline-light rounded-pill px-3 py-2" @onclick="ToggleEmailPreview">
+                                        <i class="bi @(showEmailPreview ? "bi-eye-slash" : "bi-eye") me-1"></i>
+                                        <span>@(showEmailPreview ? "Đóng Xem Thư" : "Xem Thư Email")</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(emailStatusNotice))
+                        {
+                            <div class="alert alert-info mt-3 mb-0 py-2 px-3 small rounded-3 bg-white text-dark border-0">
+                                <i class="bi bi-info-circle-fill text-primary me-1"></i>@emailStatusNotice
+                            </div>
+                        }
+
+                        @if (showEmailPreview && !string.IsNullOrEmpty(emailHtmlPreview))
+                        {
+                            <div class="mt-4 p-3 bg-white rounded-3 shadow text-dark" style="max-height: 500px; overflow-y: auto;">
+                                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                    <strong class="text-success"><i class="bi bi-envelope-open me-1"></i>Bản Xem Trước Email Khách Hàng Nhận Được:</strong>
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleEmailPreview">Đóng</button>
+                                </div>
+                                <div style="transform: scale(0.95); transform-origin: top center;">
+                                    @((MarkupString)emailHtmlPreview)
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
 
             <div class="p-4 p-md-5 bg-white">
@@ -53,6 +133,7 @@
                                 <i class="bi bi-person-badge-fill me-2"></i>Thông Tin Khách Lưu Trú
                             </h6>
                             <div class="mb-2"><strong>Họ & Tên:</strong> @order.CustomerName</div>
+                            <div class="mb-2"><strong>Email nhận PIN:</strong> <span class="text-success font-monospace fw-bold">@(order.CustomerEmail ?? "Chưa cung cấp")</span></div>
                             <div class="mb-2"><strong>SĐT / Địa Chỉ:</strong> @order.CustomerAddress</div>
                             @if (!string.IsNullOrEmpty(order.CustomerCity))
                             {
@@ -258,12 +339,68 @@
     public string? UniqueId { get; set; }
 
     private Order? order;
+    private string smartLockPin = string.Empty;
+    private string roomName = string.Empty;
+    private bool hasSentEmail = false;
+    private bool isSendingEmail = false;
+    private bool showEmailPreview = false;
+    private string emailStatusNotice = string.Empty;
+    private string emailHtmlPreview = string.Empty;
+    private EmailSendResult? emailResult;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrEmpty(UniqueId))
         {
             order = orderConfirmationUseCase.Execute(UniqueId);
+            if (order != null)
+            {
+                smartLockPin = bookingService.GenerateSmartLockPin(order.UniqueId ?? "KLE", order.CustomerAddress ?? "000000");
+                roomName = order.LineItems?.FirstOrDefault()?.Product?.Name ?? "Phòng Nghỉ Dưỡng Sinh Thái Kim Long";
+
+                if (!hasSentEmail)
+                {
+                    hasSentEmail = true;
+                    await SendConfirmationEmailInternal();
+                }
+            }
+        }
+    }
+
+    private async Task ResendEmail()
+    {
+        isSendingEmail = true;
+        emailStatusNotice = "Đang kết nối cổng gửi email Kim Long EcoStay...";
+        StateHasChanged();
+
+        await SendConfirmationEmailInternal();
+
+        isSendingEmail = false;
+        StateHasChanged();
+    }
+
+    private async Task SendConfirmationEmailInternal()
+    {
+        if (order == null) return;
+
+        try
+        {
+            emailResult = await emailService.SendBookingConfirmationEmailAsync(order, smartLockPin, roomName);
+            emailHtmlPreview = emailResult.HtmlContent;
+            emailStatusNotice = emailResult.StatusMessage;
+        }
+        catch (Exception ex)
+        {
+            emailStatusNotice = $"Không thể gửi email: {ex.Message}";
+        }
+    }
+
+    private void ToggleEmailPreview()
+    {
+        showEmailPreview = !showEmailPreview;
+        if (showEmailPreview && string.IsNullOrEmpty(emailHtmlPreview) && order != null)
+        {
+            emailHtmlPreview = emailService.GenerateBookingConfirmationHtml(order, smartLockPin, roomName);
         }
     }
 }

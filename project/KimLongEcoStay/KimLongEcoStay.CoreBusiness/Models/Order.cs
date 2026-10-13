@@ -16,6 +16,7 @@ namespace KimLongEcoStay.CoreBusiness.Models
         public DateTime? DateProcessed { get; set; }
         public DateTime? DateProcessing { get; set; }
         public string? CustomerName { get; set; }
+        public string? CustomerEmail { get; set; }
         public string? CustomerAddress { get; set; }
         public string? CustomerCity { get; set; }
         public string? CustomerStateProvince { get; set; }

@@ -3,10 +3,12 @@
 @rendermode InteractiveServer
 
 @using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services.Interfaces
 @using KimLongEcoStay.UseCases.BookingLookupScreen
 @using KimLongEcoStay.UseCases.AdminPortal.CheckInCheckOutScreen
 @inject ILookupBookingUseCase LookupBookingUseCase
 @inject ICheckInCheckOutUseCase CheckInCheckOutUseCase
+@inject IEmailService EmailService
 @inject NavigationManager NavigationManager
 
 <PageTitle>Tra Cứu Đặt Phòng & Khóa SmartLock IoT — Kim Long EcoStay</PageTitle>
@@ -118,6 +120,32 @@
                                 <strong><i class="bi bi-info-circle me-1 text-warning"></i>Cách mở cửa:</strong>
                                 Chạm bàn phím số của khóa để sáng đèn &rarr; Bấm <code>* @lookupDetail.SmartLockPin #</code> &rarr; Khóa phát âm thanh bíp và mở chốt trong 1 giây.
                             </div>
+
+                            <!-- Nút gửi lại mã PIN qua Email -->
+                            <div class="mt-3 p-3 rounded-3 bg-black bg-opacity-30 border border-white border-opacity-20">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="small">
+                                        <i class="bi bi-envelope-at text-warning me-1"></i>
+                                        <span>Email khách: <strong>@(lookupDetail.Order.CustomerEmail ?? "Chưa cung cấp")</strong></span>
+                                    </div>
+                                    <button class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm" @onclick="SendEmailPin" disabled="@isSendingEmail">
+                                        @if (isSendingEmail)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                            <span>Đang gửi...</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-send-fill me-1"></i>
+                                            <span>Gửi PIN Về Email</span>
+                                        }
+                                    </button>
+                                </div>
+                                @if (!string.IsNullOrEmpty(emailStatusNotice))
+                                {
+                                    <div class="mt-2 small text-warning"><i class="bi bi-info-circle me-1"></i>@emailStatusNotice</div>
+                                }
+                            </div>
                         </div>
 
                         <!-- Cột Phải: Hình ảnh mô phỏng khóa điện tử -->
@@ -166,6 +194,7 @@
                         <div class="p-3 bg-light rounded-3 h-100 border">
                             <h6 class="fw-bold text-success mb-2 font-serif"><i class="bi bi-person-fill me-1"></i>Khách Lưu Trú</h6>
                             <div><strong>Họ tên:</strong> @order.CustomerName</div>
+                            <div><strong>Email:</strong> <span class="text-success font-monospace">@(order.CustomerEmail ?? "Chưa cung cấp")</span></div>
                             <div><strong>SĐT / Địa chỉ:</strong> @order.CustomerAddress</div>
                             <div><strong>Thời gian đặt:</strong> @order.DatePlaced?.ToString("dd/MM/yyyy HH:mm")</div>
                             @if (!string.IsNullOrEmpty(order.CustomerCity))
@@ -293,6 +322,8 @@
     private string guestCccd = string.Empty;
     private string guestHometown = string.Empty;
     private bool isCccdSaved = false;
+    private bool isSendingEmail = false;
+    private string emailStatusNotice = string.Empty;
 
     [SupplyParameterFromQuery(Name = "code")]
     public string? CodeFromUrl { get; set; }
@@ -358,5 +389,29 @@
     private void SaveCccdInfo()
     {
         isCccdSaved = true;
+    }
+
+    private async Task SendEmailPin()
+    {
+        if (lookupDetail?.Order == null) return;
+
+        isSendingEmail = true;
+        emailStatusNotice = "Đang gửi email mã PIN SmartLock...";
+        StateHasChanged();
+
+        try
+        {
+            var res = await EmailService.SendBookingConfirmationEmailAsync(lookupDetail.Order, lookupDetail.SmartLockPin, lookupDetail.RoomName);
+            emailStatusNotice = res.StatusMessage;
+        }
+        catch (Exception ex)
+        {
+            emailStatusNotice = $"Không thể gửi email: {ex.Message}";
+        }
+        finally
+        {
+            isSendingEmail = false;
+            StateHasChanged();
+        }
     }
 }
