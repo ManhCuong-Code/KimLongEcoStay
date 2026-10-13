@@ -1,0 +1,457 @@
+@page "/"
+@page "/products"
+@page "/product"
+@page "/rooms"
+@page "/room"
+
+@rendermode InteractiveServer
+
+@inject ISearchProductUseCase searchProduct
+@inject NavigationManager navigationManager
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services
+
+<PageTitle>Kim Long EcoStay — Nghỉ Dưỡng Nhà Vườn Sinh Thái & Du Lịch Di Sản Cố Đô</PageTitle>
+
+<!-- ==========================================================================
+     1. HERO BANNER SANG TRỌNG & WIDGET TÌM KIẾM ĐẶT PHÒNG
+     ========================================================================== -->
+<div class="hero-wrapper">
+    <div class="container position-relative">
+        <div class="text-center mx-auto" style="max-width: 950px;">
+            <div class="hero-tag">
+                <i class="bi bi-tree-fill"></i>
+                <span>MÔ HÌNH HOMESTAY NHÀ VƯỜN SINH THÁI & DI SẢN THÔNG MINH HUẾ</span>
+            </div>
+            
+            <h1 class="hero-title">
+                Kim Long EcoStay — <span class="text-gold">Nghỉ Dưỡng Nhà Vườn Cố Đô</span>
+            </h1>
+            
+            <p class="hero-desc mx-auto">
+                "Trải nghiệm văn hóa • Gắn kết thiên nhiên" — Hòa mình vào không gian thanh bình ven bờ sông Hương, 
+                thưởng trà sen Cung Đình dưới bóng vườn bưởi Thanh Trà 40 năm tuổi và nhận phòng tự động 
+                với <strong>Khóa thông minh SmartLock IoT 10 giây</strong>.
+            </p>
+        </div>
+
+        <!-- Widget Tìm Kiếm / Đặt Phòng Trực Quan -->
+        <div class="search-widget-card mx-auto" style="max-width: 1050px;">
+            <!-- Tab Chuyển Đổi Hình Thức Thuê (Đặc quyền KimLongEcoStay) -->
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom flex-wrap gap-2">
+                <div class="btn-group rounded-pill p-1 bg-light border" role="group">
+                    <button type="button" class="btn btn-sm rounded-pill fw-bold px-3 @(stayType == "nightly" ? "btn-success shadow-sm" : "btn-light text-muted")"
+                            @onclick='() => stayType = "nightly"'>
+                        <i class="bi bi-moon-stars-fill me-1"></i>🌙 Thuê Theo Đêm (Tiêu chuẩn)
+                    </button>
+                    <button type="button" class="btn btn-sm rounded-pill fw-bold px-3 @(stayType == "hourly" ? "btn-warning text-dark shadow-sm" : "btn-light text-muted")"
+                            @onclick='() => stayType = "hourly"'>
+                        <i class="bi bi-lightning-charge-fill me-1"></i>⚡ Thuê Theo Giờ (Tiết kiệm từ 150k)
+                    </button>
+                </div>
+
+                <a href="/lookup" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                    <i class="bi bi-key-fill text-warning me-1"></i>Tra Cứu Đơn & Lấy Mã PIN Khóa Phòng
+                </a>
+            </div>
+
+            @if (stayType == "nightly")
+            {
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="widget-label"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Khu Vực Nhà Vườn</label>
+                        <select class="widget-input" @bind="selectedGarden">
+                            <option value="">🌿 Tất cả nhà vườn Kim Long</option>
+                            <option value="Hương Sen">Nhà Vườn Hương Sen (View lúa & Sông)</option>
+                            <option value="Nguyệt Biều">Nhà Vườn Nguyệt Biều (Vườn bưởi 40 năm)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <label class="widget-label"><i class="bi bi-calendar-check text-success me-1"></i>Ngày Nhận Phòng (14:00)</label>
+                        <input type="date" class="widget-input" @bind="checkInDate" />
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <label class="widget-label"><i class="bi bi-calendar-x text-warning me-1"></i>Ngày Trả Phòng (12:00)</label>
+                        <input type="date" class="widget-input" @bind="checkOutDate" />
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <button class="btn-search-main" @onclick="HandleSearchFilter">
+                            <i class="bi bi-search"></i>
+                            <span>Tìm Phòng Trống</span>
+                        </button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="widget-label"><i class="bi bi-clock-history text-primary me-1"></i>Gói Thuê Theo Giờ</label>
+                        <select class="widget-input" @bind="selectedHourlyPackage">
+                            <option value="2h">⚡ 2 Giờ nghỉ nhanh — 150.000 VNĐ</option>
+                            <option value="4h">⚡ 4 Giờ thư giãn — 250.000 VNĐ</option>
+                            <option value="lunch">🍲 Ca Trưa (11:00 - 15:00) — 220.000 VNĐ</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <label class="widget-label"><i class="bi bi-calendar-event text-success me-1"></i>Ngày Đến Nghỉ Chân</label>
+                        <input type="date" class="widget-input" @bind="checkInDate" />
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <label class="widget-label"><i class="bi bi-clock text-warning me-1"></i>Khung Giờ Nhận Phòng</label>
+                        <select class="widget-input" @bind="selectedHourSlot">
+                            <option value="09:00">09:00 Sáng</option>
+                            <option value="11:30">11:30 Trưa</option>
+                            <option value="14:00">14:00 Chiều</option>
+                            <option value="16:30">16:30 Chiều</option>
+                            <option value="19:00">19:00 Tối</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <button class="btn-search-main" style="background: linear-gradient(135deg, #D97706 0%, #B45309 100%);" @onclick="HandleSearchFilter">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                            <span>Đặt Phòng Thuê Giờ</span>
+                        </button>
+                    </div>
+                </div>
+            }
+
+            <!-- Dòng Cam Kết Dịch Vụ Nhanh -->
+            <div class="d-flex flex-wrap justify-content-center gap-3 gap-md-4 mt-3 pt-3 border-top text-muted small">
+                <span><i class="bi bi-check-circle-fill text-success me-1"></i><strong>0% Phí sàn OTA</strong> (Tiết kiệm 20%)</span>
+                <span><i class="bi bi-check-circle-fill text-success me-1"></i><strong>Cọc 50% VietQR</strong> tự động</span>
+                <span><i class="bi bi-check-circle-fill text-success me-1"></i><strong>0% Trùng phòng</strong> (Quản lý theo đêm)</span>
+                <span><i class="bi bi-check-circle-fill text-success me-1"></i><strong>Khóa SmartLock 10s</strong> cấp PIN</span>
+                <span><i class="bi bi-check-circle-fill text-success me-1"></i><strong>Hoàn tiền 100%</strong> trước 48h</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- ==========================================================================
+         2. BỐN GIÁ TRỊ CỐT LÕI (CORE VALUE PROPOSITIONS)
+         ========================================================================== -->
+    <div class="usp-grid">
+        <div class="usp-card">
+            <div class="usp-icon-wrap">
+                <i class="bi bi-flower1"></i>
+            </div>
+            <div class="usp-title">Nhà Vườn Di Sản 40+ Năm</div>
+            <div class="usp-desc">
+                Liên kết bảo tồn cùng các gia đình nghệ nhân nhà rường Kim Long. Không gian xanh mát bóng bưởi Thanh Trà, hồ sen ngát hương ven sông Hương.
+            </div>
+        </div>
+
+        <div class="usp-card">
+            <div class="usp-icon-wrap" style="background: rgba(184, 134, 11, 0.15); color: #B8860B;">
+                <i class="bi bi-key-fill"></i>
+            </div>
+            <div class="usp-title">SmartLock IoT 10 Giây</div>
+            <div class="usp-desc">
+                Nhận mã PIN hoặc QR code mở cửa tự động qua Zalo/SMS chỉ sau 10s thanh toán cọc. 0% chạm, không cần chờ đợi lễ tân, linh hoạt giờ check-in.
+            </div>
+        </div>
+
+        <div class="usp-card">
+            <div class="usp-icon-wrap" style="background: rgba(2, 132, 199, 0.15); color: #0284C7;">
+                <i class="bi bi-headphones"></i>
+            </div>
+            <div class="usp-title">GPS Audio Guide 3 Ngôn Ngữ</div>
+            <div class="usp-desc">
+                Miễn phí xe đạp trợ lực điện Eco-Bike và thiết bị thuyết minh GPS tự động bằng tiếng Việt - Anh - Pháp khi dạo quanh chùa Thiên Mụ, làng cổ.
+            </div>
+        </div>
+
+        <div class="usp-card">
+            <div class="usp-icon-wrap" style="background: rgba(22, 101, 52, 0.15); color: #166534;">
+                <i class="bi bi-cup-hot-fill"></i>
+            </div>
+            <div class="usp-title">Ẩm Thực & Thảo Mộc Huế</div>
+            <div class="usp-desc">
+                Đón tiếp với Trà sen Cung Đình và Bánh ướt thịt nướng trứ danh. Trải nghiệm bồn ngâm chân gỗ pơ-mu thảo mộc Huế thư giãn trọn vẹn.
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         3. DANH MỤC 5 BUỒNG PHÒNG NGHỈ DƯỠNG SINH THÁI
+         ========================================================================== -->
+    <div class="section-heading-wrap" id="rooms">
+        <span class="section-tag">KHÔNG GIAN LƯU TRÚ SINH THÁI</span>
+        <h2 class="section-main-title">Bộ Sưu Tập Buồng Phòng Kim Long EcoStay</h2>
+        <p class="section-main-sub">
+            Mỗi căn phòng là một không gian nghỉ ngơi riêng tư, kết hợp nét mộc mạc của nhà rường di sản và tiện nghi hiện đại bậc nhất.
+        </p>
+
+        <!-- Bộ lọc phân loại nhanh -->
+        <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+            <button class="btn btn-sm @(string.IsNullOrEmpty(selectedGarden) ? "btn-success" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => FilterByGarden("")'>
+                Tất Cả (5 Phòng Mẫu)
+            </button>
+            <button class="btn btn-sm @(selectedGarden == "Hương Sen" ? "btn-success" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => FilterByGarden("Hương Sen")'>
+                Nhà Vườn Hương Sen (2 Phòng)
+            </button>
+            <button class="btn btn-sm @(selectedGarden == "Nguyệt Biều" ? "btn-success" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => FilterByGarden("Nguyệt Biều")'>
+                Nhà Vườn Nguyệt Biều (3 Phòng)
+            </button>
+        </div>
+    </div>
+
+    @if (filteredProducts != null && filteredProducts.Any())
+    {
+        <div class="room-grid">
+            @foreach (var prod in filteredProducts)
+            {
+                <ProductCardComponent product="prod"></ProductCardComponent>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-light text-center py-5 border rounded-4 shadow-sm my-4">
+            <i class="bi bi-search fs-1 text-muted mb-2 d-block"></i>
+            <h5 class="text-dark fw-bold">Không tìm thấy buồng phòng phù hợp</h5>
+            <p class="text-muted small">Vui lòng thử tìm kiếm với từ khóa hoặc tiêu chí khác.</p>
+            <button class="btn btn-outline-success btn-sm mt-2" @onclick="ResetSearch">Xem tất cả 5 phòng</button>
+        </div>
+    }
+
+    <!-- ==========================================================================
+         BỘ SƯU TẬP ẢNH: THƯ VIỆN KHÔNG GIAN BUỒNG PHÒNG & NHÀ VƯỜN THỰC TẾ
+         ========================================================================== -->
+    <div class="my-5 pt-3" id="gallery">
+        <div class="section-heading-wrap mb-4">
+            <span class="section-tag"><i class="bi bi-camera-fill me-1"></i>HÌNH ẢNH THỰC TẾ 100%</span>
+            <h2 class="section-main-title">Thư Viện Không Gian Buồng Phòng Sinh Thái Kim Long</h2>
+            <p class="section-main-sub">
+                Chiêm ngưỡng từng góc phòng ngủ hữu cơ, bồn ngâm chân thảo mộc, ban công ngắm hoàng hôn sông Hương và vườn bưởi Thanh Trà di sản.
+            </p>
+
+            <!-- Bộ lọc phân loại danh mục ảnh -->
+            <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                @foreach (var cat in galleryCategories)
+                {
+                    var c = cat;
+                    <button class="btn btn-sm @(selectedPhotoCategory == c ? "btn-success" : "btn-outline-secondary") rounded-pill px-3 fw-bold" 
+                            @onclick="() => FilterPhotos(c)">
+                        @c
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- Lưới ảnh triển lãm (Showcase Grid) -->
+        <div class="kle-showcase-grid">
+            @foreach (var photo in displayGalleryPhotos)
+            {
+                var p = photo;
+                <div class="kle-showcase-item">
+                    <img src="@p.Url" alt="@p.Caption" onerror="this.src='/images/room_econest.jpg'" loading="lazy" />
+                    <div class="kle-showcase-overlay">
+                        <span class="kle-showcase-tag">@p.Tag</span>
+                        <h6 class="kle-showcase-title">@p.Caption</h6>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <span class="kle-showcase-roomname"><i class="bi bi-door-open me-1"></i>@p.RoomName</span>
+                            <a href=@($"/room/{p.RoomId}") class="btn btn-sm btn-outline-light rounded-pill px-2 py-1" style="font-size: 11px;">
+                                Xem phòng <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         4. TRẢI NGHIỆM TOUR DI SẢN THÔNG MINH (SMART HERITAGE TOUR)
+         ========================================================================== -->
+    <div class="experience-story-card" id="smart-tour">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <span class="story-pill-badge">
+                    <i class="bi bi-bicycle me-1"></i>HỆ THỐNG DU LỊCH DI SẢN THÔNG MINH
+                </span>
+                <h3 class="font-serif fw-bold text-dark mb-3" style="font-size: 28px; line-height: 1.3;">
+                    Khám Phá Cố Đô Cùng Xe Đạp Trợ Lực Điện & <span style="color: var(--kle-primary);">GPS Audio Guide</span>
+                </h3>
+                <p class="text-muted" style="line-height: 1.8;">
+                    Khác biệt hoàn toàn với tour du lịch truyền thống, khách lưu trú tại <strong>Kim Long EcoStay</strong> được trang bị đội xe đạp trợ lực điện Eco-Bike tích hợp thiết bị định vị GPS Audio Guide thông minh:
+                </p>
+
+                <div class="d-flex flex-column gap-3 mb-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="badge bg-success bg-opacity-25 text-success rounded-circle p-2 mt-1">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <div>
+                            <strong>Tự động thuyết minh 3 ngôn ngữ:</strong> Khi xe lăn bánh đến chùa Thiên Mụ, đình Kim Long hay phủ An Hiên, thiết bị sẽ tự động phát bài thuyết minh lịch sử chuẩn xác.
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="badge bg-warning bg-opacity-25 text-warning rounded-circle p-2 mt-1">
+                            <i class="bi bi-battery-charging text-dark"></i>
+                        </div>
+                        <div>
+                            <strong>Trợ lực điện êm ái 40km:</strong> Vận hành bằng năng lượng pin sạc xanh, dễ dàng dạo mát dọc đường Kim Long rợp bóng cây cổ thụ mà không tốn sức.
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="badge bg-info bg-opacity-25 text-info rounded-circle p-2 mt-1">
+                            <i class="bi bi-basket-fill"></i>
+                        </div>
+                        <div>
+                            <strong>Hái bưởi Thanh Trà & Bánh ướt Kim Long:</strong> Dừng chân tại các nhà vườn liên kết để tự tay hái quả và thưởng thức đặc sản thịt nướng bọc bánh ướt gia truyền.
+                        </div>
+                    </div>
+                </div>
+
+                <a href="#rooms" class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm">
+                    <i class="bi bi-calendar-check me-2"></i>Đặt Phòng Để Trải Nghiệm Ngay
+                </a>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <img src="/images/smart_tour.jpg" alt="Smart Heritage Tour Kim Long" class="img-fluid rounded-4 shadow-lg w-100" style="max-height: 480px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80'" />
+                    <div class="position-absolute bottom-0 start-0 m-3 p-3 bg-dark bg-opacity-75 text-white rounded-3 backdrop-blur small" style="max-width: 380px;">
+                        <i class="bi bi-info-circle-fill text-warning me-1"></i>
+                        <strong>Concept Du Lịch Thông Minh:</strong> Sản phẩm thuộc Đề án Khởi Nghiệp ĐMST 2026 — ĐH Kinh Tế Huế.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         5. CÂU CHUYỆN NHÀ VƯỜN KIM LONG (HERITAGE STORY)
+         ========================================================================== -->
+    <div class="experience-story-card bg-light" id="story">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6 order-lg-2">
+                <span class="story-pill-badge" style="background: #DCFCE7; color: #166534;">
+                    <i class="bi bi-bank me-1"></i>ĐỆ NHẤT NHÀ VƯỜN XỨ HUẾ
+                </span>
+                <h3 class="font-serif fw-bold text-dark mb-3" style="font-size: 28px; line-height: 1.3;">
+                    "Kim Long Có Gái Mỹ Miều..." — Đất Cố Đô Vang Bóng Một Thời
+                </h3>
+                <p class="text-secondary" style="line-height: 1.8;">
+                    Từng là thủ phủ của các chúa Nguyễn thế kỷ XVII, Kim Long sở hữu hệ thống nhà rường cổ kính với vườn tược xanh tốt quanh năm. 
+                    Mỗi nếp nhà vườn tại Kim Long là một bảo tàng sống về nghệ thuật kiến trúc phong thủy và nếp sống tao nhã của người Huế xưa.
+                </p>
+                <p class="text-secondary" style="line-height: 1.8;">
+                    <strong>Kim Long EcoStay</strong> ra đời với sứ mệnh kết nối giá trị di sản đó với du khách hiện đại thông qua công nghệ số: giúp các gia đình nhà vườn giữ trọn 100% doanh thu, tự động hóa quy trình đón tiếp và mang đến cho du khách một kỳ nghỉ an yên, chuẩn mực.
+                </p>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-6">
+                        <div class="p-3 bg-white rounded-3 border">
+                            <h4 class="fw-bold text-success mb-1">40+ Năm</h4>
+                            <small class="text-muted">Tuổi đời vườn bưởi Thanh Trà di sản</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-white rounded-3 border">
+                            <h4 class="fw-bold text-warning mb-1">100%</h4>
+                            <small class="text-muted">Sản phẩm hữu cơ thảo mộc Huế</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 order-lg-1">
+                <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="Nhà vườn Kim Long" class="img-fluid rounded-4 shadow w-100" style="max-height: 420px; object-fit: cover;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<Product>? allProducts;
+    private IEnumerable<Product>? filteredProducts;
+
+    private string selectedGarden = string.Empty;
+    private DateTime checkInDate = DateTime.Today.AddDays(1);
+    private DateTime checkOutDate = DateTime.Today.AddDays(3);
+    private string stayType = "nightly";
+    private string selectedHourlyPackage = "2h";
+    private string selectedHourSlot = "14:00";
+
+    private List<RoomPhoto> allGalleryPhotos = new();
+    private List<RoomPhoto> displayGalleryPhotos = new();
+    private List<string> galleryCategories = new();
+    private string selectedPhotoCategory = "Tất Cả";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        LoadProducts();
+        LoadGallery();
+    }
+
+    private void LoadGallery()
+    {
+        allGalleryPhotos = RoomGalleryProvider.GetAllGalleryPhotos();
+        displayGalleryPhotos = allGalleryPhotos;
+        galleryCategories = RoomGalleryProvider.GetAllCategories();
+    }
+
+    private void FilterPhotos(string category)
+    {
+        selectedPhotoCategory = category;
+        if (category == "Tất Cả")
+        {
+            displayGalleryPhotos = allGalleryPhotos;
+        }
+        else
+        {
+            displayGalleryPhotos = allGalleryPhotos.Where(p => p.Category.Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private void LoadProducts()
+    {
+        allProducts = searchProduct.Execute();
+        filteredProducts = allProducts;
+    }
+
+    private void FilterByGarden(string gardenKeyword)
+    {
+        selectedGarden = gardenKeyword;
+        ApplyFilters();
+    }
+
+    private void HandleSearchFilter()
+    {
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        if (allProducts == null) return;
+
+        var result = allProducts.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(selectedGarden))
+        {
+            result = result.Where(p => p.Brand.Contains(selectedGarden, StringComparison.OrdinalIgnoreCase) 
+                                    || p.Name.Contains(selectedGarden, StringComparison.OrdinalIgnoreCase));
+        }
+
+        filteredProducts = result.ToList();
+    }
+
+    private void ResetSearch()
+    {
+        selectedGarden = string.Empty;
+        filteredProducts = allProducts;
+    }
+}

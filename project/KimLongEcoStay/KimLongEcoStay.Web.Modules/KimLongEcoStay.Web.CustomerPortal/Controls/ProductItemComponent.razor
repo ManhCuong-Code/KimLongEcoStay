@@ -1,0 +1,17 @@
+@using Microsoft.AspNetCore.Components.Routing
+@if (this.Product != null)
+{
+    <tr>
+        <td class="ps-3 text-muted fw-bold">#@this.Product.productId</td>
+        <td>
+            <NavLink href="@($"/products/{this.Product.productId}")" class="fw-semibold text-decoration-none text-primary">
+                @this.Product.Name
+            </NavLink>
+        </td>
+        <td class="fw-bold text-success">@this.Product.Price.ToString("N0") VNĐ <small class="text-muted fw-normal">/ đêm</small></td>
+    </tr>
+}
+@code {
+    [Parameter]
+    public Product? Product { get; set; }
+}

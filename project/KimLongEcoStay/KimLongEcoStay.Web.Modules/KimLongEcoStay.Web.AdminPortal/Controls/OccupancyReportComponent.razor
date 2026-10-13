@@ -1,0 +1,128 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.UseCases.AdminPortal.OccupancyReportScreen
+@inject IOccupancyReportUseCase OccupancyReportUseCase
+
+<div class="card shadow-sm border-0 my-3">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-graph-up-arrow me-2 text-warning"></i>Báo Cáo Công Suất Buồng Phòng & Doanh Thu Homestay
+            </h5>
+            <small class="text-white-50">Thực thi Use Case UC16 (Barem Chấm Thi): Thống kê tỷ lệ lấp đầy, số đêm lưu trú và dòng tiền cọc 50%</small>
+        </div>
+        <button class="btn btn-sm btn-outline-light rounded-pill" @onclick="LoadReport">
+            <i class="bi bi-arrow-clockwise me-1"></i>Cập nhật số liệu
+        </button>
+    </div>
+
+    <div class="card-body p-4">
+        @if (report != null)
+        {
+            <!-- 4 THẺ CHỈ SỐ DOANH THU & VẬN HÀNH CHÍNH -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-3 col-sm-6">
+                    <div class="p-3 rounded-4 bg-success bg-opacity-10 border border-success border-opacity-25 h-100">
+                        <div class="text-muted small text-uppercase fw-bold">Tổng Doanh Thu</div>
+                        <div class="fs-3 fw-bold text-success my-1">@report.TotalRevenue.ToString("N0") đ</div>
+                        <div class="small text-muted"><i class="bi bi-check-circle me-1 text-success"></i>Bảo toàn 100% doanh thu (0% OTA)</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-sm-6">
+                    <div class="p-3 rounded-4 bg-warning bg-opacity-10 border border-warning border-opacity-25 h-100">
+                        <div class="text-muted small text-uppercase fw-bold">Tiền Cọc 50% Đã Thu</div>
+                        <div class="fs-3 fw-bold text-danger my-1">@report.TotalDepositCollected.ToString("N0") đ</div>
+                        <div class="small text-muted"><i class="bi bi-qr-code me-1 text-warning"></i>Thanh toán trực tiếp qua VietQR</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-sm-6">
+                    <div class="p-3 rounded-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 h-100">
+                        <div class="text-muted small text-uppercase fw-bold">Tổng Số Đêm Đã Bán</div>
+                        <div class="fs-3 fw-bold text-primary my-1">@report.TotalNightsBooked đêm</div>
+                        <div class="small text-muted"><i class="bi bi-moon-stars me-1 text-primary"></i>Quản lý theo từng đêm (0% trùng)</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-sm-6">
+                    <div class="p-3 rounded-4 bg-info bg-opacity-10 border border-info border-opacity-25 h-100">
+                        <div class="text-muted small text-uppercase fw-bold">Tỷ Lệ Lấp Đầy (Occupancy)</div>
+                        <div class="fs-3 fw-bold text-dark my-1">@report.AverageOccupancyRate%</div>
+                        <div class="small text-muted"><i class="bi bi-star-fill text-warning me-1"></i>Hiệu suất vận hành 5 buồng phòng</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BẢNG CHI TIẾT TỪNG BUỒNG PHÒNG VÀ THANH BIỂU ĐỒ -->
+            <div class="card border rounded-4 shadow-sm overflow-hidden mb-3">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold text-dark font-serif">
+                        <i class="bi bi-bar-chart-fill text-success me-2"></i>Hiệu Suất Vận Hành & Doanh Thu Từng Buồng Phòng
+                    </h6>
+                    <span class="badge bg-secondary">Chu kỳ: Tháng 10/2026</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Buồng Phòng</th>
+                                <th>Nhà Vườn Liên Kết</th>
+                                <th class="text-center">Số Đêm Lưu Trú</th>
+                                <th class="text-end">Doanh Thu Đạt Được</th>
+                                <th style="width: 30%;">Tỷ Lệ Lấp Đầy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var stat in report.RoomStats)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">@stat.RoomName</td>
+                                    <td class="text-muted small"><i class="bi bi-flower1 text-success me-1"></i>@stat.GardenArea</td>
+                                    <td class="text-center fw-bold">@stat.NightsBooked đêm</td>
+                                    <td class="text-end fw-bold text-success">@stat.Revenue.ToString("N0") đ</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height: 10px;">
+                                                <div class="progress-bar @GetProgressBarClass(stat.OccupancyRate)" 
+                                                     role="progressbar" 
+                                                     style="width: @Math.Min(100, stat.OccupancyRate)%;" 
+                                                     aria-valuenow="@stat.OccupancyRate" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                            <span class="small fw-bold font-monospace" style="min-width: 45px;">@stat.OccupancyRate%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private OccupancyReportModel? report;
+
+    protected override void OnInitialized()
+    {
+        LoadReport();
+    }
+
+    private void LoadReport()
+    {
+        report = OccupancyReportUseCase.Execute();
+    }
+
+    private string GetProgressBarClass(double rate) => rate switch
+    {
+        >= 75.0 => "bg-success",
+        >= 50.0 => "bg-primary",
+        >= 30.0 => "bg-warning",
+        _ => "bg-danger"
+    };
+}

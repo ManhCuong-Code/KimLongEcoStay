@@ -1,0 +1,101 @@
+@page "/admin"
+@attribute [Authorize(Roles = "Admin,Administrator,Staff")]
+@rendermode InteractiveServer
+
+<PageTitle>Quản Trị Hệ Thống - Kim Long EcoStay Admin Portal</PageTitle>
+
+<div class="container-fluid py-4">
+    <!-- Header Admin Portal -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-dark mb-1 font-serif">
+                <i class="bi bi-shield-lock-fill me-2 text-warning"></i>Phân Hệ Quản Trị & Vận Hành Homestay (Host Portal)
+            </h2>
+            <p class="text-muted mb-0 small">
+                <AuthorizeView>
+                    <Authorized>
+                        <span class="badge bg-primary me-2"><i class="bi bi-person-badge me-1"></i>Nhân viên đang đăng nhập: <strong>@context.User.Identity?.Name</strong></span>
+                        <span class="badge bg-success me-2"><i class="bi bi-shield-check me-1"></i>Quyền hạn: Host / Lễ Tân / Admin</span>
+                        <span class="badge bg-dark"><i class="bi bi-cpu me-1"></i>IoT Gateway: 5 Khóa Kết Nối</span>
+                    </Authorized>
+                </AuthorizeView>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/lookup" class="btn btn-outline-warning text-dark"><i class="bi bi-key-fill me-1"></i>Cổng Tra Cứu Khách</a>
+            <a href="products" class="btn btn-outline-secondary"><i class="bi bi-shop me-1"></i>Xem Buồng Phòng</a>
+            <a href="/" class="btn btn-outline-success"><i class="bi bi-house me-1"></i>Trang Khách Đặt Phòng</a>
+            <a href="/logout" class="btn btn-danger"><i class="bi bi-box-arrow-right me-1"></i>Đăng Xuất</a>
+        </div>
+    </div>
+
+    <!-- 6 Tabs Điều Hướng Toàn Diện Chuẩn Barem & Đề Án Kim Long EcoStay -->
+    <ul class="nav nav-tabs nav-fill mb-3">
+        <li class="nav-item">
+            <button class="nav-link fw-bold py-3 @(selectedTab == "outstanding" ? "active text-warning border-warning border-bottom-0" : "text-muted")" 
+                    @onclick='() => selectedTab = "outstanding"'>
+                <i class="bi bi-clock-history me-1"></i>1. Đơn Chờ Cọc & Cấp PIN
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold py-3 @(selectedTab == "operations" ? "active text-primary border-primary border-bottom-0" : "text-muted")" 
+                    @onclick='() => selectedTab = "operations"'>
+                <i class="bi bi-calendar-check-fill me-1"></i>2. Check-in (14h) & Check-out (12h)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold py-3 @(selectedTab == "smartlock" ? "active text-success border-success border-bottom-0" : "text-muted")" 
+                    @onclick='() => selectedTab = "smartlock"'>
+                <i class="bi bi-cpu-fill me-1"></i>3. Khóa SmartLock IoT Hub
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold py-3 @(selectedTab == "smartpaste" ? "active text-info border-info border-bottom-0" : "text-muted")" 
+                    @onclick='() => selectedTab = "smartpaste"'>
+                <i class="bi bi-robot me-1"></i>4. AI SmartPaste Zalo (Mục 10)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold py-3 @(selectedTab == "rooms" ? "active text-dark border-dark border-bottom-0" : "text-muted")" 
+                    @onclick='() => selectedTab = "rooms"'>
+                <i class="bi bi-door-open-fill me-1"></i>5. Tình Trạng Buồng Phòng
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold py-3 @(selectedTab == "reports" ? "active text-danger border-danger border-bottom-0" : "text-muted")" 
+                    @onclick='() => selectedTab = "reports"'>
+                <i class="bi bi-graph-up-arrow me-1"></i>6. Báo Cáo Công Suất (UC16)
+            </button>
+        </li>
+    </ul>
+
+    <!-- Nội dung Tab được chọn -->
+    @if (selectedTab == "outstanding")
+    {
+        <KimLongEcoStay.Web.AdminPortal.Controls.OutstandingOrdersComponent />
+    }
+    else if (selectedTab == "operations")
+    {
+        <KimLongEcoStay.Web.AdminPortal.Controls.ActiveBookingsComponent />
+    }
+    else if (selectedTab == "smartlock")
+    {
+        <KimLongEcoStay.Web.AdminPortal.Controls.SmartLockHubComponent />
+    }
+    else if (selectedTab == "smartpaste")
+    {
+        <KimLongEcoStay.Web.AdminPortal.Controls.SmartPasteModalComponent OnOrderCreated='() => selectedTab = "outstanding"' />
+    }
+    else if (selectedTab == "rooms")
+    {
+        <KimLongEcoStay.Web.AdminPortal.Controls.RoomInspectionComponent />
+    }
+    else if (selectedTab == "reports")
+    {
+        <KimLongEcoStay.Web.AdminPortal.Controls.OccupancyReportComponent />
+    }
+</div>
+
+@code {
+    private string selectedTab = "outstanding";
+}

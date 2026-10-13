@@ -1,0 +1,160 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.UseCases.SmartLockScreen
+@inject ISmartLockUseCase SmartLockUseCase
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="card shadow-sm border-0 my-3">
+    <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #073B2B 0%, #15805B 100%);">
+        <div>
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-cpu-fill me-2 text-warning"></i>Trung Tâm Điều Khiển Khóa Thông Minh SmartLock IoT Cloud 10s
+            </h5>
+            <small class="text-white-50">Tự động cấp mã mở cửa sau khi cọc VietQR • Quản lý pin, trạng thái chốt và mở khóa từ xa 24/7</small>
+        </div>
+        <span class="badge bg-light text-dark fw-bold px-3 py-2">
+            <i class="bi bi-shield-lock-fill text-success me-1"></i>5 Khóa Trực Tuyến (Zigbee IoT)
+        </span>
+    </div>
+
+    <div class="card-body p-4">
+        @if (message != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-3" role="alert">
+                <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                <div>@message</div>
+                <button type="button" class="btn-close" @onclick='() => message = null'></button>
+            </div>
+        }
+
+        <!-- DANH SÁCH 5 KHÓA PHÒNG SINH THÁI -->
+        <div class="row g-3 mb-4">
+            @foreach (var dev in devices)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border shadow-sm rounded-4 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                            <span class="fw-bold text-dark font-serif">
+                                <i class="bi bi-door-closed text-success me-1"></i>@dev.RoomNumber
+                            </span>
+                            <span class="badge @(dev.Status == "Locked" ? "bg-dark" : "bg-warning text-dark")">
+                                <i class="bi @(dev.Status == "Locked" ? "bi-lock-fill" : "bi-unlock-fill") me-1"></i>@(dev.Status == "Locked" ? "Đang Khóa" : "Đã Mở Chốt")
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            <h6 class="fw-bold text-success mb-1">@dev.RoomName</h6>
+                            <div class="text-muted small mb-3">Thiết bị ID: <code>@dev.DeviceId</code></div>
+
+                            <!-- Khung mã PIN hiện hành -->
+                            <div class="p-3 rounded-3 bg-light border text-center mb-3">
+                                <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 11px;">Mã PIN Đang Cấp Cho Khách:</small>
+                                <span class="fs-2 fw-bold font-monospace text-danger letter-spacing-2" style="letter-spacing: 4px;">
+                                    @dev.CurrentPin
+                                </span>
+                                <div class="small text-muted mt-1" style="font-size: 11.5px;">
+                                    <i class="bi bi-person-fill text-primary me-1"></i>@dev.AssignedGuestName (@dev.AssignedGuestPhone)
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                                <span><i class="bi bi-battery-charging text-success me-1"></i>Mức pin: <strong>@dev.BatteryLevel%</strong></span>
+                                <span><i class="bi bi-wifi text-primary me-1"></i>Sóng Zigbee: <strong>Mạnh</strong></span>
+                            </div>
+
+                            <div class="small text-muted mb-3" style="font-size: 11px;">
+                                <i class="bi bi-clock-history me-1"></i>Hiệu lực: @dev.ValidFrom?.ToString("dd/MM 14:00") &rarr; @dev.ValidUntil?.ToString("dd/MM 12:00")
+                            </div>
+
+                            <!-- Nút thao tác từ xa -->
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-warning text-dark flex-grow-1 rounded-pill fw-semibold" 
+                                        @onclick="() => HandleRegeneratePin(dev.RoomNumber)">
+                                    <i class="bi bi-arrow-repeat me-1"></i>Đổi PIN
+                                </button>
+                                <button class="btn btn-sm btn-outline-success flex-grow-1 rounded-pill fw-semibold" 
+                                        @onclick="() => HandleRemoteUnlock(dev.RoomNumber)">
+                                    <i class="bi bi-unlock-fill me-1"></i>Mở Từ Xa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- NHẬT KÝ MỞ CỬA (SMARTLOCK AUDIT LOG) -->
+        <div class="card border rounded-4 shadow-sm overflow-hidden">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-dark font-serif">
+                    <i class="bi bi-journal-text text-primary me-2"></i>Nhật Ký Truy Cập Khóa Phòng (SmartLock Audit Trail)
+                </h6>
+                <small class="text-muted">Cập nhật thời gian thực qua Gateway IoT</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Thời Gian</th>
+                                <th>Buồng Phòng</th>
+                                <th>Loại Thao Tác</th>
+                                <th>Tác Nhân Thực Hiện</th>
+                                <th>Chi Tiết Kỹ Thuật</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in auditLogs)
+                            {
+                                <tr>
+                                    <td class="text-muted">@log.Timestamp.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                    <td><span class="badge bg-secondary">@log.RoomNumber</span></td>
+                                    <td class="fw-semibold text-dark">@log.ActionType</td>
+                                    <td><i class="bi bi-person-badge text-success me-1"></i>@log.Actor</td>
+                                    <td class="text-muted">@log.Details</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<SmartLockDevice> devices = new();
+    private List<SmartLockAuditLog> auditLogs = new();
+    private string? message;
+
+    protected override void OnInitialized()
+    {
+        LoadData();
+    }
+
+    private void LoadData()
+    {
+        devices = SmartLockUseCase.GetAllDevices();
+        auditLogs = SmartLockUseCase.GetAuditLogs();
+    }
+
+    private void HandleRegeneratePin(string roomNumber)
+    {
+        if (SmartLockUseCase.RegeneratePin(roomNumber, out string newPin))
+        {
+            message = $"Đã tạo lại mã PIN khẩn cấp mới: {newPin} cho phòng {roomNumber}. Khóa IoT đã đồng bộ mã mới.";
+            LoadData();
+        }
+    }
+
+    private async Task HandleRemoteUnlock(string roomNumber)
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        string user = authState.User.Identity?.Name ?? "letan";
+
+        if (SmartLockUseCase.RemoteUnlock(roomNumber, user))
+        {
+            message = $"Lệnh mở khóa từ xa đã gửi tới phòng {roomNumber}. Chốt khóa đã mở thành công trong 1 giây.";
+            LoadData();
+        }
+    }
+}

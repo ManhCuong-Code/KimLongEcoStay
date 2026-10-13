@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KimLongEcoStay.CoreBusiness\KimLongEcoStay.CoreBusiness.csproj" />
+    <ProjectReference Include="..\KimLongEcoStay.UseCases\KimLongEcoStay.UseCases.csproj" />
+    <ProjectReference Include="..\KimLongEcoStay.Web.Modules\KimLongEcoStay.Web.CustomerPortal\KimLongEcoStay.Web.CustomerPortal.csproj" />
+    <ProjectReference Include="..\KimLongEcoStay.Web.Modules\KimLongEcoStay.Web.AdminPortal\KimLongEcoStay.Web.AdminPortal.csproj" />
+    <ProjectReference Include="..\Plugins\KimLongEcoStay.DataStore.HandCoded\KimLongEcoStay.DataStore.HandCoded.csproj" />
+    <ProjectReference Include="..\Plugins\KimLongEcoStay.DataStore.SQL.Dapper\KimLongEcoStay.DataStore.SQL.Dapper.csproj" />
+    <ProjectReference Include="..\Plugins\KimLongEcoStay.ShoppingCart.LocalStorage\KimLongEcoStay.ShoppingCart.LocalStorage.csproj" />
+    <ProjectReference Include="..\Plugins\KimLongEcoStay.StateStore.DI\KimLongEcoStay.StateStore.DI.csproj" />
+  </ItemGroup>
+
+</Project>

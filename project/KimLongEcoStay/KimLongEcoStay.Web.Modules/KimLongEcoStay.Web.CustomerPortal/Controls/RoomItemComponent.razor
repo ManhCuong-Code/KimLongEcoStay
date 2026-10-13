@@ -1,0 +1,27 @@
+@using KimLongEcoStay.CoreBusiness.Models
+
+@if (product != null)
+{
+    <div class="card mb-3 shadow-sm border-0">
+        <div class="row g-0 align-items-center">
+            <div class="col-md-3">
+                <img src="@product.ImageLink" class="img-fluid rounded-start" alt="@product.Name" style="height: 140px; width: 100%; object-fit: cover;" />
+            </div>
+            <div class="col-md-6">
+                <div class="card-body py-2">
+                    <h5 class="card-title fw-bold mb-1">@product.Name</h5>
+                    <p class="card-text text-muted small mb-1">@product.Description</p>
+                    <span class="badge bg-success">Đơn giá: @product.Price.ToString("N0") đ/đêm</span>
+                </div>
+            </div>
+            <div class="col-md-3 text-end pe-3">
+                <a href="/room/@product.ProductId" class="btn btn-success">Chọn Phòng</a>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Product? product { get; set; }
+}

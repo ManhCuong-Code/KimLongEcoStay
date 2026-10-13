@@ -1,0 +1,270 @@
+@page "/orderconfirm/{UniqueId}"
+@rendermode InteractiveServer
+
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.UseCases.OrderConfirmationScreen
+@inject IOrderConfirmationUseCase orderConfirmationUseCase
+
+<PageTitle>Phiếu Xác Nhận Đặt Phòng — Kim Long EcoStay</PageTitle>
+
+<div class="container py-4 my-2">
+    @if (order != null)
+    {
+        var depositAmount = (long)(order.TotalPrice * 0.5);
+        var qrCodeUrl = $"https://img.vietqr.io/image/970436-1028394856-compact2.png?amount={depositAmount}&addInfo=KLE%20{order.UniqueId}&accountName=KIM%20LONG%20ECOSTAY%20JSC";
+
+        <div class="kle-voucher-container">
+            <!-- Header Phiếu Xác Nhận Xanh Lục Bảo Sang Trọng -->
+            <div class="kle-voucher-banner">
+                <div class="kle-voucher-seal">
+                    <i class="bi bi-patch-check-fill"></i>
+                    <span>XÁC NHẬN GIỮ PHÒNG NGHỈ DƯỠNG THÀNH CÔNG</span>
+                </div>
+
+                <h2 class="font-serif fw-bold text-white mb-2">Kim Long EcoStay — Nhà Vườn Sinh Thái</h2>
+                <p class="text-white-50 mb-0 small">
+                    Kính chúc quý khách có một kỳ nghỉ an yên, hòa mình cùng di sản thiên nhiên Cố đô Huế
+                </p>
+            </div>
+
+            <div class="p-4 p-md-5 bg-white">
+                <!-- Mã Đặt Phòng & Trạng Thái -->
+                <div class="row g-3 align-items-center mb-4 p-3 rounded-4 border bg-light">
+                    <div class="col-md-7">
+                        <span class="text-muted small text-uppercase fw-bold d-block">Mã Đặt Buồng Phòng (Booking Code)</span>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="fs-3 fw-bold text-success font-monospace">@order.UniqueId</span>
+                            <span class="badge bg-warning text-dark fw-bold px-2 py-1">
+                                <i class="bi bi-hourglass-split me-1"></i>Chờ Chuyển Cọc 50%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-5 text-md-end text-muted small">
+                        <div><strong>Thời gian đặt:</strong> @order.DatePlaced?.ToString("dd/MM/yyyy HH:mm:ss")</div>
+                        <div><strong>Hệ thống quản lý:</strong> SmartLock IoT Cloud 10s</div>
+                    </div>
+                </div>
+
+                <!-- 2 Cột: Thông Tin Khách & Thông Tin Lưu Trú -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <h6 class="fw-bold text-success mb-3 font-serif">
+                                <i class="bi bi-person-badge-fill me-2"></i>Thông Tin Khách Lưu Trú
+                            </h6>
+                            <div class="mb-2"><strong>Họ & Tên:</strong> @order.CustomerName</div>
+                            <div class="mb-2"><strong>SĐT / Địa Chỉ:</strong> @order.CustomerAddress</div>
+                            @if (!string.IsNullOrEmpty(order.CustomerCity))
+                            {
+                                <div class="mb-2"><strong>CCCD / Tạm trú:</strong> @order.CustomerCity</div>
+                            }
+                            @if (!string.IsNullOrEmpty(order.CustomerStateProvince))
+                            {
+                                <div class="mb-2"><strong>Dự kiến nhận phòng:</strong> @order.CustomerStateProvince</div>
+                            }
+                            @if (!string.IsNullOrEmpty(order.CustomerCountry))
+                            {
+                                <div class="mb-0"><strong>Yêu cầu đặc biệt:</strong> @order.CustomerCountry</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <h6 class="fw-bold text-success mb-3 font-serif">
+                                <i class="bi bi-geo-alt-fill me-2 text-danger"></i>Địa Điểm & Lễ Tân
+                            </h6>
+                            <div class="mb-2"><strong>Địa chỉ:</strong> Làng Cổ Kim Long, Phường Kim Long, TP. Huế</div>
+                            <div class="mb-2"><strong>Chỉ đường:</strong> Cách Chùa Thiên Mụ 1.2km ven bờ Sông Hương</div>
+                            <div class="mb-2"><strong>Hotline hỗ trợ:</strong> <a href="tel:0905123456" class="text-success fw-bold text-decoration-none">0905.123.456</a> (24/7)</div>
+                            <div class="mb-0"><strong>Quy định giờ:</strong> Check-in: 14:00 | Check-out: 12:00 hôm sau</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh Sách Buồng Phòng Đã Đặt -->
+                <h6 class="fw-bold text-dark mb-3 font-serif">
+                    <i class="bi bi-door-open-fill me-2 text-gold"></i>Chi Tiết Buồng Phòng Sinh Thái
+                </h6>
+                <div class="table-responsive mb-4 border rounded-3 overflow-hidden shadow-sm">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Buồng Phòng</th>
+                                <th>Nhà Vườn</th>
+                                <th class="text-center">Số Đêm</th>
+                                <th class="text-end">Đơn Giá / Đêm</th>
+                                <th class="text-end pe-3">Thành Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (order.LineItems != null)
+                            {
+                                @foreach (var item in order.LineItems)
+                                {
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-dark">
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if (!string.IsNullOrEmpty(item.Product?.ImageLink))
+                                                {
+                                                    <img src="@item.Product.ImageLink" alt="@item.Product?.Name" style="width: 48px; height: 36px; object-fit: cover; border-radius: 6px;" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=100&q=80'" />
+                                                }
+                                                <span>@(item.Product?.Name ?? $"Buồng phòng #{item.ProductId}")</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-muted small">
+                                            <i class="bi bi-flower1 me-1 text-success"></i>@(item.Product?.Brand ?? "Kim Long EcoStay")
+                                        </td>
+                                        <td class="text-center fw-semibold">@item.Quantity đêm</td>
+                                        <td class="text-end text-muted">@item.Price.ToString("N0") đ</td>
+                                        <td class="text-end pe-3 fw-bold text-dark">@((item.Price * item.Quantity).ToString("N0")) đ</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="4" class="text-end fw-bold">Tổng Kinh Phí Lưu Trú:</td>
+                                <td class="text-end pe-3 fw-bold text-dark fs-6">@order.TotalPrice.ToString("N0") VNĐ</td>
+                            </tr>
+                            <tr class="table-warning border-top border-warning">
+                                <td colspan="4" class="text-end fw-bold text-danger fs-6">
+                                    <i class="bi bi-qr-code me-1"></i>Số Tiền Cọc 50% Cần Chuyển Khoản Ngay (VietQR):
+                                </td>
+                                <td class="text-end pe-3 fw-bold text-danger fs-5">
+                                    @depositAmount.ToString("N0") VNĐ
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end text-muted small">50% còn lại thanh toán khi làm thủ tục nhận phòng:</td>
+                                <td class="text-end pe-3 text-muted small">@depositAmount.ToString("N0") VNĐ</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- KHU VỰC QUÉT MÃ VIETQR CHUYỂN KHOẢN ĐẶT CỌC -->
+                <div class="kle-vietqr-card mb-4">
+                    <div class="row align-items-center g-4">
+                        <div class="col-lg-5 text-center">
+                            <div class="kle-qr-preview-box shadow-sm">
+                                <img src="@qrCodeUrl" alt="Mã VietQR Đặt Cọc Kim Long EcoStay" class="kle-qr-img" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=KLE-BK-DEPOSIT'" />
+                                <div class="mt-2 text-muted small">
+                                    <i class="bi bi-camera-fill me-1"></i>Mở App Ngân hàng bất kỳ để quét
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-danger fs-6 px-3 py-1">THANH TOÁN CỌC VIETQR</span>
+                                <span class="text-muted small">Tự động nhận diện trong 30 giây</span>
+                            </div>
+
+                            <h5 class="fw-bold text-dark font-serif mb-3">Thông Tin Chuyển Khoản Ngân Hàng</h5>
+
+                            <div class="kle-bank-detail-item">
+                                <span class="text-muted">Ngân hàng thụ hưởng:</span>
+                                <span class="fw-bold text-dark">Vietcombank (Ngân hàng Ngoại Thương VN)</span>
+                            </div>
+
+                            <div class="kle-bank-detail-item">
+                                <span class="text-muted">Số tài khoản:</span>
+                                <span class="fw-bold text-success fs-5 font-monospace">1028 394 856</span>
+                            </div>
+
+                            <div class="kle-bank-detail-item">
+                                <span class="text-muted">Chủ tài khoản:</span>
+                                <span class="fw-bold text-dark">CTCP DU LICH KIM LONG ECOSTAY</span>
+                            </div>
+
+                            <div class="kle-bank-detail-item">
+                                <span class="text-muted">Số tiền cọc 50%:</span>
+                                <span class="fw-bold text-danger fs-5">@depositAmount.ToString("N0") VNĐ</span>
+                            </div>
+
+                            <div class="kle-bank-detail-item">
+                                <span class="text-muted">Nội dung chuyển tiền:</span>
+                                <span class="badge bg-dark fs-6 font-monospace px-3 py-2">KLE @order.UniqueId</span>
+                            </div>
+
+                            <div class="alert alert-info mt-3 py-2 px-3 small rounded-3 mb-0">
+                                <i class="bi bi-shield-check text-primary me-1"></i>
+                                <strong>Lưu ý:</strong> Vui lòng giữ nguyên nội dung <code>KLE @order.UniqueId</code> để hệ thống tự động gán mã khóa SmartLock vào số điện thoại của quý khách.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HƯỚNG DẪN MÃ PIN SMARTLOCK IOT 10 GIÂY -->
+                <div class="p-4 rounded-4 bg-light border mb-4">
+                    <h6 class="fw-bold text-dark font-serif mb-3">
+                        <i class="bi bi-key-fill text-warning me-2"></i>Quy Trình Nhận Phòng Thông Minh (SmartLock IoT 10s)
+                    </h6>
+                    <div class="row g-3 text-muted small">
+                        <div class="col-md-4">
+                            <div class="p-3 bg-white rounded-3 border h-100">
+                                <span class="badge bg-success mb-2">Bước 1</span>
+                                <div class="fw-bold text-dark mb-1">Quét Mã VietQR</div>
+                                <div>Chuyển cọc 50% để giữ buồng phòng 100% không bị overbooking.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-white rounded-3 border h-100">
+                                <span class="badge bg-primary mb-2">Bước 2</span>
+                                <div class="fw-bold text-dark mb-1">Nhận Mã PIN Zalo / SMS</div>
+                                <div>Hệ thống gửi mã mở cổng tự động và mã phòng tới SĐT của bạn sau 10s.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-white rounded-3 border h-100">
+                                <span class="badge bg-gold mb-2 text-dark">Bước 3</span>
+                                <div class="fw-bold text-dark mb-1">Thưởng Trà & Xe Đạp GPS</div>
+                                <div>Check-in không chạm, thưởng thức trà sen Cung Đình và nhận xe đạp điện.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút Hành Động -->
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="/lookup?code=@order.UniqueId" class="btn btn-warning px-4 py-2 rounded-pill fw-bold text-dark shadow">
+                        <i class="bi bi-key-fill me-1"></i>Xem Mã Khóa SmartLock 10s
+                    </a>
+                    <button class="btn btn-outline-dark px-4 py-2 rounded-pill fw-semibold shadow-sm" onclick="window.print()">
+                        <i class="bi bi-printer me-2"></i>In Phiếu Xác Nhận
+                    </button>
+                    <a href="https://zalo.me/0347902890" target="_blank" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                        <i class="bi bi-chat-dots-fill me-1"></i>Zalo Lễ Tân (24/7)
+                    </a>
+                    <a href="/" class="btn btn-success px-4 py-2 rounded-pill fw-bold shadow">
+                        <i class="bi bi-house-door me-2"></i>Trở Về Trang Chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-success mb-3" role="status"></div>
+            <p class="lead text-muted">Đang tải thông tin xác nhận đặt phòng Kim Long EcoStay...</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? UniqueId { get; set; }
+
+    private Order? order;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(UniqueId))
+        {
+            order = orderConfirmationUseCase.Execute(UniqueId);
+        }
+    }
+}
+

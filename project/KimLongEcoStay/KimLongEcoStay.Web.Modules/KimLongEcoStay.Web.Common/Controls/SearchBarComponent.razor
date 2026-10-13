@@ -1,0 +1,22 @@
+<form class="d-flex align-items-center mb-3 gap-2" @onsubmit="HandleSearch">
+    <div class="position-relative flex-grow-1">
+        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+        <input type="text" class="form-control ps-5 py-2 rounded-pill shadow-sm" id="filter" @bind="filter" placeholder="Tìm theo tên phòng, tiện ích, nhà vườn Kim Long..." />
+    </div>
+    <button type="button" class="btn btn-success px-4 py-2 rounded-pill fw-bold shadow-sm" @onclick="HandleSearch">
+        <i class="bi bi-funnel me-1"></i>Tìm Kiếm
+    </button>
+</form>
+
+@code {
+    private string filter = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> OnSearch { get; set; }
+
+    private async Task HandleSearch()
+    {
+        await OnSearch.InvokeAsync(filter);
+    }
+}
+

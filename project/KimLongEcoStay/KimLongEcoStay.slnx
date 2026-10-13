@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/KimLongEcoStay.Web.Modules/">
+    <Project Path="KimLongEcoStay.Web.Modules/KimLongEcoStay.Web.AdminPortal/KimLongEcoStay.Web.AdminPortal.csproj" Id="d3445dab-20cc-4089-bca4-dd5f52498eca" />
+    <Project Path="KimLongEcoStay.Web.Modules/KimLongEcoStay.Web.Common/KimLongEcoStay.Web.Common.csproj" Id="2875f293-a0b4-4fb9-a0fd-c1a2503a4a1d" />
+    <Project Path="KimLongEcoStay.Web.Modules/KimLongEcoStay.Web.CustomerPortal/KimLongEcoStay.Web.CustomerPortal.csproj" Id="b4333f71-66e3-415e-a99c-18977b96c225" />
+  </Folder>
+  <Folder Name="/Plugins/">
+    <Project Path="Plugins/KimLongEcoStay.DataStore.HandCoded/KimLongEcoStay.DataStore.HandCoded.csproj" />
+    <Project Path="Plugins/KimLongEcoStay.DataStore.SQL.Dapper/KimLongEcoStay.DataStore.SQL.Dapper.csproj" />
+    <Project Path="Plugins/KimLongEcoStay.ShoppingCart.LocalStorage/KimLongEcoStay.ShoppingCart.LocalStorage.csproj" Id="b6f90c05-a01e-4409-a0ea-1772e9ddd36d" />
+    <Project Path="Plugins/KimLongEcoStay.StateStore.DI/KimLongEcoStay.StateStore.DI.csproj" Id="38650a86-c055-469e-80db-3d06847a06cb" />
+  </Folder>
+  <Project Path="KimLongEcoStay.CoreBusiness/KimLongEcoStay.CoreBusiness.csproj" />
+  <Project Path="KimLongEcoStay.UseCases/KimLongEcoStay.UseCases.csproj" />
+  <Project Path="KimLongEcoStay.Web/KimLongEcoStay.Web.csproj" />
+</Solution>

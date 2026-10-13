@@ -1,0 +1,85 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@inject IViewProcessedOrdersUseCase ViewProcessedOrdersUseCase
+
+<div class="card shadow-sm border-0 my-3">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-check2-all me-2"></i>Lịch Sử Đơn Hàng Đã Xử Lý (Processed Orders)</h5>
+        <button class="btn btn-sm btn-light" @onclick="LoadOrders"><i class="bi bi-arrow-clockwise me-1"></i>Làm mới</button>
+    </div>
+    <div class="card-body">
+        @if (selectedOrderId > 0)
+        {
+            <OrderDetailComponent OrderId="@selectedOrderId" OnClose="HandleDetailClose" />
+        }
+
+        @if (orders != null && orders.Any())
+        {
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã Booking</th>
+                        <th>Ngày Đặt</th>
+                        <th>Ngày Duyệt Cọc</th>
+                        <th>Lễ Tân Phụ Trách</th>
+                        <th>Khách Lưu Trú</th>
+                        <th class="text-center">Số Đêm</th>
+                        <th class="text-end">Tổng Tiền</th>
+                        <th class="text-center">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ord in orders)
+                    {
+                        <tr>
+                            <td class="fw-bold text-success font-monospace">
+                                @(string.IsNullOrEmpty(ord.UniqueId) ? $"#{ord.OrderID}" : ord.UniqueId)
+                            </td>
+                            <td>@ord.DatePlaced?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@ord.DateProcessed?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><span class="badge bg-secondary"><i class="bi bi-person-badge me-1"></i>@ord.AdminUser</span></td>
+                            <td class="fw-bold">@ord.CustomerName</td>
+                            <td class="text-center fw-bold">@ord.LineItemCount đêm</td>
+                            <td class="text-end fw-bold text-dark">@ord.TotalPrice.ToString("N0") đ</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-success rounded-pill" @onclick="() => ViewDetails(ord.OrderID ?? 0)">
+                                    <i class="bi bi-eye"></i> Xem Voucher
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info mb-0">
+                Chưa có đơn hàng nào được đánh dấu là đã xử lý.
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private IEnumerable<Order>? orders;
+    private int selectedOrderId = 0;
+
+    protected override void OnInitialized()
+    {
+        LoadOrders();
+    }
+
+    private void LoadOrders()
+    {
+        orders = ViewProcessedOrdersUseCase.Execute();
+    }
+
+    private void ViewDetails(int orderId)
+    {
+        selectedOrderId = orderId;
+    }
+
+    private void HandleDetailClose()
+    {
+        selectedOrderId = 0;
+    }
+}

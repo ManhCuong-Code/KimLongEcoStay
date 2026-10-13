@@ -1,0 +1,312 @@
+@page "/room/{id:int}"
+@page "/products/{id:int}"
+@page "/product/{id:int}"
+@rendermode InteractiveServer
+
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services
+@using KimLongEcoStay.UseCases.ViewProductSrceen.Interfaces
+@inject IViewProductUseCase ViewProductUseCase
+@inject IAddProductToCartUseCase AddProductToCartUseCase
+@inject NavigationManager NavigationManager
+
+<PageTitle>@(product != null ? product.Name + " — Kim Long EcoStay" : "Chi Tiết Buồng Phòng — Kim Long EcoStay")</PageTitle>
+
+@if (product != null)
+{
+    <div class="container py-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb bg-white p-3 rounded-3 border shadow-sm">
+                <li class="breadcrumb-item"><a href="/" class="text-success text-decoration-none"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
+                <li class="breadcrumb-item"><a href="/#rooms" class="text-success text-decoration-none">Buồng Phòng</a></li>
+                <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">@product.Name</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4 mb-5">
+            <!-- Cột Trái: Bộ Sưu Tập Ảnh Nhiều Góc Chụp (Multi-Angle Gallery) -->
+            <div class="col-lg-7">
+                <!-- Khung Ảnh Chính Tương Tác -->
+                <div class="kle-room-gallery-hero">
+                    <img src="@CurrentPhotoUrl" class="kle-gallery-active-img" alt="@product.Name - @CurrentPhotoCaption" onerror="this.src='/images/room_econest.jpg'" />
+                    
+                    <!-- Lớp Phủ Đầu: Thẻ Nhận Diện & Bộ Đếm Ảnh -->
+                    <div class="kle-gallery-overlay-top">
+                        <span class="badge bg-dark bg-opacity-75 text-warning px-3 py-2 fs-6 shadow-sm">
+                            <i class="bi bi-flower1 me-1"></i>@product.Brand
+                        </span>
+
+                        <span class="kle-gallery-counter-badge shadow-sm">
+                            <i class="bi bi-camera-fill me-1 text-warning"></i>Ảnh @(selectedPhotoIndex + 1) / @(roomPhotos.Count) • @CurrentPhotoTag
+                        </span>
+                    </div>
+
+                    <!-- Nút Điều Hướng Trái / Phải -->
+                    @if (roomPhotos.Count > 1)
+                    {
+                        <button class="kle-gallery-nav-btn kle-gallery-nav-prev" @onclick="PrevPhoto" title="Ảnh trước">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="kle-gallery-nav-btn kle-gallery-nav-next" @onclick="NextPhoto" title="Ảnh tiếp theo">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    }
+
+                    <!-- Chú Thích Góc Chụp Nổi Bên Dưới Ảnh -->
+                    <div class="kle-gallery-caption-bar">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-warning text-dark fw-bold px-2 py-1" style="font-size: 11px;">@CurrentPhotoCategory</span>
+                            <span class="text-white-50 small">| Góc Chụp Thực Tế</span>
+                        </div>
+                        <p class="kle-gallery-caption-title">@CurrentPhotoCaption</p>
+                    </div>
+                </div>
+
+                <!-- Dải Ảnh Thu Nhỏ (Thumbnails Strip) -->
+                @if (roomPhotos.Count > 1)
+                {
+                    <div class="kle-room-thumbnails-strip">
+                        @for (int i = 0; i < roomPhotos.Count; i++)
+                        {
+                            int index = i;
+                            var photo = roomPhotos[i];
+                            <div class="kle-room-thumb-item @(selectedPhotoIndex == index ? "active" : "")" @onclick="() => SelectPhoto(index)">
+                                <img src="@photo.Url" alt="@photo.Caption" onerror="this.src='/images/room_econest.jpg'" />
+                                <span class="kle-room-thumb-tag">@photo.Tag</span>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Thẻ Trải Nghiệm Sinh Thái Đặc Quyền -->
+                <div class="row g-2 mt-2">
+                    <div class="col-4">
+                        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+                            <i class="bi bi-key-fill text-warning fs-3 mb-1 d-block"></i>
+                            <strong class="d-block small">SmartLock IoT</strong>
+                            <small class="text-muted" style="font-size: 11px;">Mã PIN sau 10s cọc</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+                            <i class="bi bi-bicycle text-success fs-3 mb-1 d-block"></i>
+                            <strong class="d-block small">Eco-Bike Điện</strong>
+                            <small class="text-muted" style="font-size: 11px;">Tặng kèm miễn phí</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+                            <i class="bi bi-cup-hot text-danger fs-3 mb-1 d-block"></i>
+                            <strong class="d-block small">Trà Sen & Bánh Ướt</strong>
+                            <small class="text-muted" style="font-size: 11px;">Đón tiếp Cung Đình</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột Phải: Bảng Giá, Đặt Cọc & Nút Đặt -->
+            <div class="col-lg-5">
+                <div class="bg-white p-4 rounded-4 shadow-sm border h-100 d-flex flex-column">
+                    <span class="text-gold fw-bold text-uppercase small letter-spacing-1 mb-1">
+                        NHÀ VƯỜN SINH THÁI KIM LONG — CỐ ĐÔ HUẾ
+                    </span>
+                    
+                    <h2 class="font-serif fw-bold text-dark mb-2">@product.Name</h2>
+
+                    <!-- Tùy Chọn Hình Thức: Đêm vs Giờ (KimLongEcoStay) -->
+                    <div class="btn-group w-100 mb-3 rounded-3 p-1 bg-light border" role="group">
+                        <button type="button" class="btn btn-sm rounded-2 fw-bold @(isHourly ? "btn-light text-muted" : "btn-success shadow-sm")" @onclick='() => isHourly = false'>
+                            🌙 Thuê Theo Đêm
+                        </button>
+                        <button type="button" class="btn btn-sm rounded-2 fw-bold @(isHourly ? "btn-warning text-dark shadow-sm" : "btn-light text-muted")" @onclick='() => isHourly = true'>
+                            ⚡ Thuê Theo Giờ (từ 150k)
+                        </button>
+                    </div>
+
+                    @if (!isHourly)
+                    {
+                        <!-- Khung Giá Theo Đêm & Cọc 50% -->
+                        <div class="p-3 rounded-3 my-2" style="background: linear-gradient(135deg, #F8FAF9 0%, #FEF3C7 100%); border: 1px solid rgba(184, 134, 11, 0.3);">
+                            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                <span class="text-muted small">Giá Ngày Thường (T2 - T5):</span>
+                                <span class="text-danger fw-bold fs-4">@product.Price.ToString("N0") VNĐ <small class="text-muted fs-6">/ đêm</small></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                <span class="text-muted small">Giá Cuối Tuần (T6 - CN, +20%):</span>
+                                <span class="fw-bold text-dark">@((product.Price * 1.20).ToString("N0")) VNĐ <small class="text-muted fs-6">/ đêm</small></span>
+                            </div>
+                            <div class="border-top pt-2 d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold small"><i class="bi bi-qr-code me-1"></i>Tiền Cọc Giữ Phòng (50%):</span>
+                                <span class="badge bg-danger fs-6 px-3 py-2">@((product.Price * 0.5).ToString("N0")) VNĐ</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Khung Giá Theo Giờ (Đặc quyền KimLongEcoStay) -->
+                        <div class="p-3 rounded-3 my-2" style="background: #FFFBEB; border: 1px solid #FDE68A;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-dark small"><i class="bi bi-clock-history text-warning me-1"></i>Gói 2 Giờ Nghỉ Nhanh:</span>
+                                <span class="fw-bold text-danger fs-5">150.000 VNĐ</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-dark small"><i class="bi bi-clock-history text-warning me-1"></i>Gói 4 Giờ Thư Giãn:</span>
+                                <span class="fw-bold text-dark fs-6">250.000 VNĐ</span>
+                            </div>
+                            <small class="text-muted d-block border-top pt-2" style="font-size: 11px;">
+                                <i class="bi bi-info-circle me-1 text-primary"></i>Phù hợp du khách cần phòng tắm rửa, nghỉ trưa hoặc làm việc yên tĩnh giữa thiên nhiên Cố Đô.
+                            </small>
+                        </div>
+                    }
+
+                    <!-- Mô Tả Chi Tiết Không Gian -->
+                    <h6 class="fw-bold text-dark mt-2 mb-1">🌿 Không gian nghỉ dưỡng:</h6>
+                    <p class="text-secondary small mb-2" style="line-height: 1.7;">
+                        @product.Description
+                    </p>
+
+                    <!-- Danh Mục Tiện Nghi -->
+                    <div class="bg-light p-3 rounded-3 border mb-3">
+                        <div class="fw-semibold text-dark mb-2 small"><i class="bi bi-stars text-warning me-1"></i>Tiện nghi sinh thái chuẩn resort:</div>
+                        <div class="row g-2 text-muted" style="font-size: 12px;">
+                            <div class="col-6"><i class="bi bi-check2 text-success me-1"></i>Khóa SmartLock 10s</div>
+                            <div class="col-6"><i class="bi bi-check2 text-success me-1"></i>Xe đạp trợ lực Eco-Bike</div>
+                            <div class="col-6"><i class="bi bi-check2 text-success me-1"></i>Thuyết minh GPS 3 thứ tiếng</div>
+                            <div class="col-6"><i class="bi bi-check2 text-success me-1"></i>Trà sen Cung Đình</div>
+                            <div class="col-6"><i class="bi bi-check2 text-success me-1"></i>Ngâm chân thảo mộc</div>
+                            <div class="col-6"><i class="bi bi-check2 text-success me-1"></i>Wifi & AC 2 chiều</div>
+                        </div>
+                        <div class="border-top pt-2 mt-2 text-success small" style="font-size: 11.5px;">
+                            <i class="bi bi-shield-check me-1"></i><strong>Quy định:</strong> Check-in 14:00 | Check-out 12:00 | Hoàn tiền 100% trước 48h
+                        </div>
+                    </div>
+
+                    <!-- Nút Đặt Phòng & Tra Cứu -->
+                    <div class="mt-auto">
+                        <button class="btn btn-success btn-lg w-100 fw-bold py-3 shadow d-flex align-items-center justify-content-center gap-2 rounded-3 mb-2" @onclick="AddToCart">
+                            <i class="bi bi-bag-plus-fill fs-5"></i>
+                            <span>CHỌN PHÒNG NÀY & ĐẶT CỌC VIETQR</span>
+                        </button>
+                        <a href="/lookup" class="btn btn-outline-secondary w-100 btn-sm rounded-pill">
+                            <i class="bi bi-key-fill text-warning me-1"></i>Đã có phòng? Tra cứu mã PIN SmartLock tại đây
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             PHẦN BỔ SUNG: THƯ VIỆN HÌNH ẢNH TOÀN CẢNH BUỒNG PHÒNG THỰC TẾ
+             ========================================================================== -->
+        <div class="mt-5 pt-3 border-top">
+            <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+                <div>
+                    <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 rounded-pill mb-2">
+                        <i class="bi bi-images me-1"></i>THƯ VIỆN ẢNH CHI TIẾT
+                    </span>
+                    <h3 class="font-serif fw-bold text-dark mb-1">Tất Cả Các Góc Chụp Thực Tế Của @product.Name</h3>
+                    <p class="text-muted small mb-0">Cam kết hình ảnh trung thực 100% không gian buồng phòng và cảnh quan nhà vườn Kim Long khi quý khách nhận phòng.</p>
+                </div>
+                <div>
+                    <span class="text-muted small"><i class="bi bi-check2-circle text-success me-1"></i>@(roomPhotos.Count) góc chụp sắc nét</span>
+                </div>
+            </div>
+
+            <!-- Lưới Ảnh Chi Tiết Từng Góc -->
+            <div class="row g-4">
+                @for (int i = 0; i < roomPhotos.Count; i++)
+                {
+                    int idx = i;
+                    var p = roomPhotos[i];
+                    <div class="col-md-6 col-lg-4">
+                        <div class="kle-album-card" style="cursor: pointer;" @onclick="() => SelectPhoto(idx)">
+                            <div class="kle-album-img-wrap">
+                                <img src="@p.Url" alt="@p.Caption" onerror="this.src='/images/room_econest.jpg'" />
+                                <span class="kle-album-tag-floating"><i class="bi bi-camera me-1"></i>@p.Tag</span>
+                                <span class="kle-album-category-floating">@p.Category</span>
+                            </div>
+                            <div class="kle-album-content">
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">Góc chụp @(idx + 1): @p.Tag</h6>
+                                    <p class="kle-album-caption">@p.Caption</p>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                    <span class="text-success small fw-semibold">
+                                        <i class="bi bi-eye-fill me-1"></i>Xem ảnh lớn
+                                    </span>
+                                    @if (selectedPhotoIndex == idx)
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-check-lg me-1"></i>Đang xem</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container text-center py-5">
+        <div class="spinner-border text-success" role="status"></div>
+        <p class="mt-3 text-muted">Đang tải thông tin buồng phòng Kim Long EcoStay...</p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Product? product;
+    private bool isHourly = false;
+    private List<RoomPhoto> roomPhotos = new();
+    private int selectedPhotoIndex = 0;
+
+    private string CurrentPhotoUrl => roomPhotos.Count > 0 && selectedPhotoIndex < roomPhotos.Count ? roomPhotos[selectedPhotoIndex].Url : (product?.ImageLink ?? "/images/room_econest.jpg");
+    private string CurrentPhotoCaption => roomPhotos.Count > 0 && selectedPhotoIndex < roomPhotos.Count ? roomPhotos[selectedPhotoIndex].Caption : (product?.Description ?? "");
+    private string CurrentPhotoTag => roomPhotos.Count > 0 && selectedPhotoIndex < roomPhotos.Count ? roomPhotos[selectedPhotoIndex].Tag : "Toàn Cảnh";
+    private string CurrentPhotoCategory => roomPhotos.Count > 0 && selectedPhotoIndex < roomPhotos.Count ? roomPhotos[selectedPhotoIndex].Category : "Phòng Nghỉ";
+
+    protected override void OnParametersSet()
+    {
+        product = ViewProductUseCase.Execute(id);
+        roomPhotos = RoomGalleryProvider.GetPhotosByRoomId(id);
+        selectedPhotoIndex = 0;
+    }
+
+    private void SelectPhoto(int index)
+    {
+        if (index >= 0 && index < roomPhotos.Count)
+        {
+            selectedPhotoIndex = index;
+        }
+    }
+
+    private void PrevPhoto()
+    {
+        if (roomPhotos.Count > 0)
+        {
+            selectedPhotoIndex = (selectedPhotoIndex - 1 + roomPhotos.Count) % roomPhotos.Count;
+        }
+    }
+
+    private void NextPhoto()
+    {
+        if (roomPhotos.Count > 0)
+        {
+            selectedPhotoIndex = (selectedPhotoIndex + 1) % roomPhotos.Count;
+        }
+    }
+
+    private void AddToCart()
+    {
+        if (product != null)
+        {
+            AddProductToCartUseCase.Execute(product.productId);
+            NavigationManager.NavigateTo("/cart");
+        }
+    }
+}

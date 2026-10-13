@@ -1,0 +1,105 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@inject IViewOrderDetailUseCase ViewOrderDetailUseCase
+
+@if (order != null)
+{
+    <div class="card shadow-sm border-primary my-3">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Chi Tiết Đơn Hàng #@order.OrderID</h5>
+            <button class="btn btn-sm btn-light" @onclick="Close">Đóng</button>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Khách Hàng:</strong> @order.CustomerName</p>
+                    <p><strong>Địa Chỉ:</strong> @order.CustomerAddress, @order.CustomerCity, @order.CustomerStateProvince, @order.CustomerCountry</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Ngày Đặt:</strong> @order.DatePlaced?.ToString("dd/MM/yyyy HH:mm:ss")</p>
+                    <p><strong>Mã Xác Nhận:</strong> <code>@order.UniqueId</code></p>
+                    <p><strong>Trạng Thái:</strong> 
+                        @if (order.DateProcessed != null)
+                        {
+                            <span class="badge bg-success">Đã Xử Lý lúc @order.DateProcessed?.ToString("dd/MM/yyyy HH:mm")</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Chờ Xử Lý</span>
+                        }
+                    </p>
+                </div>
+            </div>
+
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Buồng Phòng</th>
+                        <th>Hình Ảnh</th>
+                        <th class="text-center">Số Đêm</th>
+                        <th class="text-end">Đơn Giá / Đêm</th>
+                        <th class="text-end">Thành Tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (order.LineItems != null)
+                    {
+                        @foreach (var item in order.LineItems)
+                        {
+                            <tr>
+                                <td>@(item.Product?.Name ?? $"Mã SP #{item.ProductId}")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Product?.ImageLink))
+                                    {
+                                        <img src="@item.Product.ImageLink" style="max-height: 40px;" />
+                                    }
+                                </td>
+                                <td class="text-center fw-bold">@item.Quantity đêm</td>
+                                <td class="text-end">@item.Price.ToString("N0") đ</td>
+                                <td class="text-end fw-bold text-dark">@((item.Price * item.Quantity).ToString("N0")) đ</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold fs-5">
+                        <td colspan="4" class="text-end">Tổng Kinh Phí:</td>
+                        <td class="text-end text-danger">@order.TotalPrice.ToString("N0") VNĐ</td>
+                    </tr>
+                    <tr class="fw-bold text-success">
+                        <td colspan="4" class="text-end">Cọc 50% (VietQR):</td>
+                        <td class="text-end">@((order.TotalPrice * 0.5).ToString("N0")) VNĐ</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int OrderId { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private Order? order;
+
+    protected override void OnParametersSet()
+    {
+        if (OrderId > 0)
+        {
+            order = ViewOrderDetailUseCase.Execute(OrderId);
+        }
+        else
+        {
+            order = null;
+        }
+    }
+
+    private async Task Close()
+    {
+        order = null;
+        if (OnClose.HasDelegate)
+            await OnClose.InvokeAsync();
+    }
+}

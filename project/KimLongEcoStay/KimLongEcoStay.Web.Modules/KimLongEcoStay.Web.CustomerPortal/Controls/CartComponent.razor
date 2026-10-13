@@ -1,0 +1,43 @@
+@rendermode InteractiveServer
+@implements IDisposable
+@inject IShoppingCartStateStore shoppingCartStateStore
+
+<a href="/cart" class="kle-cart-nav-btn text-decoration-none" title="Xem danh sách buồng phòng đã chọn">
+    <div class="kle-cart-icon-box">
+        <i class="bi bi-door-open-fill fs-6"></i>
+        @if (lineItemCount > 0)
+        {
+            <span class="kle-cart-badge-counter">@lineItemCount</span>
+        }
+    </div>
+    <div class="kle-cart-text-wrap d-none d-sm-flex text-start">
+        <span class="kle-cart-title">Phòng Đã Chọn</span>
+        <span class="kle-cart-sub">@(lineItemCount > 0 ? $"{lineItemCount} phòng đang giữ" : "Chưa chọn phòng")</span>
+    </div>
+</a>
+
+@code {
+    private int lineItemCount = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            shoppingCartStateStore.AddStateChangeListeners(HandleShoppingCartStateChange);
+            lineItemCount = await shoppingCartStateStore.GetItemsCount();
+            StateHasChanged();
+        }
+    }
+
+    private async void HandleShoppingCartStateChange()
+    {
+        lineItemCount = await shoppingCartStateStore.GetItemsCount();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        shoppingCartStateStore.RemoveStateChangeListeners(HandleShoppingCartStateChange);
+    }
+}
+

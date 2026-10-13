@@ -1,0 +1,26 @@
+## .NET & Visual Studio
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Backup & Temp
+project/eShop_backup/
+project/eShop/
+_temp*/
+
+## OS Files
+.DS_Store
+Thumbs.db
+
+## Tai lieu, bao cao Word va PDF (Giu Repository gon nhe, tap trung vao Code, CSDL va UML)
+*.docx
+*.doc
+*.pdf
+sync_bangchamcong/

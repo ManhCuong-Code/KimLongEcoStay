@@ -1,0 +1,123 @@
+@using KimLongEcoStay.UseCases.ShoppingCartScreen.Interfaces
+
+@inject IDeleteProductUseCase deleteProductUseCase
+@inject IUpdateQuantityUseCase updateQuantityUseCase
+
+@if (LineItem != null && LineItem.Product != null)
+{
+    <div class="kle-cart-item-card">
+        <div class="row align-items-center g-3">
+            <!-- Ảnh Đại Diện Buồng Phòng -->
+            <div class="col-12 col-sm-4 col-md-3">
+                <div class="kle-cart-thumb-wrap shadow-sm">
+                    <img src="@LineItem.Product.ImageLink" alt="@LineItem.Product.Name" class="kle-cart-thumb-img" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80'" />
+                    <span class="kle-cart-thumb-badge">
+                        <i class="bi bi-flower1 me-1"></i>@LineItem.Product.Brand
+                    </span>
+                </div>
+            </div>
+
+            <!-- Thông Tin Chi Tiết Phòng & Tiện Ích -->
+            <div class="col-12 col-sm-8 col-md-5">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-success bg-opacity-10 text-success fw-bold" style="font-size: 11px;">
+                        <i class="bi bi-shield-check me-1"></i>Khóa SmartLock 10s
+                    </span>
+                    <span class="badge bg-warning bg-opacity-25 text-dark fw-bold" style="font-size: 11px;">
+                        <i class="bi bi-bicycle me-1"></i>Free Eco-Bike
+                    </span>
+                </div>
+
+                <h5 class="fw-bold mb-1 text-dark font-serif">
+                    <a href="@($"/room/{LineItem.ProductId}")" class="text-decoration-none text-dark hover-gold">
+                        @LineItem.Product.Name
+                    </a>
+                </h5>
+
+                <div class="text-muted small mb-2">
+                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>Nhà Vườn Sinh Thái Kim Long, TP. Huế
+                </div>
+
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="text-muted small">Đơn giá:</span>
+                    <span class="fw-bold text-success">@LineItem.Product.Price.ToString("N0") VNĐ <small class="text-muted fw-normal">/ đêm</small></span>
+                </div>
+            </div>
+
+            <!-- Tăng Giảm Số Đêm & Thành Tiền -->
+            <div class="col-7 col-md-2 text-start text-md-center">
+                <label class="form-label text-muted small fw-semibold d-block mb-1">Số đêm lưu trú:</label>
+                <div class="kle-qty-control shadow-sm">
+                    <button type="button" class="kle-qty-btn" @onclick="DecrementQuantity" title="Giảm số đêm">
+                        <i class="bi bi-dash"></i>
+                    </button>
+                    <input type="number" min="1" max="60" class="kle-qty-input" value="@LineItem.Quantity" @onchange="HandleQuantityChange" />
+                    <button type="button" class="kle-qty-btn" @onclick="IncrementQuantity" title="Tăng số đêm">
+                        <i class="bi bi-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Thành Tiền & Nút Xóa -->
+            <div class="col-5 col-md-2 text-end">
+                <div class="text-muted small mb-1">Thành tiền:</div>
+                <div class="fw-bold text-danger fs-6 mb-2">
+                    @((LineItem.Price * LineItem.Quantity).ToString("N0")) đ
+                </div>
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 shadow-sm" @onclick="@(() => DeleteProduct(LineItem.ProductId))" title="Bỏ buồng phòng này khỏi danh sách">
+                    <i class="bi bi-trash3 me-1"></i>Bỏ chọn
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public OrderLineItem? LineItem { get; set; }
+
+    [Parameter]
+    public EventCallback<Order> OnDeleteProduct { get; set; }
+
+    [Parameter]
+    public EventCallback<Order> OnUpdateQuantity { get; set; }
+
+    async Task HandleQuantityChange(ChangeEventArgs e)
+    {
+        if (e.Value == null || string.IsNullOrWhiteSpace(e.Value.ToString())) return;
+
+        if (int.TryParse(e.Value.ToString(), out int qty))
+        {
+            if (qty < 1) qty = 1;
+            var order = await updateQuantityUseCase.Execute(LineItem!.ProductId, qty);
+            await OnUpdateQuantity.InvokeAsync(order);
+        }
+    }
+
+    async Task IncrementQuantity()
+    {
+        if (LineItem != null)
+        {
+            int newQty = LineItem.Quantity + 1;
+            var order = await updateQuantityUseCase.Execute(LineItem.ProductId, newQty);
+            await OnUpdateQuantity.InvokeAsync(order);
+        }
+    }
+
+    async Task DecrementQuantity()
+    {
+        if (LineItem != null && LineItem.Quantity > 1)
+        {
+            int newQty = LineItem.Quantity - 1;
+            var order = await updateQuantityUseCase.Execute(LineItem.ProductId, newQty);
+            await OnUpdateQuantity.InvokeAsync(order);
+        }
+    }
+
+    async Task DeleteProduct(int productId)
+    {
+        var order = await deleteProductUseCase.Execute(productId);
+        await OnDeleteProduct.InvokeAsync(order);
+    }
+}
+

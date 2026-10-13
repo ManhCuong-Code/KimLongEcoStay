@@ -1,0 +1,290 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam roundcorner 8
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+skinparam package {
+    BackgroundColor #F8F9FA
+    BorderColor #2D3436
+    FontColor #2D3436
+    FontStyle bold
+}
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor #6C5CE7
+    HeaderBackgroundColor #ECEFF1
+    FontColor #2D3436
+    ArrowColor #2F3542
+}
+
+skinparam interface {
+    BackgroundColor #E8F8F5
+    BorderColor #16A085
+}
+
+title SƠ ĐỒ LỚP (CLASS DIAGRAM) - KIẾN TRÚC 4 TẦNG CLEAN ARCHITECTURE\nDỰ ÁN: HOMESTAY HUẾ (CHUẨN BAREM CAPSTONE ECO2415)
+
+' =========================================================================
+' 1. TẦNG CORE BUSINESS (KHÔNG THAM CHIẾU BẤT KỲ PROJECT NÀO - TIÊU CHÍ K1.1)
+' =========================================================================
+package "1. KimLongEcoStay.CoreBusiness (Domain Entities & Business Rules)" as Pkg_Core {
+    
+    enum RoomStatus {
+        AVAILABLE
+        OCCUPIED
+        CLEANING
+        MAINTENANCE
+    }
+
+    enum BookingStatus {
+        PENDING_DEPOSIT
+        CONFIRMED
+        CHECKED_IN
+        CHECKED_OUT
+        CANCELLED
+    }
+
+    class RoomType <<Entity>> {
+        + Id: int
+        + TypeName: string
+        + Description: string
+        + MaxGuests: int
+        + BasePrice: decimal
+        + Amenities: string
+        + ImageUrl: string
+    }
+
+    class Room <<Entity>> {
+        + Id: int
+        + RoomNumber: string
+        + RoomTypeId: int
+        + Status: RoomStatus
+        + IsActive: bool
+        --
+        + CanCheckIn(date: DateTime): bool
+        + CanCheckOut(date: DateTime): bool
+    }
+
+    class RatePlan <<Entity>> {
+        + Id: int
+        + RoomTypeId: int
+        + DayOfWeek: DayOfWeek
+        + Price: decimal
+        + IsWeekend: bool
+        + HolidaySurcharge: decimal
+    }
+
+    class Guest <<Entity>> {
+        + Id: int
+        + FullName: string
+        + Email: string
+        + PhoneNumber: string
+        + IdentityCard: string
+    }
+
+    class Booking <<Header Entity>> {
+        + Id: int
+        + BookingCode: string
+        + GuestId: int
+        + CheckInDate: DateTime
+        + CheckOutDate: DateTime
+        + TotalGuests: int
+        + TotalAmount: decimal
+        + DepositAmount: decimal
+        + Status: BookingStatus
+        + CreatedAt: DateTime
+        + CancelledAt: DateTime?
+        + CancellationFee: decimal?
+    }
+
+    class BookingNight <<LineItem Entity>> {
+        + Id: int
+        + BookingId: int
+        + RoomId: int
+        + NightDate: DateTime
+        + Price: decimal
+    }
+
+    ' Domain Services & Rule Validators (K1.3: Cài đặt 2 Luật nghiệp vụ)
+    class OverbookingRule <<Domain Rule>> {
+        + {static} ValidateNoOverlap(existingNights: List<BookingNight>, requestedRoomId: int, checkIn: DateTime, checkOut: DateTime): bool
+    }
+
+    class PricingAndCancellationRule <<Domain Rule>> {
+        + {static} CalculateStayTotal(nightRates: List<decimal>): decimal
+        + {static} CalculateRequiredDeposit(totalAmount: decimal): decimal
+        + {static} EvaluateCancellationPenalty(checkInDate: DateTime, cancelTime: DateTime, firstNightPrice: decimal): decimal
+    }
+}
+
+' =========================================================================
+' 2. TẦNG USE CASES (CHỈ THAM CHIẾU COREBUSINESS - TIÊU CHÍ K1.1, K1.2)
+' =========================================================================
+package "2. KimLongEcoStay.UseCases (Application Services & Plugin Interfaces)" as Pkg_UseCases {
+    
+    ' Plugin Interfaces (Inversion of Control)
+    interface IRoomRepository {
+        + GetAvailableRoomsAsync(typeId: int, checkIn: DateTime, checkOut: DateTime): Task<IEnumerable<Room>>
+        + GetRoomByIdAsync(id: int): Task<Room>
+        + UpdateRoomStatusAsync(roomId: int, status: RoomStatus): Task
+    }
+
+    interface IBookingRepository {
+        + CreateBookingTransactionAsync(booking: Booking, nights: List<BookingNight>): Task<int>
+        + GetBookingByCodeAsync(code: string): Task<Booking>
+        + UpdateStatusAsync(bookingId: int, status: BookingStatus): Task
+        + GetOccupiedNightsAsync(roomId: int, fromDate: DateTime, toDate: DateTime): Task<List<BookingNight>>
+    }
+
+    interface IRatePlanRepository {
+        + GetRatesForPeriodAsync(roomTypeId: int, checkIn: DateTime, checkOut: DateTime): Task<List<RatePlan>>
+    }
+
+    ' UseCases cụ thể (Inject interface vào UI)
+    interface ISearchAvailableRoomsUseCase {
+        + ExecuteAsync(roomTypeId: int, checkIn: DateTime, checkOut: DateTime): Task<IEnumerable<Room>>
+    }
+
+    interface ICreateBookingUseCase {
+        + ExecuteAsync(request: BookingRequestDto): Task<BookingResultDto>
+    }
+
+    interface ICancelBookingUseCase {
+        + ExecuteAsync(bookingCode: string, cancelTime: DateTime): Task<CancellationResultDto>
+    }
+
+    interface ICheckInUseCase {
+        + ExecuteAsync(bookingId: int): Task
+    }
+
+    interface ICheckOutUseCase {
+        + ExecuteAsync(bookingId: int): Task
+    }
+
+    interface IExtractBookingFromMessageUseCase {
+        + ExecuteAsync(rawMessage: string): Task<ExtractedBookingDto>
+    }
+
+    class CreateBookingUseCase implements ICreateBookingUseCase {
+        - _roomRepo: IRoomRepository
+        - _bookingRepo: IBookingRepository
+        - _rateRepo: IRatePlanRepository
+        + ExecuteAsync(request: BookingRequestDto): Task<BookingResultDto>
+    }
+
+    class CancelBookingUseCase implements ICancelBookingUseCase {
+        - _bookingRepo: IBookingRepository
+        + ExecuteAsync(bookingCode: string, cancelTime: DateTime): Task<CancellationResultDto>
+    }
+
+    class ExtractBookingFromMessageUseCase implements IExtractBookingFromMessageUseCase {
+        - _chatClient: Microsoft.Extensions.AI.IChatClient
+        + ExecuteAsync(rawMessage: string): Task<ExtractedBookingDto>
+    }
+}
+
+' =========================================================================
+' 3. TẦNG PLUGINS (SQL DATABASE VỚI DAPPER & AI CLIENT - TIÊU CHÍ K2.2, K2.3, K4.3)
+' =========================================================================
+package "3. KimLongEcoStay.Plugins.DataStore.SQL & AI" as Pkg_Plugins {
+    
+    class SqlRoomRepository implements IRoomRepository {
+        - _connectionString: string
+        + GetAvailableRoomsAsync(typeId: int, checkIn: DateTime, checkOut: DateTime): Task<IEnumerable<Room>>
+    }
+
+    class SqlBookingRepository implements IBookingRepository {
+        - _connectionString: string
+        + CreateBookingTransactionAsync(booking: Booking, nights: List<BookingNight>): Task<int>
+    }
+
+    class SqlRatePlanRepository implements IRatePlanRepository {
+        - _connectionString: string
+        + GetRatesForPeriodAsync(roomTypeId: int, checkIn: DateTime, checkOut: DateTime): Task<List<RatePlan>>
+    }
+}
+
+' =========================================================================
+' 4. TẦNG WEB APP (BLAZOR SERVER - GIAO DIỆN & SCOPED STATE - K1.4, K3.1, K3.2)
+' =========================================================================
+package "4. KimLongEcoStay.WebApp (Blazor Server Presentation)" as Pkg_WebApp {
+    
+    class BookingCartState <<Scoped Service (K1.4)>> {
+        + SelectedRoom: Room
+        + CheckInDate: DateTime
+        + CheckOutDate: DateTime
+        + TotalGuests: int
+        + AddSelection(room: Room, inDate: DateTime, outDate: DateTime): void
+        + Clear(): void
+    }
+
+    class RoomsCatalogPage <<.razor Component>> {
+        - searchUseCase: ISearchAvailableRoomsUseCase
+        - cartState: BookingCartState
+    }
+
+    class CheckoutBookingPage <<.razor Component>> {
+        - createBookingUseCase: ICreateBookingUseCase
+        - cartState: BookingCartState
+        - bookingFormModel: BookingFormModel
+    }
+
+    class AdminBookingsPage <<.razor Component - [Authorize]>> {
+        - checkInUseCase: ICheckInUseCase
+        - checkOutUseCase: ICheckOutUseCase
+    }
+
+    class SmartPasteModalComponent <<Reusable Component (K3.1)>> {
+        + [Parameter] IsOpen: bool
+        + [Parameter] EventCallback<ExtractedBookingDto> OnExtracted
+        - extractUseCase: IExtractBookingFromMessageUseCase
+    }
+}
+
+' ================= RELATIONSHIPS =================
+' Quan hệ giữa các Entity trong Core
+RoomType "1" *-- "0..*" Room : Has
+RoomType "1" *-- "0..*" RatePlan : Prices
+Guest "1" o-- "0..*" Booking : Books
+Booking "1" *-- "1..*" BookingNight : Header-Line\n(1 Transaction - K2.2)
+Room "1" o-- "0..*" BookingNight : Booked on date
+
+Booking ..> BookingStatus : Status
+Room ..> RoomStatus : Status
+
+' Quan hệ UseCase thực thi Luật nghiệp vụ trong CoreBusiness (K1.3)
+CreateBookingUseCase ..> OverbookingRule : Gọi kiểm tra [Luật 1]
+CreateBookingUseCase ..> PricingAndCancellationRule : Tính tiền theo từng đêm [Luật 2]
+CancelBookingUseCase ..> PricingAndCancellationRule : Kiểm tra phạt 48h [Luật 2]
+
+' Dependency Inversion: WebApp chỉ biết UseCases interfaces (K1.2)
+CheckoutBookingPage ..> ICreateBookingUseCase : @inject
+CheckoutBookingPage ..> BookingCartState : @inject
+RoomsCatalogPage ..> ISearchAvailableRoomsUseCase : @inject
+SmartPasteModalComponent ..> IExtractBookingFromMessageUseCase : @inject
+
+' Composition Root: Plugins cài đặt các Interface của UseCases
+SqlRoomRepository ..|> IRoomRepository
+SqlBookingRepository ..|> IBookingRepository
+SqlRatePlanRepository ..|> IRatePlanRepository
+
+note top of Pkg_Core
+  <b>Tiêu chí K1.1:</b> CoreBusiness độc lập hoàn toàn,
+  chứa Entity và 2 Luật nghiệp vụ (Overbooking & 48h Cancel).
+end note
+
+note top of Pkg_UseCases
+  <b>Tiêu chí K1.2 & K4.3:</b> Khai báo Interface Repository.
+  IChatClient inject vào ExtractBookingFromMessageUseCase riêng.
+end note
+
+note bottom of SqlBookingRepository
+  <b>Tiêu chí K2.2 & K2.3:</b> Cặp Booking - BookingNight
+  lưu trong 1 Transaction với Parameterized SQL (Dapper).
+end note
+
+@enduml

@@ -1,0 +1,125 @@
+@inject NavigationManager navigationManager
+
+<div class="kle-summary-card">
+    <div class="kle-summary-header">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="fw-bold mb-0 text-white font-serif">
+                <i class="bi bi-receipt me-2 text-warning"></i>Chi Phí Lưu Trú
+            </h5>
+            <span class="badge bg-warning text-dark fw-bold px-2 py-1">Kim Long EcoStay</span>
+        </div>
+        <small class="text-white-50 mt-1 d-block">Giá niêm yết minh bạch • Không phí ẩn</small>
+    </div>
+
+    <div class="kle-summary-body">
+        <!-- Chi tiết tiền phòng -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-secondary">
+                <i class="bi bi-moon-stars me-1 text-primary"></i>Tổng thời gian lưu trú:
+            </span>
+            <span class="fw-bold text-dark">@itemsCount đêm</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-secondary">
+                <i class="bi bi-door-closed me-1 text-success"></i>Tiền phòng tạm tính:
+            </span>
+            <span class="fw-bold text-dark">@itemsTotalPrice.ToString("N0") VNĐ</span>
+        </div>
+
+        <!-- Dịch vụ sinh thái tặng kèm -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-secondary">
+                <i class="bi bi-bicycle me-1 text-info"></i>Xe đạp trợ lực GPS:
+            </span>
+            <span class="badge bg-success bg-opacity-10 text-success fw-bold">Tặng kèm (0 đ)</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-secondary">
+                <i class="bi bi-cup-hot me-1 text-danger"></i>Trà sen & Bánh mễ Huế:
+            </span>
+            <span class="badge bg-success bg-opacity-10 text-success fw-bold">Tặng kèm (0 đ)</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-secondary">
+                <i class="bi bi-shield-check me-1 text-warning"></i>Bảo hiểm lưu trú & VAT:
+            </span>
+            <span class="text-muted small">Đã bao gồm</span>
+        </div>
+
+        <hr class="my-3 text-muted" />
+
+        <!-- Tổng tiền lưu trú -->
+        <div class="d-flex justify-content-between align-items-baseline mb-3">
+            <span class="fw-bold text-dark fs-6">Tổng Chi Phí:</span>
+            <span class="fw-bold text-danger fs-5">@itemsTotalPrice.ToString("N0") VNĐ</span>
+        </div>
+
+        <!-- Khung Cọc Giữ Phòng 50% qua VietQR -->
+        <div class="kle-deposit-box">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-bold text-dark small">
+                    <i class="bi bi-qr-code text-gold me-1"></i>Tiền Cọc 50% (VietQR):
+                </span>
+                <span class="fw-bold text-danger fs-5">@depositPrice.ToString("N0") VNĐ</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 11.5px;">
+                <span>50% còn lại (@depositPrice.ToString("N0") đ):</span>
+                <span>Thanh toán khi nhận phòng</span>
+            </div>
+        </div>
+
+        <!-- Chính sách hoàn hủy & nhận phòng -->
+        <div class="bg-light p-2 rounded-3 text-muted mb-3" style="font-size: 11.5px;">
+            <div class="mb-1"><i class="bi bi-check-circle-fill text-success me-1"></i>Miễn phí hủy phòng trước 48h (Hoàn 100% tiền cọc).</div>
+            <div><i class="bi bi-clock-history text-primary me-1"></i>Giờ nhận phòng: 14:00 | Giờ trả phòng: 12:00 hôm sau.</div>
+        </div>
+
+        @if (!HidePlaceOrderButton)
+        {
+            <button class="btn btn-success btn-lg w-100 py-3 fw-bold rounded-3 shadow d-flex align-items-center justify-content-center gap-2" @onclick="PlaceOrder" disabled="@(itemsCount == 0)">
+                <span>TIẾN HÀNH ĐẶT PHÒNG & LẤY MÃ CỌC</span>
+                <i class="bi bi-arrow-right"></i>
+            </button>
+            <div class="text-center mt-2 text-muted" style="font-size: 11px;">
+                <i class="bi bi-shield-lock-fill me-1 text-success"></i>Bảo mật thông tin & Hỗ trợ xác nhận 24/7
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private int itemsCount = 0;
+    private double itemsTotalPrice = 0;
+    private double depositPrice => itemsTotalPrice * 0.5;
+
+    [Parameter]
+    public Order? Order { get; set; }
+
+    [Parameter]
+    public bool HidePlaceOrderButton { get; set; } = false;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (Order != null && Order.LineItems != null && Order.LineItems.Count > 0)
+        {
+            itemsCount = Order.LineItems.Sum(x => x.Quantity);
+            itemsTotalPrice = Order.LineItems.Sum(x => x.Price * x.Quantity);
+        }
+        else
+        {
+            itemsCount = 0;
+            itemsTotalPrice = 0;
+        }
+    }
+
+    private void PlaceOrder()
+    {
+        navigationManager.NavigateTo("/placeorder");
+    }
+}
+

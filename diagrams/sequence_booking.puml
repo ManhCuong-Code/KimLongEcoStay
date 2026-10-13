@@ -1,0 +1,112 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam roundcorner 6
+skinparam shadowing false
+skinparam responseMessageBelowArrow true
+
+skinparam sequence {
+    ArrowColor #2D3436
+    ActorBorderColor #6C5CE7
+    LifeLineBorderColor #636E72
+    LifeLineBackgroundColor #F1F2F6
+    ParticipantBorderColor #6C5CE7
+    ParticipantBackgroundColor #FFFFFF
+}
+
+title SƠ ĐỒ TUẦN TỰ (SEQUENCE DIAGRAM): LUỒNG GIAO DỊCH CHÍNH ĐẶT PHÒNG END-TO-END - DỰ ÁN HOMESTAY HUẾ\n(Khớp 4 tầng Clean Architecture, Transaction Header-Line & 2 Luật nghiệp vụ theo Barem Chấm)
+
+actor "Khách du lịch\n(Guest)" as User
+box "4. WebApp (Blazor Server)" #F0F3F4
+    participant "CheckoutBookingPage.razor\n(Blazor Component)" as RazorPage
+    participant "BookingCartState\n(Scoped Service - K1.4)" as CartState
+end box
+
+box "2. UseCases Layer" #E8F8F5
+    participant "CreateBookingUseCase\n(Application Service)" as UseCase
+end box
+
+box "1. CoreBusiness Layer" #FEF9E7
+    participant "OverbookingRule\n(Domain Rule - K1.3)" as Rule1
+    participant "PricingAndCancellationRule\n(Domain Rule - K1.3)" as Rule2
+end box
+
+box "3. Plugins.DataStore.SQL" #EBF5FB
+    participant "SqlBookingRepository\n(Dapper / SQL Server)" as SqlRepo
+end box
+
+database "SQL Server Database\n(5+ Bảng chuẩn 3NF - K2.1)" as DB
+
+== 1. Khách Hàng Gửi Yêu Cầu Đặt Phòng ==
+User -> RazorPage : Nhập form (Họ tên, SĐT) & Nhấn "Xác Nhận Đặt Phòng"
+activate RazorPage
+
+RazorPage -> CartState : GetSelectedRoomsAndDates()
+activate CartState
+CartState --> RazorPage : Trả về: RoomId=101, CheckIn=15/10, CheckOut=18/10 (3 đêm)
+deactivate CartState
+
+' K1.2: Razor inject UseCase interface
+RazorPage -> UseCase : ExecuteAsync(bookingRequestDto)
+activate UseCase
+
+== 2. Kiểm Tra Luật Nghiệp Vụ 1: Chống Trùng Phòng (Overbooking) ==
+UseCase -> SqlRepo : GetOccupiedNightsAsync(roomId=101, 15/10, 18/10)
+activate SqlRepo
+SqlRepo -> DB : SELECT NightDate FROM BookingNight WHERE RoomId = @RoomId\nAND NightDate >= @CheckIn AND NightDate < @CheckOut (Tham số hóa - K2.3)
+activate DB
+DB --> SqlRepo : Trả về danh sách đêm đã bị chiếm (nếu có)
+deactivate DB
+SqlRepo --> UseCase : List<BookingNight> occupiedNights
+deactivate SqlRepo
+
+UseCase -> Rule1 : ValidateNoOverlap(occupiedNights, 101, 15/10, 18/10)
+activate Rule1
+alt Phát hiện phòng đã có khách đặt trùng đêm
+    Rule1 --> UseCase : Ném ngoại lệ OverbookingConflictException("Phòng đã có người đặt!")
+    UseCase --> RazorPage : Trả về lỗi vi phạm Luật 1
+    RazorPage --> User : Hiển thị thông báo lỗi thân thiện (K3.3: không văng lỗi sập app)
+else Hợp lệ (Check-out ngày D và Check-in ngày D vẫn hợp lệ)
+    Rule1 --> UseCase : Validation OK (Cho phép tiếp tục)
+    deactivate Rule1
+end
+
+== 3. Kiểm Tra Luật Nghiệp Vụ 2: Tính Tiền Từng Đêm (Dynamic Pricing) ==
+UseCase -> Rule2 : CalculateStayTotal(nightRates: [T5: 600k, T6: 850k, T7: 850k])
+activate Rule2
+Rule2 -> Rule2 : Tổng tiền = 600k + 850k + 850k = 2.300.000 VNĐ
+Rule2 -> Rule2 : Tiền cọc 50% = 1.150.000 VNĐ
+Rule2 --> UseCase : totalAmount = 2.300.000 VNĐ, deposit = 1.150.000 VNĐ
+deactivate Rule2
+
+UseCase -> UseCase : Khởi tạo đối tượng Entity:\n- Booking (Header, Status = PENDING_DEPOSIT)\n- List<BookingNight> (3 LineItems từng đêm)
+
+== 4. Ghi Dữ Liệu Header-Line Trong 1 Transaction (Tiêu chí K2.2, K2.3) ==
+UseCase -> SqlRepo : CreateBookingTransactionAsync(booking, bookingNights)
+activate SqlRepo
+
+SqlRepo -> DB : IDbConnection.BeginTransaction()
+activate DB
+
+SqlRepo -> DB : INSERT INTO Booking (BookingCode, GuestId, CheckInDate, TotalAmount, Status...)\nVALUES (@Code, @GuestId, @CheckIn, @Total, @Status)\n(Dapper parameterized query - K2.3)
+note right of DB: Lưu Header Booking thành công
+
+loop Duyệt qua từng đêm lưu trú (LineItems)
+    SqlRepo -> DB : INSERT INTO BookingNight (BookingId, RoomId, NightDate, Price)\nVALUES (@BookingId, @RoomId, @NightDate, @Price)
+end
+note right of DB: Lưu các LineItems BookingNight trong CÙNG 1 TRANSACTION (K2.2)
+
+SqlRepo -> DB : IDbTransaction.Commit()
+deactivate DB
+SqlRepo --> UseCase : return newBookingId (#BK102)
+deactivate SqlRepo
+
+UseCase --> RazorPage : BookingResultDto(Success=true, BookingCode="BK102", Deposit=1.150.000đ)
+deactivate UseCase
+
+RazorPage -> CartState : Clear() (Xóa giỏ chọn tạm)
+RazorPage --> User : Hiển thị màn hình thành công: Mã đơn #BK102 kèm mã QR chuyển khoản cọc!
+deactivate RazorPage
+
+@enduml

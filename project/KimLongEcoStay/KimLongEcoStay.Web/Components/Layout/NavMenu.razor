@@ -1,0 +1,54 @@
+<div class="top-row ps-3 navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-warning" href=""><i class="bi bi-shop me-2"></i>Kim Long EcoStay</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Trang Chủ
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="products">
+                <span class="bi bi-basket-fill-nav-menu" aria-hidden="true"></span> Sản Phẩm
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="cart">
+                <span class="bi bi-cart-fill-nav-menu" aria-hidden="true"></span> Giỏ Hàng
+            </NavLink>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3 mt-3 border-top pt-2">
+                    <span class="text-white-50 px-3 small text-uppercase">Quản Trị</span>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link text-warning" href="admin">
+                        <span class="bi bi-speedometer2" aria-hidden="true"></span> Admin Portal
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <a class="nav-link text-danger" href="/logout">
+                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Đăng Xuất (@context.User.Identity?.Name)
+                    </a>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3 mt-3 border-top pt-2">
+                    <NavLink class="nav-link text-info" href="login">
+                        <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Đăng Nhập Quản Trị
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </nav>
+</div>

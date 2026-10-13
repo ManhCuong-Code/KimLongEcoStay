@@ -1,0 +1,194 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.UseCases.PluginInterfaces.DataStore
+@using KimLongEcoStay.UseCases.AdminPortal.CheckInCheckOutScreen
+@inject IOrderRepository OrderRepository
+@inject ICheckInCheckOutUseCase CheckInCheckOutUseCase
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="card shadow-sm border-0 my-3">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-calendar-check-fill me-2 text-success"></i>Quản Lý Vận Hành Check-In / Check-Out & Lịch Trình Lưu Trú
+            </h5>
+            <small class="text-white-50">Thực thi quy chuẩn: Nhận phòng 14:00 (Check-In) | Trả phòng 12:00 (Check-Out) | Hủy phòng trước 48h</small>
+        </div>
+        <button class="btn btn-sm btn-outline-light rounded-pill" @onclick="LoadOrders">
+            <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+        </button>
+    </div>
+
+    <div class="card-body">
+        @if (notificationMessage != null)
+        {
+            <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show d-flex align-items-center" role="alert">
+                <i class="bi @(isError ? "bi-exclamation-triangle-fill" : "bi-check-circle-fill") me-2 fs-5"></i>
+                <div>@notificationMessage</div>
+                <button type="button" class="btn-close" @onclick='() => notificationMessage = null'></button>
+            </div>
+        }
+
+        @if (orders != null && orders.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã Booking</th>
+                            <th>Khách Lưu Trú</th>
+                            <th>SĐT / Zalo</th>
+                            <th>Khoảng Ngày / Giờ</th>
+                            <th class="text-center">Số Đêm</th>
+                            <th class="text-end">Tổng Tiền</th>
+                            <th class="text-center">Trạng Thái Vận Hành</th>
+                            <th class="text-center">Thao Tác Lễ Tân</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ord in orders)
+                        {
+                            bool isCheckedIn = ord.DateProcessing.HasValue && !ord.DateProcessed.HasValue;
+                            bool isCheckedOut = ord.DateProcessed.HasValue && !string.IsNullOrEmpty(ord.AdminUser) && !ord.AdminUser.Contains("Đã hủy");
+                            bool isCancelled = ord.AdminUser != null && ord.AdminUser.Contains("Đã hủy");
+
+                            <tr>
+                                <td class="fw-bold font-monospace text-success">
+                                    @(string.IsNullOrEmpty(ord.UniqueId) ? $"#{ord.OrderID}" : ord.UniqueId)
+                                </td>
+                                <td class="fw-bold text-dark">
+                                    @ord.CustomerName
+                                </td>
+                                <td class="small text-muted font-monospace">
+                                    @ord.CustomerAddress
+                                </td>
+                                <td class="small">
+                                    @(string.IsNullOrEmpty(ord.CustomerStateProvince) ? ord.DatePlaced?.ToString("dd/MM/yyyy") : ord.CustomerStateProvince)
+                                </td>
+                                <td class="text-center fw-bold">@ord.LineItemCount đêm</td>
+                                <td class="text-end fw-bold text-dark">@ord.TotalPrice.ToString("N0") đ</td>
+                                <td class="text-center">
+                                    @if (isCancelled)
+                                    {
+                                        <span class="badge bg-danger">Đã Hủy Đơn</span>
+                                    }
+                                    else if (isCheckedOut)
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-check2-all me-1"></i>Đã Check-Out (12h)
+                                        </span>
+                                    }
+                                    else if (isCheckedIn)
+                                    {
+                                        <span class="badge bg-primary">
+                                            <i class="bi bi-door-open-fill me-1"></i>Đang Ở (Checked-In)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-hourglass-split me-1"></i>Chờ Khách Nhận Phòng
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (!isCancelled)
+                                    {
+                                        @if (!isCheckedIn && !isCheckedOut)
+                                        {
+                                            <button class="btn btn-sm btn-primary rounded-pill me-1" @onclick="() => HandleCheckIn(ord.OrderID ?? 0)" title="Khách đến, bấm nhận phòng lúc 14h">
+                                                <i class="bi bi-box-arrow-in-right me-1"></i>Check-in (14h)
+                                            </button>
+                                        }
+                                        else if (isCheckedIn && !isCheckedOut)
+                                        {
+                                            <button class="btn btn-sm btn-success rounded-pill me-1" @onclick="() => HandleCheckOut(ord.OrderID ?? 0)" title="Khách trả phòng lúc 12h, chuyển buồng phòng sang dọn dẹp">
+                                                <i class="bi bi-box-arrow-right me-1"></i>Check-out (12h)
+                                            </button>
+                                        }
+
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill" @onclick="() => HandleCancel(ord.OrderID ?? 0)" title="Áp dụng quy tắc hoàn cọc / phạt 1 đêm 48h">
+                                            <i class="bi bi-x-circle"></i> Hủy
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">Đã thanh lý</small>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info mb-0">Chưa có đơn đặt phòng nào trong hệ thống.</div>
+        }
+    </div>
+</div>
+
+@code {
+    private IEnumerable<Order>? orders;
+    private string? notificationMessage;
+    private bool isError = false;
+
+    protected override void OnInitialized()
+    {
+        LoadOrders();
+    }
+
+    private void LoadOrders()
+    {
+        orders = OrderRepository.GetOrders();
+    }
+
+    private async Task HandleCheckIn(int orderId)
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        string admin = authState.User.Identity?.Name ?? "letan";
+
+        bool ok = CheckInCheckOutUseCase.CheckIn(orderId, admin);
+        if (ok)
+        {
+            isError = false;
+            notificationMessage = $"Check-in thành công cho đơn #{orderId}. Trạng thái buồng phòng đã chuyển sang OCCUPIED (Đang Có Khách) và kích hoạt mã khóa SmartLock.";
+            LoadOrders();
+        }
+        else
+        {
+            isError = true;
+            notificationMessage = "Không thể xử lý Check-in.";
+        }
+    }
+
+    private async Task HandleCheckOut(int orderId)
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        string admin = authState.User.Identity?.Name ?? "letan";
+
+        bool ok = CheckInCheckOutUseCase.CheckOut(orderId, admin);
+        if (ok)
+        {
+            isError = false;
+            notificationMessage = $"Check-out thành công cho đơn #{orderId}. Buồng phòng đã chuyển sang trạng thái CLEANING (Dọn Phòng) cho nhân viên buồng dọn dẹp trước 14:00.";
+            LoadOrders();
+        }
+        else
+        {
+            isError = true;
+            notificationMessage = "Không thể xử lý Check-out.";
+        }
+    }
+
+    private async Task HandleCancel(int orderId)
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        string admin = authState.User.Identity?.Name ?? "letan";
+
+        var policy = CheckInCheckOutUseCase.CancelBooking(orderId, "Lễ tân hủy theo yêu cầu", admin);
+        isError = false;
+        notificationMessage = $"Đã xử lý hủy đơn #{orderId}. {policy.Message}";
+        LoadOrders();
+    }
+}

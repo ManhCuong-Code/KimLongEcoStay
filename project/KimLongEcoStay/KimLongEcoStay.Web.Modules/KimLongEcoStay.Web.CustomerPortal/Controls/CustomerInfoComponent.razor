@@ -1,0 +1,60 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using KimLongEcoStay.Web.CustomerPortal.ViewModels
+
+<EditForm Model="customer" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary class="alert alert-danger"></ValidationSummary>
+
+    <div class="form-group mb-3">
+        <label for="name" class="form-label fw-bold small text-dark">
+            <i class="bi bi-person-fill text-success me-1"></i>Họ và Tên Khách Lưu Trú <span class="text-danger">*</span>:
+        </label>
+        <InputText id="name" class="form-control" @bind-Value="customer.CustomerName" placeholder="Ví dụ: Nguyễn Văn Hoàng"></InputText>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="address" class="form-label fw-bold small text-dark">
+            <i class="bi bi-telephone-fill text-primary me-1"></i>Số Điện Thoại & Địa Chỉ <span class="text-danger">*</span>:
+        </label>
+        <InputText id="address" class="form-control" @bind-Value="customer.CustomerAddress" placeholder="Ví dụ: 0905.123.456 — 128 Lê Lợi, TP. Huế"></InputText>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <label for="city" class="form-label fw-bold small text-dark">
+                <i class="bi bi-credit-card-2-front-fill text-info me-1"></i>Số CCCD / Tỉnh Thành:
+            </label>
+            <InputText id="city" class="form-control" @bind-Value="customer.CustomerCity" placeholder="Ví dụ: 046098001234"></InputText>
+        </div>
+        <div class="col-md-6">
+            <label for="province" class="form-label fw-bold small text-dark">
+                <i class="bi bi-clock-fill text-warning me-1"></i>Giờ Nhận Phòng Dự Kiến:
+            </label>
+            <InputText id="province" class="form-control" @bind-Value="customer.CustomerStateProvince" placeholder="Ví dụ: 14:00 chiều"></InputText>
+        </div>
+    </div>
+
+    <div class="form-group mb-4">
+        <label for="country" class="form-label fw-bold small text-dark">
+            <i class="bi bi-globe2 text-secondary me-1"></i>Quốc Tịch / Ghi Chú:
+        </label>
+        <InputText id="country" class="form-control" @bind-Value="customer.CustomerCountry" placeholder="Ví dụ: Việt Nam"></InputText>
+    </div>
+
+    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm">
+        <i class="bi bi-check2-circle me-1"></i>Xác Nhận Thông Tin & Tiếp Tục
+    </button>
+</EditForm>
+
+@code {
+    private CustomerViewModel customer = new CustomerViewModel();
+
+    [Parameter]
+    public EventCallback<CustomerViewModel> OnCustomerInfoSubmitted { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        await OnCustomerInfoSubmitted.InvokeAsync(customer);
+    }
+}
+

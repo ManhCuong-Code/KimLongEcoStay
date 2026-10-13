@@ -1,0 +1,170 @@
+@page "/placeorder"
+@rendermode InteractiveServer
+
+@inject IViewShoppingCartUseCase viewShoppingCartUseCase
+@inject IPlaceOrderUseCase placeOrderUseCase
+@inject NavigationManager navigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Thông Tin Khách Lưu Trú & Xác Nhận Đặt Phòng — Kim Long EcoStay</PageTitle>
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-white p-3 rounded-3 border shadow-sm small">
+            <li class="breadcrumb-item"><a href="/" class="text-success text-decoration-none"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
+            <li class="breadcrumb-item"><a href="/cart" class="text-success text-decoration-none">Phòng Đã Chọn</a></li>
+            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">Xác Nhận Lưu Trú & Đặt Cọc</li>
+        </ol>
+    </nav>
+
+    <!-- Header Tiêu Đề -->
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark font-serif mb-1">
+            <i class="bi bi-person-lines-fill text-gold me-2"></i>Thông Tin Khách Lưu Trú & Xác Nhận Đặt Phòng
+        </h2>
+        <p class="text-muted mb-0 small">
+            Hệ thống nhà vườn sinh thái Kim Long áp dụng công nghệ khóa tự động SmartLock 10s. Thông tin chính xác giúp quý khách nhận phòng thông suốt.
+        </p>
+    </div>
+
+    <!-- Hộp Thông Báo Thành Viên -->
+    <div class="alert alert-light border shadow-sm mb-4 rounded-3 d-flex align-items-center">
+        <AuthorizeView>
+            <Authorized>
+                <i class="bi bi-patch-check-fill text-success fs-2 me-3"></i>
+                <div>
+                    <span class="badge bg-success me-2">Thành Viên Đã Đăng Nhập</span>
+                    <span>Xin chào quý khách <strong>@context.User.Identity?.Name</strong>. Hệ thống đã tự động liên kết tài khoản để kích hoạt mã khóa SmartLock.</span>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <i class="bi bi-info-circle-fill text-gold fs-2 me-3"></i>
+                <div>
+                    <span class="badge bg-warning text-dark me-2">Đặt Trực Tiếp Không Cần Tài Khoản</span>
+                    <span>Quý khách đang đặt phòng nhanh. Vui lòng cung cấp <strong>Số điện thoại</strong> chính xác để nhận mã PIN mở cửa phòng và thông tin chuyển cọc VietQR.</span>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+
+    @if (order != null)
+    {
+        <div class="row g-4">
+            <!-- Cột Trái: Form Điền Thông Tin Khách -->
+            <div class="col-lg-7">
+                <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border">
+                    <h5 class="fw-bold text-dark font-serif mb-3 border-bottom pb-2">
+                        <i class="bi bi-card-checklist text-success me-2"></i>Chi Tiết Khách Lưu Trú
+                    </h5>
+
+                    @if (isError)
+                    {
+                        <div class="alert alert-danger d-flex align-items-center mb-3">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                            <div>Vui lòng nhập đầy đủ <strong>Họ tên</strong> và <strong>Số điện thoại / Địa chỉ</strong> để homestay phục vụ quý khách tốt nhất.</div>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">
+                            <i class="bi bi-person-fill text-success me-1"></i>Họ và Tên Khách Lưu Trú <span class="text-danger">*</span>:
+                        </label>
+                        <input type="text" class="form-control form-control-lg rounded-3" @bind="order.CustomerName" placeholder="Ví dụ: Nguyễn Văn Hoàng" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">
+                            <i class="bi bi-telephone-fill text-primary me-1"></i>Số Điện Thoại / Zalo & Địa Chỉ <span class="text-danger">*</span>:
+                        </label>
+                        <input type="text" class="form-control form-control-lg rounded-3" @bind="order.CustomerAddress" placeholder="Ví dụ: 0905.123.456 — 128 Lê Lợi, TP. Huế" />
+                        <small class="text-muted d-block mt-1" style="font-size: 11.5px;">
+                            <i class="bi bi-shield-lock-fill text-success me-1"></i>Mã mở cửa SmartLock sẽ tự động gửi tới số điện thoại này trước giờ nhận phòng.
+                        </small>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark small">
+                                <i class="bi bi-credit-card-2-front-fill text-info me-1"></i>Số CCCD / Hộ Chiếu (Đăng ký tạm trú):
+                            </label>
+                            <input type="text" class="form-control rounded-3" @bind="order.CustomerCity" placeholder="Ví dụ: 046098001234" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark small">
+                                <i class="bi bi-clock-fill text-warning me-1"></i>Giờ Nhận Phòng Dự Kiến:
+                            </label>
+                            <input type="text" class="form-control rounded-3" @bind="order.CustomerStateProvince" placeholder="Ví dụ: 14:30 chiều ngày mai" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark small">
+                            <i class="bi bi-chat-square-dots-fill text-danger me-1"></i>Yêu Cầu Đặc Biệt & Ghi Chú:
+                        </label>
+                        <input type="text" class="form-control rounded-3" @bind="order.CustomerCountry" placeholder="Ví dụ: Đón tại Ga Huế, cần trà sen nóng, ăn chay Cố đô..." />
+                    </div>
+
+                    <!-- Nút Đặt Cọc Hoàn Tất -->
+                    <button class="btn btn-success btn-lg w-100 py-3 fw-bold rounded-3 shadow d-flex align-items-center justify-content-center gap-2" @onclick="HandlePlaceOrder">
+                        <i class="bi bi-check2-circle fs-4"></i>
+                        <span>XÁC NHẬN ĐẶT PHÒNG & XUẤT PHIẾU CỌC VIETQR</span>
+                    </button>
+
+                    <div class="text-center mt-3 text-muted" style="font-size: 11.5px;">
+                        <i class="bi bi-lock-fill text-success me-1"></i>Thông tin được mã hóa bảo mật. Cam kết giữ buồng phòng 100% không trùng lịch (0% Overbooking).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột Phải: Tóm Tắt Chi Phí -->
+            <div class="col-lg-5">
+                <div class="sticky-top" style="top: 90px; z-index: 10;">
+                    <OrderSummaryComponent Order="order" HidePlaceOrderButton="true"></OrderSummaryComponent>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private Order? order;
+    private bool isError = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            order = await viewShoppingCartUseCase.Execute();
+            
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            if (user.Identity != null && user.Identity.IsAuthenticated && order != null)
+            {
+                if (string.IsNullOrWhiteSpace(order.CustomerName))
+                {
+                    order.CustomerName = user.Identity.Name ?? string.Empty;
+                }
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandlePlaceOrder()
+    {
+        if (order == null || string.IsNullOrWhiteSpace(order.CustomerName) || string.IsNullOrWhiteSpace(order.CustomerAddress))
+        {
+            isError = true;
+            return;
+        }
+
+        isError = false;
+        string? orderUniqueId = await placeOrderUseCase.Execute(order);
+        if (!string.IsNullOrEmpty(orderUniqueId))
+        {
+            navigationManager.NavigateTo($"/orderconfirm/{orderUniqueId}");
+        }
+    }
+}
+

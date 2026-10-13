@@ -1,0 +1,119 @@
+@page "/cart"
+@rendermode InteractiveServer
+
+@using KimLongEcoStay.UseCases.ShoppingCartScreen.Interfaces
+
+@inject IViewShoppingCartUseCase viewShoppingCartUseCase
+
+<PageTitle>Buồng Phòng Đã Chọn — Kim Long EcoStay</PageTitle>
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-white p-3 rounded-3 border shadow-sm small">
+            <li class="breadcrumb-item"><a href="/" class="text-success text-decoration-none"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
+            <li class="breadcrumb-item"><a href="/products" class="text-success text-decoration-none">Buồng Phòng</a></li>
+            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">Lịch Trình & Phòng Đã Chọn</li>
+        </ol>
+    </nav>
+
+    <!-- Header Tiêu Đề -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-dark font-serif mb-1">
+                <i class="bi bi-calendar2-check-fill text-gold me-2"></i>Lịch Trình & Buồng Phòng Đã Chọn
+            </h2>
+            <p class="text-muted mb-0 small">
+                Kiểm tra thông tin chi tiết các buồng phòng sinh thái Kim Long trước khi tiến hành đặt cọc qua VietQR
+            </p>
+        </div>
+        <a href="/products" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i>Chọn Thêm Buồng Phòng
+        </a>
+    </div>
+
+    @if (order != null && order.LineItems != null && order.LineItems.Count > 0)
+    {
+        <div class="row g-4">
+            <!-- Cột Trái: Danh sách buồng phòng -->
+            <div class="col-lg-7">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="fw-bold text-dark">
+                        <i class="bi bi-door-open-fill text-success me-1"></i>Danh Sách Buồng Phòng (@order.LineItems.Count loại phòng)
+                    </span>
+                    <span class="badge bg-success bg-opacity-10 text-success small">
+                        <i class="bi bi-check-circle me-1"></i>Đang giữ phòng tạm thời
+                    </span>
+                </div>
+
+                <div class="kle-cart-list">
+                    @for (int i = 0; i < order.LineItems.Count; i++)
+                    {
+                        <LineItemComponent LineItem="order.LineItems[i]"
+                                           OnDeleteProduct="HandleDeleteProduct"
+                                           OnUpdateQuantity="HandleUpdateQuantity">
+                        </LineItemComponent>
+                    }
+                </div>
+
+                <!-- Cam kết trải nghiệm sinh thái -->
+                <div class="p-3 bg-white rounded-3 border shadow-sm mt-3">
+                    <h6 class="fw-bold text-success mb-2 small"><i class="bi bi-stars me-1"></i>Đặc quyền tặng kèm dành riêng cho quý khách:</h6>
+                    <div class="row g-2 text-muted" style="font-size: 12px;">
+                        <div class="col-sm-6"><i class="bi bi-check2-circle text-success me-1"></i>Xe đạp trợ lực điện Eco-Bike tham quan nhà vườn</div>
+                        <div class="col-sm-6"><i class="bi bi-check2-circle text-success me-1"></i>Khóa cửa thông minh SmartLock tạo mã PIN riêng</div>
+                        <div class="col-sm-6"><i class="bi bi-check2-circle text-success me-1"></i>Trà sen cung đình & Bánh mễ làng cổ Kim Long</div>
+                        <div class="col-sm-6"><i class="bi bi-check2-circle text-success me-1"></i>Hướng dẫn viên AI định vị GPS 3 thứ tiếng</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột Phải: Bảng Tóm Tắt Chi Phí -->
+            <div class="col-lg-5">
+                <div class="sticky-top" style="top: 90px; z-index: 10;">
+                    <OrderSummaryComponent Order="order"></OrderSummaryComponent>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Khi giỏ rỗng -->
+        <div class="bg-white rounded-4 border p-5 text-center shadow-sm my-4">
+            <div class="mb-3">
+                <i class="bi bi-house-door-fill text-muted" style="font-size: 4rem; color: #CBD5E1 !important;"></i>
+            </div>
+            <h4 class="fw-bold text-dark font-serif mb-2">Quý Khách Chưa Chọn Buồng Phòng Nào</h4>
+            <p class="text-muted mx-auto mb-4" style="max-width: 500px;">
+                Hãy khám phá 5 buồng phòng sinh thái Kim Long với kiến trúc nhà vườn Cố đô Huế, khóa thông minh SmartLock và xe đạp điện GPS.
+            </p>
+            <a href="/products" class="btn btn-success btn-lg px-4 py-2 rounded-pill fw-bold shadow">
+                <i class="bi bi-compass me-2"></i>Khám Phá Các Buồng Phòng Nhà Vườn
+            </a>
+        </div>
+    }
+</div>
+
+@code {
+    private Order? order;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            order = await viewShoppingCartUseCase.Execute();
+            StateHasChanged();
+        }
+    }
+
+    private void HandleDeleteProduct(Order order)
+    {
+        this.order = order;
+    }
+
+    private void HandleUpdateQuantity(Order order)
+    {
+        this.order = order;
+    }
+}
+

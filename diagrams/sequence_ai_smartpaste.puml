@@ -1,0 +1,83 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam roundcorner 6
+skinparam shadowing false
+skinparam responseMessageBelowArrow true
+
+skinparam sequence {
+    ArrowColor #2D3436
+    ActorBorderColor #6C5CE7
+    LifeLineBorderColor #636E72
+    LifeLineBackgroundColor #F1F2F6
+    ParticipantBorderColor #6C5CE7
+    ParticipantBackgroundColor #FFFFFF
+}
+
+title SƠ ĐỒ TUẦN TỰ (SEQUENCE DIAGRAM): MỞ RỘNG AI SMARTPASTE BÓC TÁCH TIN NHẮN ZALO - DỰ ÁN HOMESTAY HUẾ\n(Tuân thủ 100% Tiêu chí Mục 10 & K4.3: IChatClient inject trong UseCase riêng, Xác nhận trước khi ghi CSDL)
+
+actor "Lễ tân / Chủ Homestay\n(Admin / Host)" as Host
+
+box "4. WebApp (Blazor Server - Admin)" #F0F3F4
+    participant "SmartPasteModalComponent.razor\n(Reusable Component - K3.1)" as RazorModal
+    participant "AdminBookingForm.razor\n(EditForm + DataAnnotations - K3.2)" as RazorForm
+end box
+
+box "2. UseCases Layer" #E8F8F5
+    participant "ExtractBookingFromMessageUseCase\n(UseCase riêng - Mục 10)" as AIUseCase
+    participant "CreateBookingUseCase\n(Main UseCase)" as BookUseCase
+end box
+
+box "External AI / Microsoft.Extensions.AI" #FDEDEC
+    participant "IChatClient\n(OpenAI / Gemini / Ollama local)" as AIChat
+end box
+
+database "SQL Server Database" as DB
+
+== 1. Tiếp Nhận Tin Nhắn Thô & Gọi UseCase Bóc Tách ==
+Host -> RazorModal : Dán tin nhắn Zalo của khách:\n"Dạ chị ơi bên mình còn phòng vườn 2 người từ 20 đến 22/10 ko, mình tên Đăng 0912345678"
+Host -> RazorModal : Nhấn nút "✨ Bóc Tách Tự Động"
+activate RazorModal
+
+' Mục 10: IChatClient được inject vào một UseCase riêng, không gọi trực tiếp từ .razor
+RazorModal -> AIUseCase : ExecuteAsync(rawMessage)
+activate AIUseCase
+
+== 2. Xử Lý Qua IChatClient & Dự Phòng Lỗi (Mục 10) ==
+AIUseCase -> AIChat : CompleteAsync<ExtractedBookingDto>(prompt + rawMessage)\n(API Key lấy từ User Secrets, không hardcode)
+activate AIChat
+
+alt API lỗi / Hết hạn mức / Mất mạng
+    AIChat --> AIUseCase : Ném Ngoại lệ HttpRequestException / RateLimit
+    AIUseCase -> AIUseCase : Xử lý ngoại lệ an toàn (Fallback Regex cơ bản)
+    AIUseCase --> RazorModal : Thông báo: "AI bận, chuyển sang trích xuất cục bộ"
+else Phản hồi thành công
+    AIChat --> AIUseCase : Trả về kết quả JSON có cấu trúc
+    deactivate AIChat
+    AIUseCase --> RazorModal : return ExtractedBookingDto(\n  GuestName="Nguyễn Hải Đăng",\n  Phone="0912345678",\n  RoomType="Bungalow Sân Vườn",\n  CheckIn="20/10", CheckOut="22/10")
+end
+deactivate AIUseCase
+
+== 3. AI Chỉ Gợi Ý - Người Dùng Bắt Buộc Xác Nhận Trước Khi Ghi CSDL (Mục 10) ==
+RazorModal -> RazorForm : Đổ dữ liệu đã trích xuất vào form EditForm
+deactivate RazorModal
+activate RazorForm
+
+RazorForm --> Host : Hiển thị Form điền sẵn trên giao diện để Lễ tân đối soát
+Host -> RazorForm : Lễ tân kiểm tra, chỉnh sửa (nếu cần) & Nhấn nút "LƯU ĐƠN ĐẶT PHÒNG"
+
+== 4. Ghi Vào CSDL Sau Khi Người Dùng Đã Xác Nhận ==
+RazorForm -> BookUseCase : ExecuteAsync(verifiedBookingRequest)
+activate BookUseCase
+BookUseCase -> DB : Ghi dữ liệu vào bảng Booking & BookingNight (Transaction)
+activate DB
+DB --> BookUseCase : Success (BookingId = #BK88)
+deactivate DB
+BookUseCase --> RazorForm : Đơn đặt phòng đã tạo thành công
+deactivate BookUseCase
+
+RazorForm --> Host : Thông báo: "Đã tạo đơn thành công cho khách Nguyễn Hải Đăng!"
+deactivate RazorForm
+
+@enduml

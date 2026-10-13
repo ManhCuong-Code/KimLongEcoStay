@@ -1,0 +1,362 @@
+@page "/lookup"
+@page "/tracuu"
+@rendermode InteractiveServer
+
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.UseCases.BookingLookupScreen
+@using KimLongEcoStay.UseCases.AdminPortal.CheckInCheckOutScreen
+@inject ILookupBookingUseCase LookupBookingUseCase
+@inject ICheckInCheckOutUseCase CheckInCheckOutUseCase
+@inject NavigationManager NavigationManager
+
+<PageTitle>Tra Cứu Đặt Phòng & Khóa SmartLock IoT — Kim Long EcoStay</PageTitle>
+
+<div class="container py-4 my-2">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-white p-3 rounded-3 border shadow-sm small">
+            <li class="breadcrumb-item"><a href="/" class="text-success text-decoration-none"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
+            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">Tra Cứu Đặt Phòng & Khóa Thông Minh SmartLock</li>
+        </ol>
+    </nav>
+
+    <!-- Header Tiêu Đề -->
+    <div class="text-center mb-4">
+        <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill small fw-bold mb-2">
+            <i class="bi bi-key-fill text-warning me-1"></i>SMARTLOCK IOT 10S & QUẢN LÝ LƯU TRÚ
+        </span>
+        <h2 class="fw-bold font-serif text-dark mb-2">Cổng Tra Cứu Đặt Phòng & Nhận Mã Mở Khóa Tự Động</h2>
+        <p class="text-muted mx-auto small" style="max-width: 650px;">
+            Nhập <strong>Mã Đặt Phòng (Booking Code)</strong> hoặc <strong>Số Điện Thoại</strong> để xem chi tiết đặt phòng, lấy mã PIN SmartLock 6 số mở cửa phòng 24/7 và khai báo tạm trú trực tuyến.
+        </p>
+    </div>
+
+    <!-- Thanh Tìm Kiếm Trực Quan -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 mx-auto" style="max-width: 780px; background: linear-gradient(135deg, #ffffff 0%, #f8faf9 100%); border: 1px solid rgba(7, 59, 43, 0.12) !important;">
+        <div class="input-group input-group-lg">
+            <span class="input-group-text bg-white border-end-0 text-success">
+                <i class="bi bi-search fs-5"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 border-end-0 ps-0" 
+                   placeholder="Nhập mã đặt phòng (ví dụ: KLE-20261015-01) hoặc Số điện thoại..." 
+                   @bind="searchQuery" 
+                   @bind:event="oninput" 
+                   @onkeyup="HandleKeyUp" />
+            <button class="btn btn-success fw-bold px-4" type="button" @onclick="SearchBooking">
+                <i class="bi bi-arrow-right-circle me-1"></i>Tra Cứu Ngay
+            </button>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mt-3 pt-2 border-top text-muted small">
+            <span>
+                <i class="bi bi-lightbulb-fill text-warning me-1"></i>Mã mẫu thử nghiệm: 
+                <a href="javascript:void(0)" class="badge bg-light text-dark text-decoration-none border me-1" @onclick='() => SetSampleCode("KLE-20261015-01")'>KLE-20261015-01</a>
+                <a href="javascript:void(0)" class="badge bg-light text-dark text-decoration-none border" @onclick='() => SetSampleCode("0912.345.678")'>0912.345.678</a>
+            </span>
+            <span><i class="bi bi-shield-check text-success me-1"></i>Bảo mật thông tin khách hàng</span>
+        </div>
+    </div>
+
+    @if (hasSearched && lookupDetail == null)
+    {
+        <div class="alert alert-warning text-center p-4 rounded-4 shadow-sm mx-auto" style="max-width: 780px;">
+            <i class="bi bi-exclamation-circle-fill fs-2 text-warning d-block mb-2"></i>
+            <h5 class="fw-bold text-dark">Không tìm thấy thông tin đặt phòng</h5>
+            <p class="text-muted small mb-0">
+                Không tìm thấy đơn nào khớp với từ khóa <strong>"@searchQuery"</strong>. Vui lòng kiểm tra lại mã trên tin nhắn Zalo hoặc liên hệ Hotline Lễ Tân: <strong class="text-success">0905.123.456</strong>.
+            </p>
+        </div>
+    }
+    else if (lookupDetail != null && lookupDetail.Order != null)
+    {
+        var order = lookupDetail.Order;
+        var depositAmount = (long)(order.TotalPrice * 0.5);
+        var qrCodeUrl = $"https://img.vietqr.io/image/970436-1028394856-compact2.png?amount={depositAmount}&addInfo=KLE%20{order.UniqueId}&accountName=KIM%20LONG%20ECOSTAY%20JSC";
+
+        <div class="mx-auto" style="max-width: 950px;">
+            <!-- THẺ SMARTLOCK IOT CLOUD 10S: ĐIỂM SÁNG CÔNG NGHỆ -->
+            <div class="card border-0 rounded-4 shadow-lg overflow-hidden mb-4" style="background: linear-gradient(135deg, #073B2B 0%, #0E5E45 100%); color: white;">
+                <div class="card-body p-4 p-md-5">
+                    <div class="row align-items-center g-4">
+                        <!-- Cột Trái: Thông tin khóa -->
+                        <div class="col-lg-7">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-warning text-dark fw-bold px-3 py-1">
+                                    <i class="bi bi-cpu-fill me-1"></i>SMARTLOCK IOT CLOUD
+                                </span>
+                                <span class="badge bg-light bg-opacity-25 text-white">
+                                    <i class="bi bi-battery-charging me-1"></i>Pin: @lookupDetail.BatteryLevel%
+                                </span>
+                                <span class="badge bg-success">
+                                    <i class="bi bi-wifi me-1"></i>Đã kết nối Zigbee Gateway
+                                </span>
+                            </div>
+
+                            <h3 class="font-serif fw-bold text-white mb-2">
+                                Khóa Thông Minh: @lookupDetail.RoomName
+                            </h3>
+                            <p class="text-white-50 small mb-3">
+                                <i class="bi bi-clock-history me-1"></i>@lookupDetail.PinValidity
+                            </p>
+
+                            <!-- Khung Bàn Phím Số & Mã PIN Phát Sáng -->
+                            <div class="p-3 rounded-4 bg-black bg-opacity-35 border border-warning border-opacity-50 mb-3">
+                                <div class="text-white-50 small text-uppercase fw-bold mb-1">Mã PIN Mở Cửa Tự Động Của Quý Khách:</div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fs-1 fw-bold font-monospace text-warning letter-spacing-2" style="letter-spacing: 6px;">
+                                        @lookupDetail.SmartLockPin
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-warning rounded-pill px-3" @onclick="CopyPin">
+                                        <i class="bi @(isCopied ? "bi-check2" : "bi-clipboard") me-1"></i>
+                                        @(isCopied ? "Đã sao chép!" : "Sao chép mã PIN")
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Hướng dẫn thao tác chạm -->
+                            <div class="small text-white-50">
+                                <strong><i class="bi bi-info-circle me-1 text-warning"></i>Cách mở cửa:</strong>
+                                Chạm bàn phím số của khóa để sáng đèn &rarr; Bấm <code>* @lookupDetail.SmartLockPin #</code> &rarr; Khóa phát âm thanh bíp và mở chốt trong 1 giây.
+                            </div>
+                        </div>
+
+                        <!-- Cột Phải: Hình ảnh mô phỏng khóa điện tử -->
+                        <div class="col-lg-5 text-center">
+                            <div class="p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-20 backdrop-blur">
+                                <i class="bi bi-door-open-fill text-warning" style="font-size: 4rem;"></i>
+                                <div class="fw-bold text-white fs-5 mt-2">Phòng Sẵn Sàng Đón Tiếp</div>
+                                <div class="badge bg-success px-3 py-2 mt-2">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Không Cần Chờ Đợi Lễ Tân
+                                </div>
+                                <div class="text-white-50 small mt-2" style="font-size: 11px;">
+                                    Tự động đổi mã PIN sau mỗi lượt trả phòng để bảo đảm tuyệt đối sự riêng tư.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THẺ THÔNG TIN CHI TIẾT ĐƠN PHÒNG & VIETQR -->
+            <div class="card border-0 rounded-4 shadow-sm p-4 p-md-5 mb-4 bg-white">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4 flex-wrap gap-2">
+                    <div>
+                        <span class="text-muted small text-uppercase fw-bold">Mã Đặt Buồng Phòng</span>
+                        <div class="fs-3 fw-bold text-success font-monospace">@order.UniqueId</div>
+                    </div>
+                    <div>
+                        @if (order.DateProcessed.HasValue)
+                        {
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-check-circle-fill me-1"></i>Đã Xác Nhận & Đã Cọc 50%
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                <i class="bi bi-hourglass-split me-1"></i>Chờ Chuyển Cọc 50%
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Bảng tóm tắt thông tin -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <h6 class="fw-bold text-success mb-2 font-serif"><i class="bi bi-person-fill me-1"></i>Khách Lưu Trú</h6>
+                            <div><strong>Họ tên:</strong> @order.CustomerName</div>
+                            <div><strong>SĐT / Địa chỉ:</strong> @order.CustomerAddress</div>
+                            <div><strong>Thời gian đặt:</strong> @order.DatePlaced?.ToString("dd/MM/yyyy HH:mm")</div>
+                            @if (!string.IsNullOrEmpty(order.CustomerCity))
+                            {
+                                <div><strong>CCCD / Hộ chiếu:</strong> @order.CustomerCity</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100 border">
+                            <h6 class="fw-bold text-success mb-2 font-serif"><i class="bi bi-cash-stack me-1"></i>Chi Phí Lưu Trú</h6>
+                            <div><strong>Tổng tiền phòng:</strong> @order.TotalPrice.ToString("N0") VNĐ</div>
+                            <div><strong>Tiền cọc giữ phòng (50%):</strong> <span class="text-danger fw-bold">@depositAmount.ToString("N0") VNĐ</span></div>
+                            <div><strong>Thanh toán khi nhận phòng (50%):</strong> @depositAmount.ToString("N0") VNĐ</div>
+                            <div class="text-muted small mt-1"><i class="bi bi-shield-check text-success me-1"></i>Bao gồm xe đạp Eco-Bike & GPS Audio Guide</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIETQR NẾU CHƯA CỌC -->
+                @if (!order.DateProcessed.HasValue)
+                {
+                    <div class="p-3 rounded-4 mb-4" style="background: #FFFBEB; border: 1px solid #FDE68A;">
+                        <div class="row align-items-center g-3">
+                            <div class="col-md-4 text-center">
+                                <img src="@qrCodeUrl" alt="VietQR" class="img-fluid rounded-3 shadow-sm border" style="max-height: 180px;" />
+                            </div>
+                            <div class="col-md-8">
+                                <span class="badge bg-danger mb-2">QUÉT MÃ VIETQR ĐỂ KÍCH HOẠT MÃ KHÓA</span>
+                                <h6 class="fw-bold text-dark">Chuyển khoản cọc 50%: @depositAmount.ToString("N0") VNĐ</h6>
+                                <p class="small text-muted mb-2">
+                                    Ngân hàng: <strong>Vietcombank</strong> • Số TK: <strong class="font-monospace text-success">1028 394 856</strong><br>
+                                    Nội dung: <strong class="badge bg-dark font-monospace">KLE @order.UniqueId</strong>
+                                </p>
+                                <small class="text-success"><i class="bi bi-clock-history me-1"></i>Hệ thống tự động kích hoạt mã PIN SmartLock sau khi nhận tiền cọc trong 30 giây.</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- THỰC THI LUẬT 2: CHÍNH SÁCH HỦY PHÒNG TRƯỚC 48 GIỜ -->
+                @if (lookupDetail.CancellationPolicy != null)
+                {
+                    var policy = lookupDetail.CancellationPolicy;
+                    <div class="p-3 rounded-3 bg-light border mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                            <h6 class="fw-bold text-dark mb-0 font-serif">
+                                <i class="bi bi-shield-exclamation text-warning me-1"></i>Quy Chế Hủy Phòng Trước 48 Giờ (Luật Nghiệp Vụ 2)
+                            </h6>
+                            <span class="badge @(policy.IsEligibleForFullRefund ? "bg-success" : "bg-warning text-dark")">
+                                Còn @policy.HoursUntilCheckIn giờ đến giờ nhận phòng (14h00)
+                            </span>
+                        </div>
+                        <p class="small text-muted mb-2">
+                            @policy.Message
+                        </p>
+                        @if (!isCancelled)
+                        {
+                            <button class="btn btn-outline-danger btn-sm rounded-pill" @onclick="HandleCancelRequest">
+                                <i class="bi bi-x-circle me-1"></i>Gửi Yêu Cầu Hủy Phòng Này
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="alert alert-danger py-2 px-3 small rounded-3 mt-2 mb-0">
+                                <i class="bi bi-check-circle-fill me-1"></i>Yêu cầu hủy phòng đã được xử lý. Số tiền hoàn cọc (@policy.RefundAmount.ToString("N0") VNĐ) sẽ được chuyển về tài khoản của quý khách trong vòng 24 giờ làm việc.
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- FORM ĐĂNG KÝ TẠM TRÚ CCCD TRỰC TUYẾN -->
+                <div class="p-3 rounded-3 border bg-white mb-3">
+                    <h6 class="fw-bold text-success mb-2 font-serif">
+                        <i class="bi bi-person-badge text-primary me-1"></i>Khai Báo Tạm Trú Trực Tuyến (Công An Phường Kim Long)
+                    </h6>
+                    <p class="small text-muted mb-3">
+                        Quý khách có thể điền số CCCD và quê quán trước tại đây để lễ tân làm thủ tục khai báo tạm trú tự động, không cần giữ lại giấy tờ tùy thân khi đến nhận phòng.
+                    </p>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control form-control-sm rounded-2" placeholder="Số CCCD / Hộ chiếu" @bind="guestCccd" />
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control form-control-sm rounded-2" placeholder="Quê quán / Địa chỉ thường trú" @bind="guestHometown" />
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-success btn-sm w-100 rounded-2" @onclick="SaveCccdInfo">
+                                <i class="bi bi-check2-circle me-1"></i>@(isCccdSaved ? "Đã Khai Báo" : "Lưu Thông Tin")
+                            </button>
+                        </div>
+                    </div>
+                    @if (isCccdSaved)
+                    {
+                        <div class="text-success small mt-2">
+                            <i class="bi bi-check-circle-fill me-1"></i>Thông tin tạm trú đã được đồng bộ với hệ thống Lễ tân Kim Long EcoStay!
+                        </div>
+                    }
+                </div>
+
+                <!-- CÁC NÚT THAO TÁC HỖ TRỢ -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 border-top">
+                    <a href="https://zalo.me/0347902890" target="_blank" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                        <i class="bi bi-chat-dots-fill me-1"></i>Chat Zalo Với Lễ Tân (24/7)
+                    </a>
+                    <button class="btn btn-outline-secondary rounded-pill px-3" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i>In Phiếu Xác Nhận / Lưu PDF
+                    </button>
+                    <a href="/" class="btn btn-outline-success rounded-pill px-3">
+                        <i class="bi bi-arrow-left me-1"></i>Về Trang Chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string searchQuery = string.Empty;
+    private BookingLookupDetail? lookupDetail;
+    private bool hasSearched = false;
+    private bool isCopied = false;
+    private bool isCancelled = false;
+    private string guestCccd = string.Empty;
+    private string guestHometown = string.Empty;
+    private bool isCccdSaved = false;
+
+    [SupplyParameterFromQuery(Name = "code")]
+    public string? CodeFromUrl { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(CodeFromUrl))
+        {
+            searchQuery = CodeFromUrl;
+            SearchBooking();
+        }
+    }
+
+    private void SetSampleCode(string sample)
+    {
+        searchQuery = sample;
+        SearchBooking();
+    }
+
+    private void HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SearchBooking();
+        }
+    }
+
+    private void SearchBooking()
+    {
+        hasSearched = true;
+        isCopied = false;
+        isCancelled = false;
+        isCccdSaved = false;
+
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            lookupDetail = null;
+            return;
+        }
+
+        lookupDetail = LookupBookingUseCase.Execute(searchQuery);
+        if (lookupDetail?.Order != null)
+        {
+            guestCccd = lookupDetail.Order.CustomerCity ?? string.Empty;
+            guestHometown = lookupDetail.Order.CustomerCountry ?? string.Empty;
+        }
+    }
+
+    private void CopyPin()
+    {
+        isCopied = true;
+    }
+
+    private void HandleCancelRequest()
+    {
+        if (lookupDetail?.Order?.OrderID != null)
+        {
+            var res = CheckInCheckOutUseCase.CancelBooking(lookupDetail.Order.OrderID.Value, "Khách yêu cầu hủy qua cổng trực tuyến", "Khách hàng");
+            isCancelled = true;
+        }
+    }
+
+    private void SaveCccdInfo()
+    {
+        isCccdSaved = true;
+    }
+}
