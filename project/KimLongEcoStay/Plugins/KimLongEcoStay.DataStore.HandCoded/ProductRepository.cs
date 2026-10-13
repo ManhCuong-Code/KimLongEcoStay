@@ -48,8 +48,8 @@ namespace KimLongEcoStay.DataStore.HandCoded
                     Brand = "Nhà Vườn Nguyệt Biều (Kim Long)", 
                     Name = "Family Eco-Villa Gắn Kết (KLE-R202)", 
                     Price = 820000, 
-                    ImageLink = "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1200&q=85", 
-                    Description = "Biệt thự vườn sinh thái dành cho gia đình 4 khách, sân vườn cỏ an toàn cho bé chạy nhảy, bộ kit nông nghiệp học hái quả và tưới rau, xe đạp gia đình dạo quanh làng cổ Kim Long." 
+                    ImageLink = "/images/hero_ecostay.jpg", 
+                    Description = "Biệt thự nhà vườn sinh thái dành cho gia đình 4 khách, không gian rợp bóng cây xanh mát, sân vườn an toàn cho bé chạy nhảy và khám phá nông nghiệp vườn bưởi Thanh Trà." 
                 },
                 new Product 
                 { 
@@ -57,8 +57,8 @@ namespace KimLongEcoStay.DataStore.HandCoded
                     Brand = "Nhà Vườn Nguyệt Biều (Kim Long)", 
                     Name = "Heritage Studio Trầm Mặc (KLE-R203)", 
                     Price = 590000, 
-                    ImageLink = "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=85", 
-                    Description = "Độc bản văn hóa Cố Đô, view hồ súng thanh tịnh & rặng chuối ngự. Bộ ấm trà Cung Đình, bàn cờ tướng & kệ sách lịch sử triều Nguyễn. Trợ giá 50% xe máy điện thông minh vi vu Đại Nội." 
+                    ImageLink = "/images/nha_ruong_2.jpg", 
+                    Description = "Độc bản văn hóa Cố Đô nhà rường trầm mặc, view hồ sen thanh tịnh & rặng chuối ngự. Bộ ấm trà Cung Đình, bàn cờ tướng & kệ sách lịch sử triều Nguyễn. Trợ giá xe điện thông minh vi vu Đại Nội." 
                 }
             };
         }

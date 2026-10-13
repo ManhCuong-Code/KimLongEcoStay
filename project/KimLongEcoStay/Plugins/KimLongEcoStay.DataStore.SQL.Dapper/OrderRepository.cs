@@ -39,7 +39,7 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
                             Name = "Phòng Eco-Nest Ban Mai (KLE-R101)",
                             Brand = "Nhà Vườn Hương Sen (Kim Long)",
                             Price = 390000,
-                            ImageLink = "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"
+                            ImageLink = "/images/room_econest.jpg"
                         }
                     }
                 }
@@ -71,7 +71,7 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
                             Name = "Garden Suite Cố Đô Thanh Trà (KLE-R201)",
                             Brand = "Nhà Vườn Nguyệt Biều (Kim Long)",
                             Price = 680000,
-                            ImageLink = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"
+                            ImageLink = "/images/room_gardensuite.jpg"
                         }
                     }
                 }

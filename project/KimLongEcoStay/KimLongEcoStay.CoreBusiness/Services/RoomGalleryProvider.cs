@@ -16,7 +16,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                     RoomId = 1,
                     RoomName = "Eco-Nest Ban Mai (KLE-R101)",
                     Url = "/images/room_econest.jpg",
-                    Caption = "Không gian phòng ngủ Eco-Nest đón ánh ban mai ấm áp & giường nệm organic cao cấp",
+                    Caption = "Phòng ngủ Eco-Nest đệm organic tự nhiên, kiến trúc gỗ mộc mạc đón ánh ban mai ấm áp",
                     Category = "Phòng Ngủ",
                     Tag = "Góc Toàn Cảnh"
                 },
@@ -24,35 +24,35 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 1,
                     RoomName = "Eco-Nest Ban Mai (KLE-R101)",
-                    Url = "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Ban công kính panorama nhìn thẳng ra cánh đồng lúa xanh ngát và rặng cau Kim Long",
-                    Category = "Ban Công & View",
-                    Tag = "Bình Minh Cố Đô"
-                },
-                new RoomPhoto
-                {
-                    RoomId = 1,
-                    RoomName = "Eco-Nest Ban Mai (KLE-R101)",
-                    Url = "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Bồn tắm sứ sinh thái ngâm thảo mộc bồ hòn & tinh dầu sả chanh tự nhiên",
-                    Category = "Bồn Tắm & Thảo Mộc",
-                    Tag = "Thư Giãn Thảo Dược"
-                },
-                new RoomPhoto
-                {
-                    RoomId = 1,
-                    RoomName = "Eco-Nest Ban Mai (KLE-R101)",
-                    Url = "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Hiên trà đón nắng mai rọi bóng hoa cỏ nhà vườn, tĩnh tại và trong lành",
+                    Url = "/images/nha_ruong_3.jpg",
+                    Caption = "Hiên gỗ nhà rường ngắm vườn bưởi Thanh Trà và hoa cau Kim Long đón nắng sớm",
                     Category = "Hiên Trà & Vườn",
-                    Tag = "Góc Đón Nắng Sớm"
+                    Tag = "Hiên Nhà Rường"
+                },
+                new RoomPhoto
+                {
+                    RoomId = 1,
+                    RoomName = "Eco-Nest Ban Mai (KLE-R101)",
+                    Url = "/images/kien_truc_vuon_hue.jpg",
+                    Caption = "Bồn ngâm thảo mộc bồ hòn & tinh dầu tràm Thủy Xuân hướng ra cảnh quan sinh thái",
+                    Category = "Bồn Tắm & Thảo Mộc",
+                    Tag = "Thảo Mộc Xứ Huế"
+                },
+                new RoomPhoto
+                {
+                    RoomId = 1,
+                    RoomName = "Eco-Nest Ban Mai (KLE-R101)",
+                    Url = "/images/song_huong_hoanghon.jpg",
+                    Caption = "Tầm nhìn thoáng đãng hướng về dòng sông Hương êm đềm và rặng tre ngà Kim Long",
+                    Category = "Ban Công & View",
+                    Tag = "View Sông Hương"
                 },
                 new RoomPhoto
                 {
                     RoomId = 1,
                     RoomName = "Eco-Nest Ban Mai (KLE-R101)",
                     Url = "/images/tour_xedap.jpg",
-                    Caption = "Tặng xe đạp trợ lực điện Eco-Bike dạo mát làng cổ Kim Long và Chùa Thiên Mụ",
+                    Caption = "Xe đạp trợ lực điện Eco-Bike dạo mát đường làng Kim Long và Chùa Thiên Mụ",
                     Category = "Trải Nghiệm",
                     Tag = "Eco-Bike Trợ Lực"
                 }
@@ -64,7 +64,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                     RoomId = 2,
                     RoomName = "Eco-Nest Hoàng Hôn (KLE-R102)",
                     Url = "/images/room_hoanghon.jpg",
-                    Caption = "Phòng ngủ view lộng gió đón trọn vẹn ráng chiều hoàng hôn rực rỡ bên dòng sông Hương",
+                    Caption = "Không gian phòng nghỉ đón trọn ráng chiều hoàng hôn rực rỡ bên dòng sông Hương",
                     Category = "Phòng Ngủ",
                     Tag = "Góc Toàn Cảnh"
                 },
@@ -72,8 +72,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 2,
                     RoomName = "Eco-Nest Hoàng Hôn (KLE-R102)",
-                    Url = "https://images.unsplash.com/photo-1540518614846-7ede433c4ef4?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Ban công hướng sông Hương, ngắm ánh hoàng hôn rọi bóng thuyền rồng lướt êm",
+                    Url = "/images/song_huong_hoanghon.jpg",
+                    Caption = "Góc ban công ngắm ráng vàng hoàng hôn trên sông Hương và bóng thuyền rồng lướt êm",
                     Category = "Ban Công & View",
                     Tag = "Hoàng Hôn Sông Hương"
                 },
@@ -81,17 +81,17 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 2,
                     RoomName = "Eco-Nest Hoàng Hôn (KLE-R102)",
-                    Url = "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Bồn tắm đá tự nhiên mở rộng tầm mắt ngắm hoàng hôn với xà phòng thảo dược",
-                    Category = "Bồn Tắm & Thảo Mộc",
-                    Tag = "Bồn Tắm Đá Cố Đô"
+                    Url = "/images/thuyen_rong_hue.jpg",
+                    Caption = "Trải nghiệm ngắm thuyền rồng Cố Đô và lắng nghe nhã nhạc ca Huế trên dòng Hương Giang",
+                    Category = "Trải Nghiệm",
+                    Tag = "Thuyền Rồng Cố Đô"
                 },
                 new RoomPhoto
                 {
                     RoomId = 2,
                     RoomName = "Eco-Nest Hoàng Hôn (KLE-R102)",
-                    Url = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Góc thư giãn chiều tà đọc sách bên ấm trà sen Huế thơm ngát",
+                    Url = "/images/nha_ruong_2.jpg",
+                    Caption = "Góc ngồi đọc sách & thưởng trà sen Cung Đình bên vách gỗ đố bản trầm ấm",
                     Category = "Hiên Trà & Vườn",
                     Tag = "Thưởng Trà Ráng Chiều"
                 },
@@ -100,7 +100,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                     RoomId = 2,
                     RoomName = "Eco-Nest Hoàng Hôn (KLE-R102)",
                     Url = "/images/smart_tour.jpg",
-                    Caption = "Hệ thống thuyết minh di sản thông minh GPS Audio Guide tích hợp trên mọi nẻo đường",
+                    Caption = "Tour di sản thông minh GPS Audio Guide tích hợp thuyết minh 3 ngôn ngữ",
                     Category = "Trải Nghiệm",
                     Tag = "GPS Audio Guide"
                 }
@@ -112,7 +112,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                     RoomId = 3,
                     RoomName = "Garden Suite Cố Đô Thanh Trà (KLE-R201)",
                     Url = "/images/room_gardensuite.jpg",
-                    Caption = "Nhà rường cổ kết hợp tiện nghi cao cấp dưới bóng vườn bưởi Thanh Trà 40 năm tuổi",
+                    Caption = "Nhà rường cổ kính nguyên bản xứ Huế dưới bóng vườn bưởi Thanh Trà 40 năm tuổi",
                     Category = "Phòng Ngủ",
                     Tag = "Góc Toàn Cảnh"
                 },
@@ -120,8 +120,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 3,
                     RoomName = "Garden Suite Cố Đô Thanh Trà (KLE-R201)",
-                    Url = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Giường gỗ chạm khắc họa tiết hoa sen Cố Đô tinh xảo, chăn ga lụa tơ tằm mềm mại",
+                    Url = "/images/nha_ruong_1.jpg",
+                    Caption = "Cột gỗ mít chạm khắc tinh xảo, vì kèo truyền thống và sập gụ cổ Cố Đô Huế",
                     Category = "Phòng Ngủ",
                     Tag = "Nội Thất Nhà Rường"
                 },
@@ -129,8 +129,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 3,
                     RoomName = "Garden Suite Cố Đô Thanh Trà (KLE-R201)",
-                    Url = "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Bồn ngâm chân gỗ pơ-mu thơm ngát cùng muối thảo mộc hoàng cung giải tỏa mệt mỏi",
+                    Url = "/images/ho_sen_hue.jpg",
+                    Caption = "Liệu pháp ngâm chân gỗ pơ-mu với muối thảo dược hoàng cung & hoa sen ngát hương",
                     Category = "Bồn Tắm & Thảo Mộc",
                     Tag = "Ngâm Chân Hoàng Cung"
                 },
@@ -138,7 +138,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 3,
                     RoomName = "Garden Suite Cố Đô Thanh Trà (KLE-R201)",
-                    Url = "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85",
+                    Url = "/images/nha_ruong_3.jpg",
                     Caption = "Hiên trà thưởng nguyệt nhìn ra rặng bưởi Thanh Trà trĩu quả thơm hương hoa bưởi",
                     Category = "Hiên Trà & Vườn",
                     Tag = "Vườn Bưởi 40 Năm"
@@ -148,7 +148,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                     RoomId = 3,
                     RoomName = "Garden Suite Cố Đô Thanh Trà (KLE-R201)",
                     Url = "/images/mon_banhuot.jpg",
-                    Caption = "Đặc sản bánh ướt thịt nướng Kim Long trứ danh phục vụ tận hiên phòng",
+                    Caption = "Đặc sản bánh ướt thịt nướng Kim Long trứ danh phục vụ đón tiếp tận hiên phòng",
                     Category = "Trải Nghiệm",
                     Tag = "Đặc Sản Kim Long"
                 }
@@ -159,8 +159,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 4,
                     RoomName = "Family Eco-Villa Gắn Kết (KLE-R202)",
-                    Url = "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Biệt thự vườn sinh thái rộng rãi 2 giường lớn dành cho gia đình 4 người ấm cúng",
+                    Url = "/images/hero_ecostay.jpg",
+                    Caption = "Khuôn viên nhà vườn sinh thái rộng rãi 1.200m² dành cho cả gia đình sum vầy",
                     Category = "Phòng Ngủ",
                     Tag = "Góc Toàn Cảnh"
                 },
@@ -168,8 +168,17 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 4,
                     RoomName = "Family Eco-Villa Gắn Kết (KLE-R202)",
-                    Url = "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Sân vườn cỏ tự nhiên xanh mát an toàn tuyệt đối cho bé chạy nhảy và khám phá thiên nhiên",
+                    Url = "/images/nha_ruong_1.jpg",
+                    Caption = "Không gian gian nhà gỗ truyền thống rộng thoáng, ấm cúng cho gia đình 4 thành viên",
+                    Category = "Phòng Khách",
+                    Tag = "Không Gian Nhà Rường"
+                },
+                new RoomPhoto
+                {
+                    RoomId = 4,
+                    RoomName = "Family Eco-Villa Gắn Kết (KLE-R202)",
+                    Url = "/images/kien_truc_vuon_hue.jpg",
+                    Caption = "Lối dạo rợp bóng cây cổ thụ và thảm cỏ an toàn cho trẻ em khám phá thiên nhiên",
                     Category = "Hiên Trà & Vườn",
                     Tag = "Sân Vườn Trẻ Thơ"
                 },
@@ -177,28 +186,19 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 4,
                     RoomName = "Family Eco-Villa Gắn Kết (KLE-R202)",
-                    Url = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Phòng sinh hoạt chung gia đình tiện nghi với bàn trà mây tre đan tinh tế",
-                    Category = "Phòng Khách",
-                    Tag = "Không Gian Sinh Hoạt"
+                    Url = "/images/nha_ruong_2.jpg",
+                    Caption = "Bàn trà gỗ mộc mạc nơi cả gia đình quây quần trò chuyện và thưởng thức trà quả Cố Đô",
+                    Category = "Hiên Trà & Vườn",
+                    Tag = "Gia Đình Quây Quần"
                 },
                 new RoomPhoto
                 {
                     RoomId = 4,
                     RoomName = "Family Eco-Villa Gắn Kết (KLE-R202)",
-                    Url = "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Bàn tiệc ăn uống ngoài trời sum họp cả nhà rộn rã tiếng cười giữa vườn hoa",
-                    Category = "Ban Công & View",
-                    Tag = "Tiệc Trà Ngoài Trời"
-                },
-                new RoomPhoto
-                {
-                    RoomId = 4,
-                    RoomName = "Family Eco-Villa Gắn Kết (KLE-R202)",
-                    Url = "/images/hero_ecostay.jpg",
-                    Caption = "Khuôn viên sinh thái rộng hơn 1.500m² với thảm cỏ và rặng cây xanh mát",
+                    Url = "/images/chua_thien_mu.jpg",
+                    Caption = "Cả gia đình cùng đạp xe thăm Chùa Thiên Mụ cổ kính cách homestay chỉ 4 phút",
                     Category = "Trải Nghiệm",
-                    Tag = "Khuôn Viên Sinh Thái"
+                    Tag = "Chùa Thiên Mụ"
                 }
             },
             [5] = new List<RoomPhoto>
@@ -207,8 +207,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 5,
                     RoomName = "Heritage Studio Trầm Mặc (KLE-R203)",
-                    Url = "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Studio độc bản trầm mặc, hòa quyện phong vị cung đình và nét tối giản hiện đại",
+                    Url = "/images/nha_ruong_2.jpg",
+                    Caption = "Studio độc bản trầm mặc, hòa quyện phong vị triều Nguyễn và sự thanh tịnh Cố Đô",
                     Category = "Phòng Ngủ",
                     Tag = "Góc Toàn Cảnh"
                 },
@@ -216,8 +216,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 5,
                     RoomName = "Heritage Studio Trầm Mặc (KLE-R203)",
-                    Url = "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Bộ ấm chén trà Cung Đình cổ, bàn cờ tướng và góc đọc sách văn hóa triều Nguyễn",
+                    Url = "/images/nha_ruong_1.jpg",
+                    Caption = "Bộ ấm trà Cung Đình cổ, bàn cờ tướng và góc đọc sách văn hóa triều đại",
                     Category = "Hiên Trà & Vườn",
                     Tag = "Bàn Trà Cổ Kính"
                 },
@@ -225,19 +225,19 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 {
                     RoomId = 5,
                     RoomName = "Heritage Studio Trầm Mặc (KLE-R203)",
-                    Url = "https://images.unsplash.com/photo-1509233725247-49e657c54213?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Cửa sổ nhìn ra hồ súng thanh tịnh, hoa súng nở sớm thơm mát hương thảo mộc",
+                    Url = "/images/ho_sen_hue.jpg",
+                    Caption = "Cửa sổ hướng ra hồ sen thanh tịnh, hoa sen tỏa hương thơm mộc mạc sớm mai",
                     Category = "Ban Công & View",
-                    Tag = "Hồ Súng Thanh Tịnh"
+                    Tag = "Hồ Sen Thanh Tịnh"
                 },
                 new RoomPhoto
                 {
                     RoomId = 5,
                     RoomName = "Heritage Studio Trầm Mặc (KLE-R203)",
-                    Url = "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=85",
-                    Caption = "Phòng tắm ốp sỏi đá tự nhiên Cố Đô, vòi sen tắm mưa nhiệt đới thư giãn",
+                    Url = "/images/chua_thien_mu.jpg",
+                    Caption = "Tầm nhìn hướng tháp Phước Duyên Chùa Thiên Mụ bảng lảng chuông chiều",
                     Category = "Bồn Tắm & Thảo Mộc",
-                    Tag = "Phòng Tắm Sỏi Đá"
+                    Tag = "Cảnh Sắc Thiên Mụ"
                 },
                 new RoomPhoto
                 {
@@ -258,14 +258,13 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 return photos;
             }
 
-            // Fallback default photos
             return new List<RoomPhoto>
             {
                 new RoomPhoto
                 {
                     RoomId = roomId,
                     Url = "/images/room_econest.jpg",
-                    Caption = "Không gian phòng nghỉ sinh thái Kim Long EcoStay",
+                    Caption = "Không gian phòng nghỉ sinh thái nhà vườn Kim Long EcoStay Cố Đô Huế",
                     Category = "Phòng Ngủ",
                     Tag = "Toàn Cảnh"
                 }
