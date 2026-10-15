@@ -2,20 +2,36 @@
         AdditionalAssemblies="new[]
                                 {
                                     typeof(KimLongEcoStay.Web.CustomerPortal.Pages.ViewProductComponent).Assembly,
-                                    typeof(KimLongEcoStay.Web.AdminPortal.Controls.OutstandingOrdersComponent).Assembly
+                                    typeof(KimLongEcoStay.Web.AdminPortal.Controls.OutstandingOrdersComponent).Assembly,
+                                    typeof(KimLongEcoStay.Web.Common.Controls.FloatingHomestayAiComponent).Assembly
                                 }">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
             <NotAuthorized>
                 <div class="container p-5 text-center">
-                    <div class="alert alert-warning shadow-sm border border-warning">
-                        <h4 class="alert-heading text-dark fw-bold"><i class="bi bi-shield-lock-fill me-2 text-danger"></i>Khu Vực Quản Trị Hệ Thống Dành Riêng Cho Nhân Viên</h4>
-                        <p class="mb-2">Khách hàng có thể tự do xem danh sách buồng phòng và đặt phòng trực tuyến <strong>mà không cần đăng nhập</strong>.</p>
-                        <p class="text-muted small">Để truy cập phân hệ kiểm tra đơn đặt phòng và buồng phòng, <strong>Nhân viên</strong> hoặc <strong>Quản trị viên</strong> cần phải đăng nhập tài khoản hệ thống.</p>
-                        <hr />
-                        <div class="d-flex justify-content-center gap-2">
-                            <a href="login" class="btn btn-primary fw-bold px-4"><i class="bi bi-shield-lock me-1"></i>Đăng Nhập Nhân Viên</a>
-                            <a href="/" class="btn btn-outline-success px-4"><i class="bi bi-house-door me-1"></i>Về Trang Đặt Phòng (Khách)</a>
+                    <div class="alert alert-warning shadow-sm border border-warning rounded-4 p-4">
+                        <h4 class="alert-heading text-dark fw-bold mb-2">
+                            <i class="bi bi-shield-lock-fill me-2 text-warning"></i>Khu Vực Quản Trị Hệ Thống Dành Riêng Cho Nhân Viên (Admin & Staff)
+                        </h4>
+                        <p class="mb-2">Khách hàng du lịch có thể tự do xem buồng phòng và đặt phòng trực tuyến <strong>mà không cần đăng nhập</strong>.</p>
+                        <p class="text-muted small mb-4">Để kiểm tra đơn đặt phòng, duyệt cọc VietQR, cấp mã PIN SmartLock và xem báo cáo công suất, vui lòng xác thực phiên làm việc:</p>
+                        
+                        <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                            <a href="/quick-login?role=admin" class="btn btn-warning fw-bold px-4 py-2 shadow-sm rounded-pill">
+                                <i class="bi bi-shield-check me-1"></i>Vào Ngay Quyền Quản Trị (Admin 1-Click)
+                            </a>
+                            <a href="/quick-login?role=letan" class="btn btn-success fw-bold px-4 py-2 shadow-sm rounded-pill">
+                                <i class="bi bi-person-badge me-1"></i>Vào Ngay Quyền Lễ Tân (Staff 1-Click)
+                            </a>
+                            <a href="/login" class="btn btn-outline-dark fw-bold px-4 py-2 rounded-pill">
+                                <i class="bi bi-key-fill me-1"></i>Đăng Nhập Thủ Công
+                            </a>
+                        </div>
+                        <hr class="my-3" />
+                        <div>
+                            <a href="/" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                <i class="bi bi-house-door me-1"></i>Trở Về Trang Chủ Khách Đặt Phòng
+                            </a>
                         </div>
                     </div>
                 </div>

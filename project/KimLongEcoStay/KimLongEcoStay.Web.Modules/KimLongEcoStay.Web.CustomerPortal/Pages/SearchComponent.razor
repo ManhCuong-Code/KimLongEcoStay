@@ -8,6 +8,8 @@
 
 @inject ISearchProductUseCase searchProduct
 @inject NavigationManager navigationManager
+@inject IJSRuntime jsRuntime
+@using Microsoft.JSInterop
 @using KimLongEcoStay.CoreBusiness.Models
 @using KimLongEcoStay.CoreBusiness.Services
 
@@ -202,6 +204,21 @@
                 Nhà Vườn Nguyệt Biều (3 Phòng)
             </button>
         </div>
+
+        @if (hasSearched)
+        {
+            <div class="alert alert-success d-flex align-items-center justify-content-between rounded-4 shadow-sm my-3 p-3 border-success border-opacity-25 bg-success bg-opacity-10 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle-fill fs-4 text-success"></i>
+                    <div>
+                        <strong class="text-success">Kết quả tìm phòng trống:</strong> 
+                        <span>Tìm thấy <strong>@(filteredProducts?.Count() ?? 0)</strong> buồng phòng sinh thái sẵn sàng đón tiếp 
+                        @(stayType == "nightly" ? $"từ {checkInDate:dd/MM/yyyy} đến {checkOutDate:dd/MM/yyyy}" : $"ngày {checkInDate:dd/MM/yyyy} ({selectedHourSlot})")</span>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" @onclick="ResetSearch">Xem tất cả 5 phòng</button>
+            </div>
+        }
     </div>
 
     @if (filteredProducts != null && filteredProducts.Any())
@@ -374,6 +391,11 @@
     </div>
 </div>
 
+<!-- ==========================================================================
+     6. HỆ THỐNG BẢN ĐỒ SỐ QUẦN THỂ DI TÍCH & LÀNG NGHỀ HUẾ
+     ========================================================================== -->
+<HeritageMapComponent IsEmbedded="true" />
+
 @code {
     private IEnumerable<Product>? allProducts;
     private IEnumerable<Product>? filteredProducts;
@@ -423,15 +445,47 @@
         filteredProducts = allProducts;
     }
 
-    private void FilterByGarden(string gardenKeyword)
+    private bool hasSearched = false;
+
+    private async Task FilterByGarden(string gardenKeyword)
     {
         selectedGarden = gardenKeyword;
         ApplyFilters();
+        await ScrollToRooms();
     }
 
-    private void HandleSearchFilter()
+    private async Task HandleSearchFilter()
     {
+        hasSearched = true;
         ApplyFilters();
+        await ScrollToRooms();
+    }
+
+    private async Task ScrollToRooms()
+    {
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("scrollToSection", "rooms");
+        }
+        catch { }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var uri = navigationManager.Uri;
+            if (uri.Contains("#heritage-map") || uri.EndsWith("/map") || uri.EndsWith("/heritage-map"))
+            {
+                await Task.Delay(300);
+                try { await jsRuntime.InvokeVoidAsync("scrollToSection", "heritage-map"); } catch { }
+            }
+            else if (uri.Contains("#rooms") || uri.EndsWith("/products") || uri.EndsWith("/rooms") || uri.EndsWith("/product") || uri.EndsWith("/room"))
+            {
+                await Task.Delay(200);
+                await ScrollToRooms();
+            }
+        }
     }
 
     private void ApplyFilters()
@@ -451,6 +505,7 @@
 
     private void ResetSearch()
     {
+        hasSearched = false;
         selectedGarden = string.Empty;
         filteredProducts = allProducts;
     }

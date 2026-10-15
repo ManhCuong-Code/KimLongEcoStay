@@ -30,9 +30,9 @@
                     </NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link kle-nav-item" href="products">
-                        <i class="bi bi-door-open me-1"></i>Buồng Phòng
-                    </NavLink>
+                    <a class="nav-link kle-nav-item" href="/#rooms">
+                        <i class="bi bi-door-open me-1"></i>Danh Sách Phòng Trống
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link kle-nav-item" href="/#gallery">
@@ -55,9 +55,14 @@
                     </NavLink>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link kle-nav-item" href="/#amenities">
-                        <i class="bi bi-shield-check me-1"></i>Tiện Ích Sinh Thái
+                    <a class="nav-link kle-nav-item" href="/#heritage-map">
+                        <i class="bi bi-map-fill text-warning me-1"></i>Bản Đồ Di Tích & Làng Nghề
                     </a>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link kle-nav-item fw-bold" href="ai-assistant" style="color: #6EE7B7 !important;">
+                        <i class="bi bi-robot text-success me-1"></i>Trợ Lý AI
+                    </NavLink>
                 </li>
             </ul>
 
@@ -103,6 +108,11 @@
                         </li>
                     </Authorized>
                     <NotAuthorized>
+                        <li class="nav-item">
+                            <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="/admin" title="Cổng điều hành & quản trị homestay">
+                                <i class="bi bi-shield-lock-fill me-1"></i>Quản Trị (Admin)
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="/login">
                                 <i class="bi bi-person me-1"></i>Đăng Nhập

@@ -1,0 +1,347 @@
+@page "/ai-assistant"
+@page "/tro-ly-ai"
+
+@rendermode InteractiveServer
+
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services.Interfaces
+@inject IHomestayAiService AiService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Trợ Lý AI Du Lịch & Buồng Phòng Cố Đô — Kim Long EcoStay</PageTitle>
+
+<div class="container py-4 my-2">
+    <!-- TIÊU ĐỀ PHÂN HỆ AI -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-gradient text-white rounded-4 p-3 shadow-sm d-flex align-items-center justify-content-center" 
+                 style="background: linear-gradient(135deg, #073B2B 0%, #0F5C43 100%); width: 56px; height: 56px; border: 2px solid #D4AF37;">
+                <i class="bi bi-robot fs-3 text-warning"></i>
+            </div>
+            <div>
+                <h2 class="h4 mb-1 fw-bold text-dark font-serif d-flex align-items-center gap-2">
+                    Trợ Lý AI Kim Long EcoStay
+                    <span class="badge bg-success-subtle text-success border border-success-subtle fs-7 fw-semibold">
+                        <i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i>Trực Tuyến 24/7
+                    </span>
+                </h2>
+                <div class="text-muted small">
+                    Hệ thống Trí tuệ nhân tạo tư vấn du lịch di sản Cố đô, hướng dẫn nhận phòng SmartLock & hỗ trợ đặt phòng trực tiếp
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+            <a href="/#rooms" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-bold">
+                <i class="bi bi-door-open me-1"></i>Xem Danh Sách Phòng
+            </a>
+            <a href="/lookup" class="btn btn-outline-warning btn-sm rounded-pill px-3 fw-bold text-dark">
+                <i class="bi bi-key-fill text-warning me-1"></i>Tra Cứu Mã PIN Khóa
+            </a>
+            <a href="/map" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+                <i class="bi bi-map-fill me-1"></i>Bản Đồ Di Sản
+            </a>
+        </div>
+    </div>
+
+    <!-- KHU VỰC CHÍNH: 2 CỘT (CỘT TRÁI: CHATBOT AI, CỘT PHẢI: KHO TRI THỨC & CẤU HÌNH) -->
+    <div class="row g-4">
+        <!-- CỘT TRÁI: HỘP THOẠI CHATBOT -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden d-flex flex-column" style="height: 650px;">
+                <!-- Header Khung Chat -->
+                <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-success bg-opacity-10 text-success p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="bi bi-stars"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark small">Hội Thoại Trực Tiếp Cùng AI Cố Đô</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">Phản hồi tức thì • Hỗ trợ tiếng Việt tự nhiên</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-link btn-sm text-muted text-decoration-none p-0" @onclick="ClearChat">
+                        <i class="bi bi-trash3 me-1"></i>Làm mới cuộc trò chuyện
+                    </button>
+                </div>
+
+                <!-- Thân Tin Nhắn Chat -->
+                <div class="card-body p-4 overflow-y-auto bg-light" style="flex: 1 1 auto;">
+                    <!-- Gợi Ý Câu Hỏi Mẫu -->
+                    @if (messages.Count <= 1)
+                    {
+                        <div class="p-3 bg-white rounded-3 border mb-3 shadow-sm">
+                            <div class="fw-bold text-dark small mb-2">
+                                <i class="bi bi-lightbulb-fill text-warning me-1"></i>Các câu hỏi khách du lịch thường hỏi nhất:
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var p in quickPrompts)
+                                {
+                                    <button class="btn btn-sm btn-outline-success rounded-pill" style="font-size: 0.8rem;" @onclick="() => AskQuick(p)">
+                                        @p
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Danh sách bong bóng tin nhắn -->
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var m in messages)
+                        {
+                            @if (m.Sender == "User")
+                            {
+                                <div class="d-flex justify-content-end">
+                                    <div class="p-3 text-white rounded-4 shadow-sm" style="background: linear-gradient(135deg, #073B2B 0%, #0F5C43 100%); max-width: 80%; border-bottom-right-radius: 4px;">
+                                        <div class="small">@m.Content</div>
+                                        <div class="text-end text-white-50 mt-1" style="font-size: 0.65rem;">@m.Timestamp.ToString("HH:mm")</div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="d-flex gap-2 align-items-start">
+                                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0 mt-1" 
+                                         style="background: #073B2B; width: 34px; height: 34px; border: 1.5px solid #D4AF37;">
+                                        <i class="bi bi-robot text-warning small"></i>
+                                    </div>
+                                    <div class="p-3 bg-white border rounded-4 shadow-sm" style="max-width: 85%; border-bottom-left-radius: 4px;">
+                                        <div class="small text-dark" style="line-height: 1.6;">
+                                            @((MarkupString)FormatMarkdownText(m.Content))
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(m.ActionUrl) && !string.IsNullOrWhiteSpace(m.ActionLabel))
+                                        {
+                                            <div class="mt-3 pt-2 border-top">
+                                                <a href="@m.ActionUrl" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" style="font-size: 0.8rem;">
+                                                    @m.ActionLabel <i class="bi bi-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+                                        }
+
+                                        <div class="text-muted mt-2" style="font-size: 0.65rem;">
+                                            @m.Timestamp.ToString("HH:mm") • Kim Long EcoStay AI
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        @if (isThinking)
+                        {
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center" 
+                                     style="background: #073B2B; width: 34px; height: 34px;">
+                                    <i class="bi bi-robot text-warning small"></i>
+                                </div>
+                                <div class="p-3 bg-white border rounded-4 shadow-sm text-muted small d-flex align-items-center gap-2">
+                                    <div class="spinner-grow spinner-grow-sm text-success" role="status"></div>
+                                    <span>Trợ lý AI đang tra cứu tri thức Cố đô & phòng nghỉ...</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Input Nhập Câu Hỏi -->
+                <div class="card-footer bg-white border-top p-3">
+                    <form @onsubmit="SendMessageAsync" class="d-flex align-items-center gap-2">
+                        <input type="text" 
+                               class="form-control rounded-pill px-3" 
+                               placeholder="Gõ câu hỏi về giá phòng, khóa SmartLock, ăn uống, xe đạp di sản..." 
+                               @bind="userInput" 
+                               @bind:event="oninput" 
+                               disabled="@isThinking" />
+                        <button type="submit" 
+                                class="btn btn-success rounded-pill px-4 fw-bold" 
+                                disabled="@(isThinking || string.IsNullOrWhiteSpace(userInput))">
+                            <i class="bi bi-send-fill me-1"></i>Gửi
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: THÔNG TIN TRI THỨC & CẤU HÌNH NHANH -->
+        <div class="col-lg-4">
+            <!-- Thẻ 1: Trạng Thái Mô Hình AI -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-dark font-serif mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-cpu-fill text-success"></i>Động Cơ AI Đang Chạy
+                    </h6>
+
+                    <div class="p-3 rounded-3 bg-light border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small">Mô hình:</span>
+                            <span class="badge @(config.Provider == AiProviderType.LocalSmartEngine ? "bg-success" : "bg-primary")">
+                                @(config.Provider == AiProviderType.LocalSmartEngine ? "Local Smart Engine" : config.Model)
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small">Trạng thái:</span>
+                            <span class="text-success small fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Sẵn sàng 100%</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Thời gian phản hồi:</span>
+                            <span class="text-dark small font-monospace">&lt; 1 giây</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Đổi chế độ:</label>
+                        <select class="form-select form-select-sm" @onchange="OnProviderChange">
+                            <option value="0" selected="@(config.Provider == AiProviderType.LocalSmartEngine)">🌱 Động Cơ Bản Địa (Offline, không cần Key)</option>
+                            <option value="1" selected="@(config.Provider == AiProviderType.Gemini)">☁️ Google Gemini API (Cloud LLM)</option>
+                            <option value="2" selected="@(config.Provider == AiProviderType.OpenAi)">☁️ OpenAI ChatGPT (Cloud LLM)</option>
+                        </select>
+                    </div>
+
+                    @if (config.Provider != AiProviderType.LocalSmartEngine)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">API Key:</label>
+                            <input type="password" class="form-control form-control-sm" placeholder="Nhập API Key..." @bind="config.ApiKey" />
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Ghi chú bổ sung của chủ homestay:</label>
+                        <textarea class="form-control form-control-sm" rows="2" @bind="config.CustomNotes"></textarea>
+                    </div>
+
+                    <button class="btn btn-sm btn-outline-success w-100 fw-bold rounded-pill" @onclick="SaveConfig">
+                        <i class="bi bi-check-lg me-1"></i>Lưu Cấu Hình AI
+                    </button>
+
+                    @if (showSavedToast)
+                    {
+                        <div class="alert alert-success py-1 px-2 mt-2 mb-0 small text-center rounded-3">
+                            Đã cập nhật cấu hình AI!
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Thẻ 2: Tóm Tắt Tri Thức Cố Đô Của Homestay -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-dark font-serif mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-journal-text text-warning"></i>Tri Thức Kim Long EcoStay
+                    </h6>
+                    <p class="small text-muted mb-3" style="line-height: 1.6;">
+                        Trợ lý AI được huấn luyện theo bộ dữ liệu thực tế của đề tài Khởi nghiệp Sinh thái Kim Long:
+                    </p>
+                    <ul class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
+                        <li><strong>5 Hạng phòng:</strong> Ban Mai (390k), Hoàng Hôn (450k), Garden Suite (680k), Villa (1.450k), Studio (580k).</li>
+                        <li><strong>Tài khoản cọc 50%:</strong> TPBank <code>10787723714</code> (Trần Viết Mạnh Cường).</li>
+                        <li><strong>SmartLock:</strong> Cấp mã PIN 6 số tự động sau khi cọc VietQR.</li>
+                        <li><strong>Luật 48h:</strong> Hoàn cọc 100% khi hủy trước 48 giờ.</li>
+                        <li><strong>Di sản:</strong> Chùa Thiên Mụ 1.2km, Nhà vườn An Hiên 600m.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<AiChatMessage> messages = new();
+    private List<string> quickPrompts = new();
+    private string userInput = string.Empty;
+    private bool isThinking = false;
+    private bool showSavedToast = false;
+    private HomestayAiConfiguration config = new();
+
+    protected override void OnInitialized()
+    {
+        config = AiService.GetConfiguration();
+        quickPrompts = AiService.GetQuickPrompts();
+
+        messages.Add(new AiChatMessage
+        {
+            Sender = "Assistant",
+            Content = "Dạ, em chào quý khách! Em là **Trợ lý AI Kim Long EcoStay** 🌿\n\nQuý khách đang tìm kiếm buồng phòng nghỉ dưỡng, muốn nhận mã mở khóa SmartLock, xem tuyến xe đạp Chùa Thiên Mụ hay thưởng thức bánh ướt thịt nướng Kim Long ạ?",
+            Timestamp = DateTime.Now
+        });
+    }
+
+    private async Task SendMessageAsync()
+    {
+        if (string.IsNullOrWhiteSpace(userInput) || isThinking) return;
+
+        string q = userInput.Trim();
+        userInput = string.Empty;
+
+        messages.Add(new AiChatMessage
+        {
+            Sender = "User",
+            Content = q,
+            Timestamp = DateTime.Now
+        });
+
+        isThinking = true;
+        StateHasChanged();
+
+        try
+        {
+            var res = await AiService.AskAsync(q, messages);
+            messages.Add(res);
+        }
+        catch (Exception ex)
+        {
+            messages.Add(new AiChatMessage
+            {
+                Sender = "Assistant",
+                Content = $"Dạ có chút gián đoạn ạ ({ex.Message}). Quý khách vui lòng gọi Hotline 0905.123.456 để được phục vụ ngay! 🌿",
+                Timestamp = DateTime.Now
+            });
+        }
+        finally
+        {
+            isThinking = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task AskQuick(string prompt)
+    {
+        userInput = prompt;
+        await SendMessageAsync();
+    }
+
+    private void ClearChat()
+    {
+        messages.Clear();
+        messages.Add(new AiChatMessage
+        {
+            Sender = "Assistant",
+            Content = "Dạ, cuộc trò chuyện đã được làm mới. Quý khách cần em tư vấn thêm điều gì về Kim Long EcoStay ạ? 🌸",
+            Timestamp = DateTime.Now
+        });
+    }
+
+    private void OnProviderChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+        {
+            config.Provider = (AiProviderType)val;
+        }
+    }
+
+    private void SaveConfig()
+    {
+        AiService.UpdateConfiguration(config);
+        showSavedToast = true;
+        StateHasChanged();
+    }
+
+    private string FormatMarkdownText(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+        string f = text.Replace("\n", "<br>");
+        f = System.Text.RegularExpressions.Regex.Replace(f, @"\*\*(.*?)\*\*", "<strong>$1</strong>");
+        f = System.Text.RegularExpressions.Regex.Replace(f, @"`(.*?)`", "<code class='kle-code-pill'>$1</code>");
+        return f;
+    }
+}

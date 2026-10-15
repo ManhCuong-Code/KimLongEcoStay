@@ -1,0 +1,688 @@
+@page "/map"
+@page "/heritage-map"
+@page "/ban-do"
+@page "/lang-nghe"
+
+@rendermode InteractiveServer
+
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
+@inject NavigationManager navigationManager
+
+<PageTitle>Bản Đồ Quần Thể Di Tích Cố Đô & Làng Nghề Huế — Kim Long EcoStay</PageTitle>
+
+<div class="heritage-map-section" id="heritage-map">
+    <div class="container">
+        <!-- ==================================================================
+             1. HEADER PHÂN HỆ BẢN ĐỒ SỐ DI TÍCH & LÀNG NGHỀ & ẨM THỰC
+             ================================================================== -->
+        <div class="text-center mx-auto mb-4" style="max-width: 960px;">
+            <div class="story-pill-badge mb-2 d-inline-flex align-items-center gap-1" style="background: rgba(184, 134, 11, 0.15); color: #B8860B; padding: 6px 16px; border-radius: 30px; font-weight: 700; font-size: 12px; letter-spacing: 0.5px;">
+                <i class="bi bi-compass-fill"></i>
+                <span>HỆ THỐNG BẢN ĐỒ SỐ GIS DI SẢN & ẨM THỰC CỐ ĐÔ HUẾ</span>
+            </div>
+
+            <h2 class="font-serif fw-bold text-dark mb-2" style="font-size: 32px; line-height: 1.3;">
+                Bản Đồ Quần Thể Di Tích, Làng Nghề & <span style="color: var(--kle-primary);">Ẩm Thực Xứ Huế</span>
+            </h2>
+
+            <p class="text-muted mx-auto" style="font-size: 15px; line-height: 1.7; max-width: 860px;">
+                Tọa độ chuẩn xác và hình ảnh thực tế của <strong>16 Quần thể di tích & danh thắng</strong>, <strong>11 Làng nghề thủ công</strong> và <strong>14 Thiên đường ẩm thực Cố đô</strong>. 
+                Khởi hành từ tâm điểm <strong>Kim Long EcoStay</strong> với xe đạp trợ lực điện Eco-Bike và thiết bị thuyết minh tự động GPS Audio Guide.
+            </p>
+
+            <!-- Thống kê nhanh -->
+            <div class="d-flex justify-content-center gap-2 gap-md-3 mt-3 flex-wrap">
+                <div class="d-flex align-items-center gap-2 px-3 py-2 bg-white rounded-pill border shadow-sm small">
+                    <span class="badge bg-warning text-dark rounded-circle p-2"><i class="bi bi-bank2"></i></span>
+                    <span><strong>16</strong> Di Tích & Danh Thắng</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 px-3 py-2 bg-white rounded-pill border shadow-sm small">
+                    <span class="badge rounded-circle p-2 text-white" style="background: #EA580C;"><i class="bi bi-flower2"></i></span>
+                    <span><strong>11</strong> Làng Nghề Thủ Công</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 px-3 py-2 bg-white rounded-pill border shadow-sm small">
+                    <span class="badge bg-danger rounded-circle p-2 text-white"><i class="bi bi-egg-fried"></i></span>
+                    <span><strong>14</strong> Điểm Đến Ẩm Thực Huế</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 px-3 py-2 bg-white rounded-pill border shadow-sm small">
+                    <span class="badge bg-success rounded-circle p-2"><i class="bi bi-house-heart-fill"></i></span>
+                    <span><strong>0km</strong> Tâm điểm Kim Long</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================================
+             2. THANH TÌM KIẾM & BỘ LỌC DANH MỤC THỜI GIAN THỰC
+             ================================================================== -->
+        <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border mb-4">
+            <div class="row g-3 align-items-center">
+                <!-- Ô tìm kiếm -->
+                <div class="col-lg-5 col-md-12">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control bg-light border-start-0 py-2" 
+                               placeholder="Tìm bánh ướt, bún bò, chè hẻm, Thủy Xuân, Đại Nội..." 
+                               value="@searchTerm" 
+                               @oninput="HandleSearchInput" />
+                        @if (!string.IsNullOrEmpty(searchTerm))
+                        {
+                            <button class="btn btn-light border" type="button" @onclick="ClearSearch">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Các nút lọc danh mục -->
+                <div class="col-lg-7 col-md-12">
+                    <div class="d-flex gap-2 flex-wrap justify-content-lg-end">
+                        @foreach (var cat in categories)
+                        {
+                            <button type="button" 
+                                    class="map-filter-btn @(selectedCategory == cat ? "active" : "")"
+                                    @onclick="() => FilterByCategory(cat)">
+                                @if (cat == "Ẩm Thực Xứ Huế")
+                                {
+                                    <i class="bi bi-egg-fried me-1 text-danger"></i>
+                                }
+                                else if (cat == "Làng Nghề Truyền Thống")
+                                {
+                                    <i class="bi bi-flower2 me-1" style="color: #EA580C;"></i>
+                                }
+                                else if (cat == "Quần Thể Di Tích Cố Đô")
+                                {
+                                    <i class="bi bi-bank2 me-1 text-warning"></i>
+                                }
+                                @cat
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================================
+             3. KHUNG BẢN ĐỒ TƯƠNG TÁC LEAFLET (INTERACTIVE MAP & GUEST NAVIGATION)
+             ================================================================== -->
+        <div class="map-wrapper-card mb-4 position-relative shadow-sm rounded-4 overflow-hidden border">
+            <!-- 3.1. THANH ĐIỀU HƯỚNG CHỈ ĐƯỜNG CHO KHÁCH (GUEST NAVIGATION BAR) -->
+            <div class="p-3 bg-light border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 flex-wrap">
+                    <span class="badge py-2 px-3 rounded-pill fw-bold text-white shadow-sm" style="background: #15803D; font-size: 12px;">
+                        <i class="bi bi-house-door-fill me-1"></i>Xuất phát: Kim Long EcoStay
+                    </span>
+                    <i class="bi bi-arrow-right text-muted d-none d-md-inline fs-6"></i>
+                    
+                    <!-- Dropdown chọn địa điểm muốn chỉ đường -->
+                    <div class="flex-grow-1" style="min-width: 250px; max-width: 380px;">
+                        <select class="form-select form-select-sm border-success rounded-pill shadow-sm py-2 fw-semibold text-dark"
+                                value="@selectedNavLocationId"
+                                @onchange="OnNavLocationChanged">
+                            <option value="">-- Chọn điểm muốn chỉ đường đến --</option>
+                            <optgroup label="🍜 Ẩm Thực Xứ Huế (8 quán nức tiếng)">
+                                @foreach (var l in allLocations.Where(x => x.Category == "Ẩm Thực Xứ Huế"))
+                                {
+                                    <option value="@l.Id">@l.Name (@l.DistanceFromEcoStayKm km)</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🏛️ Quần Thể Di Tích Cố Đô (11 di tích)">
+                                @foreach (var l in allLocations.Where(x => x.Category == "Quần Thể Di Tích Cố Đô"))
+                                {
+                                    <option value="@l.Id">@l.Name (@l.DistanceFromEcoStayKm km)</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🏮 Làng Nghề Thủ Công (9 làng nghề)">
+                                @foreach (var l in allLocations.Where(x => x.Category == "Làng Nghề Truyền Thống"))
+                                {
+                                    <option value="@l.Id">@l.Name (@l.DistanceFromEcoStayKm km)</option>
+                                }
+                            </optgroup>
+                            <optgroup label="⛩️ Chùa Cổ & Nhà Vườn Di Sản">
+                                @foreach (var l in allLocations.Where(x => x.Category == "Chùa Cổ & Tâm Linh" || x.Category == "Nhà Vườn Di Sản"))
+                                {
+                                    <option value="@l.Id">@l.Name (@l.DistanceFromEcoStayKm km)</option>
+                                }
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Chọn phương tiện -->
+                    <div class="btn-group btn-group-sm rounded-pill border bg-white p-1 shadow-sm">
+                        <button type="button" 
+                                class="btn btn-sm rounded-pill @(selectedNavMode == "bike" ? "btn-success fw-bold text-white shadow-sm" : "btn-light text-secondary")" 
+                                @onclick='() => ChangeNavMode("bike")' 
+                                title="Xe đạp trợ lực điện Eco-Bike">
+                            <i class="bi bi-bicycle"></i> Eco-Bike
+                        </button>
+                        <button type="button" 
+                                class="btn btn-sm rounded-pill @(selectedNavMode == "walk" ? "btn-success fw-bold text-white shadow-sm" : "btn-light text-secondary")" 
+                                @onclick='() => ChangeNavMode("walk")' 
+                                title="Đi bộ dạo phố">
+                            <i class="bi bi-person-walking"></i> Đi bộ
+                        </button>
+                        <button type="button" 
+                                class="btn btn-sm rounded-pill @(selectedNavMode == "motor" ? "btn-success fw-bold text-white shadow-sm" : "btn-light text-secondary")" 
+                                @onclick='() => ChangeNavMode("motor")' 
+                                title="Xe máy hoặc Taxi">
+                            <i class="bi bi-scooter"></i> Xe máy
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    @if (!string.IsNullOrEmpty(selectedNavLocationId))
+                    {
+                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-bold" @onclick="ClearNavigation">
+                            <i class="bi bi-x-circle me-1"></i>Hủy chỉ đường
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- 3.2. Header bar bản đồ: Chuyển đổi lớp bản đồ & Chú giải & Tuyến Tour -->
+            <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3 small flex-wrap">
+                    <!-- Nút chuyển đổi 3 chế độ Bản đồ: Du lịch / Giao thông / Vệ tinh -->
+                    <div class="map-layer-switch shadow-sm">
+                        <button type="button" 
+                                class="map-layer-btn @(currentMapMode == "street" ? "active" : "")" 
+                                @onclick='() => ChangeMapMode("street")'
+                                title="Bản đồ đường phố du lịch Cố đô - Tươi sáng, nổi bật sông Hương & danh thắng">
+                            <i class="bi bi-map-fill text-primary"></i>
+                            <span>Bản đồ phố (Du lịch)</span>
+                        </button>
+                        <button type="button" 
+                                class="map-layer-btn @(currentMapMode == "esri_street" ? "active" : "")" 
+                                @onclick='() => ChangeMapMode("esri_street")'
+                                title="Bản đồ giao thông - Chi tiết từng tên đường, ngõ hẻm và cầu qua sông Hương">
+                            <i class="bi bi-signpost-split-fill text-warning"></i>
+                            <span>Bản đồ phố (Giao thông)</span>
+                        </button>
+                        <button type="button" 
+                                class="map-layer-btn @(currentMapMode == "satellite" ? "active" : "")" 
+                                @onclick='() => ChangeMapMode("satellite")'
+                                title="Ảnh vệ tinh thực tế độ phân giải cao">
+                            <i class="bi bi-globe-americas text-success"></i>
+                            <span>Vệ tinh thực tế</span>
+                        </button>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold"
+                            @onclick="ResetMapCenter" title="Tải lại bản đồ và căn giữa vị trí Homestay Kim Long">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Về tâm Homestay
+                    </button>
+
+                    <div class="vr d-none d-md-block" style="height: 24px;"></div>
+
+                    <!-- Chú giải phân loại màu ghim ảnh -->
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="fw-bold text-dark"><i class="bi bi-layers-fill text-success me-1"></i>Chú giải:</span>
+                        <span><span class="badge" style="background:#15803D;">●</span> Homestay</span>
+                        <span><span class="badge" style="background:#D97706;">●</span> Di tích Cố đô</span>
+                        <span><span class="badge" style="background:#EA580C;">●</span> Làng nghề</span>
+                        <span><span class="badge" style="background:#DC2626;">●</span> Ẩm thực Huế</span>
+                        <span><span class="badge" style="background:#7C3AED;">●</span> Chùa cổ</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="small text-muted d-none d-sm-inline">Lộ trình:</span>
+                    <button class="btn btn-sm @(activeRouteId == "ROUTE-SUNSET" ? "btn-warning text-dark fw-bold shadow-sm" : "btn-outline-warning text-dark") rounded-pill px-3 py-1"
+                            @onclick='() => TriggerRoute("ROUTE-SUNSET")'>
+                        🌅 Tuyến 5: Hoàng Hôn
+                    </button>
+                    <button class="btn btn-sm @(activeRouteId == "ROUTE-FOOD" ? "btn-danger text-white shadow-sm" : "btn-outline-danger") rounded-pill px-3 py-1"
+                            @onclick='() => TriggerRoute("ROUTE-FOOD")'>
+                        🍲 Tuyến 4: Ẩm Thực
+                    </button>
+                    <button class="btn btn-sm @(activeRouteId == "ROUTE-RIVER" ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1"
+                            @onclick='() => TriggerRoute("ROUTE-RIVER")'>
+                        🚴 Tuyến 1: Sông Hương
+                    </button>
+                    <button class="btn btn-sm @(activeRouteId == "ROUTE-CRAFTS" ? "btn-warning text-dark" : "btn-outline-warning text-dark") rounded-pill px-3 py-1"
+                            @onclick='() => TriggerRoute("ROUTE-CRAFTS")'>
+                        🏮 Tuyến 2: Làng Nghề
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1" 
+                            title="Đưa bản đồ về tâm điểm Kim Long EcoStay"
+                            @onclick="ResetMapCenter">
+                        <i class="bi bi-crosshair"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Div hiển thị bản đồ Leaflet & Khung chứa HUD chỉ đường -->
+            <div class="position-relative">
+                <div id="heritage-leaflet-map" style="min-height: 540px; width: 100%;"></div>
+                
+                <!-- Bảng HUD Chỉ Đường Trực Tiếp (Hiển thị khi khách chọn một địa điểm) -->
+                <div id="guest-navigation-hud"></div>
+            </div>
+
+            <!-- Footer trạng thái bản đồ -->
+            <div class="p-2 px-3 bg-light border-top d-flex justify-content-between align-items-center small text-muted flex-wrap gap-1">
+                <div>
+                    <i class="bi bi-info-circle text-primary me-1"></i>
+                    <span>Bấm vào bất kỳ ghim nào hoặc chọn từ thanh chỉ đường để xem tuyến đường vẽ trực tiếp từ <strong>Kim Long EcoStay</strong> kèm mô phỏng xe đạp.</span>
+                </div>
+                <div>
+                    Hiển thị <strong>@displayedLocations.Count</strong> / @allLocations.Count địa điểm
+                </div>
+            </div>
+
+            <!-- Quick Photo Carousel Strip: Lướt nhanh món ngon & di tích tiêu biểu -->
+            <div class="p-3 bg-white border-top">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-dark">
+                        <i class="bi bi-camera-fill text-danger me-1"></i>
+                        Hình ảnh món ngon ẩm thực & Di tích đặc sắc (Bấm để xem ngay trên bản đồ):
+                    </span>
+                    <span class="small text-muted d-none d-sm-inline">Vuốt ngang &rarr;</span>
+                </div>
+                <div class="map-quick-strip">
+                    @foreach (var loc in quickHighlights)
+                    {
+                        <div class="quick-strip-card" @onclick="() => FocusLocationOnMap(loc)">
+                            <img src="@loc.ImageUrl" alt="@loc.Name" class="quick-strip-img" onerror="this.src='/images/hero_ecostay.jpg'" />
+                            <div class="quick-strip-info">
+                                <div class="quick-strip-name" title="@loc.Name">@loc.Name</div>
+                                <div class="quick-strip-sub">
+                                    <span class="badge" style="background:@GetCategoryColor(loc.Category); font-size: 9px; padding: 2px 5px;">
+                                        @loc.Category.Replace("Quần Thể ", "").Replace("Truyền Thống", "")
+                                    </span>
+                                    <span>@(string.IsNullOrWhiteSpace(loc.TravelEstimate) ? "" : loc.TravelEstimate.Split('(')[0].Trim())</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================================
+             4. 4 LỘ TRÌNH TOUR GỢI Ý XUẤT PHÁT TỪ KIM LONG ECOSTAY
+             ================================================================== -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="font-serif fw-bold text-dark mb-0" style="font-size: 20px;">
+                    <i class="bi bi-signpost-split text-success me-2"></i>Các Tuyến Tour Trải Nghiệm Gợi Ý
+                </h3>
+                <small class="text-muted">Xuất phát trực tiếp từ Kim Long EcoStay kèm GPS dẫn đường</small>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-5">
+            @foreach (var route in tourRoutes)
+            {
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between @(activeRouteId == route.Id ? "border-success shadow" : "")" style="transition: all 0.25s ease;">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge @(route.Id == "ROUTE-FOOD" ? "bg-danger-subtle text-danger border border-danger-subtle" : "bg-success-subtle text-success border border-success-subtle") rounded-pill px-2 py-1 small">
+                                    @route.Badge
+                                </span>
+                                <span class="badge bg-light text-muted border small">
+                                    <i class="bi bi-clock me-1"></i>@(string.IsNullOrWhiteSpace(route.Duration) ? "" : route.Duration.Split('(')[0].Trim())
+                                </span>
+                            </div>
+                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">
+                                @route.Title
+                            </h5>
+                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">
+                                @route.Description
+                            </p>
+                        </div>
+                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center">
+                            <small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>@(string.IsNullOrWhiteSpace(route.Transport) ? "" : route.Transport.Split('/')[0].Trim())</small>
+                            <button class="btn btn-sm @(route.Id == "ROUTE-FOOD" ? "btn-outline-danger" : "btn-outline-success") rounded-pill px-3 py-1" 
+                                    style="font-size: 12px;"
+                                    @onclick="() => TriggerRoute(route.Id)">
+                                <span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- ==================================================================
+             5. DANH SÁCH THẺ CHI TIẾT CÁC ĐỊA ĐIỂM (DIRECTORY GRID)
+             ================================================================== -->
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h3 class="font-serif fw-bold text-dark mb-0" style="font-size: 22px;">
+                    Danh Mục Địa Chỉ Các Quần Thể Di Tích, Làng Nghề & Quán Ăn
+                </h3>
+                <small class="text-muted">Nhấn "Chỉ đường" để xem tuyến đường vẽ từ Kim Long EcoStay</small>
+            </div>
+            <div class="badge bg-white text-dark border p-2 px-3 rounded-pill shadow-sm">
+                Đang lọc: <strong>@selectedCategory</strong> (@displayedLocations.Count kết quả)
+            </div>
+        </div>
+
+        @if (displayedLocations.Any())
+        {
+            <div class="row g-4">
+                @foreach (var loc in displayedLocations)
+                {
+                    <div class="col-xl-4 col-lg-6 col-md-6">
+                        <div class="heritage-card">
+                            <div class="heritage-card-img-wrap">
+                                <img src="@loc.ImageUrl" alt="@loc.Name" class="heritage-card-img" onerror="this.src='/images/hero_ecostay.jpg'" />
+                                
+                                <span class="heritage-card-badge text-white" style="background: @GetCategoryColor(loc.Category);">
+                                    <i class="bi @loc.IconClass me-1"></i>@loc.Category
+                                </span>
+
+                                <span class="heritage-card-dist">
+                                    <i class="bi bi-bicycle text-warning me-1"></i>@(string.IsNullOrWhiteSpace(loc.TravelEstimate) ? "" : loc.TravelEstimate.Split('(')[0].Trim())
+                                </span>
+                            </div>
+
+                            <div class="heritage-card-body">
+                                <h4 class="heritage-card-title">@loc.Name</h4>
+                                
+                                <div class="heritage-card-addr">
+                                    <i class="bi bi-geo-alt-fill text-danger flex-shrink-0 mt-1"></i>
+                                    <span><strong>Địa chỉ:</strong> @loc.Address</span>
+                                </div>
+
+                                <div class="small text-muted mb-2">
+                                    <i class="bi bi-clock text-primary me-1"></i><strong>Giờ mở cửa:</strong> @loc.OpeningHours
+                                </div>
+
+                                <p class="heritage-card-desc">
+                                    @loc.Description
+                                </p>
+
+                                @if (loc.ExperienceHighlights != null && loc.ExperienceHighlights.Any())
+                                {
+                                    <div class="mb-3 p-2 bg-light rounded-3 small">
+                                        <div class="fw-bold text-success mb-1" style="font-size: 11px; text-transform: uppercase;">
+                                            <i class="bi bi-stars me-1"></i>Trải nghiệm nổi bật:
+                                        </div>
+                                        <ul class="mb-0 ps-3 text-secondary" style="font-size: 12px;">
+                                            @foreach (var h in loc.ExperienceHighlights.Take(2))
+                                            {
+                                                <li>@h</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+
+                                <div class="heritage-card-footer mt-auto">
+                                    <!-- Nút chỉ đường trực tiếp trên bản đồ -->
+                                    <button class="btn btn-sm btn-success rounded-pill px-3" 
+                                            title="Vẽ tuyến đường chỉ dẫn từ Kim Long EcoStay"
+                                            @onclick="() => TriggerNavigation(loc.Id, selectedNavMode)">
+                                        <i class="bi bi-signpost-2-fill me-1"></i>Chỉ đường
+                                    </button>
+
+                                    <!-- Nút xem gần trên bản đồ -->
+                                    <button class="btn btn-sm btn-outline-success flex-grow-1 rounded-pill" 
+                                            @onclick="() => FocusLocationOnMap(loc)">
+                                        <i class="bi bi-geo-alt me-1"></i>Xem vị trí
+                                    </button>
+
+                                    <!-- Nút mở Google Maps dẫn đường Turn-by-Turn -->
+                                    <a href="@loc.GoogleMapsDirectionUrl" 
+                                       target="_blank" 
+                                       class="btn btn-sm btn-light border text-danger rounded-pill px-2" 
+                                       title="Mở chỉ đường bằng giọng nói GPS trên ứng dụng Google Maps">
+                                        <i class="bi bi-google"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-light text-center py-5 border rounded-4 shadow-sm my-4">
+                <i class="bi bi-search fs-1 text-muted mb-2 d-block"></i>
+                <h5 class="text-dark fw-bold">Không tìm thấy địa điểm nào phù hợp</h5>
+                <p class="text-muted small">Vui lòng thử tìm kiếm với từ khóa khác (ví dụ: "bánh ướt", "bún bò", "Thủy Xuân", "Thiên Mụ", "Đại Nội"...)</p>
+                <button class="btn btn-sm btn-success rounded-pill px-4" @onclick="ResetFilters">
+                    Xem tất cả địa điểm
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsEmbedded { get; set; } = false;
+
+    private List<HeritageLocation> allLocations = new();
+    private List<HeritageLocation> displayedLocations = new();
+    private List<HeritageLocation> quickHighlights = new();
+    private List<string> categories = new();
+    private List<HeritageTourRoute> tourRoutes = new();
+
+    private string selectedCategory = "Tất Cả Địa Điểm";
+    private string searchTerm = string.Empty;
+    private string activeRouteId = string.Empty;
+    private string currentMapMode = "street";
+    private string selectedNavLocationId = string.Empty;
+    private string selectedNavMode = "bike"; // "bike", "walk", "motor"
+    private bool mapInitialized = false;
+
+    protected override void OnInitialized()
+    {
+        allLocations = HeritageMapProvider.GetAllLocations();
+        displayedLocations = allLocations;
+        categories = HeritageMapProvider.GetAllCategories();
+        tourRoutes = HeritageMapProvider.GetSuggestedRoutes();
+
+        // Ưu tiên các món ăn ẩm thực và di tích/làng nghề tiêu biểu hiển thị trên thanh hình ảnh lướt nhanh
+        var foods = allLocations.Where(l => l.Category == "Ẩm Thực Xứ Huế").ToList();
+        var highlights = allLocations.Where(l => l.Category == "Quần Thể Di Tích Cố Đô" || l.Category == "Làng Nghề Truyền Thống").Take(12).ToList();
+        quickHighlights = foods.Concat(highlights).ToList();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !mapInitialized)
+        {
+            mapInitialized = true;
+            // Delay nhẹ để DOM và Leaflet script đã sẵn sàng
+            await Task.Delay(350);
+            try
+            {
+                await jsRuntime.InvokeVoidAsync("heritageMapController.initMap", "heritage-leaflet-map", allLocations);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Map init error: " + ex.Message);
+            }
+        }
+    }
+
+    private async Task ChangeMapMode(string mode)
+    {
+        currentMapMode = mode;
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("heritageMapController.toggleMapMode", mode);
+        }
+        catch { }
+    }
+
+    private async Task OnNavLocationChanged(ChangeEventArgs e)
+    {
+        selectedNavLocationId = e.Value?.ToString() ?? string.Empty;
+        if (!string.IsNullOrEmpty(selectedNavLocationId))
+        {
+            await TriggerNavigation(selectedNavLocationId, selectedNavMode);
+        }
+        else
+        {
+            await ClearNavigation();
+        }
+    }
+
+    private async Task ChangeNavMode(string mode)
+    {
+        selectedNavMode = mode;
+        if (!string.IsNullOrEmpty(selectedNavLocationId))
+        {
+            await TriggerNavigation(selectedNavLocationId, selectedNavMode);
+        }
+    }
+
+    private async Task TriggerNavigation(string locationId, string mode = "bike")
+    {
+        selectedNavLocationId = locationId;
+        selectedNavMode = mode;
+        activeRouteId = string.Empty;
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("scrollToSection", "heritage-map");
+            await Task.Delay(100);
+            await jsRuntime.InvokeVoidAsync("heritageMapController.navigateFromHomestayTo", locationId, mode);
+        }
+        catch { }
+    }
+
+    private async Task ClearNavigation()
+    {
+        selectedNavLocationId = string.Empty;
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("heritageMapController.clearNavigationLayers");
+        }
+        catch { }
+    }
+
+    private async Task FilterByCategory(string cat)
+    {
+        selectedCategory = cat;
+        ApplyClientFilter();
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("heritageMapController.filterMarkers", selectedCategory, searchTerm);
+        }
+        catch { }
+    }
+
+    private async Task HandleSearchInput(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? string.Empty;
+        ApplyClientFilter();
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("heritageMapController.filterMarkers", selectedCategory, searchTerm);
+        }
+        catch { }
+    }
+
+    private async Task ClearSearch()
+    {
+        searchTerm = string.Empty;
+        ApplyClientFilter();
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("heritageMapController.filterMarkers", selectedCategory, "");
+        }
+        catch { }
+    }
+
+    private void ApplyClientFilter()
+    {
+        var result = allLocations.AsEnumerable();
+
+        if (selectedCategory == "Gần Homestay (< 3km)")
+        {
+            result = result.Where(l => l.DistanceFromEcoStayKm <= 3.0);
+        }
+        else if (selectedCategory != "Tất Cả Địa Điểm")
+        {
+            result = result.Where(l => l.Category == selectedCategory);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var q = searchTerm.Trim().ToLower();
+            result = result.Where(l => l.Name.ToLower().Contains(q) ||
+                                      l.Address.ToLower().Contains(q) ||
+                                      l.Category.ToLower().Contains(q) ||
+                                      l.Summary.ToLower().Contains(q));
+        }
+
+        displayedLocations = result.ToList();
+    }
+
+    private async Task FocusLocationOnMap(HeritageLocation loc)
+    {
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("scrollToSection", "heritage-map");
+            await Task.Delay(150);
+            await jsRuntime.InvokeVoidAsync("heritageMapController.focusLocation", loc.Latitude, loc.Longitude, 16);
+        }
+        catch { }
+    }
+
+    private async Task TriggerRoute(string routeId)
+    {
+        activeRouteId = routeId;
+        selectedNavLocationId = string.Empty;
+        var r = tourRoutes.FirstOrDefault(x => x.Id == routeId);
+        if (r != null)
+        {
+            try
+            {
+                await jsRuntime.InvokeVoidAsync("scrollToSection", "heritage-map");
+                await Task.Delay(100);
+                await jsRuntime.InvokeVoidAsync("heritageMapController.drawRoute", r.StopLocationIds, allLocations);
+            }
+            catch { }
+        }
+    }
+
+    private async Task ResetMapCenter()
+    {
+        activeRouteId = string.Empty;
+        selectedNavLocationId = string.Empty;
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("heritageMapController.clearNavigationLayers");
+            await jsRuntime.InvokeVoidAsync("heritageMapController.refreshMap");
+        }
+        catch { }
+    }
+
+    private async Task ResetFilters()
+    {
+        selectedCategory = "Tất Cả Địa Điểm";
+        searchTerm = string.Empty;
+        displayedLocations = allLocations;
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("heritageMapController.filterMarkers", selectedCategory, "");
+        }
+        catch { }
+    }
+
+    private string GetCategoryColor(string category)
+    {
+        return category switch
+        {
+            "Ẩm Thực Xứ Huế" => "#DC2626",
+            "Làng Nghề Truyền Thống" => "#EA580C",
+            "Quần Thể Di Tích Cố Đô" => "#B8860B",
+            "Chùa Cổ & Tâm Linh" => "#7C3AED",
+            "Nhà Vườn Di Sản" => "#059669",
+            _ => "#15803D"
+        };
+    }
+}

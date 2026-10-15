@@ -12,6 +12,7 @@
     <ProjectReference Include="..\KimLongEcoStay.UseCases\KimLongEcoStay.UseCases.csproj" />
     <ProjectReference Include="..\KimLongEcoStay.Web.Modules\KimLongEcoStay.Web.CustomerPortal\KimLongEcoStay.Web.CustomerPortal.csproj" />
     <ProjectReference Include="..\KimLongEcoStay.Web.Modules\KimLongEcoStay.Web.AdminPortal\KimLongEcoStay.Web.AdminPortal.csproj" />
+    <ProjectReference Include="..\KimLongEcoStay.Web.Modules\KimLongEcoStay.Web.Common\KimLongEcoStay.Web.Common.csproj" />
     <ProjectReference Include="..\Plugins\KimLongEcoStay.DataStore.HandCoded\KimLongEcoStay.DataStore.HandCoded.csproj" />
     <ProjectReference Include="..\Plugins\KimLongEcoStay.DataStore.SQL.Dapper\KimLongEcoStay.DataStore.SQL.Dapper.csproj" />
     <ProjectReference Include="..\Plugins\KimLongEcoStay.ShoppingCart.LocalStorage\KimLongEcoStay.ShoppingCart.LocalStorage.csproj" />
