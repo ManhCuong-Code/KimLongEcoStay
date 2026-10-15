@@ -1,4 +1,7 @@
+@page "/orderconfirm"
 @page "/orderconfirm/{UniqueId}"
+@page "/orderconfirmation"
+@page "/orderconfirmation/{UniqueId}"
 @rendermode InteractiveServer
 
 @using KimLongEcoStay.CoreBusiness.Models
@@ -328,8 +331,24 @@
     else
     {
         <div class="text-center py-5">
-            <div class="spinner-border text-success mb-3" role="status"></div>
-            <p class="lead text-muted">Đang tải thông tin xác nhận đặt phòng Kim Long EcoStay...</p>
+            @if (string.IsNullOrEmpty(UniqueId))
+            {
+                <div class="alert alert-info d-inline-block px-4 py-3 rounded-4 shadow-sm text-start" style="max-width: 500px;">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-info-circle text-primary fs-3 me-2"></i>
+                        <h5 class="mb-0 fw-bold">Chưa chọn mã đặt phòng</h5>
+                    </div>
+                    <p class="text-muted small mb-3">Vui lòng nhập mã đặt phòng để xem chi tiết phiếu xác nhận và mã khóa cửa thông minh.</p>
+                    <a href="/lookup" class="btn btn-success rounded-pill px-4">
+                        <i class="bi bi-search me-1"></i>Đến Trang Tra Cứu Đặt Phòng
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="spinner-border text-success mb-3" role="status"></div>
+                <p class="lead text-muted">Đang tải thông tin xác nhận đặt phòng Kim Long EcoStay...</p>
+            }
         </div>
     }
 </div>
