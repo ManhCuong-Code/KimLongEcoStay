@@ -1,5 +1,12 @@
 # 🌿 HỆ THỐNG ĐẶT PHÒNG TRỰC TUYẾN KIM LONG ECOSTAY
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ManhCuong-Code/KimLongEcoStay)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0%20LTS-purple.svg)](https://dotnet.microsoft.com/)
+[![Blazor Server](https://img.shields.io/badge/Blazor-Server%20Interactive-blue.svg)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
+
+> 🚀 **CHẠY WEB TRỰC TUYẾN 1-CLICK TRÊN GITHUB CODESPACES:**  
+> Nhấp vào nút **[Open in GitHub Codespaces](https://codespaces.new/ManhCuong-Code/KimLongEcoStay)** để khởi chạy và trải nghiệm Web trực tiếp trên trình duyệt Cloud mà không cần cài đặt bất kỳ phần mềm nào!
+
 ---
 
 ## 🎓 THÔNG TIN HỌC VIÊN & ĐỀ TÀI
@@ -708,7 +715,7 @@ sqlcmd -S ".\SQLEXPRESS" -E -C -i "database/schema.sql"
 ```
 
 ### Bước 2: Cấu hình Chuỗi Kết Nối
-Kiểm tra cấu hình trong `project/KimLongEcoStay/KimLongEcoStay.Web/appsettings.json`:
+Kiểm tra cấu hình trong `KimLongEcoStay.Web/appsettings.json`:
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=.\\SQLEXPRESS;Database=KimLongEcoStayDB;Trusted_Connection=True;TrustServerCertificate=True;"
@@ -716,17 +723,16 @@ Kiểm tra cấu hình trong `project/KimLongEcoStay/KimLongEcoStay.Web/appsetti
 ```
 
 ### Bước 3: Biên dịch & Chạy Website
+* **Cách nhanh nhất trên Windows:** Nhấp đúp vào file `CHAY_WEB_KIMLONG.bat`.
+* **Hoặc chạy bằng lệnh Terminal:**
 ```powershell
-# Chuyển vào thư mục solution
-cd project/KimLongEcoStay
-
 # Biên dịch toàn bộ 10 dự án thành phần
-dotnet build KimLongEcoStay.slnx
+dotnet build KimLongEcoStay.sln
 
 # Khởi chạy Website Blazor
-dotnet run --project KimLongEcoStay.Web/KimLongEcoStay.Web.csproj
+dotnet run --project KimLongEcoStay.Web/KimLongEcoStay.Web.csproj --urls "http://localhost:5204"
 ```
- Truy cập trình duyệt tại địa chỉ: `https://localhost:7082` (hoặc cổng hiển thị trên console).
+Truy cập trình duyệt tại địa chỉ: `http://localhost:5204`.
 
 ---
 

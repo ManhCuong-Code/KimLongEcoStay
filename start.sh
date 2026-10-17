@@ -30,4 +30,4 @@ echo "  👉 Luu y: Mo tab 'PORTS' tren VS Code Codespaces -> Chuot phai cong 52
 echo "     chuyen 'Port Visibility' thanh 'Public' de bat ky ai cung xem duoc!"
 echo "=========================================================================="
 
-dotnet run --project project/KimLongEcoStay/KimLongEcoStay.Web/KimLongEcoStay.Web.csproj --urls "http://0.0.0.0:5204"
+dotnet run --project KimLongEcoStay.Web/KimLongEcoStay.Web.csproj --urls "http://0.0.0.0:5204"

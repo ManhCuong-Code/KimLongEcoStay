@@ -70,7 +70,7 @@ fi
 
 # 4. Bien dich solution
 echo "[4/4] Bien dich du an Blazor Kim Long EcoStay..."
-dotnet build project/KimLongEcoStay/KimLongEcoStay.Web/KimLongEcoStay.Web.csproj 2>/dev/null || true
+dotnet build KimLongEcoStay.sln 2>/dev/null || true
 
 echo ""
 echo "=========================================================================="
