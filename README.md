@@ -1,11 +1,13 @@
 # 🌿 HỆ THỐNG ĐẶT PHÒNG TRỰC TUYẾN KIM LONG ECOSTAY
 
+[![Live Website](https://img.shields.io/badge/WEBSITE%20LIVE-TRUY%20C%E1%BA%ACP%20NGAY-success?style=for-the-badge&logo=googlechrome)](https://manhcuong-code.github.io/KimLongEcoStay/)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ManhCuong-Code/KimLongEcoStay)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0%20LTS-purple.svg)](https://dotnet.microsoft.com/)
 [![Blazor Server](https://img.shields.io/badge/Blazor-Server%20Interactive-blue.svg)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
 
-> 🚀 **CHẠY WEB TRỰC TUYẾN 1-CLICK TRÊN GITHUB CODESPACES:**  
-> Nhấp vào nút **[Open in GitHub Codespaces](https://codespaces.new/ManhCuong-Code/KimLongEcoStay)** để khởi chạy và trải nghiệm Web trực tiếp trên trình duyệt Cloud mà không cần cài đặt bất kỳ phần mềm nào!
+> 🌍 **TRUY CẬP TRANG WEB TRỰC TIẾP TRÊN TRÌNH DUYỆT (KHÔNG CẦN CÀI ĐẶT):**  
+> 👉 **[https://manhcuong-code.github.io/KimLongEcoStay/](https://manhcuong-code.github.io/KimLongEcoStay/)**  
+> *(Nhấp vào link trên để xem ngay toàn bộ giao diện Web thực tế: Đặt buồng phòng sinh thái, Tra cứu mã PIN SmartLock IoT, Trợ lý AI Concierge 24/7 và Bản đồ GIS Di sản Huế)*
 
 ---
 
