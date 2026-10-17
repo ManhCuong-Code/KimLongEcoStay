@@ -528,7 +528,7 @@
                     <i class="bi bi-arrow-right text-muted d-none d-md-inline fs-6"></i>
                     
                     
-                    <div class="flex-grow-1" style="min-width: 250px; max-width: 380px;"><select class="form-select form-select-sm border-success rounded-pill shadow-sm py-2 fw-semibold text-dark" value=""><option value>-- Chọn điểm muốn chỉ đường đến --</option>
+                    <div class="flex-grow-1" style="min-width: 250px; max-width: 380px;"><select id="heritage-dest-select" class="form-select form-select-sm border-success rounded-pill shadow-sm py-2 fw-semibold text-dark" onchange="if(this.value && window.heritageMapController) window.heritageMapController.navigateFromHomestayTo(this.value, 'bike')"><option value>-- Chọn điểm muốn chỉ đường đến --</option>
                             <optgroup label="&#x1F35C; &#x1EA8;m Th&#x1EF1;c X&#x1EE9; Hu&#x1EBF; (8 qu&#xE1;n n&#x1EE9;c ti&#x1EBF;ng)"><option value="FOOD-BANH-UOT">B&#xE1;nh &#x1AF;&#x1EDB;t Th&#x1ECB;t N&#x1B0;&#x1EDB;ng Huy&#x1EC1;n Anh (&#x110;&#x1EC7; Nh&#x1EA5;t Kim Long) (0.25 km)</option><option value="FOOD-BUN-BO">B&#xFA;n B&#xF2; Hu&#x1EBF; M&#x1EE5; R&#x1A1;i (C&#x1ED5; Truy&#x1EC1;n C&#x1ED1; &#x110;&#xF4;) (4.8 km)</option><option value="FOOD-BANH-BEO">Qu&#xE1;n B&#xE1;nh B&#xE8;o - N&#x1EAD;m - L&#x1ECD;c B&#xE0; &#x110;&#x1ECF; (4.2 km)</option><option value="FOOD-COM-HEN">C&#x1A1;m H&#x1EBF;n &amp; B&#xFA;n H&#x1EBF;n Hoa &#x110;&#xF4;ng (&#x110;&#x1EB7;c S&#x1EA3;n C&#x1ED3;n H&#x1EBF;n) (5.8 km)</option><option value="FOOD-CHE-HEM">Ch&#xE8; H&#x1EBB;m C&#x1ED1; &#x110;&#xF4; (Ch&#xE8; B&#x1ED9;t L&#x1ECD;c Heo Quay &amp; Sen Nh&#xE3;n) (4.5 km)</option><option value="FOOD-CA-PHE-MUOI">Qu&#xE1;n C&#xE0; Ph&#xEA; Mu&#x1ED1;i X&#x1EE9; Hu&#x1EBF; (S&#x1ED1; 10 Nguy&#x1EC5;n L&#x1B0;&#x1A1;ng B&#x1EB1;ng) (3.8 km)</option><option value="FOOD-BANH-CANH">B&#xE1;nh Canh Nam Ph&#x1ED5; Th&#xFA;y (L&#xE0;ng C&#x1ED5; Nam Ph&#x1ED5;) (3.9 km)</option><option value="FOOD-COM-CHAY">C&#x1A1;m Chay Thanh Li&#x1EC5;u (&#x1EA8;m Th&#x1EF1;c Chay Thi&#x1EC1;n M&#xF4;n) (5 km)</option><option value="FOOD-BANH-EP">B&#xE1;nh &#xC9;p Hu&#x1EBF; Ch&#x1ECB; Hu&#x1EC7; (&#x110;&#x1EB7;c S&#x1EA3;n &#x110;&#x1B0;&#x1EDD;ng Ph&#x1ED1; N&#xF3;ng H&#x1ED5;i) (4.3 km)</option><option value="FOOD-BANH-KHOAI">B&#xE1;nh Kho&#xE1;i Ho&#xE0;ng Gia L&#x1EA1;c Thi&#x1EC7;n (C&#x1EED;a Th&#x1B0;&#x1EE3;ng T&#x1EE9;) (3.8 km)</option><option value="FOOD-CHE-MO-TON-DICH">Ch&#xE8; M&#x1EE3; T&#xF4;n &#x110;&#xED;ch (Ch&#xE8; Heo Quay C&#x1EED;a Th&#x1B0;&#x1EE3;ng T&#x1EE9;) (3.7 km)</option><option value="FOOD-BANH-MI-TRUONG-TIEN">B&#xE1;nh M&#xEC; &#x110;&#xEA;m C&#x1EA7;u Tr&#x1B0;&#x1EDD;ng Ti&#x1EC1;n (B&#xE1;nh M&#xEC; O Tho) (4 km)</option><option value="FOOD-CA-PHE-RUNG-THONG">C&#xE0; Ph&#xEA; R&#x1EEB;ng Th&#xF4;ng Sunset (View &#x110;&#x1ED3;i V&#x1ECD;ng C&#x1EA3;nh) (4.7 km)</option><option value="FOOD-NHA-HANG-Y-THAO">Nh&#xE0; H&#xE0;ng &#x1EA8;m Th&#x1EF1;c Cung &#x110;&#xEC;nh Y Th&#x1EA3;o Garden (Nh&#xE0; V&#x1B0;&#x1EDD;n V&#x1EF9; D&#x1EA1;) (3.2 km)</option></optgroup>
                             <optgroup label="&#x1F3DB;&#xFE0F; Qu&#x1EA7;n Th&#x1EC3; Di T&#xED;ch C&#x1ED1; &#x110;&#xF4; (11 di t&#xED;ch)"><option value="HERITAGE-DAI-NOI">&#x110;&#x1EA1;i N&#x1ED9;i Hu&#x1EBF; (Ho&#xE0;ng Th&#xE0;nh &amp; T&#x1EED; C&#x1EA5;m Th&#xE0;nh) (2.8 km)</option><option value="HERITAGE-TU-DUC">L&#x103;ng T&#x1EF1; &#x110;&#x1EE9;c (Khi&#xEA;m L&#x103;ng) (4.5 km)</option><option value="HERITAGE-KHAI-DINH">L&#x103;ng Kh&#x1EA3;i &#x110;&#x1ECB;nh (&#x1EE8;ng L&#x103;ng) (8.5 km)</option><option value="HERITAGE-MINH-MANG">L&#x103;ng Minh M&#x1EA1;ng (Hi&#x1EBF;u L&#x103;ng) (9.2 km)</option><option value="HERITAGE-VAN-MIEU">V&#x103;n Mi&#x1EBF;u Hu&#x1EBF; (V&#x103;n Th&#xE1;nh) (1.4 km)</option><option value="HERITAGE-CUNG-AN-DINH">Cung An &#x110;&#x1ECB;nh (Vi&#xEA;n Ng&#x1ECD;c T&#xE2;n C&#x1ED5; &#x110;i&#x1EC3;n) (4 km)</option><option value="HERITAGE-HO-QUYEN">&#x110;&#x1EA5;u Tr&#x1B0;&#x1EDD;ng H&#x1ED5; Quy&#x1EC1;n &amp; &#x110;i&#x1EC7;n Voi R&#xE9; (2.2 km)</option><option value="HERITAGE-DOI-VONG-CANH">&#x110;&#x1ED3;i V&#x1ECD;ng C&#x1EA3;nh (&#x110;i&#x1EC3;m Ng&#x1EAF;m Kh&#xFA;c Quanh S&#xF4;ng H&#x1B0;&#x1A1;ng &#x110;&#x1EB9;p Nh&#x1EA5;t) (4.6 km)</option><option value="HERITAGE-CAU-TRUONG-TIEN">C&#x1EA7;u Tr&#x1B0;&#x1EDD;ng Ti&#x1EC1;n (Bi&#x1EC3;u T&#x1B0;&#x1EE3;ng 127 N&#x103;m S&#xF4;ng H&#x1B0;&#x1A1;ng) (3.9 km)</option><option value="HERITAGE-CHO-DONG-BA">Ch&#x1EE3; &#x110;&#xF4;ng Ba (Khu Ch&#x1EE3; Truy&#x1EC1;n Th&#x1ED1;ng 125 N&#x103;m Tu&#x1ED5;i) (4.1 km)</option><option value="HERITAGE-QUOC-HOC">Tr&#x1B0;&#x1EDD;ng Qu&#x1ED1;c H&#x1ECD;c Hu&#x1EBF; (Ng&#xF4;i Tr&#x1B0;&#x1EDD;ng C&#x1ED5; K&#xED;nh 1896 Ven S&#xF4;ng H&#x1B0;&#x1A1;ng) (3.5 km)</option><option value="HERITAGE-LANG-GIA-LONG">L&#x103;ng Vua Gia Long (Thi&#xEA;n Th&#x1ECD; L&#x103;ng Gi&#x1EEF;a 36 Ng&#x1ECD;n N&#xFA;i) (9.2 km)</option></optgroup>
                             <optgroup label="&#x1F3EE; L&#xE0;ng Ngh&#x1EC1; Th&#x1EE7; C&#xF4;ng (9 l&#xE0;ng ngh&#x1EC1;)"><option value="CRAFT-THUY-XUAN">L&#xE0;ng H&#x1B0;&#x1A1;ng Th&#x1EE7;y Xu&#xE2;n (H&#x1B0;&#x1A1;ng Tr&#x1EA7;m &amp; N&#xF3;n L&#xE1;) (4.2 km)</option><option value="CRAFT-KIM-LONG">L&#xE0;ng B&#x1B0;&#x1EDF;i Thanh Tr&#xE0; &amp; B&#xE1;nh &#x1AF;&#x1EDB;t Th&#x1ECB;t N&#x1B0;&#x1EDB;ng Kim Long (0.3 km)</option><option value="CRAFT-LANG-SINH">L&#xE0;ng Tranh D&#xE2;n Gian L&#xE0;ng S&#xEC;nh (7.5 km)</option><option value="CRAFT-THANH-TIEN">L&#xE0;ng Hoa Gi&#x1EA5;y Thanh Ti&#xEA;n (7.8 km)</option><option value="CRAFT-PHUONG-DUC">L&#xE0;ng &#x110;&#xFA;c &#x110;&#x1ED3;ng Ph&#x1B0;&#x1EDD;ng &#x110;&#xFA;c (2.5 km)</option><option value="CRAFT-TAY-HO">L&#xE0;ng N&#xF3;n L&#xE1; T&#xE2;y H&#x1ED3; (N&#xF3;n B&#xE0;i Th&#x1A1; Hu&#x1EBF;) (11.2 km)</option><option value="CRAFT-PHUOC-TICH">L&#xE0;ng C&#x1ED5; &amp; G&#x1ED1;m &#x110;&#x1EA5;t Nung Ph&#x1B0;&#x1EDB;c T&#xED;ch (38.5 km)</option><option value="CRAFT-BAO-LA">L&#xE0;ng M&#xE2;y Tre &#x110;an Bao La (14.5 km)</option><option value="CRAFT-NON-TAY-HO">L&#xE0;ng N&#xF3;n L&#xE1; T&#xE2;y H&#x1ED3; (C&#xE1;i N&#xF4;i N&#xF3;n B&#xE0;i Th&#x1A1; X&#x1EE9; Hu&#x1EBF;) (7.8 km)</option><option value="CRAFT-LANG-CHUON">L&#xE0;ng R&#x1B0;&#x1EE3;u Chu&#x1ED3;n &amp; Ch&#x1EE3; N&#x1ED5;i &#x110;&#x1EA7;m Chu&#x1ED3;n (&#x110;&#x1EA7;m Ph&#xE1; Tam Giang) (11.5 km)</option></optgroup>
@@ -1758,8 +1758,8 @@
                     <div b-w21kv7vhyh><span class="text-muted" b-w21kv7vhyh>GVHD: TS. Nguyễn Minh Đức • Nhóm đề tài: Thu (CEO), Quyết (CTO), Cường (COO), Kiệt (CMO), Khoa (CFO)</span></div></div></div></div></footer></div>
 
 
-<div class="kle-floating-ai-wrapper" data-nosnippet><div class="kle-floating-btn-container"><button class="kle-floating-ai-btn shadow-lg " title="Tr&#x1EE3; l&#xFD; AI Kim Long EcoStay (T&#x1B0; v&#x1EA5;n ph&#xF2;ng &amp; Di s&#x1EA3;n Hu&#x1EBF; 24/7)"><div class="kle-fab-content"><i class="bi bi-robot kle-fab-icon"></i><span class="kle-fab-badge">AI</span></div>
-            <div class="kle-fab-ripple"></div></button><div class="kle-fab-tooltip shadow-sm"><span class="kle-pulse-dot"></span>
+<div class="kle-floating-ai-wrapper" data-nosnippet><div class="kle-floating-btn-container" onclick="openAiChatModal()" style="cursor: pointer;"><button class="kle-floating-ai-btn shadow-lg" onclick="openAiChatModal()" title="Tr&#x1EE3; l&#xFD; AI Kim Long EcoStay (T&#x1B0; v&#x1EA5;n ph&#xF2;ng &amp; Di s&#x1EA3;n Hu&#x1EBF; 24/7)"><div class="kle-fab-content"><i class="bi bi-robot kle-fab-icon"></i><span class="kle-fab-badge">AI</span></div>
+            <div class="kle-fab-ripple"></div></button><div class="kle-fab-tooltip shadow-sm" onclick="openAiChatModal()" style="cursor: pointer;"><span class="kle-pulse-dot"></span>
                 <span><strong>Hỏi AI Kim Long:</strong> Tư vấn phòng & Nhận mã khóa</span></div></div></div>
 
 
@@ -1770,6 +1770,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin></script>
+    <script src="js/heritageLocationsData.js"></script>
     <script src="js/heritageMap.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/financialCharts.js"></script>
@@ -2047,20 +2048,23 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
-      <div class="modal-body p-3 bg-light d-flex flex-column" id="aiChatMessages" style="overflow-y: auto;">
+      
+      <div class="modal-body p-3 bg-light d-flex flex-column" id="aiChatMessages" style="overflow-y: auto; max-height: 400px;">
         <div class="d-flex gap-2 mb-3">
-          <div class="bg-success text-white rounded-circle p-2 fs-6 flex-shrink-0" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-robot"></i></div>
+          <div class="bg-success text-white rounded-circle p-2 fs-6 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-robot"></i></div>
           <div class="p-3 bg-white rounded-4 shadow-sm border small" style="max-width: 85%;">
-            Kính chào quý khách! Tôi là <strong>Trợ lý AI Kim Long EcoStay</strong>. Tôi có thể hỗ trợ quý khách:
-            <ul class="mb-0 mt-2 ps-3">
-              <li>Tư vấn 05 buồng phòng sinh thái ven sông Hương</li>
-              <li>Hướng dẫn nhận mã PIN SmartLock tự động 10 giây</li>
-              <li>Chỉ đường tham quan Chùa Thiên Mụ, Làng Hương Thủy Xuân</li>
-              <li>Giới thiệu ẩm thực bánh ướt thịt nướng & trà sen Cung Đình</li>
-            </ul>
+            <div class="fw-bold text-dark mb-1">🌿 Chào mừng quý khách đến với Kim Long EcoStay!</div>
+            Tôi là <strong>Trợ lý AI Concierge 24/7</strong>. Quý khách cần hỗ trợ thông tin gì hôm nay?
+            <div class="d-flex flex-wrap gap-1 mt-2">
+              <button class="btn btn-sm btn-outline-success rounded-pill px-2 py-1 small" onclick="askAiQuestion('Tư vấn các buồng phòng sinh thái')">🏡 Xem 5 buồng phòng</button>
+              <button class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 py-1 small" onclick="askAiQuestion('Hướng dẫn nhận mã PIN SmartLock')">🔑 Cách nhận mã khóa</button>
+              <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1 small" onclick="askAiQuestion('Chỉ đường Chùa Thiên Mụ & Làng Hương')">🚲 Tour xe đạp di sản</button>
+              <button class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 small" onclick="askAiQuestion('Đặc sản bánh ướt thịt nướng Kim Long')">🍲 Ẩm thực Kim Long</button>
+            </div>
           </div>
         </div>
       </div>
+
 
       <div class="modal-footer p-2 bg-white border-top">
         <div class="input-group">
@@ -2151,7 +2155,15 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Initialize Map
-  initSimpleLeafletMap();
+  
+  // Initialize Full Heritage GIS Map
+  setTimeout(function() {
+    if (window.heritageMapController && window.heritageLocations) {
+      window.heritageMapController.initMap('heritage-leaflet-map', window.heritageLocations);
+      console.log('Heritage Map initialized with ' + window.heritageLocations.length + ' locations.');
+    }
+  }, 250);
+
 
   // Floating AI button trigger
   var aiBtn = document.querySelector('.kle-floating-ai-btn');
@@ -2409,6 +2421,12 @@ window.openCartModal = function() {
 window.openAiChatModal = function() {
   var modal = new bootstrap.Modal(document.getElementById('aiModal'));
   modal.show();
+};
+
+
+window.askAiQuestion = function(q) {
+  document.getElementById('aiUserInput').value = q;
+  sendAiMessage();
 };
 
 window.sendAiMessage = function() {
