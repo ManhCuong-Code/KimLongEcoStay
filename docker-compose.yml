@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kimlong_ecostay_web
+    ports:
+      - "5204:5204"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5204
+      - ConnectionStrings__KimLongEcoStayConnection=Server=db,1433;Database=KimLongEcoStayDB;User Id=sa;Password=KimLongEcoStay@2026!;TrustServerCertificate=True;
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: kimlong_ecostay_db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=KimLongEcoStay@2026!
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    restart: unless-stopped
+
+volumes:
+  mssql_data:
