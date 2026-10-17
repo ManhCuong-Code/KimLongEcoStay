@@ -1,15 +1,6 @@
 {
   "name": "Kim Long EcoStay (Blazor .NET + SQL Server)",
-  "image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0",
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "version": "latest",
-      "enableNonRootDocker": "true"
-    },
-    "ghcr.io/devcontainers/features/dotnet:2": {
-      "version": "latest"
-    }
-  },
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
   "forwardPorts": [5204, 1433],
   "portsAttributes": {
     "5204": {
@@ -23,7 +14,7 @@
       "visibility": "private"
     }
   },
-  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postCreateCommand": "chmod +x start.sh .devcontainer/setup.sh 2>/dev/null || true; bash .devcontainer/setup.sh || true",
   "customizations": {
     "vscode": {
       "extensions": [
