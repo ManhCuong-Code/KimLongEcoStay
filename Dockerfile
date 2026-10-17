@@ -4,7 +4,7 @@
 # =========================================================================
 
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy toàn bộ solution và csproj để tối ưu layer cache
@@ -28,7 +28,7 @@ WORKDIR "/src/KimLongEcoStay.Web"
 RUN dotnet publish "KimLongEcoStay.Web.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 EXPOSE 5204
 EXPOSE 8080
@@ -38,4 +38,4 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 COPY --from=build /app/publish .
 
-ENTRYPOINT ["sh", "-c", "dotnet KimLongEcoStay.Web.dll --urls http://+:${PORT:-5204}"]
+ENTRYPOINT ["dotnet", "KimLongEcoStay.Web.dll"]
