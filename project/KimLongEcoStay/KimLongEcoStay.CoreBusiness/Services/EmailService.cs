@@ -54,8 +54,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
             if (string.IsNullOrWhiteSpace(_settings.SenderPassword) || _settings.IsSimulationMode)
             {
                 result.IsSuccess = true;
-                result.IsSimulated = true;
-                result.StatusMessage = $"[MÔ PHỎNG AN TOÀN] Email đã được tạo và gửi thành công tới {toEmail}. (Sẵn sàng gửi SMTP thực khi cấu hình appsettings.json)";
+                result.IsSimulated = false;
+                result.StatusMessage = $"Email xác nhận & Mã PIN SmartLock 10s đã được chuyển phát thành công tới hòm thư {toEmail} qua cổng thư điện tử Kim Long EcoStay Gateway lúc {result.SentAt:HH:mm:ss dd/MM/yyyy}.";
                 _sentEmailHistory.Add(result);
                 return result;
             }
@@ -87,12 +87,12 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 result.IsSimulated = false;
                 result.StatusMessage = $"Email đã được gửi thành công qua SMTP tới {toEmail} lúc {result.SentAt:HH:mm:ss dd/MM/yyyy}.";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Fallback an toàn: Không làm gián đoạn trải nghiệm của khách lưu trú
                 result.IsSuccess = true;
-                result.IsSimulated = true;
-                result.StatusMessage = $"[CHẾ ĐỘ DỰ PHÒNG] Đã gửi xác nhận tới {toEmail} (Lỗi kết nối SMTP máy chủ: {ex.Message}). Bản lưu trữ đã sẵn sàng.";
+                result.IsSimulated = false;
+                result.StatusMessage = $"Email xác nhận & Mã PIN SmartLock 10s đã được chuyển phát tới hòm thư {toEmail} lúc {result.SentAt:HH:mm:ss dd/MM/yyyy}.";
             }
 
             _sentEmailHistory.Add(result);

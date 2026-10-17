@@ -3,642 +3,719 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo Cáo Dự Án: Kim Long EcoStay — Nền Tảng Đặt Phòng Nhà Vườn Sinh Thái Kim Long</title>
-  <meta name="description" content="Slide thuyết trình chi tiết, trực quan về dự án Đặt phòng Kim Long EcoStay và kế hoạch làm việc 4 tuần.">
-  <link rel="stylesheet" href="style.css">
+  <title>Kim Long EcoStay — Hệ Thống Đặt Phòng Nhà Vườn Sinh Thái & Khóa Thông Minh SmartLock</title>
+  <meta name="description" content="Nền tảng đặt phòng trực tuyến Kim Long EcoStay: Homestay sinh thái nhà vườn nông nghiệp và nền tảng du lịch di sản thông minh tại Cố đô Huế.">
+  <link rel="icon" type="image/jpeg" href="logo_chinh_thuc.jpg">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Ambient Grid Decoration -->
-  <div class="bg-ambient-pattern"></div>
 
-  <div class="presentation-container">
-    <!-- Top Header Navigation / Branding -->
-    <header class="pres-header">
-      <div class="brand-badge">
-        <div class="brand-icon">K</div>
-        <div class="brand-title">
-          <span>DỰ ÁN · KIM LONG ECOSTAY</span>
-          <span class="brand-tag">Nhà Vườn Sinh Thái Kim Long</span>
+  <!-- =========================================================================
+       1. APP HEADER & STICKY NAVIGATION
+       ========================================================================= -->
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand-wrapper">
+        <img src="logo_chinh_thuc.jpg" alt="Logo Kim Long EcoStay" class="brand-logo-img" id="app-logo">
+        <div class="brand-text">
+          <span class="brand-title">Kim Long EcoStay</span>
+          <span class="brand-tagline">Trải nghiệm văn hóa • Gắn kết thiên nhiên</span>
         </div>
       </div>
-      <div class="pres-meta">
-        <button class="theme-toggle-btn" id="themeToggleBtn" title="Chuyển đổi giao diện Sáng / Tối">
-          <span id="themeIcon">☀️</span> <span id="themeText">Tông Sáng</span>
+
+      <nav class="nav-tabs" role="tablist">
+        <button class="nav-tab-btn active" data-tab="booking" id="tab-btn-booking">
+          <span class="tab-icon">🏡</span> Danh Sách Phòng Trống
         </button>
-        <a href="prototype/" class="timeline-badge" style="background: linear-gradient(135deg, #059669, #10b981); color: #ffffff; text-decoration: none; font-weight: 700; padding: 6px 14px; border-radius: 20px; transition: transform 0.2s; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
-          <span>🚀 Trải Nghiệm Sản Phẩm Mẫu (MVP Prototype)</span>
+        <button class="nav-tab-btn" data-tab="smartlock" id="tab-btn-smartlock">
+          <span class="tab-icon">🔑</span> Smart Lock 10s
+        </button>
+        <button class="nav-tab-btn" data-tab="tour" id="tab-btn-tour">
+          <span class="tab-icon">🗺️</span> Bản Đồ Di Tích & Làng Nghề
+        </button>
+        <button class="nav-tab-btn" data-tab="dining" id="tab-btn-dining">
+          <span class="tab-icon">🍲</span> Ẩm Thực & Nông Sản
+        </button>
+        <button class="nav-tab-btn" data-tab="admin" id="tab-btn-admin">
+          <span class="tab-icon">📊</span> Cổng Quản Trị
+        </button>
+      </nav>
+
+      <div class="header-right">
+        <div class="lang-selector" title="Chọn ngôn ngữ Audio & Giao diện">
+          <button class="lang-btn active" data-lang="vi">VI</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="fr">FR</button>
+        </div>
+        <a href="slide.html" class="btn-report-link" id="link-mvp-report" style="background: linear-gradient(135deg, #4f46e5, #6366f1); color: #fff; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-weight: 700;">
+          📊 Slide Báo Cáo
         </a>
-        <div class="timeline-badge">
-          <span>⏱ Lộ trình: 4 Tuần (4 Sprints)</span>
+        <a href="https://buffalo-gamma-hour-accessibility.trycloudflare.com" target="_blank" class="btn-report-link" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-weight: 700; margin-left: 6px;">
+          ☁️ Server Online .NET
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. HERO BANNER: THÔNG TIN SẢN PHẨM MẪU (MVP SHOWCASE)
+       ========================================================================= -->
+  <section class="hero-mvp">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-tag">
+          <span>🌿 GIAI ĐOẠN KHẢ DỤNG TỐI THIỂU (MVP)</span>
+          <span>•</span>
+          <span>ĐỀ ÁN ĐẠI HỌC HUẾ 2026</span>
         </div>
-        <div class="slide-counter">
-          Trang <span class="current" id="currentSlideNum">1</span> / <span id="totalSlidesNum">5</span>
+        <h1 class="hero-title">
+          Mô hình Homestay Sinh Thái & <span>Du Lịch Di Sản Thông Minh</span>
+        </h1>
+        <p class="hero-desc">
+          Sản phẩm mẫu thử nghiệm thực tế với <strong>02 căn nhà vườn mẫu (05 phòng ngủ sinh thái)</strong> nằm giữa các khu canh tác nông nghiệp và vườn cây ăn trái cổ truyền phường Kim Long, ven sông Hương. Ứng dụng công nghệ không chạm và thuyết minh tự động GPS.
+        </p>
+
+        <div class="hero-pill-stats">
+          <div class="pill-stat">
+            <span class="pill-icon">🏡</span>
+            <div class="pill-stat-text">
+              <span class="pill-num">05 Phòng</span>
+              <span class="pill-label">Quy mô MVP thực nghiệm</span>
+            </div>
+          </div>
+          <div class="pill-stat">
+            <span class="pill-icon">⚡</span>
+            <div class="pill-stat-text">
+              <span class="pill-num">10 Giây</span>
+              <span class="pill-label">Smart check-in qua điện thoại</span>
+            </div>
+          </div>
+          <div class="pill-stat">
+            <span class="pill-icon">🚲</span>
+            <div class="pill-stat-text">
+              <span class="pill-num">Miễn Phí</span>
+              <span class="pill-label">10 Xe đạp trợ lực & App GPS</span>
+            </div>
+          </div>
+          <div class="pill-stat">
+            <span class="pill-icon">🤝</span>
+            <div class="pill-stat-text">
+              <span class="pill-num">10 Triệu/tháng</span>
+              <span class="pill-label">Thuê cố định trả cho nông dân</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <button class="btn-filter-search" id="btn-hero-cta" style="display: inline-flex; border: none; cursor: pointer; text-decoration: none;">
+            <span>🌿 Tìm Phòng Trống Ngay ➔</span>
+          </button>
         </div>
       </div>
-    </header>
 
-    <!-- Main Slides Viewport -->
-    <main class="slides-viewport" id="slidesViewport">
-
-      <!-- ==========================================
-           SLIDE 1: GIỚI THIỆU TỔNG QUAN DỰ ÁN
-      ========================================== -->
-      <section class="slide active" id="slide-1" data-title="Giới thiệu Tổng quan Dự án">
-        <div class="slide-header">
-          <div>
-            <div class="slide-category">Dự Án Khởi Động · Kim Long EcoStay</div>
-            <h1 class="slide-title">Hệ Thống Đặt Phòng Trực Tuyến <span class="highlight">Kim Long EcoStay</span></h1>
-            <p class="slide-subtitle">Trang web đặt phòng độc lập dành riêng cho mô hình Nghỉ dưỡng Nhà Vườn Sinh Thái Kim Long</p>
+      <div class="hero-device-card">
+        <div class="hero-device-badge">
+          <span style="font-weight: 800; font-size: 13.5px; color: var(--c-gold);">CÔNG NGHỆ KHÔNG CHẠM</span>
+          <span class="live-indicator"><span class="live-dot"></span> ĐANG KẾT NỐI IOT</span>
+        </div>
+        <div class="hero-quick-features">
+          <div class="quick-feature-item">
+            <span class="qf-icon">🔑</span>
+            <div>
+              <div class="qf-title">Khóa Điện Tử Ngoài Trời Smart Lock</div>
+              <div class="qf-sub">Mã PIN bí mật gửi tự động qua Zalo/SMS sau thanh toán</div>
+            </div>
           </div>
-          <div class="slide-badge-top">
-            <span class="badge-tag purple">Độ khó: ★★</span>
-            <span class="badge-tag gold">Thời gian: 4 Tuần</span>
+          <div class="quick-feature-item">
+            <span class="qf-icon">🎧</span>
+            <div>
+              <div class="qf-title">GPS Audio Guide 3 Ngôn Ngữ</div>
+              <div class="qf-sub">Đạp xe đến đâu, giọng đọc tự vang lên kể tích xưa đến đó</div>
+            </div>
+          </div>
+          <div class="quick-feature-item">
+            <span class="qf-icon">🛵</span>
+            <div>
+              <div class="qf-title">Ẩm Thực Bánh Ướt Giao Tận Bàn 15 Phút</div>
+              <div class="qf-sub">Liên kết chuỗi lò gia truyền than hoa đỏ rực nóng hổi</div>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="slide-body">
-          <div class="slide-1-layout">
-            <!-- Left Hero Info -->
-            <div class="hero-content">
-              <div class="topic-tag">
-                <span>🌿</span> Đồ án Công nghệ Phần mềm Thực chiến
+  <!-- =========================================================================
+       3. PHÂN HỆ 1: ĐẶT PHÒNG TRỰC TIẾP (DIRECT BOOKING)
+       ========================================================================= -->
+  <main>
+    <section class="section-wrapper active" id="section-booking">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Hệ Thống Đặt Phòng Trực Tuyến</span>
+          <h2 class="section-title">Chọn Căn Phòng Sinh Thái Mẫu Của Bạn</h2>
+          <p class="section-subtitle">Tận hưởng không gian mộc mạc ngắm trọn cánh đồng lúa Kim Long, nhận phòng tự động 100% không phiền hà thủ tục lễ tân.</p>
+        </div>
+
+        <!-- Bộ lọc ngày & phòng -->
+        <div class="booking-filter-bar">
+          <div class="filter-group">
+            <label class="filter-label" for="filter-checkin">Ngày nhận phòng</label>
+            <input type="date" id="filter-checkin" class="filter-input" value="2026-10-01">
+          </div>
+          <div class="filter-group">
+            <label class="filter-label" for="filter-checkout">Ngày trả phòng</label>
+            <input type="date" id="filter-checkout" class="filter-input" value="2026-10-03">
+          </div>
+          <div class="filter-group">
+            <label class="filter-label" for="filter-guests">Số lượng du khách</label>
+            <select id="filter-guests" class="filter-input">
+              <option value="1">1 Khách (Solo Healing)</option>
+              <option value="2" selected>2 Khách (Cặp đôi / Bạn thân)</option>
+              <option value="3">3 Khách (Gia đình nhỏ)</option>
+              <option value="4">4 Khách (Gia đình tiêu chuẩn)</option>
+            </select>
+          </div>
+          <button class="btn-filter-search" id="btn-filter-search">
+            <span>Tìm Phòng Trống</span>
+          </button>
+        </div>
+
+        <!-- Banner thông báo kết quả tìm kiếm phòng trống -->
+        <div id="rooms-search-banner" style="display: none; margin-bottom: 24px;"></div>
+
+        <!-- Grid 5 phòng ngủ mẫu -->
+        <div class="rooms-grid" id="rooms-grid-container">
+          <!-- Render tự động bởi app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         4. PHÂN HỆ 2: MÔ PHỎNG SMART LOCK CHECK-IN 10 GIÂY
+         ========================================================================= -->
+    <section class="section-wrapper" id="section-smartlock">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Công Nghệ Không Chạm (Contactless)</span>
+          <h2 class="section-title">Trải Nghiệm Nhận Phòng Tự Động Trong 10 Giây</h2>
+          <p class="section-subtitle">Khách đến homestay bất kể ngày đêm chỉ cần bấm mã PIN 6 số trên bàn phím khóa điện tử để mở cửa vào phòng, tự do và riêng tư 100%.</p>
+        </div>
+
+        <div class="smartlock-showcase">
+          <!-- Bàn phím số Smart Lock IoT mô phỏng -->
+          <div class="smartlock-device-box">
+            <div class="lock-hardware-header">
+              <div class="lock-brand">KIM LONG SMART STAY IoT</div>
+              <div class="lock-device-name">Thiết Bị Khóa Điện Tử Chống Nước Ngoài Trời IP66</div>
+            </div>
+
+            <div class="lock-screen">
+              <div class="lock-status-badge" id="lock-status-badge">● SẴN SÀNG NHẬN PHÒNG (READY)</div>
+              <div class="lock-pin-display" id="lock-pin-display">______</div>
+            </div>
+
+            <div class="lock-keypad">
+              <button class="keypad-btn" data-key="1">1<small></small></button>
+              <button class="keypad-btn" data-key="2">2<small>ABC</small></button>
+              <button class="keypad-btn" data-key="3">3<small>DEF</small></button>
+              <button class="keypad-btn" data-key="4">4<small>GHI</small></button>
+              <button class="keypad-btn" data-key="5">5<small>JKL</small></button>
+              <button class="keypad-btn" data-key="6">6<small>MNO</small></button>
+              <button class="keypad-btn" data-key="7">7<small>PQRS</small></button>
+              <button class="keypad-btn" data-key="8">8<small>TUV</small></button>
+              <button class="keypad-btn" data-key="9">9<small>WXYZ</small></button>
+              <button class="keypad-btn action-clear" data-key="C">C<small>XÓA</small></button>
+              <button class="keypad-btn" data-key="0">0<small>+</small></button>
+              <button class="keypad-btn action-enter" data-key="#">#<small>MỞ</small></button>
+            </div>
+
+            <div class="lock-feedback-status" id="lock-feedback-status">
+              Trạng thái: Đang chờ nhập mã số PIN 6 chữ số...
+            </div>
+          </div>
+
+          <!-- Bảng hướng dẫn & Các mã PIN thử nghiệm -->
+          <div class="smartlock-panel">
+            <h3 style="font-family: var(--font-serif); font-size: 22px; color: var(--c-primary); margin-bottom: 12px;">
+              Quy Trình Smart Check-in Hoạt Động Như Thế Nào?
+            </h3>
+            <p style="font-size: 13.5px; color: var(--c-text-muted); line-height: 1.6;">
+              Hệ thống triệt tiêu hoàn toàn sự chờ đợi lễ tân photo căn cước hay ghi sổ sách. Mã PIN bảo mật được tự động kích hoạt có hiệu lực chính xác từ 14:00 ngày đến đến 12:00 ngày trả phòng.
+            </p>
+
+            <div class="smartlock-guide-steps">
+              <div class="guide-step-card">
+                <span class="step-num">1</span>
+                <div class="step-content">
+                  <h4>Nhận Mã Số Bảo Mật Qua Zalo/SMS</h4>
+                  <p>Sau khi thanh toán đặt phòng, máy chủ tự phát mã PIN 6 số gửi thẳng về điện thoại du khách kèm định vị Google Maps.</p>
+                </div>
               </div>
-              <h2 class="hero-title">
-                Tự chủ kinh doanh lưu trú <br>
-                <span class="gradient-text">Không còn phụ thuộc vào sàn OTA</span>
-              </h2>
-              <p class="hero-desc">
-                Kim Long EcoStay tọa lạc tại vùng đất di sản Kim Long với hệ thống nhà vườn truyền thống nổi tiếng tại Huế. Hiện nay, hầu hết các homestay phải dựa hoàn toàn vào <strong>Booking.com và Agoda</strong>, dẫn tới việc <strong>mất 15% - 25% doanh thu</strong> cho tiền hoa hồng và bị giam tiền phòng nhiều tuần. Dự án xây dựng một hệ thống đặt phòng trực tiếp Kim Long EcoStay giúp chủ nhà tự chủ 100%.
-              </p>
-
-              <div class="hero-highlights">
-                <div class="highlight-box">
-                  <div class="box-icon">💰</div>
-                  <div class="box-title">Tiết Kiệm 20% Chi Phí</div>
-                  <div class="box-desc">Tiền khách trả về thẳng tài khoản chủ nhà ngay khi cọc, không bị sàn trung gian chiết khấu.</div>
+              <div class="guide-step-card">
+                <span class="step-num">2</span>
+                <div class="step-content">
+                  <h4>Bấm 6 Số Trên Khóa Cửa (Mở Trong 2s)</h4>
+                  <p>Đến cửa phòng, khách nhập 6 số và kết thúc bằng phím #. Chốt khóa tự rút mở êm ái, chuông chào mừng reo nhẹ.</p>
                 </div>
-                <div class="highlight-box">
-                  <div class="box-icon">📅</div>
-                  <div class="box-title">Chống Trùng Phòng 100%</div>
-                  <div class="box-desc">Thuật toán kiểm soát lịch phòng chuẩn xác, khách cũ trả phòng 12h - khách mới nhận phòng 14h trơn tru.</div>
-                </div>
-                <div class="highlight-box">
-                  <div class="box-icon">🤖</div>
-                  <div class="box-title">AI SmartPaste Tiện Lợi</div>
-                  <div class="box-desc">Khách nhắn tin qua Zalo/Facebook, lễ tân chỉ cần dán đoạn chat vào là AI tự điền đơn trong 1 giây.</div>
+              </div>
+              <div class="guide-step-card">
+                <span class="step-num">3</span>
+                <div class="step-content">
+                  <h4>Tự Động Kích Hoạt Không Gian Nghỉ Dưỡng</h4>
+                  <p>Cảm biến cửa bật sáng hệ thống đèn vàng ấm cúng, khởi động điều hòa 24°C và máy xông tinh dầu tràm tự nhiên.</p>
                 </div>
               </div>
             </div>
 
-            <!-- Right Meta Panel -->
-            <div class="hero-meta-panel">
-              <div class="panel-header">
-                <span>📋 Thông Tin Dự Án</span>
-              </div>
-              <div class="meta-list">
-                <div class="meta-item">
-                  <div class="meta-icon">🏷️</div>
-                  <div>
-                    <div class="meta-label">Tên Dự Án</div>
-                    <div class="meta-val">Dự Án Kim Long EcoStay — Eco Homestay Booking Platform</div>
-                  </div>
-                </div>
-                <div class="meta-item">
-                  <div class="meta-icon">🏡</div>
-                  <div>
-                    <div class="meta-label">Mô Hình Áp Dụng</div>
-                    <div class="meta-val">Kim Long EcoStay — Nhà Vườn Sinh Thái (Kim Long, TP. Huế)</div>
-                  </div>
-                </div>
-                <div class="meta-item">
-                  <div class="meta-icon">👥</div>
-                  <div>
-                    <div class="meta-label">Đối Tượng Sử Dụng</div>
-                    <div class="meta-val">Khách du lịch (Guest) & Chủ Homestay / Lễ tân (Host)</div>
-                  </div>
-                </div>
-                <div class="meta-item">
-                  <div class="meta-icon">⏱️</div>
-                  <div>
-                    <div class="meta-label">Kế Hoạch Thực Hiện</div>
-                    <div class="meta-val">4 Tuần (chia thành 4 Sprint tuần hoàn chỉnh)</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="panel-badge-footer">
-                <div>
-                  <div class="meta-label">Mức độ thử thách</div>
-                  <div class="difficulty-stars">★★☆☆☆ <span style="font-size:12px; color:var(--text-muted);">(Vừa phải - 2 sao)</span></div>
-                </div>
-                <span class="badge-tag emerald">Mục tiêu rõ ràng</span>
+            <div style="margin-top: 24px;">
+              <h4 style="font-size: 13px; font-weight: 800; color: var(--c-primary); text-transform: uppercase; margin-bottom: 8px;">
+                ⚡ Chọn Nhanh Mã PIN Mẫu Để Thử Nghiệm Ngay:
+              </h4>
+              <div class="preset-pins" id="preset-pins-list">
+                <!-- Render tự động bởi app.js -->
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- ==========================================
-           SLIDE 2: BỐI CẢNH, MỤC TIÊU & SO SÁNH TRỰC QUAN
-      ========================================== -->
-      <section class="slide" id="slide-2" data-title="Bối cảnh, Mục tiêu & Chân dung người dùng">
-        <div class="slide-header">
-          <div>
-            <div class="slide-category">Phân Tích Nghiệp Vụ & Người Dùng</div>
-            <h2 class="slide-title">Bối Cảnh Thực Tế & <span class="highlight">Hai Đối Tượng Sử Dụng</span></h2>
-            <p class="slide-subtitle">So sánh trực quan lợi ích của hệ thống và các ca sử dụng cụ thể của từng đối tượng</p>
-          </div>
-          <div class="slide-badge-top">
-            <span class="badge-tag purple">Tư duy eShop</span>
-            <span class="badge-tag emerald">2 Phân quyền chính</span>
-          </div>
+    <!-- =========================================================================
+         5. PHÂN HỆ 3: GPS AUDIO GUIDE (SMART HERITAGE TOUR)
+         ========================================================================= -->
+    <section class="section-wrapper" id="section-tour">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Du Lịch Di Sản Thông Minh</span>
+          <h2 class="section-title">Tour Di Sản Bỏ Túi & Thuyết Minh GPS Tự Động</h2>
+          <p class="section-subtitle">Đạp xe dạo chơi ven sông Hương và làng cổ Kim Long. Đến từng di tích, ứng dụng tự nhận biết vị trí và vang lên câu chuyện lịch sử sâu sắc.</p>
         </div>
 
-        <div class="slide-body">
-          <div class="slide-2-grid">
-            <!-- Left: Comparison OTA vs HomestayHue -->
-            <div class="card-block">
-              <div class="card-block-title">
-                <span>⚖️ So Sánh: Bán Qua Sàn OTA vs Website Kim Long EcoStay</span>
+        <div class="tour-layout">
+          <!-- Khung bản đồ di sản tương tác SVG -->
+          <div class="tour-map-card">
+            <div class="map-header-bar">
+              <div class="map-header-title">
+                <span>🗺️</span> Bản Đồ Số Di Sản Kim Long & Bờ Bắc Sông Hương
               </div>
-              
-              <div class="compare-box">
-                <!-- Col 1: OTA -->
-                <div class="compare-col ota">
-                  <div class="compare-title">❌ Phụ thuộc sàn OTA (Booking, Agoda)</div>
-                  <ul class="compare-items">
-                    <li>• Bị cắt phế <strong>15% - 25%</strong> trên mỗi đêm.</li>
-                    <li>• Sàn giam tiền phòng từ 15 đến 30 ngày.</li>
-                    <li>• Khách hủy sát giờ, sàn tự hoàn tiền chủ nhà chịu thiệt.</li>
-                    <li>• Không có SĐT/Zalo khách để chăm sóc đón tiếp.</li>
-                  </ul>
-                </div>
-
-                <!-- Col 2: Ours -->
-                <div class="compare-col ours">
-                  <div class="compare-title">✅ Website Riêng (Kim Long EcoStay)</div>
-                  <ul class="compare-items">
-                    <li>• Giữ trọn <strong>100% doanh thu</strong>, 0 đồng phí sàn.</li>
-                    <li>• Tiền cọc vào thẳng tài khoản ngân hàng ngay.</li>
-                    <li>• Tự chủ chính sách hủy cọc linh hoạt (luật 48 giờ).</li>
-                    <li>• Nắm trọn thông tin khách hàng để biến thành khách quen.</li>
-                  </ul>
-                </div>
-              </div>
-
-              <!-- Real-world example -->
-              <div class="concrete-example">
-                💡 <strong>Ví dụ bằng số thực tế:</strong> Kim Long EcoStay có doanh thu 100.000.000đ/tháng.<br>
-                • Nếu qua sàn: Bị mất <strong>20.000.000đ</strong> tiền hoa hồng mỗi tháng.<br>
-                • Dùng hệ thống riêng: Tiết kiệm trọn vẹn 20 triệu/tháng để tái đầu tư khuôn viên vườn!
-              </div>
-            </div>
-
-            <!-- Right: 2 Personas -->
-            <div class="card-block featured">
-              <div class="card-block-title">
-                <span>👥 Người Dùng & Các Thao Tác Cụ Thể (Use Cases)</span>
-              </div>
-
-              <div class="personas-wrap">
-                <!-- Persona 1: Guest -->
-                <div class="persona-item">
-                  <div class="persona-header">
-                    <div class="persona-avatar avatar-guest">🧳</div>
-                    <div>
-                      <div class="persona-role">Khách Du Lịch (Guest)</div>
-                      <div class="persona-target">Người đặt phòng nghỉ dưỡng</div>
-                    </div>
-                  </div>
-                  <ul class="persona-cases">
-                    <li><strong>Tìm phòng:</strong> Nhập ngày đến, ngày về, số người để xem phòng trống.</li>
-                    <li><strong>Đặt nhiều phòng:</strong> Đặt 1 phòng Bungalow + 1 phòng Nhà Rường cùng lúc.</li>
-                    <li><strong>Biết rõ giá:</strong> Thấy rõ giá ngày thường (T2-T5) vs cuối tuần (T6-CN).</li>
-                    <li><strong>Hủy phòng:</strong> Hủy dễ dàng, nhận lại tiền cọc nếu hủy trước 48h.</li>
-                  </ul>
-                </div>
-
-                <!-- Persona 2: Host -->
-                <div class="persona-item">
-                  <div class="persona-header">
-                    <div class="persona-avatar avatar-host">🏡</div>
-                    <div>
-                      <div class="persona-role">Chủ Homestay / Lễ Tân</div>
-                      <div class="persona-target">Quản lý buồng phòng & doanh thu</div>
-                    </div>
-                  </div>
-                  <ul class="persona-cases">
-                    <li><strong>Quản lý phòng:</strong> Thêm/sửa phòng, đăng ảnh vườn, đổi giá linh hoạt.</li>
-                    <li><strong>Quy trình đón khách:</strong> Bấm Check-in khi khách tới, Check-out khi khách về.</li>
-                    <li><strong>Báo cáo tự động:</strong> Xem tháng này công suất phòng đạt bao nhiêu %.</li>
-                    <li><strong>AI SmartPaste:</strong> Copy tin nhắn Zalo khách gửi, AI tự điền đơn đặt.</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div style="font-size:11px; color:var(--text-muted); background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:8px; border-left:2px solid var(--hue-purple-light);">
-                🔄 <strong>Tư duy eShop dễ hiểu:</strong> Loại phòng = <em>Sản phẩm</em> | Ngày lưu trú = <em>Giỏ hàng</em> | Đơn đặt phòng = <em>Đơn hàng (Order)</em> | Đêm ở = <em>Mục thanh toán (LineItem)</em>.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ==========================================
-           SLIDE 3: DATA MODEL & 3 LUẬT NGHIỆP VỤ VỚI VÍ DỤ SỐ CỤ THỂ
-      ========================================== -->
-      <section class="slide" id="slide-3" data-title="Mô hình Dữ liệu & Luật nghiệp vụ">
-        <div class="slide-header">
-          <div>
-            <div class="slide-category">Kiến Trúc Dữ Liệu & Quy Tắc Tính Tiền</div>
-            <h2 class="slide-title">Mô Hình Dữ Liệu & <span class="highlight">3 Luật Nghiệp Vụ Cốt Lõi</span></h2>
-            <p class="slide-subtitle">6 bảng dữ liệu liên kết chặt chẽ và 3 quy tắc nghiệp vụ giải thích qua ví dụ số cụ thể</p>
-          </div>
-          <div class="slide-badge-top">
-            <span class="badge-tag purple">6 Thực Thể</span>
-            <span class="badge-tag gold">Ví Dụ Bằng Số</span>
-          </div>
-        </div>
-
-        <div class="slide-body">
-          <div class="slide-3-grid">
-            <!-- Left: 6 Entities -->
-            <div class="erd-container">
-              <div class="eshop-mapping-banner">
-                <span class="mapping-tag">📦 6 Bảng dữ liệu chính trong hệ thống:</span>
-              </div>
-              
-              <div class="entities-grid">
-                <div class="entity-card">
-                  <div class="entity-name">
-                    <span>1. RoomType (Loại phòng)</span>
-                  </div>
-                  <div class="entity-desc">Eco-Nest Ban Mai, Eco-Nest Hoàng Hôn, Garden Suite Cố Đô Thanh Trà, Family Eco-Villa, Heritage Studio. Lưu số khách tối đa (2-4), tiện nghi sinh thái.</div>
-                </div>
-
-                <div class="entity-card">
-                  <div class="entity-name">
-                    <span>2. Room (Phòng cụ thể)</span>
-                  </div>
-                  <div class="entity-desc">5 phòng thực tế (KLE-R101, KLE-R102, KLE-R201, KLE-R202, KLE-R203). Trạng thái: AVAILABLE (Sẵn sàng), OCCUPIED (Có khách), CLEANING (Dọn buồng).</div>
-                </div>
-
-                <div class="entity-card">
-                  <div class="entity-name">
-                    <span>3. RatePlan (Bảng giá)</span>
-                  </div>
-                  <div class="entity-desc">Cấu hình giá linh hoạt: Ngày trong tuần (T2-T5), cuối tuần (T6-CN), hoặc phụ thu dịp Festival Huế.</div>
-                </div>
-
-                <div class="entity-card">
-                  <div class="entity-name">
-                    <span>4. Guest (Khách hàng)</span>
-                  </div>
-                  <div class="entity-desc">Họ tên, SĐT, Email, CCCD (để phục vụ khai báo tạm trú theo quy định công an).</div>
-                </div>
-
-                <div class="entity-card">
-                  <div class="entity-name">
-                    <span>5. Booking (Đơn đặt tổng)</span>
-                  </div>
-                  <div class="entity-desc">Mã đơn #BK20261015-01, ngày đến, ngày về, tổng tiền, tiền cọc 50%, trạng thái đơn (Chờ cọc / Đã xác nhận / Đã nhận phòng).</div>
-                </div>
-
-                <div class="entity-card">
-                  <div class="entity-name">
-                    <span>6. BookingNight (Từng đêm ở)</span>
-                  </div>
-                  <div class="entity-desc">Lưu riêng từng đêm khách ở và giá của đêm đó. Giúp tính tiền chính xác tuyệt đối không bị nhầm lẫn.</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Right: 3 Rules with clear examples -->
-            <div class="rules-column">
-              <!-- Rule 1 -->
-              <div class="rule-box rule-1">
-                <div class="rule-header">
-                  <div class="rule-title">⚡ Luật 1: Chống Trùng Phòng Nhưng Vẫn Trả/Nhận Trong Ngày Hợp Lệ</div>
-                  <span class="rule-tag" style="color:var(--hue-purple-light)">Overbooking Prevention</span>
-                </div>
-                <div class="rule-content">
-                  Một phòng không bao giờ bị 2 khách ở trùng nhau. Nhưng hệ thống cho phép khách cũ trả phòng ngày <strong>D</strong> và khách mới nhận phòng ngày <strong>D</strong> hoàn toàn hợp lệ.
-                </div>
-                <div class="rule-example-badge">
-                  👉 <strong>Ví dụ cụ thể:</strong> Khách A ở từ ngày 15/10 đến 18/10 (Trả phòng lúc 12:00 ngày 18). Khách B muốn đặt từ 18/10 đến 20/10 (Nhận phòng lúc 14:00 ngày 18) $\rightarrow$ <strong>HỆ THỐNG ĐỒNG Ý</strong> (vì giữa 12:00 và 14:00 là giờ dọn phòng, không bị đè lịch).
-                </div>
-              </div>
-
-              <!-- Rule 2 -->
-              <div class="rule-box rule-2">
-                <div class="rule-header">
-                  <div class="rule-title">💰 Luật 2: Tự Động Tính Tiền Theo Từng Đêm (Ngày thường vs Cuối tuần)</div>
-                  <span class="rule-tag" style="color:var(--gold-light)">Dynamic Pricing</span>
-                </div>
-                <div class="rule-content">
-                  Tổng tiền đặt phòng = <strong>∑ Giá của từng đêm lưu trú</strong>. Hệ thống tự động phân loại ngày thường (giá gốc) và cuối tuần Thứ Sáu - Thứ Bảy (giá cao hơn).
-                </div>
-                <div class="rule-example-badge">
-                  👉 <strong>Ví dụ cụ thể:</strong> Khách đặt phòng Garden Suite (KLE-R201) 2 đêm từ Thứ Năm (15/10) đến Thứ Bảy (17/10):<br>
-                  • Đêm Thứ Năm (ngày thường): <strong>680.000đ</strong><br>
-                  • Đêm Thứ Sáu (cuối tuần): <strong>850.000đ</strong><br>
-                  $\rightarrow$ <strong>Tổng tiền tự tính:</strong> 680.000 + 850.000 = <strong>1.530.000 VNĐ</strong> (Cọc 50%: 765.000 VNĐ qua VietQR).
-                </div>
-              </div>
-
-              <!-- Rule 3 -->
-              <div class="rule-box rule-3">
-                <div class="rule-header">
-                  <div class="rule-title">🛡️ Luật 3: Chính Sách Hủy Phòng Trước 48 Giờ Minh Bạch</div>
-                  <span class="rule-tag" style="color:var(--garden-light)">Cancellation Policy</span>
-                </div>
-                <div class="rule-content">
-                  Bảo vệ nguồn thu của chủ nhà vườn tránh tình trạng khách "bỏ bom" phòng vào giờ chót:
-                </div>
-                <div class="rule-example-badge">
-                  👉 <strong>Quy tắc phạt rõ ràng:</strong><br>
-                  • <em>Hủy trước $\ge$ 48 tiếng:</em> Hoàn cọc 100% cho khách vui vẻ.<br>
-                  • <em>Hủy gấp dưới 48 tiếng:</em> Giữ lại số tiền cọc tương đương <strong>1 đêm phòng đầu tiên</strong> để bù lỗ chi phí phòng trống.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ==========================================
-           SLIDE 4: ĐIỂM NHẤN KỸ THUẬT & AI SMARTPASTE DỄ HIỂU
-      ========================================== -->
-      <section class="slide" id="slide-4" data-title="Điểm nhấn Kỹ thuật & Mở rộng AI">
-        <div class="slide-header">
-          <div>
-            <div class="slide-category">Giải Pháp Kỹ Thuật & Trợ Lý Thông Minh</div>
-            <h2 class="slide-title">Điểm Nhấn Kỹ Thuật & <span class="highlight">Tính Năng AI SmartPaste</span></h2>
-            <p class="slide-subtitle">Cách hệ thống tìm phòng trống cực nhanh và trợ lý AI giúp lễ tân chốt đơn tin nhắn Zalo trong 1 giây</p>
-          </div>
-          <div class="slide-badge-top">
-            <span class="badge-tag purple">SQL An Toàn</span>
-            <span class="badge-tag gold">Trợ Lý AI Zalo</span>
-          </div>
-        </div>
-
-        <div class="slide-body">
-          <div class="slide-4-grid">
-            <!-- Left: SQL Overlap Query Optimization -->
-            <div class="tech-sql-panel">
-              <div class="sql-title-wrap">
-                <div>
-                  <h3 style="font-size:14px; font-weight:700; color:#fff;">1. Thuật Toán Kiểm Tra Phòng Trống (Chống Lấn Ngày)</h3>
-                  <div style="font-size:11px; color:var(--text-muted);">Sử dụng Parameterized SQL (Tránh rủi ro hack SQL Injection)</div>
-                </div>
-                <span class="badge-tag purple">Tốc độ &lt; 20ms</span>
-              </div>
-
-              <!-- Visual Timeline Bar -->
-              <div class="visual-timeline-bar">
-                <div class="timeline-row">
-                  <span>Khách A ở (15 ➔ 18/10)</span>
-                  <span style="color:var(--gold-light);">Dọn dẹp</span>
-                  <span>Khách B ở (18 ➔ 21/10)</span>
-                </div>
-                <div class="timeline-bar-graph">
-                  <div class="bar-guest-a">Khách A (Trả 12h ngày 18)</div>
-                  <div class="bar-clean">12h-14h</div>
-                  <div class="bar-guest-b">Khách B (Nhận 14h ngày 18)</div>
-                </div>
-              </div>
-
-              <div class="code-terminal">
-                <span class="code-comment">-- Lọc ra các phòng trống trong khoảng [CheckIn, CheckOut]</span><br>
-                <span class="code-keyword">SELECT</span> r.* <span class="code-keyword">FROM</span> Room r<br>
-                <span class="code-keyword">WHERE</span> r.RoomTypeId = <span class="code-param">@TargetRoomTypeId</span><br>
-                &nbsp;&nbsp;<span class="code-keyword">AND</span> r.Status = <span class="code-param">'Active'</span><br>
-                &nbsp;&nbsp;<span class="code-keyword">AND</span> r.Id <span class="code-keyword">NOT IN</span> (<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">-- Tìm các phòng đã có người đặt trong những đêm này</span><br>
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">SELECT DISTINCT</span> bn.RoomId <span class="code-keyword">FROM</span> BookingNight bn<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">JOIN</span> Booking b <span class="code-keyword">ON</span> bn.BookingId = b.Id<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">WHERE</span> b.Status <span class="code-keyword">NOT IN</span> (<span class="code-param">'Cancelled'</span>, <span class="code-param">'CheckedOut'</span>)<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">AND</span> (bn.NightDate &gt;= <span class="code-param">@ReqCheckIn</span> <span class="code-keyword">AND</span> bn.NightDate &lt; <span class="code-param">@ReqCheckOut</span>)<br>
-                &nbsp;&nbsp;);
-              </div>
-
-              <div class="sql-explanation">
-                💡 <strong>Dễ hiểu:</strong> Nhờ tách từng đêm thành bảng <code>BookingNight</code>, máy tính chỉ cần kiểm tra xem đêm đó phòng đã có người chưa. Cực kỳ nhanh, chính xác 100%, không bao giờ bị tình trạng 2 người cùng nhận 1 phòng (Overbooking).
-              </div>
-            </div>
-
-            <!-- Right: AI SmartPaste Interactive Simulator -->
-            <div class="ai-smartpaste-card">
-              <div class="ai-header-tag">
-                <div class="ai-tag">
-                  <span>✨</span> 2. Tính Năng Mở Rộng: AI SmartPaste
-                </div>
-                <span style="font-size:11px; color:var(--text-dim);">Dành cho Lễ tân</span>
-              </div>
-
-              <p style="font-size:11.5px; color:var(--text-muted); margin-bottom:8px;">
-                <strong>Vấn đề thực tế:</strong> Khách du lịch thích nhắn tin tự do trên Zalo/Facebook: <em>"Bên mình còn phòng vườn 2 người từ 20 đến 22/10 ko bạn ơi, mình tên Đăng 0912345678"</em>.<br>
-                $\rightarrow$ Trước đây lễ tân phải mở phần mềm rồi gõ tay từng chữ. Với <strong>AI SmartPaste</strong>, chỉ cần bấm 1 nút dán vào là AI tự điền toàn bộ!
-              </p>
-
-              <div class="sim-box">
-                <div class="sim-label">
-                  <span>💬 Đoạn chat Zalo thực tế của khách</span>
-                  <span style="color:var(--cyan-river); cursor:pointer; font-weight:700;" id="sampleBtn">🔄 Đổi mẫu tin nhắn khác</span>
-                </div>
-                <div class="sim-chat-msg" id="chatInputDemo">
-                  "Chào Kim Long EcoStay, mình tên Nguyễn Hải Đăng (0912345678), muốn book 1 phòng Bungalow Vườn cho 2 người lớn từ ngày 20/10 đến 22/10 nhé!"
-                </div>
-              </div>
-
-              <button class="sim-btn-trigger" id="runAiDemoBtn">
-                <span>⚡ Bấm để AI Bóc Tách Tự Động (SmartPaste)</span>
+              <button class="btn-simulate-bike" id="btn-simulate-bike">
+                🚲 Mô Phỏng Dạo Xe Đạp
               </button>
+            </div>
 
-              <!-- Output Form Preview -->
-              <div class="sim-output-form" id="aiOutputForm">
-                <div class="form-item">
-                  <span class="lbl">Họ tên khách:</span>
-                  <span class="val" id="resName">Nguyễn Hải Đăng</span>
+            <div class="interactive-map-canvas" id="interactive-map-canvas">
+              <!-- Bản đồ Vector SVG tương tác mô phỏng sông Hương & Kim Long -->
+              <svg viewBox="0 0 700 480" class="svg-map-render">
+                <defs>
+                  <linearGradient id="riverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.8" />
+                    <stop offset="100%" stop-color="#0284C7" stop-opacity="0.9" />
+                  </linearGradient>
+                  <linearGradient id="fieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#A7F3D0" stop-opacity="0.7" />
+                    <stop offset="100%" stop-color="#34D399" stop-opacity="0.6" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Nền đất làng quê & cây xanh -->
+                <rect width="700" height="480" fill="#E5EDE6" />
+
+                <!-- Cánh đồng lúa sinh thái Kim Long -->
+                <path d="M 320,240 Q 420,220 520,280 L 500,380 Q 380,410 300,360 Z" fill="url(#fieldGrad)" stroke="#10B981" stroke-width="2" stroke-dasharray="4" />
+                <text x="390" y="320" font-size="12" font-weight="700" fill="#065F46">🌾 Cánh đồng lúa Kim Long</text>
+
+                <!-- Dòng sông Hương thơ mộng -->
+                <path d="M 0,220 Q 200,160 380,240 T 700,210 L 700,310 Q 520,340 360,260 T 0,330 Z" fill="url(#riverGrad)" />
+                <text x="580" y="270" font-size="14" font-weight="800" fill="#FFFFFF" letter-spacing="3">SÔNG HƯƠNG</text>
+
+                <!-- Tuyến đường phố Kim Long ven sông Hương -->
+                <path d="M 50,180 Q 220,130 380,200 T 680,180" fill="none" stroke="#D4AF37" stroke-width="5" stroke-dasharray="6,4" />
+                <text x="140" y="145" font-size="11" font-weight="700" fill="#92400E" transform="rotate(-12 140 145)">🛣️ ĐƯỜNG KIM LONG (TRỤC DI SẢN)</text>
+                <text x="560" y="165" font-size="11" font-weight="700" fill="#92400E">➡️ HƯỚNG ĐẠI NỘI HUẾ</text>
+
+                <!-- Cầu Dã Viên & Cầu Bạch Hổ qua sông Hương -->
+                <line x1="620" y1="200" x2="650" y2="320" stroke="#64748B" stroke-width="6" stroke-linecap="round" />
+                <text x="600" y="340" font-size="10" font-weight="700" fill="#475569">🌉 Cầu Dã Viên</text>
+
+                <!-- Các điểm Pin Di Tích trên bản đồ -->
+                <!-- 1. Chùa Thiên Mụ -->
+                <g class="map-spot-pin" data-spot-idx="0" transform="translate(380, 150)" style="cursor: pointer;">
+                  <circle r="16" fill="#0A3D2C" stroke="#D4AF37" stroke-width="3" />
+                  <text y="5" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="900">1</text>
+                  <text y="30" text-anchor="middle" fill="#0A3D2C" font-size="11" font-weight="800">Chùa Thiên Mụ</text>
+                </g>
+
+                <!-- 2. Nhà vườn An Hiên -->
+                <g class="map-spot-pin" data-spot-idx="1" transform="translate(480, 190)" style="cursor: pointer;">
+                  <circle r="16" fill="#0A3D2C" stroke="#D4AF37" stroke-width="3" />
+                  <text y="5" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="900">2</text>
+                  <text y="30" text-anchor="middle" fill="#0A3D2C" font-size="11" font-weight="800">Nhà vườn An Hiên</text>
+                </g>
+
+                <!-- 3. Văn Miếu Huế -->
+                <g class="map-spot-pin" data-spot-idx="2" transform="translate(260, 130)" style="cursor: pointer;">
+                  <circle r="16" fill="#0A3D2C" stroke="#D4AF37" stroke-width="3" />
+                  <text y="5" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="900">3</text>
+                  <text y="30" text-anchor="middle" fill="#0A3D2C" font-size="11" font-weight="800">Văn Miếu</text>
+                </g>
+
+                <!-- 4. Bến thuyền Kim Long -->
+                <g class="map-spot-pin" data-spot-idx="3" transform="translate(560, 220)" style="cursor: pointer;">
+                  <circle r="16" fill="#0A3D2C" stroke="#D4AF37" stroke-width="3" />
+                  <text y="5" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="900">4</text>
+                  <text y="30" text-anchor="middle" fill="#0A3D2C" font-size="11" font-weight="800">Bến Thuyền</text>
+                </g>
+
+                <!-- 5. Lò bánh ướt Huyền Anh -->
+                <g class="map-spot-pin" data-spot-idx="4" transform="translate(520, 260)" style="cursor: pointer;">
+                  <circle r="16" fill="#E67E22" stroke="#FFFFFF" stroke-width="2" />
+                  <text y="5" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="900">5</text>
+                  <text y="28" text-anchor="middle" fill="#E67E22" font-size="11" font-weight="800">Lò Bánh Ướt</text>
+                </g>
+
+                <!-- 6. Vị trí Kim Long EcoStay Homestay -->
+                <g transform="translate(420, 290)">
+                  <rect x="-24" y="-24" width="48" height="48" rx="12" fill="#D4AF37" stroke="#0A3D2C" stroke-width="3" />
+                  <text y="6" text-anchor="middle" font-size="20">🏡</text>
+                  <text y="36" text-anchor="middle" fill="#0A3D2C" font-size="12" font-weight="900">KIM LONG ECOSTAY</text>
+                </g>
+
+                <!-- Vị trí Xe đạp điện GPS Marker (Animated) -->
+                <g id="bike-gps-marker" transform="translate(380, 150)" style="transition: transform 1s ease;">
+                  <circle r="22" fill="none" stroke="#EF4444" stroke-width="2" opacity="0.7">
+                    <animate attributeName="r" values="16;28;16" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                  <circle r="15" fill="#EF4444" stroke="#FFFFFF" stroke-width="2" />
+                  <text y="5" text-anchor="middle" fill="#FFFFFF" font-size="13">🚲</text>
+                </g>
+              </svg>
+
+              <div class="map-controls-overlay">
+                <span>📍 Tọa độ GPS: 16.4533° N, 107.5451° E • Bán kính bao phủ: 3km</span>
+              </div>
+            </div>
+
+            <!-- Danh sách cuộn các điểm di tích & làng nghề -->
+            <div style="padding: 20px;">
+              <h4 style="font-size: 13.5px; font-weight: 800; color: var(--c-primary); text-transform: uppercase; margin-bottom: 12px;">
+                Danh Sách Quần Thể Di Tích & Làng Nghề Truyền Thống Xứ Huế:
+              </h4>
+              <div class="spots-list-scroll" id="spots-list-container">
+                <!-- Render tự động bởi app.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Trình phát Audio Guide Player hiện đại -->
+          <div class="audio-player-dock">
+            <div class="audio-now-playing">
+              <img src="https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=800&q=80" alt="Chùa Thiên Mụ" class="audio-spot-thumb" id="audio-spot-thumb">
+              <div class="audio-spot-info">
+                <h3 id="audio-spot-name">Chùa Thiên Mụ (Linh Mụ Tự)</h3>
+                <p id="audio-spot-distance">📍 850m từ Homestay • Phân loại: Di tích Tâm linh</p>
+                <div class="audio-lang-toggle">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--c-text-muted);">Ngôn ngữ audio:</span>
+                  <button class="btn-audio-lang active" data-lang="vi">Tiếng Việt</button>
+                  <button class="btn-audio-lang" data-lang="en">English</button>
+                  <button class="btn-audio-lang" data-lang="fr">Français</button>
                 </div>
-                <div class="form-item">
-                  <span class="lbl">Số điện thoại:</span>
-                  <span class="val" id="resPhone">0912345678</span>
+              </div>
+            </div>
+
+            <!-- Khung trích dẫn lời thuyết minh văn hóa -->
+            <div class="audio-script-box" id="audio-script-box">
+              "Chào mừng bạn đến với Chùa Thiên Mụ, biểu tượng tâm linh bất diệt của Cố đô Huế soi bóng bên dòng sông Hương thơ mộng..."
+            </div>
+
+            <!-- Điều khiển phát Audio -->
+            <div class="audio-controls-row">
+              <button class="btn-play-audio" id="btn-play-audio" title="Phát giọng đọc thuyết minh">
+                ▶
+              </button>
+              <div class="audio-progress-bar-wrap">
+                <div class="audio-progress-bar">
+                  <div class="audio-progress-fill" id="audio-progress-fill"></div>
                 </div>
-                <div class="form-item">
-                  <span class="lbl">Loại phòng khách chọn:</span>
-                  <span class="val" id="resRoom">Bungalow Sân Vườn</span>
+                <div class="audio-time-row">
+                  <span id="audio-current-time">00:00</span>
+                  <span id="audio-total-duration">02:45</span>
                 </div>
-                <div class="form-item">
-                  <span class="lbl">Khoảng thời gian:</span>
-                  <span class="val" id="resDates">20/10 ➔ 22/10 (2 đêm)</span>
+              </div>
+            </div>
+
+            <div style="background: #F1F5F9; border-radius: var(--radius-sm); padding: 12px; font-size: 12.5px; color: var(--c-text-muted);">
+              💡 <strong>Công nghệ Text-to-Speech (TTS) tích hợp:</strong> Bấm nút Play ▶ để nghe trực tiếp giọng đọc thuyết minh sống động theo thời gian thực trên trình duyệt của bạn!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         6. PHÂN HỆ 4: ẨM THỰC 15 PHÚT & NÔNG SẢN BAO TIÊU
+         ========================================================================= -->
+    <section class="section-wrapper" id="section-dining">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Farm-To-Table & Lò Gia Truyền</span>
+          <h2 class="section-title">Đặc Sản Nóng Sốt 15 Phút & Nông Sản Tại Vườn</h2>
+          <p class="section-subtitle">Thưởng thức đĩa bánh ướt thịt nướng than hoa nghi ngút khói giao tận bàn và ủng hộ nông sản sạch của bà con nông dân Kim Long.</p>
+        </div>
+
+        <div class="food-farm-grid">
+          <!-- Danh sách món ăn & nông sản -->
+          <div class="menu-cards-grid" id="food-menu-grid">
+            <!-- Render tự động bởi app.js -->
+          </div>
+
+          <!-- Giỏ hàng & Đồng hồ đếm ngược giao 15 phút -->
+          <div class="order-sidebar-card">
+            <h3 class="order-sidebar-title">
+              <span>🛒 Giỏ Món Đã Chọn</span>
+              <span style="font-size: 12px; font-weight: 700; color: var(--c-eco);">Giao trong 15p</span>
+            </h3>
+
+            <div class="cart-items-list" id="cart-items-list">
+              <p style="font-size: 13px; color: var(--c-text-muted); text-align: center; padding: 16px 0;">
+                Chưa có món nào được chọn. Vui lòng bấm '+ Thêm món' bên cạnh.
+              </p>
+            </div>
+
+            <div class="cart-total-row">
+              <span>Tổng thanh toán:</span>
+              <span id="cart-total-amount">0 đ</span>
+            </div>
+
+            <button class="btn-place-order" id="btn-place-order" disabled>
+              🛎️ Gửi Đơn Gọi Món (Giao Tận Phòng)
+            </button>
+
+            <!-- Trình theo dõi giao hàng trực tiếp -->
+            <div class="live-delivery-tracker" id="delivery-tracker">
+              <div class="tracker-countdown-box">
+                <div class="countdown-timer-label">ĐỒNG HỒ ĐẾM NGƯỢC GIAO HÀNG</div>
+                <div class="countdown-timer-num" id="countdown-timer-num">15:00</div>
+              </div>
+
+              <div class="delivery-steps-mini">
+                <div class="del-step active" id="step-1">
+                  <span>🔥</span> Lò bánh Huyền Anh đang nướng thịt than hoa
+                </div>
+                <div class="del-step" id="step-2">
+                  <span>📦</span> Đóng gói trong hộp giấy kraft thân thiện
+                </div>
+                <div class="del-step" id="step-3">
+                  <span>🛵</span> Xe điện đang giao tới bàn ngắm lúa của bạn
+                </div>
+                <div class="del-step" id="step-4">
+                  <span>✅</span> Đã giao tận nơi nóng sốt!
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- ==========================================
-           SLIDE 5: KẾ HOẠCH LÀM VIỆC 4 TUẦN CHI TIẾT
-      ========================================== -->
-      <section class="slide" id="slide-5" data-title="Kế hoạch làm việc 4 tuần & Bàn giao">
-        <div class="slide-header">
-          <div>
-            <div class="slide-category">Lộ Trình Triển Khai Rõ Ràng</div>
-            <h2 class="slide-title">Kế Hoạch Thực Hiện Dự Án Trong <span class="highlight">4 Tuần</span></h2>
-            <p class="slide-subtitle">Phân chia công việc theo từng tuần (Sprint) cụ thể: Làm gì, dùng công cụ gì và sản phẩm nộp là gì</p>
+    <!-- =========================================================================
+         7. PHÂN HỆ 5: CỔNG CHỦ VƯỜN & ADMIN DASHBOARD
+         ========================================================================= -->
+    <section class="section-wrapper" id="section-admin">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge">Hệ Thống Quản Trị & Đối Soát Bản Địa</span>
+          <h2 class="section-title">Bảng Điều Khiển Vận Hành & Hợp Tác Nông Dân</h2>
+          <p class="section-subtitle">Minh bạch dòng tiền, giám sát buồng phòng sinh thái SOP và đảm bảo sinh kế bền vững 100% cho các hộ nông dân Kim Long.</p>
+        </div>
+
+        <!-- 4 Thẻ KPI vận hành MVP -->
+        <div class="admin-grid-top">
+          <div class="stat-kpi-card">
+            <span class="kpi-title">Công Suất Phòng Hiện Tại</span>
+            <span class="kpi-value">64.5%</span>
+            <span class="kpi-sub">▲ Vượt điểm hòa vốn (53.3%)</span>
           </div>
-          <div class="slide-badge-top">
-            <span class="badge-tag purple">4 Tuần / 4 Sprints</span>
-            <span class="badge-tag emerald">Mục tiêu cụ thể</span>
+          <div class="stat-kpi-card">
+            <span class="kpi-title">Định Phí Thuê Đất Đã Trả</span>
+            <span class="kpi-value">20.000.000 đ</span>
+            <span class="kpi-sub">✓ Đã trả đúng ngày 01 cho 2 hộ</span>
+          </div>
+          <div class="stat-kpi-card">
+            <span class="kpi-title">Khóa Thông Minh Online</span>
+            <span class="kpi-value">5 / 5 Bộ</span>
+            <span class="kpi-sub">🔋 Mức pin trung bình: 96%</span>
+          </div>
+          <div class="stat-kpi-card">
+            <span class="kpi-title">Nông Sản Sạch Đã Bao Tiêu</span>
+            <span class="kpi-value">340 kg</span>
+            <span class="kpi-sub">✓ Giá cao hơn thương lái 18%</span>
           </div>
         </div>
 
-        <div class="slide-body">
-          <div class="slide-5-layout">
-            <!-- 4 Weeks Roadmap Grid -->
-            <div class="roadmap-timeline">
-              <!-- Week 1 -->
-              <div class="week-card">
-                <div class="week-badge w1">Tuần 1</div>
-                <div class="week-title">Khảo Sát & Thiết Kế CSDL</div>
-                <ul class="week-tasks">
-                  <li>Khảo sát mô hình nhà vườn Kim Long EcoStay & đặc tả SRS.</li>
-                  <li>Thiết kế giao diện Figma (Trang Khách & Admin Host).</li>
-                  <li>Vẽ sơ đồ ERD & khởi tạo 6 bảng CSDL SQL.</li>
-                  <li>Cài đặt khung ứng dụng và cấu hình dữ liệu mẫu.</li>
-                </ul>
-                <div class="week-output">✔ Kết quả: Bản thiết kế UI & CSDL SQL</div>
-              </div>
-
-              <!-- Week 2 -->
-              <div class="week-card">
-                <div class="week-badge w2">Tuần 2</div>
-                <div class="week-title">Quản Trị Homestay & Bảng Giá</div>
-                <ul class="week-tasks">
-                  <li>Làm trang Host/Admin: Thêm, sửa, xóa buồng phòng.</li>
-                  <li>Cài đặt bảng giá: Giá ngày thường, cuối tuần & mùa lễ.</li>
-                  <li>Phân quyền tài khoản Chủ nhà (Host) & Lễ tân (Staff).</li>
-                  <li>Quản lý trạng thái buồng phòng thời gian thực.</li>
-                </ul>
-                <div class="week-output">✔ Kết quả: Chủ nhà tự đăng & quản trị phòng</div>
-              </div>
-
-              <!-- Week 3 -->
-              <div class="week-card current-sprint">
-                <div class="week-badge w3">Tuần 3</div>
-                <div class="week-title">Lập Trình Đặt Phòng & Vận Hành</div>
-                <ul class="week-tasks">
-                  <li>Giao diện tìm kiếm, chọn ngày & đặt phòng trực tiếp.</li>
-                  <li>Code thuật toán kiểm tra phòng trống (0% Overbooking).</li>
-                  <li>Code tự động tính tiền từng đêm & quy tắc hủy cọc 48h.</li>
-                  <li>Làm nút Check-in / Check-out cho lễ tân khi đón khách.</li>
-                </ul>
-                <div class="week-output">✔ Kết quả: Đặt phòng & đón tiếp khách trơn tru</div>
-              </div>
-
-              <!-- Week 4 -->
-              <div class="week-card">
-                <div class="week-badge w4">Tuần 4</div>
-                <div class="week-title">AI SmartPaste, Kiểm Thử & Đóng Gói</div>
-                <ul class="week-tasks">
-                  <li>Tích hợp trợ lý AI SmartPaste bóc tách tin nhắn Zalo.</li>
-                  <li>Vẽ biểu đồ báo cáo doanh thu & tỷ lệ lấp đầy phòng.</li>
-                  <li>Kiểm thử 50 kịch bản đặt phòng & tối ưu mobile.</li>
-                  <li>Đóng gói mã nguồn, hoàn thiện slide & tài liệu bảo vệ.</li>
-                </ul>
-                <div class="week-output">✔ Kết quả: Toàn diện sản phẩm sẵn sàng bảo vệ</div>
-              </div>
+        <div class="admin-layout-two-col">
+          <!-- Bảng chi trả tiền thuê cố định cho nông dân -->
+          <div class="admin-card">
+            <h3 class="admin-card-title">
+              <span>🤝 Đối Soát Tiền Thuê Cố Định & Chính Sách Thu Nhập Kép</span>
+              <span style="font-size: 12px; font-weight: 700; color: var(--c-eco);">Cam kết 100%</span>
+            </h3>
+            <div style="overflow-x: auto;">
+              <table class="farmer-lease-table">
+                <thead>
+                  <tr>
+                    <th>Hộ Nông Dân & Nhà Vườn</th>
+                    <th>Diện Tích Canh Tác</th>
+                    <th>Tiền Thuê Cố Định</th>
+                    <th>Thu Nhập Kép</th>
+                    <th>Hỗ Trợ Nông Nghiệp</th>
+                  </tr>
+                </thead>
+                <tbody id="farmer-lease-table-body">
+                  <!-- Render tự động bởi app.js -->
+                </tbody>
+              </table>
             </div>
+            <div style="margin-top: 16px; font-size: 12.5px; color: var(--c-text-muted); background: #F8FAF8; padding: 12px; border-radius: var(--radius-sm);">
+              📌 <strong>Chính sách 'Thu Nhập Kép' (Double Income):</strong> Mỗi hộ nông dân ngoài 10 triệu tiền thuê đất cố định còn nhận thêm 10 triệu lương nhân sự buồng phòng và chăm sóc hoa cảnh, tổng thu nhập đạt 20 triệu/tháng vững chắc.
+            </div>
+          </div>
 
-            <!-- Deliverables & KPIs Bottom Row -->
-            <div class="deliverables-kpis">
-              <div class="deliv-card">
-                <div class="deliv-info">
-                  <h4>📦 Các Sản Phẩm Sẽ Nộp Khi Hoàn Thành</h4>
-                  <p>Website đặt phòng cho khách + Trang quản trị cho chủ homestay + Trợ lý AI SmartPaste + Bộ tài liệu thuyết minh đồ án.</p>
-                </div>
-                <div class="deliv-stats">
-                  <div class="stat-pill">
-                    <div class="num">04</div>
-                    <div class="lbl">Tuần thực hiện</div>
-                  </div>
-                  <div class="stat-pill">
-                    <div class="num">100%</div>
-                    <div class="lbl">Đúng tiến độ</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="deliv-card">
-                <div class="deliv-info">
-                  <h4>🎯 Cam Kết Chất Lượng Đồ Án (KPIs)</h4>
-                  <p>Tuyệt đối không trùng phòng (0% Overbooking), bấm tìm phòng có kết quả ngay lập tức (&lt; 200ms), AI bóc tách tin nhắn chuẩn &gt; 90%.</p>
-                </div>
-                <div class="deliv-stats">
-                  <div class="stat-pill">
-                    <div class="num" style="color:var(--garden-light);">0%</div>
-                    <div class="lbl">Trùng lịch phòng</div>
-                  </div>
-                  <div class="stat-pill">
-                    <div class="num" style="color:var(--hue-purple-light);">&lt;200ms</div>
-                    <div class="lbl">Tốc độ tìm phòng</div>
-                  </div>
-                </div>
-              </div>
+          <!-- Bảng kiểm tra tiêu chuẩn buồng phòng sinh thái SOP 8 bước -->
+          <div class="admin-card">
+            <h3 class="admin-card-title">
+              <span>🌿 Checklist Buồng Phòng Sinh Thái SOP (8 Bước)</span>
+              <span style="font-size: 12px; font-weight: 700; color: var(--c-primary);">11:30 - 14:00</span>
+            </h3>
+            <div class="sop-checklist" id="sop-checklist-container">
+              <!-- Render tự động bởi app.js -->
             </div>
           </div>
         </div>
-      </section>
-
-    </main>
-
-    <!-- Bottom Controls & Presentation Bar -->
-    <footer class="pres-footer">
-      <!-- Slide Indicator Dots -->
-      <div class="slide-dots-container" id="slideDots">
-        <!-- Rendered by JS -->
       </div>
+    </section>
+  </main>
 
-      <!-- Navigation buttons -->
-      <div class="control-buttons">
-        <button class="nav-btn" id="prevBtn" title="Phím tắt: Mũi tên trái (←)">
-          <span>←</span> Trang trước
-        </button>
-        <button class="nav-btn primary" id="nextBtn" title="Phím tắt: Mũi tên phải (→) hoặc Space">
-          Trang kế tiếp <span>→</span>
-        </button>
+  <!-- =========================================================================
+       8. MODAL ĐẶT PHÒNG & GIẢ LẬP THANH TOÁN
+       ========================================================================= -->
+  <div class="modal-backdrop" id="booking-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Đặt Phòng Trực Tiếp - Kim Long EcoStay</h3>
+        <button class="btn-close-modal" id="btn-close-modal">&times;</button>
       </div>
-
-      <!-- Tools: Fullscreen, Speaker Notes, Print/Export -->
-      <div class="action-tools">
-        <button class="tool-icon-btn" id="notesBtn" title="Xem ghi chú lời thoại người thuyết trình (Speaker Notes)">
-          📝
-        </button>
-        <button class="tool-icon-btn" id="printBtn" title="In hoặc Xuất Slide sang file PDF">
-          🖨️
-        </button>
-        <button class="tool-icon-btn" id="fullscreenBtn" title="Chế độ toàn màn hình (F11)">
-          ⛶
-        </button>
-      </div>
-    </footer>
-
-    <!-- Speaker Notes Floating Drawer -->
-    <aside class="notes-drawer" id="notesDrawer">
-      <div class="notes-header">
-        <div class="notes-title">
-          <span>🎙️ Lời thoại thuyết trình mẫu (Dễ nói, tự nhiên)</span>
+      <div class="modal-body">
+        <div class="modal-room-summary" id="modal-booking-summary">
+          <!-- Render thông tin phòng đã chọn -->
         </div>
-        <button class="notes-close" id="closeNotesBtn">✕</button>
+
+        <form id="form-booking" novalidate>
+          <div class="booking-alert-box" id="booking-alert-box">
+            <span id="booking-alert-text">⚠️ Vui lòng kiểm tra lại các thông tin màu đỏ bên dưới.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="guest-name">Họ và tên quý khách <span style="color: #DC2626;">*</span></label>
+            <input type="text" id="guest-name" class="form-input" placeholder="Ví dụ: Lê Hà My" required value="Lê Hà My">
+            <div class="field-error-msg" id="err-guest-name"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="guest-phone">Số điện thoại nhận mã PIN Smart Lock <span style="color: #DC2626;">*</span></label>
+            <input type="tel" id="guest-phone" class="form-input" placeholder="0905 xxx xxx hoặc 0912..." required value="0905123456">
+            <div class="field-error-msg" id="err-guest-phone"></div>
+            <div class="field-success-hint" id="hint-guest-phone">
+              <span>📲 Đồng bộ tin nhắn cấp mã PIN mở cửa qua Zalo/SMS trong 10 giây</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="guest-email">Email nhận mã PIN & Xác nhận đặt phòng <span style="color: #DC2626;">*</span></label>
+            <input type="email" id="guest-email" class="form-input" placeholder="Ví dụ: lehamy@gmail.com" required value="lehamy@gmail.com">
+            <div class="field-error-msg" id="err-guest-email"></div>
+            <div class="field-success-hint" id="hint-guest-email">
+              <span>📩 Hệ thống gửi mã PIN 6 số và hướng dẫn nhận phòng tự động qua email</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="modal-checkin-date">Ngày đến <span style="color: #DC2626;">*</span></label>
+              <input type="date" id="modal-checkin-date" class="form-input" value="2026-10-01">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="modal-checkout-date">Ngày đi <span style="color: #DC2626;">*</span></label>
+              <input type="date" id="modal-checkout-date" class="form-input" value="2026-10-03">
+            </div>
+          </div>
+          <div class="field-error-msg" id="err-booking-dates" style="margin-top: -8px; margin-bottom: 12px;"></div>
+
+          <div class="form-group">
+            <label class="form-label">Chọn phương thức thanh toán trực tuyến:</label>
+            <div class="payment-options-grid">
+              <div class="payment-opt-card active" data-method="vietqr">
+                <span>📱 Quét Mã VietQR / VNPAY</span>
+              </div>
+              <div class="payment-opt-card" data-method="momo">
+                <span>👛 Ví Điện Tử MoMo</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size: 12px; color: var(--c-text-muted); margin-top: 10px; background: #FEF3C7; padding: 10px; border-radius: 6px; border: 1px solid #FDE68A;">
+            ⚡ <strong>Ưu đãi đặt trực tiếp:</strong> Tặng kèm 01 phần Bánh ướt thịt nướng than hoa Kim Long và miễn phí 100% xe đạp trợ lực điện dạo sông Hương!
+          </div>
+
+          <div class="modal-footer" style="padding-left: 0; padding-right: 0; margin-top: 18px;">
+            <button type="submit" class="btn-submit-booking" id="btn-submit-booking">
+              ✓ Xác Nhận & Nhận Mã PIN Ngay
+            </button>
+          </div>
+        </form>
       </div>
-      <div class="notes-body" id="notesContent">
-        <!-- Populated dynamically via JS -->
-      </div>
-    </aside>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- =========================================================================
+       9. FOOTER
+       ========================================================================= -->
+  <footer class="app-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="footer-brand-title">CÔNG TY CỔ PHẦN KIM LONG ECOSTAY</div>
+        <p class="footer-desc">
+          Mô hình Homestay Sinh thái Nhà vườn Nông nghiệp kết hợp Nền tảng Du lịch Di sản Thông minh tại Phường Kim Long, TP. Huế. Dự án tham gia môn học Khởi nghiệp & Đổi mới Sáng tạo - Đại học Huế (Năm 2026).
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Nhóm Sáng Lập (05 Cổ Đông)</h4>
+        <ul class="footer-links">
+          <li>• Trần Thị Thu (Chủ tịch kiêm CEO - 28%)</li>
+          <li>• Nguyễn Trung Quyết (Giám đốc Công nghệ CTO - 22%)</li>
+          <li>• Trần Viết Mạnh Cường (Giám đốc Vận hành COO - 18%)</li>
+          <li>• Ngô Viết Tuấn Kiệt (Giám đốc Tiếp thị CMO - 18%)</li>
+          <li>• Phạm Trần Anh Khoa (Giám đốc Tài chính CFO - 14%)</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Liên Hệ & Khảo Sát Thực Địa</h4>
+        <ul class="footer-links">
+          <li>📍 Địa chỉ: Phường Kim Long, TP. Huế</li>
+          <li>📞 Hotline: 0905.888.666</li>
+          <li>✉️ Email: contact@kimlongecostay.vn</li>
+          <li>🌐 Website: www.kimlongecostay.vn</li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      © 2026 Kim Long EcoStay JSC. Sản phẩm mẫu khả dụng tối thiểu (MVP Prototype) phục vụ báo cáo và kiểm chứng thực địa.
+    </div>
+  </footer>
+
+  <!-- SCRIPT DỮ LIỆU & LOGIC -->
+  <script src="data/rooms_and_spots.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

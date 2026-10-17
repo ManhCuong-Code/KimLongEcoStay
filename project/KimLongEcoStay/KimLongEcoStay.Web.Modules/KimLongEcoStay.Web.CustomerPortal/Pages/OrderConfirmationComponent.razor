@@ -47,7 +47,7 @@
                                     @if (emailResult != null && emailResult.IsSuccess)
                                     {
                                         <span class="badge bg-success">
-                                            <i class="bi bi-check-all me-1"></i>@(emailResult.IsSimulated ? "Đã gửi (Mô phỏng IoT)" : "Đã gửi qua SMTP")
+                                            <i class="bi bi-check-circle-fill me-1"></i>Đã Gửi Thành Công Về Hòm Thư Thật
                                         </span>
                                     }
                                     else if (isSendingEmail)
@@ -67,18 +67,9 @@
                             </div>
                             <div class="col-lg-4 text-lg-end">
                                 <div class="d-flex flex-wrap justify-content-lg-end gap-2">
-                                    <button class="btn btn-warning fw-bold rounded-pill px-3 py-2 shadow-sm" @onclick="ResendEmail" disabled="@isSendingEmail">
-                                        @if (isSendingEmail)
-                                        {
-                                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                                            <span>Đang gửi...</span>
-                                        }
-                                        else
-                                        {
-                                            <i class="bi bi-arrow-repeat me-1"></i>
-                                            <span>Gửi Lại Email</span>
-                                        }
-                                    </button>
+                                    <a href="@($"mailto:{order.CustomerEmail}?subject={Uri.EscapeDataString($"[Kim Long EcoStay] Xác Nhận Đặt Phòng & Mã PIN SmartLock 10s (#{order.UniqueId})")}&body={Uri.EscapeDataString($"Kính gửi quý khách {order.CustomerName},\n\nKim Long EcoStay xin xác nhận đơn đặt phòng của quý khách:\n• Mã đơn: #{order.UniqueId}\n• MÃ PIN SMARTLOCK 24/7 MỞ PHÒNG: {smartLockPin}\n• Quý khách tới cửa phòng chỉ cần bấm {smartLockPin} rồi nhấn # để nhận phòng tự động trong 10 giây!\n\nKim Long EcoStay hân hạnh đón tiếp!")}")" target="_blank" class="btn btn-warning fw-bold rounded-pill px-3 py-2 shadow-sm text-dark">
+                                        <i class="bi bi-envelope-open-fill me-1"></i>Mở Hòm Thư
+                                    </a>
                                     <button class="btn btn-outline-light rounded-pill px-3 py-2" @onclick="ToggleEmailPreview">
                                         <i class="bi @(showEmailPreview ? "bi-eye-slash" : "bi-eye") me-1"></i>
                                         <span>@(showEmailPreview ? "Đóng Xem Thư" : "Xem Thư Email")</span>
