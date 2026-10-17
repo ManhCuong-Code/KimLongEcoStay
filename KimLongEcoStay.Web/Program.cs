@@ -35,6 +35,13 @@ using KimLongEcoStay.UseCases.AdminPortal.FinancialManagementScreen;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Cloud Port Binding (Railway, Render, Container dynamic $PORT)
+var cloudPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(cloudPort))
+{
+    builder.WebHost.UseUrls($"http://+:{cloudPort}");
+}
+
 // 1. ADD BLAZOR INTERACTIVE SERVER
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
