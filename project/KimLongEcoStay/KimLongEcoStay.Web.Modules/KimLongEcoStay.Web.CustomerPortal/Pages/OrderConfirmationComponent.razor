@@ -344,6 +344,24 @@
                     </a>
                 </div>
             }
+            else if (isNotFound)
+            {
+                <div class="alert alert-warning d-inline-block px-4 py-4 rounded-4 shadow-sm text-center" style="max-width: 550px;">
+                    <i class="bi bi-exclamation-circle text-warning fs-1 mb-2 d-block"></i>
+                    <h5 class="fw-bold text-dark">Chưa Tìm Thấy Đơn Đặt Phòng: <span class="font-monospace text-success">@UniqueId</span></h5>
+                    <p class="text-muted small mb-3">
+                        Đơn đặt phòng có thể đang được hệ thống đồng bộ hoặc mã không tồn tại. Quý khách vui lòng thử tải lại hoặc tra cứu bằng số điện thoại.
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-outline-success rounded-pill px-3" @onclick="ReloadOrder">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Thử Tải Lại
+                        </button>
+                        <a href="/lookup" class="btn btn-success rounded-pill px-3">
+                            <i class="bi bi-search me-1"></i>Tra Cứu Bằng SĐT
+                        </a>
+                    </div>
+                </div>
+            }
             else
             {
                 <div class="spinner-border text-success mb-3" role="status"></div>
@@ -362,6 +380,7 @@
     private string roomName = string.Empty;
     private bool hasSentEmail = false;
     private bool isSendingEmail = false;
+    private bool isNotFound = false;
     private bool showEmailPreview = false;
     private string emailStatusNotice = string.Empty;
     private string emailHtmlPreview = string.Empty;
@@ -369,11 +388,31 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        await LoadOrderAsync();
+    }
+
+    private async Task ReloadOrder()
+    {
+        isNotFound = false;
+        StateHasChanged();
+        await LoadOrderAsync();
+    }
+
+    private async Task LoadOrderAsync()
+    {
         if (!string.IsNullOrEmpty(UniqueId))
         {
-            order = orderConfirmationUseCase.Execute(UniqueId);
+            order = orderConfirmationUseCase.Execute(UniqueId.Trim());
+            if (order == null)
+            {
+                // Thử lại một lần nữa phòng trường hợp I/O trễ
+                await Task.Delay(250);
+                order = orderConfirmationUseCase.Execute(UniqueId.Trim());
+            }
+
             if (order != null)
             {
+                isNotFound = false;
                 smartLockPin = bookingService.GenerateSmartLockPin(order.UniqueId ?? "KLE", order.CustomerAddress ?? "000000");
                 roomName = order.LineItems?.FirstOrDefault()?.Product?.Name ?? "Phòng Nghỉ Dưỡng Sinh Thái Kim Long";
 
@@ -382,6 +421,10 @@
                     hasSentEmail = true;
                     await SendConfirmationEmailInternal();
                 }
+            }
+            else
+            {
+                isNotFound = true;
             }
         }
     }

@@ -27,12 +27,18 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
             }
 
             // Fallback demo credentials
-            if (username == "admin" && (password == "admin123" || password == "admin"))
-                return new AppUser { Id = 1, Username = "admin", FullName = "Trần Thị Thu (CEO)", Role = "Admin", IsActive = true };
-            if (username == "letan" && (password == "letan123" || password == "letan"))
-                return new AppUser { Id = 2, Username = "letan", FullName = "Lễ Tân Kim Long", Role = "Staff", IsActive = true };
-            if (username == "khach" && (password == "khach123" || password == "khach"))
-                return new AppUser { Id = 3, Username = "khach", FullName = "Nguyễn Văn An", Role = "Customer", IsActive = true };
+            if (username == "admin" && (password == "admin123" || password == "admin" || password == "123456"))
+                return new AppUser { Id = 1, Username = "admin", FullName = "Quản Trị Viên Kim Long EcoStay", Role = "Admin", IsActive = true };
+            if (username == "quanly" && (password == "123456" || password == "admin"))
+                return new AppUser { Id = 4, Username = "quanly", FullName = "Trần Thị Thu (CEO - Quản Lý Homestay)", Role = "Manager", IsActive = true };
+            if (username == "ketoan" && (password == "123456" || password == "admin"))
+                return new AppUser { Id = 5, Username = "ketoan", FullName = "Trần Minh Khoa (Kế Toán Trưởng - CFO)", Role = "Accountant", IsActive = true };
+            if (username == "nhansu" && (password == "123456" || password == "admin"))
+                return new AppUser { Id = 6, Username = "nhansu", FullName = "Trần Viết Mạnh Cường (Trưởng Phòng Nhân Sự - COO)", Role = "HR", IsActive = true };
+            if ((username == "letan" || username == "staff" || username == "nhanvien") && (password == "letan123" || password == "letan" || password == "123456"))
+                return new AppUser { Id = 2, Username = "letan", FullName = "Lễ Tân Kim Long (Nhân Viên)", Role = "Staff", IsActive = true };
+            if (username == "khach" || username == "khachhang")
+                return new AppUser { Id = 3, Username = "khach", FullName = "Nguyễn Văn An (Khách Hàng)", Role = "Customer", IsActive = true };
 
             return null;
         }
@@ -51,11 +57,17 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
             }
 
             if (username == "admin")
-                return new AppUser { Id = 1, Username = "admin", FullName = "Trần Thị Thu (CEO)", Role = "Admin", IsActive = true };
-            if (username == "letan")
-                return new AppUser { Id = 2, Username = "letan", FullName = "Lễ Tân Kim Long", Role = "Staff", IsActive = true };
-            if (username == "khach")
-                return new AppUser { Id = 3, Username = "khach", FullName = "Nguyễn Văn An", Role = "Customer", IsActive = true };
+                return new AppUser { Id = 1, Username = "admin", FullName = "Quản Trị Viên Kim Long EcoStay", Role = "Admin", IsActive = true };
+            if (username == "quanly")
+                return new AppUser { Id = 4, Username = "quanly", FullName = "Trần Thị Thu (CEO - Quản Lý Homestay)", Role = "Manager", IsActive = true };
+            if (username == "ketoan")
+                return new AppUser { Id = 5, Username = "ketoan", FullName = "Trần Minh Khoa (Kế Toán Trưởng - CFO)", Role = "Accountant", IsActive = true };
+            if (username == "nhansu")
+                return new AppUser { Id = 6, Username = "nhansu", FullName = "Trần Viết Mạnh Cường (Trưởng Phòng Nhân Sự - COO)", Role = "HR", IsActive = true };
+            if (username == "letan" || username == "staff" || username == "nhanvien")
+                return new AppUser { Id = 2, Username = "letan", FullName = "Lễ Tân Kim Long (Nhân Viên)", Role = "Staff", IsActive = true };
+            if (username == "khach" || username == "khachhang")
+                return new AppUser { Id = 3, Username = "khach", FullName = "Nguyễn Văn An (Khách Hàng)", Role = "Customer", IsActive = true };
 
             return null;
         }

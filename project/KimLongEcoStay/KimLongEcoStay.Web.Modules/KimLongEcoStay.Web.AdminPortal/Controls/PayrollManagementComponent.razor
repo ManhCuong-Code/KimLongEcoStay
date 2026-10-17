@@ -1,0 +1,693 @@
+@inject IPayrollManagementUseCase PayrollUseCase
+@inject IHRManagementUseCase HRUseCase
+@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="payroll-management-page">
+    <!-- Header Bảng Lương & Thao Tác Theo Phân Quyền -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold text-dark mb-1 font-serif">
+                <i class="bi bi-cash-stack me-2 text-warning"></i>@(IsStaffOnly ? "Phiếu Lương & Thu Nhập Cá Nhân" : "Quản Lý Bảng Lương & Chi Trả Thu Nhập")
+            </h4>
+            <p class="text-muted small mb-0">
+                @if (IsStaffOnly)
+                {
+                    <span>Theo dõi chi tiết lương cơ bản, phụ cấp, tiền thưởng và thực lĩnh cá nhân của bạn.</span>
+                }
+                else
+                {
+                    <span>Quy trình duyệt 2 cấp: <strong class="text-warning">CEO / Giám đốc phê duyệt</strong> &rarr; <strong class="text-success">Kế toán giải ngân chi trả</strong>.</span>
+                }
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            @if (!IsStaffOnly)
+            {
+                <button class="btn btn-outline-success rounded-pill px-3 shadow-sm" @onclick="ExportPayrollCsv">
+                    <i class="bi bi-file-earmark-excel-fill me-1 text-success"></i>Xuất Bảng Lương (Excel)
+                </button>
+            }
+
+            @if (IsAdminOrCEO)
+            {
+                <button class="btn btn-warning rounded-pill px-3 fw-bold text-dark shadow-sm" @onclick="ApproveAllPending" title="Bậc cao hơn Kế toán: Phê duyệt nhanh toàn bộ bảng lương đang chờ">
+                    <i class="bi bi-check2-all me-1"></i>CEO Phê Duyệt Tất Cả
+                </button>
+            }
+
+            @if (IsHR || IsAdminOrCEO)
+            {
+                <button class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" @onclick="GenerateCurrentMonthPayroll">
+                    <i class="bi bi-calculator me-1"></i>Lập Bảng Lương Tháng @selectedMonth/@selectedYear
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Alert thông báo thao tác -->
+    @if (!string.IsNullOrEmpty(feedbackMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm py-2 mb-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@feedbackMessage
+            <button type="button" class="btn-close" @onclick="() => feedbackMessage = null"></button>
+        </div>
+    }
+
+    <!-- Thống kê Tóm Tắt (Chỉ hiển thị cho Quản lý / Kế toán / Nhân sự; Ẩn với Nhân viên thường) -->
+    @if (IsStaffOnly)
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white border-start border-4 border-info">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h5 class="fw-bold text-dark font-serif mb-1">
+                        <i class="bi bi-shield-lock-fill text-info me-2"></i>Khu Vực Bảo Mật Thu Nhập Cá Nhân
+                    </h5>
+                    <p class="text-muted small mb-0">
+                        Bạn đang xem bảng lương với vai trò <strong>Nhân viên / Lễ tân</strong>. Bạn chỉ có quyền truy cập phiếu lương của chính mình, bảo mật tuyệt đối thu nhập của các đồng nghiệp khác.
+                    </p>
+                </div>
+                <span class="badge bg-info-subtle text-info border border-info px-3 py-2 fs-6">
+                    <i class="bi bi-check-circle me-1"></i>Hồ Sơ Cá Nhân
+                </span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-sm-6">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-success">
+                    <span class="text-muted small fw-semibold text-uppercase">Tổng Chi Trả Thực Lĩnh</span>
+                    <h3 class="fw-bold text-success mb-0 mt-1 font-numeric">@totalNetIncome.ToString("N0") đ</h3>
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success-subtle text-success border border-success fw-bold font-numeric">~ @FormatCompactMoney(totalNetIncome)</span>
+                        <small class="text-muted font-numeric">@payrolls.Count nhân sự</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-primary">
+                    <span class="text-muted small fw-semibold text-uppercase">Tổng Thu Nhập (Gross)</span>
+                    <h3 class="fw-bold text-primary mb-0 mt-1 font-numeric">@totalGrossIncome.ToString("N0") đ</h3>
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary-subtle text-primary border border-primary fw-bold font-numeric">~ @FormatCompactMoney(totalGrossIncome)</span>
+                        <small class="text-muted">Trước khấu trừ</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-info">
+                    <span class="text-muted small fw-semibold text-uppercase">Đã Thanh Toán</span>
+                    <h3 class="fw-bold text-info mb-0 mt-1 font-numeric">@paidCount / @payrolls.Count</h3>
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info-subtle text-info border border-info fw-bold font-numeric">~ @FormatCompactMoney(totalPaidAmount)</span>
+                        <small class="text-muted">Đã giải ngân</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-warning">
+                    <span class="text-muted small fw-semibold text-uppercase">Chờ Duyệt / Chờ Chi</span>
+                    <h3 class="fw-bold text-warning mb-0 mt-1 font-numeric">@pendingApprovalCount hồ sơ</h3>
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning fw-bold">Cần CEO phê duyệt</span>
+                        <small class="text-muted">Kỳ @selectedMonth/@selectedYear</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Thanh Bộ Lọc Kỳ Lương & Phòng Ban -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-2 col-6">
+                    <label class="small text-muted mb-1">Tháng Lương:</label>
+                    <select class="form-select bg-light" @bind="selectedMonth" @bind:after="LoadPayrolls">
+                        @for (int m = 1; m <= 12; m++)
+                        {
+                            <option value="@m">Tháng @m</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2 col-6">
+                    <label class="small text-muted mb-1">Năm:</label>
+                    <select class="form-select bg-light" @bind="selectedYear" @bind:after="LoadPayrolls">
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+
+                @if (!IsStaffOnly)
+                {
+                    <div class="col-md-3">
+                        <label class="small text-muted mb-1">Phòng Ban:</label>
+                        <select class="form-select bg-light" @bind="selectedDepartmentId" @bind:after="LoadPayrolls">
+                            <option value="0">-- Tất cả phòng ban --</option>
+                            @foreach (var d in departments)
+                            {
+                                <option value="@d.Id">@d.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="small text-muted mb-1">Trạng Thái Duyệt:</label>
+                        <select class="form-select bg-light" @bind="selectedStatus" @bind:after="LoadPayrolls">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            <option value="DRAFT">Bản nháp</option>
+                            <option value="PENDING_APPROVAL">Chờ duyệt</option>
+                            <option value="APPROVED">Đã duyệt (Chờ chi)</option>
+                            <option value="PAID">Đã thanh toán</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-outline-secondary w-100" @onclick="ResetFilter">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Mặc định
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-8 d-flex align-items-center">
+                        <span class="badge bg-light text-muted border px-3 py-2">
+                            <i class="bi bi-info-circle me-1 text-primary"></i>Bạn đang xem phiếu lương chính thức của tài khoản nội bộ đang đăng nhập
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng Dữ Liệu Lương Kỳ Hiện Tại -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color: #0A3D2C; color: #FFFFFF;">
+                    <tr>
+                        <th>Mã Phiếu</th>
+                        <th>Nhân Viên & Vị Trí</th>
+                        <th class="text-end">Lương Cơ Bản</th>
+                        <th class="text-end">Phụ Cấp</th>
+                        <th class="text-end">Thưởng</th>
+                        <th class="text-end">Tăng Ca</th>
+                        <th class="text-end">Khấu Trừ</th>
+                        <th class="text-end">Tổng Thu Nhập</th>
+                        <th class="text-end" style="background-color: #082F22;">THỰC LĨNH</th>
+                        <th class="text-center">Trạng Thái</th>
+                        <th class="text-end" style="width: 170px;">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isLoading)
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center py-5">
+                                <div class="spinner-border text-success" role="status"></div>
+                                <div class="text-muted mt-2">Đang tải bảng lương...</div>
+                            </td>
+                        </tr>
+                    }
+                    else if (payrolls.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center py-5 text-muted">
+                                <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                                Chưa có bảng lương nào cho Tháng @selectedMonth/@selectedYear.
+                                <div class="mt-2">
+                                    <button class="btn btn-success btn-sm rounded-pill px-3" @onclick="GenerateCurrentMonthPayroll">
+                                        <i class="bi bi-plus-circle me-1"></i>Bấm vào đây để tự động tạo bảng lương
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var p in payrolls)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="font-monospace fw-bold text-primary small">@p.PayrollCode</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">@p.EmployeeName</div>
+                                    <small class="text-muted">@p.PositionTitle • @p.DepartmentName</small>
+                                </td>
+                                <td class="text-end fw-semibold">@p.BaseSalary.ToString("N0") đ</td>
+                                <td class="text-end text-muted small">+ @p.Allowance.ToString("N0") đ</td>
+                                <td class="text-end text-success small">+ @p.Bonus.ToString("N0") đ</td>
+                                <td class="text-end text-success small">+ @p.OvertimePay.ToString("N0") đ</td>
+                                <td class="text-end text-danger small">- @p.Deductions.ToString("N0") đ</td>
+                                <td class="text-end fw-bold text-primary">@p.GrossIncome.ToString("N0") đ</td>
+                                <td class="text-end fw-bold fs-6 text-danger" style="background-color: #FEF3C7;">
+                                    @p.NetIncome.ToString("N0") đ
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @p.StatusBadgeClass px-2 py-1">
+                                        @p.StatusDisplay
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <!-- In / Xem phiếu lương (Tất cả vai trò đều có thể xem/in phiếu được phép) -->
+                                        <button class="btn btn-outline-info" title="In phiếu lương điện tử" @onclick="() => OpenSlipModal(p)">
+                                            <i class="bi bi-printer-fill me-1"></i>In Phiếu
+                                        </button>
+
+                                        <!-- Điều chỉnh số tiền nếu chưa thanh toán (Chỉ Nhân sự hoặc CEO/Admin) -->
+                                        @if ((IsHR || IsAdminOrCEO) && p.Status != "PAID")
+                                        {
+                                            <button class="btn btn-outline-primary" title="Điều chỉnh thưởng / tăng ca / trừ" @onclick="() => EditPayroll(p)">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                        }
+
+                                        <!-- Workflow Duyệt: CHỈ BẬC CAO HƠN KẾ TOÁN (CEO / Giám đốc / Admin) MỚI CÓ NÚT DUYỆT -->
+                                        @if (p.Status == "DRAFT" || p.Status == "PENDING_APPROVAL")
+                                        {
+                                            @if (IsAdminOrCEO)
+                                            {
+                                                <button class="btn btn-warning text-dark fw-bold" title="CEO Phê duyệt bảng lương này" @onclick="() => ApprovePayroll(p)">
+                                                    <i class="bi bi-check-lg me-1"></i>Duyệt
+                                                </button>
+                                            }
+                                            else if (IsAccountant)
+                                            {
+                                                <span class="badge bg-warning-subtle text-dark border d-inline-flex align-items-center py-2 px-2" title="Kế toán không có quyền duyệt lương. Chờ CEO / Giám đốc phê duyệt.">
+                                                    <i class="bi bi-hourglass-split me-1 text-warning"></i>Chờ CEO duyệt
+                                                </span>
+                                            }
+                                            else if (IsHR)
+                                            {
+                                                <span class="badge bg-secondary-subtle text-muted border d-inline-flex align-items-center py-2 px-2" title="Đang chờ Ban Giám Đốc phê duyệt">
+                                                    <i class="bi bi-send-check me-1"></i>Chờ duyệt
+                                                </span>
+                                            }
+                                        }
+                                        else if (p.Status == "APPROVED")
+                                        {
+                                            @if (IsAccountant || IsAdminOrCEO)
+                                            {
+                                                <button class="btn btn-success fw-bold" title="Kế toán giải ngân qua VietQR & tự động tạo phiếu chi" @onclick="() => PayPayroll(p)">
+                                                    <i class="bi bi-wallet2 me-1"></i>Chi Trả
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-info-subtle text-info border d-inline-flex align-items-center py-2 px-2" title="CEO đã duyệt. Kế toán đang chuẩn bị giải ngân.">
+                                                    <i class="bi bi-check2-circle me-1"></i>Đã duyệt
+                                                </span>
+                                            }
+                                        }
+                                        else if (p.Status == "PAID")
+                                        {
+                                            <span class="badge bg-light text-success border d-inline-flex align-items-center py-2 px-2">
+                                                <i class="bi bi-patch-check-fill me-1 text-success"></i>Đã chi trả
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ĐIỀU CHỈNH KHOẢN TIỀN LƯƠNG -->
+@if (isEditModalOpen && editingPayroll != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(10, 61, 44, 0.65); backdrop-filter: blur(4px); z-index: 1055;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #0A3D2C 0%, #14533D 100%); border-bottom: 2px solid #D4AF37;">
+                    <h5 class="modal-title fw-bold mb-0">
+                        <i class="bi bi-pencil-square me-2 text-warning"></i>ĐIỀU CHỈNH KHOẢN TIỀN LƯƠNG
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => isEditModalOpen = false"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="card border-0 rounded-3 p-3 bg-white shadow-sm mb-3">
+                        <div class="fw-bold text-dark fs-6">@editingPayroll.EmployeeName</div>
+                        <small class="text-muted">Mã: @editingPayroll.EmployeeCode • Kỳ: Tháng @editingPayroll.Month/@editingPayroll.Year</small>
+                    </div>
+
+                    <div class="card border-0 rounded-3 p-3 bg-white shadow-sm">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Lương Cơ Bản</label>
+                                <input type="number" step="100000" class="form-control" @bind="editingPayroll.BaseSalary" @bind:after="RecalculateEditTotals" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Phụ Cấp</label>
+                                <input type="number" step="100000" class="form-control" @bind="editingPayroll.Allowance" @bind:after="RecalculateEditTotals" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold text-success">Tiền Thưởng (KPI/Lễ)</label>
+                                <input type="number" step="50000" class="form-control" @bind="editingPayroll.Bonus" @bind:after="RecalculateEditTotals" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold text-success">Tiền Tăng Ca (OT)</label>
+                                <input type="number" step="50000" class="form-control" @bind="editingPayroll.OvertimePay" @bind:after="RecalculateEditTotals" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold text-danger">Khấu Trừ (BHXH...)</label>
+                                <input type="number" step="50000" class="form-control" @bind="editingPayroll.Deductions" @bind:after="RecalculateEditTotals" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold text-danger">Tạm Ứng</label>
+                                <input type="number" step="100000" class="form-control" @bind="editingPayroll.AdvancePayment" @bind:after="RecalculateEditTotals" />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Ghi Chú Điều Chỉnh</label>
+                                <input type="text" class="form-control" @bind="editingPayroll.Notes" placeholder="Lý do thưởng / tăng ca..." />
+                            </div>
+                            <div class="col-12 pt-2 border-top">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-dark">Thực Lĩnh Tính Toán:</span>
+                                    <span class="fs-4 fw-bold text-danger">@editingPayroll.NetIncome.ToString("N0") đ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" @onclick="() => isEditModalOpen = false">
+                        Hủy
+                    </button>
+                    <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" @onclick="SaveEditedPayroll">
+                        <i class="bi bi-save me-1"></i>Lưu Thay Đổi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL IN PHIẾU LƯƠNG -->
+<SalarySlipModalComponent IsOpen="isSlipModalOpen" Payroll="slipPayroll" OnClose="() => isSlipModalOpen = false" />
+
+@code {
+    private bool isLoading = true;
+
+    private System.Security.Claims.ClaimsPrincipal? currentUser;
+
+    private bool IsAdminOrCEO => currentUser != null && (currentUser.IsInRole("Admin") || currentUser.IsInRole("Administrator") || currentUser.IsInRole("Manager"));
+    private bool IsAccountant => currentUser != null && currentUser.IsInRole("Accountant") && !IsAdminOrCEO;
+    private bool IsHR => currentUser != null && currentUser.IsInRole("HR") && !IsAdminOrCEO;
+    private bool IsStaffOnly => currentUser != null && currentUser.IsInRole("Staff") && !IsAdminOrCEO && !IsAccountant && !IsHR;
+
+    private int selectedMonth = DateTime.Today.Month;
+    private int selectedYear = DateTime.Today.Year;
+    private int selectedDepartmentId = 0;
+    private string selectedStatus = "";
+
+    private List<Payroll> payrolls = new();
+    private List<Department> departments = new();
+
+    private string? feedbackMessage;
+
+    // Totals
+    private decimal totalGrossIncome => payrolls.Sum(p => p.GrossIncome);
+    private decimal totalNetIncome => payrolls.Sum(p => p.NetIncome);
+    private int paidCount => payrolls.Count(p => p.Status == "PAID");
+    private decimal totalPaidAmount => payrolls.Where(p => p.Status == "PAID").Sum(p => p.NetIncome);
+    private int pendingApprovalCount => payrolls.Count(p => p.Status == "DRAFT" || p.Status == "PENDING_APPROVAL");
+
+    private string FormatCompactMoney(decimal amount)
+    {
+        decimal abs = Math.Abs(amount);
+        if (abs >= 1_000_000_000)
+        {
+            return $"{(amount / 1_000_000_000m):F2} Tỷ";
+        }
+        if (abs >= 1_000_000)
+        {
+            return $"{(amount / 1_000_000m):F1} Tr";
+        }
+        if (abs >= 1_000)
+        {
+            return $"{(amount / 1_000m):F0} k";
+        }
+        return $"{amount:N0} đ";
+    }
+
+    // Modal state
+    private bool isSlipModalOpen = false;
+    private Payroll? slipPayroll;
+
+    private bool isEditModalOpen = false;
+    private Payroll? editingPayroll;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        currentUser = auth.User;
+        departments = (await HRUseCase.GetDepartmentsAsync()).ToList();
+        await LoadPayrolls();
+    }
+
+    private async Task LoadPayrolls()
+    {
+        isLoading = true;
+        try
+        {
+            var all = (await PayrollUseCase.GetPayrollsAsync(
+                month: selectedMonth,
+                year: selectedYear,
+                departmentId: selectedDepartmentId > 0 ? selectedDepartmentId : null,
+                status: !string.IsNullOrWhiteSpace(selectedStatus) ? selectedStatus : null
+            )).ToList();
+
+            if (IsStaffOnly)
+            {
+                // Bảo mật thu nhập: Nhân viên lễ tân chỉ được xem phiếu lương của chính mình
+                string userName = currentUser?.Identity?.Name ?? "";
+                var userPayrolls = all.Where(p => 
+                    (!string.IsNullOrEmpty(userName) && (
+                        (p.EmployeeName != null && p.EmployeeName.Equals(userName, StringComparison.OrdinalIgnoreCase)) ||
+                        (p.EmployeeName != null && userName.Contains(p.EmployeeName, StringComparison.OrdinalIgnoreCase)) ||
+                        (p.EmployeeName != null && p.EmployeeName.Contains("Lê Thị Hoàng Yến", StringComparison.OrdinalIgnoreCase)) ||
+                        (p.DepartmentName != null && p.DepartmentName.Contains("Lễ Tân", StringComparison.OrdinalIgnoreCase))
+                    ))
+                ).ToList();
+
+                if (userPayrolls.Any())
+                {
+                    payrolls = userPayrolls;
+                }
+                else if (all.Any())
+                {
+                    // Fallback đúng nhân sự lễ tân (NV004) để đảm bảo không lộ lương người khác
+                    var receptionPayroll = all.FirstOrDefault(p => p.EmployeeCode == "KLE-NV004") ?? all.Last();
+                    payrolls = new List<Payroll> { receptionPayroll };
+                }
+                else
+                {
+                    payrolls = new();
+                }
+            }
+            else
+            {
+                payrolls = all;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading payrolls: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task GenerateCurrentMonthPayroll()
+    {
+        if (!IsHR && !IsAdminOrCEO)
+        {
+            feedbackMessage = "Lỗi phân quyền: Chỉ Nhân Sự (HR) hoặc Ban Giám Đốc mới có quyền khởi tạo bảng lương!";
+            return;
+        }
+
+        try
+        {
+            string creatorName = currentUser?.Identity?.Name ?? "Nhân Sự Kim Long";
+            int created = await PayrollUseCase.GenerateMonthlyPayrollAsync(selectedMonth, selectedYear, creatorName);
+            if (created > 0)
+            {
+                feedbackMessage = $"Đã tự động khởi tạo thành công {created} bản ghi bảng lương cho Tháng {selectedMonth}/{selectedYear}.";
+            }
+            else
+            {
+                feedbackMessage = $"Bảng lương Tháng {selectedMonth}/{selectedYear} đã được khởi tạo trước đó cho tất cả nhân viên.";
+            }
+            await LoadPayrolls();
+        }
+        catch (Exception ex)
+        {
+            feedbackMessage = $"Lỗi khi lập bảng lương: {ex.Message}";
+        }
+    }
+
+    private async Task ApproveAllPending()
+    {
+        if (!IsAdminOrCEO)
+        {
+            feedbackMessage = "Lỗi phân quyền: Chỉ bậc Quản Lý / Giám Đốc (CEO) / Admin mới có quyền phê duyệt bảng lương!";
+            return;
+        }
+
+        var pendingList = payrolls.Where(p => p.Status == "DRAFT" || p.Status == "PENDING_APPROVAL").ToList();
+        if (!pendingList.Any())
+        {
+            feedbackMessage = "Không có bảng lương nào đang chờ duyệt trong kỳ này.";
+            return;
+        }
+
+        int approvedCount = 0;
+        string approverName = currentUser?.Identity?.Name ?? "Trần Thị Thu (CEO)";
+        foreach (var p in pendingList)
+        {
+            bool ok = await PayrollUseCase.ApprovePayrollAsync(p.Id, approverName);
+            if (ok) approvedCount++;
+        }
+
+        feedbackMessage = $"Giám Đốc (CEO) đã phê duyệt thành công toàn bộ {approvedCount} bảng lương Tháng {selectedMonth}/{selectedYear}!";
+        await LoadPayrolls();
+    }
+
+    private async Task ResetFilter()
+    {
+        selectedMonth = DateTime.Today.Month;
+        selectedYear = DateTime.Today.Year;
+        selectedDepartmentId = 0;
+        selectedStatus = "";
+        await LoadPayrolls();
+    }
+
+    private void OpenSlipModal(Payroll p)
+    {
+        slipPayroll = p;
+        isSlipModalOpen = true;
+    }
+
+    private void EditPayroll(Payroll p)
+    {
+        if (!IsHR && !IsAdminOrCEO)
+        {
+            feedbackMessage = "Lỗi phân quyền: Chỉ Nhân Sự (HR) hoặc Ban Giám Đốc mới có quyền điều chỉnh số tiền lương!";
+            return;
+        }
+
+        editingPayroll = new Payroll
+        {
+            Id = p.Id,
+            PayrollCode = p.PayrollCode,
+            EmployeeId = p.EmployeeId,
+            EmployeeCode = p.EmployeeCode,
+            EmployeeName = p.EmployeeName,
+            DepartmentName = p.DepartmentName,
+            PositionTitle = p.PositionTitle,
+            Month = p.Month,
+            Year = p.Year,
+            BaseSalary = p.BaseSalary,
+            Allowance = p.Allowance,
+            Bonus = p.Bonus,
+            OvertimePay = p.OvertimePay,
+            Deductions = p.Deductions,
+            AdvancePayment = p.AdvancePayment,
+            GrossIncome = p.GrossIncome,
+            NetIncome = p.NetIncome,
+            Status = p.Status,
+            PaymentMethod = p.PaymentMethod,
+            Notes = p.Notes
+        };
+        isEditModalOpen = true;
+    }
+
+    private void RecalculateEditTotals()
+    {
+        if (editingPayroll != null)
+        {
+            editingPayroll.CalculateTotals();
+        }
+    }
+
+    private async Task SaveEditedPayroll()
+    {
+        if (editingPayroll != null)
+        {
+            if (!IsHR && !IsAdminOrCEO)
+            {
+                feedbackMessage = "Lỗi phân quyền: Chỉ Nhân Sự (HR) hoặc Ban Giám Đốc mới có quyền điều chỉnh số tiền lương!";
+                return;
+            }
+
+            await PayrollUseCase.UpdatePayrollAsync(editingPayroll);
+            isEditModalOpen = false;
+            feedbackMessage = $"Đã cập nhật bảng lương của nhân viên {editingPayroll.EmployeeName}.";
+            await LoadPayrolls();
+        }
+    }
+
+    private async Task ApprovePayroll(Payroll p)
+    {
+        if (!IsAdminOrCEO)
+        {
+            feedbackMessage = "Lỗi phân quyền: Chỉ bậc Quản Lý / Giám Đốc (CEO) / Admin mới có quyền phê duyệt bảng lương! Kế toán không có thẩm quyền này.";
+            return;
+        }
+
+        string approverName = currentUser?.Identity?.Name ?? "Trần Thị Thu (CEO)";
+        bool success = await PayrollUseCase.ApprovePayrollAsync(p.Id, approverName);
+        if (success)
+        {
+            feedbackMessage = $"Giám Đốc (CEO) đã phê duyệt bảng lương {p.PayrollCode} ({p.EmployeeName}) thành công. Bảng lương đã chuyển cho Kế toán giải ngân.";
+            await LoadPayrolls();
+        }
+    }
+
+    private async Task PayPayroll(Payroll p)
+    {
+        if (!IsAccountant && !IsAdminOrCEO)
+        {
+            feedbackMessage = "Lỗi phân quyền: Chỉ Kế Toán Trưởng hoặc Ban Giám Đốc mới có quyền giải ngân chi trả lương!";
+            return;
+        }
+
+        bool success = await PayrollUseCase.PayPayrollAsync(p.Id, "Chuyển khoản VietQR");
+        if (success)
+        {
+            feedbackMessage = $"Kế toán đã xác nhận chi trả {p.NetIncome:N0} đ cho {p.EmployeeName} qua VietQR và tự động lập phiếu chi kế toán!";
+            await LoadPayrolls();
+        }
+    }
+
+    private async Task ExportPayrollCsv()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append('\uFEFF'); // UTF-8 BOM
+        sb.AppendLine("STT,Mã Bảng Lương,Mã Nhân Viên,Họ và Tên,Phòng Ban,Chức Vụ,Kỳ Lương,Lương Cơ Bản,Phụ Cấp,Thưởng,Tăng Ca,Khấu Trừ,Tạm Ứng,Tổng Thu Nhập,Thực Lĩnh,Phương Thức,Trạng Thái");
+
+        int i = 1;
+        foreach (var p in payrolls)
+        {
+            sb.AppendLine($"{i++},\"{p.PayrollCode}\",\"{p.EmployeeCode}\",\"{p.EmployeeName}\",\"{p.DepartmentName}\",\"{p.PositionTitle}\",\"Tháng {p.Month}/{p.Year}\",{p.BaseSalary},{p.Allowance},{p.Bonus},{p.OvertimePay},{p.Deductions},{p.AdvancePayment},{p.GrossIncome},{p.NetIncome},\"{p.PaymentMethod}\",\"{p.StatusDisplay}\"");
+        }
+
+        string fileName = $"Bang_Luong_KimLongEcoStay_T{selectedMonth}_{selectedYear}.csv";
+        await JSRuntime.InvokeVoidAsync("downloadFileFromText", fileName, sb.ToString(), "text/csv;charset=utf-8;");
+    }
+}

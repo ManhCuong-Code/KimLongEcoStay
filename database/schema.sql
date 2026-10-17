@@ -373,3 +373,185 @@ JOIN dbo.BookingNights bn ON b.Id = bn.BookingId
 WHERE b.BookingCode = 'BK20261015-01'
 GROUP BY b.BookingCode, g.FullName, g.PhoneNumber, b.CheckInDate, b.CheckOutDate, b.TotalAmount, b.DepositAmount, b.Status;
 GO
+
+-- ==========================================================================================
+-- 12. BỔ SUNG MODULE QUẢN LÝ NHÂN SỰ, TIỀN LƯƠNG & TÀI CHÍNH THU CHI (KIM LONG ECOSTAY)
+-- ==========================================================================================
+
+-- 12.1. BẢNG PHÒNG BAN (Departments)
+IF OBJECT_ID(N'dbo.Departments', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Departments (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_Departments PRIMARY KEY,
+        Code VARCHAR(20) NOT NULL CONSTRAINT UQ_Departments_Code UNIQUE,
+        Name NVARCHAR(100) NOT NULL,
+        Description NVARCHAR(255) NULL,
+        CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_Departments_CreatedAt DEFAULT (SYSUTCDATETIME())
+    );
+END
+GO
+
+-- 12.2. BẢNG CHỨC VỤ (Positions)
+IF OBJECT_ID(N'dbo.Positions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Positions (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_Positions PRIMARY KEY,
+        Title NVARCHAR(100) NOT NULL,
+        DepartmentId INT NOT NULL,
+        BaseSalaryRange NVARCHAR(100) NULL,
+        Description NVARCHAR(255) NULL,
+        CONSTRAINT FK_Positions_Departments FOREIGN KEY (DepartmentId) 
+            REFERENCES dbo.Departments(Id) ON DELETE CASCADE
+    );
+END
+GO
+
+-- 12.3. BẢNG HỒ SƠ NHÂN VIÊN / NHÂN SỰ (Employees)
+IF OBJECT_ID(N'dbo.Employees', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Employees (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_Employees PRIMARY KEY,
+        EmployeeCode VARCHAR(20) NOT NULL CONSTRAINT UQ_Employees_Code UNIQUE,
+        FullName NVARCHAR(100) NOT NULL,
+        AvatarUrl NVARCHAR(500) NULL,
+        DateOfBirth DATE NOT NULL,
+        Gender NVARCHAR(10) NOT NULL CONSTRAINT DF_Employees_Gender DEFAULT (N'Nam'),
+        PhoneNumber VARCHAR(20) NOT NULL,
+        Email VARCHAR(100) NOT NULL,
+        Address NVARCHAR(255) NULL,
+        DepartmentId INT NOT NULL,
+        PositionId INT NOT NULL,
+        HireDate DATE NOT NULL,
+        ContractType NVARCHAR(50) NOT NULL CONSTRAINT DF_Employees_ContractType DEFAULT (N'Chính thức'),
+        ContractStartDate DATE NOT NULL,
+        ContractEndDate DATE NULL,
+        WorkStatus NVARCHAR(50) NOT NULL CONSTRAINT DF_Employees_WorkStatus DEFAULT (N'Đang làm việc'),
+        BaseSalary DECIMAL(18,2) NOT NULL CONSTRAINT DF_Employees_BaseSalary DEFAULT (0),
+        Allowance DECIMAL(18,2) NOT NULL CONSTRAINT DF_Employees_Allowance DEFAULT (0),
+        Notes NVARCHAR(500) NULL,
+        IsDeleted BIT NOT NULL CONSTRAINT DF_Employees_IsDeleted DEFAULT (0),
+        CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_Employees_CreatedAt DEFAULT (SYSUTCDATETIME()),
+        CONSTRAINT FK_Employees_Departments FOREIGN KEY (DepartmentId) 
+            REFERENCES dbo.Departments(Id) ON DELETE NO ACTION,
+        CONSTRAINT FK_Employees_Positions FOREIGN KEY (PositionId) 
+            REFERENCES dbo.Positions(Id) ON DELETE NO ACTION
+    );
+    CREATE INDEX IX_Employees_Dept_Pos ON dbo.Employees (DepartmentId, PositionId);
+    CREATE INDEX IX_Employees_Status ON dbo.Employees (WorkStatus, IsDeleted);
+END
+GO
+
+-- 12.4. BẢNG HỢP ĐỒNG LAO ĐỘNG (Contracts)
+IF OBJECT_ID(N'dbo.Contracts', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Contracts (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_Contracts PRIMARY KEY,
+        ContractCode VARCHAR(50) NOT NULL CONSTRAINT UQ_Contracts_Code UNIQUE,
+        EmployeeId INT NOT NULL,
+        ContractType NVARCHAR(50) NOT NULL,
+        StartDate DATE NOT NULL,
+        EndDate DATE NULL,
+        BasicSalary DECIMAL(18,2) NOT NULL,
+        Allowance DECIMAL(18,2) NOT NULL CONSTRAINT DF_Contracts_Allowance DEFAULT (0),
+        Status NVARCHAR(50) NOT NULL CONSTRAINT DF_Contracts_Status DEFAULT (N'Còn hiệu lực'),
+        SignedDate DATE NOT NULL,
+        Notes NVARCHAR(500) NULL,
+        CONSTRAINT FK_Contracts_Employees FOREIGN KEY (EmployeeId) 
+            REFERENCES dbo.Employees(Id) ON DELETE CASCADE
+    );
+END
+GO
+
+-- 12.5. BẢNG QUẢN LÝ TIỀN LƯƠNG (Payrolls)
+IF OBJECT_ID(N'dbo.Payrolls', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Payrolls (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_Payrolls PRIMARY KEY,
+        PayrollCode VARCHAR(50) NOT NULL CONSTRAINT UQ_Payrolls_Code UNIQUE,
+        EmployeeId INT NOT NULL,
+        Month INT NOT NULL CONSTRAINT CK_Payrolls_Month CHECK (Month BETWEEN 1 AND 12),
+        Year INT NOT NULL CONSTRAINT CK_Payrolls_Year CHECK (Year >= 2020),
+        BaseSalary DECIMAL(18,2) NOT NULL CONSTRAINT DF_Payrolls_BaseSalary DEFAULT (0),
+        Allowance DECIMAL(18,2) NOT NULL CONSTRAINT DF_Payrolls_Allowance DEFAULT (0),
+        Bonus DECIMAL(18,2) NOT NULL CONSTRAINT DF_Payrolls_Bonus DEFAULT (0),
+        OvertimePay DECIMAL(18,2) NOT NULL CONSTRAINT DF_Payrolls_OvertimePay DEFAULT (0),
+        Deductions DECIMAL(18,2) NOT NULL CONSTRAINT DF_Payrolls_Deductions DEFAULT (0),
+        AdvancePayment DECIMAL(18,2) NOT NULL CONSTRAINT DF_Payrolls_AdvancePayment DEFAULT (0),
+        GrossIncome DECIMAL(18,2) NOT NULL CONSTRAINT DF_Payrolls_GrossIncome DEFAULT (0),
+        NetIncome DECIMAL(18,2) NOT NULL CONSTRAINT DF_Payrolls_NetIncome DEFAULT (0),
+        PaymentDate DATETIME2(0) NULL,
+        PaymentMethod NVARCHAR(50) NOT NULL CONSTRAINT DF_Payrolls_PaymentMethod DEFAULT (N'Chuyển khoản VietQR'),
+        Status NVARCHAR(50) NOT NULL CONSTRAINT DF_Payrolls_Status DEFAULT (N'DRAFT'),
+        ApprovedBy NVARCHAR(100) NULL,
+        ApprovedAt DATETIME2(0) NULL,
+        Notes NVARCHAR(500) NULL,
+        CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_Payrolls_CreatedAt DEFAULT (SYSUTCDATETIME()),
+        UpdatedAt DATETIME2(0) NULL,
+        CONSTRAINT FK_Payrolls_Employees FOREIGN KEY (EmployeeId) 
+            REFERENCES dbo.Employees(Id) ON DELETE NO ACTION,
+        CONSTRAINT UQ_Payrolls_Employee_Period UNIQUE (EmployeeId, Month, Year)
+    );
+END
+GO
+
+-- 12.6. BẢNG DANH MỤC CHI PHÍ (ExpenseCategories)
+IF OBJECT_ID(N'dbo.ExpenseCategories', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ExpenseCategories (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_ExpenseCategories PRIMARY KEY,
+        Code VARCHAR(50) NOT NULL CONSTRAINT UQ_ExpenseCategories_Code UNIQUE,
+        Name NVARCHAR(100) NOT NULL,
+        ColorHex VARCHAR(20) NOT NULL DEFAULT ('#10B981'),
+        IconClass VARCHAR(50) NOT NULL DEFAULT ('bi bi-cash-stack'),
+        Description NVARCHAR(255) NULL
+    );
+END
+GO
+
+-- 12.7. BẢNG PHIẾU CHI PHÍ (Expenses)
+IF OBJECT_ID(N'dbo.Expenses', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Expenses (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_Expenses PRIMARY KEY,
+        VoucherCode VARCHAR(50) NOT NULL CONSTRAINT UQ_Expenses_Code UNIQUE,
+        ExpenseDate DATE NOT NULL,
+        CategoryId INT NOT NULL,
+        Title NVARCHAR(255) NOT NULL,
+        Amount DECIMAL(18,2) NOT NULL CONSTRAINT CK_Expenses_Amount CHECK (Amount >= 0),
+        PayeeName NVARCHAR(150) NOT NULL,
+        PaymentMethod NVARCHAR(50) NOT NULL DEFAULT (N'Chuyển khoản'),
+        Status NVARCHAR(50) NOT NULL DEFAULT (N'PAID'),
+        CreatedBy NVARCHAR(100) NOT NULL,
+        ApprovedBy NVARCHAR(100) NULL,
+        PayrollId INT NULL,
+        AttachmentUrl NVARCHAR(500) NULL,
+        Notes NVARCHAR(500) NULL,
+        CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_Expenses_CreatedAt DEFAULT (SYSUTCDATETIME()),
+        CONSTRAINT FK_Expenses_Categories FOREIGN KEY (CategoryId) 
+            REFERENCES dbo.ExpenseCategories(Id) ON DELETE NO ACTION,
+        CONSTRAINT FK_Expenses_Payrolls FOREIGN KEY (PayrollId) 
+            REFERENCES dbo.Payrolls(Id) ON DELETE NO ACTION
+    );
+END
+GO
+
+-- 12.8. BẢNG GIAO DỊCH TÀI CHÍNH TỔNG HỢP (FinancialTransactions)
+IF OBJECT_ID(N'dbo.FinancialTransactions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FinancialTransactions (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_FinancialTransactions PRIMARY KEY,
+        TransactionCode VARCHAR(50) NOT NULL CONSTRAINT UQ_FinancialTransactions_Code UNIQUE,
+        TransactionDate DATETIME2(0) NOT NULL CONSTRAINT DF_FinancialTransactions_Date DEFAULT (SYSUTCDATETIME()),
+        Type VARCHAR(20) NOT NULL CONSTRAINT CK_FinancialTransactions_Type CHECK (Type IN ('INCOME', 'EXPENSE')),
+        Category NVARCHAR(100) NOT NULL,
+        SourceType VARCHAR(50) NOT NULL,
+        SourceRefId VARCHAR(50) NULL,
+        Amount DECIMAL(18,2) NOT NULL CONSTRAINT CK_FinancialTransactions_Amount CHECK (Amount >= 0),
+        PaymentMethod NVARCHAR(50) NOT NULL CONSTRAINT DF_FinancialTransactions_Method DEFAULT (N'VietQR'),
+        Status VARCHAR(20) NOT NULL CONSTRAINT DF_FinancialTransactions_Status DEFAULT ('COMPLETED'),
+        CreatedBy NVARCHAR(100) NOT NULL,
+        Description NVARCHAR(500) NULL
+    );
+END
+GO
+

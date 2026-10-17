@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -18,12 +18,16 @@ namespace KimLongEcoStay.CoreBusiness.Services
         public HomestayAiService(HttpClient? httpClient = null)
         {
             _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+            var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            var geminiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+            var hasOpenAi = !string.IsNullOrWhiteSpace(openAiKey);
+
             _config = new HomestayAiConfiguration
             {
-                Provider = AiProviderType.LocalSmartEngine,
-                Model = "gemini-2.5-flash",
+                Provider = hasOpenAi ? AiProviderType.OpenAi : AiProviderType.LocalSmartEngine,
+                Model = hasOpenAi ? "gpt-4o-mini" : "gemini-2.5-flash",
                 IsEnabled = true,
-                ApiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? string.Empty
+                ApiKey = openAiKey ?? geminiKey ?? string.Empty
             };
         }
 
@@ -55,7 +59,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 "🔑 Nhận phòng 10 giây với khóa SmartLock như thế nào?",
                 "💳 Chính sách cọc 50% VietQR và quy định hủy phòng?",
                 "🚴 Trải nghiệm xe đạp Eco-Bike & GPS Audio Guide ra sao?",
-                "🍜 Homestay có đặc sản bánh ướt Kim Long giao tận phòng không?",
+                "🍲 Homestay có đặc sản bánh ướt Kim Long giao tận phòng không?",
                 "🗺️ Từ homestay đi Chùa Thiên Mụ và Đại Nội bao xa?"
             };
         }
@@ -297,14 +301,14 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 return new AiChatMessage
                 {
                     Sender = "Assistant",
-                    Content = @"🍜 **Tinh Hoa Ẩm Thực Nhà Vườn Kim Long:**
+                    Content = @"🍲 **Tinh Hoa Ẩm Thực Nhà Vườn Kim Long:**
 • **Bánh ướt thịt nướng than hoa Kim Long (Giao tận phòng 15 phút):** 
   - Món ăn trứ danh nức tiếng Cố đô từ thời chúa Nguyễn! Thịt ba chỉ ướp mật ong, tiêu rừng nướng than hoa thơm lừng cuộn trong lớp bánh ướt mỏng mềm như lụa, chấm cùng nước lèo tương đậu mè béo ngậy.
   - Homestay liên kết trực tiếp với các nghệ nhân làng bánh ướt Kim Long để phục vụ bữa sáng hoặc ăn xế nóng hổi tận phòng.
 • **Trà sen Cung đình & Mứt gừng Huế:** Đón tiếp khách lúc check-in bằng trà ủ trong búp sen tươi hồ Tịnh Tâm ấm nồng.
 • **Gợi ý ẩm thực quanh homestay:** Bánh ướt Huyền Anh Kim Long (cách 400m), Quán bún bò bà Rơi (cách 900m), Bánh ép Cầu Dã Viên và Chè hẻm Cố đô.",
                     ActionUrl = "/#smart-tour",
-                    ActionLabel = "🍱 Khám Phá Văn Hóa Ẩm Thực",
+                    ActionLabel = "🍵 Khám Phá Văn Hóa Ẩm Thực",
                     Category = "Cuisine"
                 };
             }
@@ -317,12 +321,12 @@ namespace KimLongEcoStay.CoreBusiness.Services
                     Sender = "Assistant",
                     Content = @"💼 **Hỗ Trợ Nghiệp Vụ Vận Hành Cho Chủ Nhà & Lễ Tân (Host / Staff):**
 • **Phân hệ Quản trị buồng phòng:** Truy cập `/admin` bằng tài khoản `letan` / `123456` hoặc `admin` / `123456`.
-• **Công suất buồng phòng (Occupancy Rate):** Xem biểu đồ tỉ lệ lấp đầy phòng theo tháng và doanh thu thực nhận tại `/admin/occupancy-report`.
-• **Kiểm định vệ sinh SOP 8 bước:** Giám sát trạng thái dọn buồng phòng sinh thái (Cleaned, Inspected, Occupied) tại `/admin/room-inspection`.
-• **Quản lý khóa SmartLock IoT:** Cấp mã PIN thủ công từ xa, theo dõi mức pin chốt khóa tại `/admin/smartlock`.
-• **SmartPaste:** Trích xuất nhanh dữ liệu tin nhắn Zalo của khách thành đơn phòng trong 1 giây tại `/admin/orders`.",
+• **Công suất buồng phòng (Occupancy Rate):** Xem biểu đồ tỉ lệ lấp đầy phòng theo tháng và doanh thu thực nhận tại `/admin`.
+• **Kiểm định vệ sinh SOP 8 bước:** Giám sát trạng thái dọn buồng phòng sinh thái (Cleaned, Inspected, Occupied).
+• **Quản lý khóa SmartLock IoT:** Cấp mã PIN thủ công từ xa, theo dõi mức pin chốt khóa tại `/admin`.
+• **SmartPaste:** Trích xuất nhanh dữ liệu tin nhắn Zalo của khách thành đơn phòng trong 1 giây tại `/admin`.",
                     ActionUrl = "/admin",
-                    ActionLabel = "🔐 Vào Phân Hệ Quản Trị Admin",
+                    ActionLabel = "🔍 Vào Phân Hệ Quản Trị Admin",
                     Category = "Admin"
                 };
             }
@@ -338,7 +342,7 @@ Em có thể hỗ trợ quý khách tức thì các thông tin sau:
 • 🔑 **Hướng dẫn nhận phòng tự động 10 giây** bằng mã PIN khóa thông minh SmartLock IoT.
 • 💳 **Cách đặt cọc 50% qua VietQR** (TPBank: `10787723714` - `Trần Viết Mạnh Cường`) và luật hoàn tiền trước 48 giờ.
 • 🚴 **Tour xe đạp trợ lực điện Eco-Bike miễn phí** kèm thuyết minh GPS Audio Guide đến Chùa Thiên Mụ & Đại Nội.
-• 🍜 **Thưởng thức bánh ướt thịt nướng Kim Long** giao nóng hổi tận phòng.
+• 🍲 **Thưởng thức bánh ướt thịt nướng Kim Long** giao nóng hổi tận phòng.
 
 Quý khách cần em tư vấn thêm về nội dung nào ạ?",
                 ActionUrl = "/#rooms",
@@ -349,7 +353,8 @@ Quý khách cần em tư vấn thêm về nội dung nào ạ?",
 
         private async Task<string> CallGeminiAsync(string question, List<AiChatMessage> history)
         {
-            var endpoint = $"https://generativelanguage.googleapis.com/v1beta/models/{_config.Model}:generateContent?key={_config.ApiKey}";
+            var selectedModel = (_config.Model.Contains("2.0") || _config.Model == "gemini-2.5-flash") ? "gemini-1.5-flash" : _config.Model;
+            var endpoint = $"https://generativelanguage.googleapis.com/v1beta/models/{selectedModel}:generateContent?key={_config.ApiKey}";
 
             string systemPrompt = @"Bạn là Trợ lý AI du lịch và quản lý buồng phòng thông minh của 'Kim Long EcoStay' - một mô hình Homestay Nhà Vườn Sinh Thái kết hợp Du lịch Di sản Cố Đô Huế tại phường Kim Long, TP. Huế.
 Hãy trả lời khách bằng văn phong nhã nhặn, hiếu khách, chân thành đặc trưng xứ Huế ('Dạ', 'thưa quý khách').
@@ -451,7 +456,7 @@ Ghi chú chủ nhà: " + _config.CustomNotes;
             if (q.Contains("phòng") || q.Contains("đặt") || q.Contains("giá")) return "🌿 Xem Danh Sách Phòng";
             if (q.Contains("khóa") || q.Contains("smartlock") || q.Contains("pin") || q.Contains("tra cứu")) return "🔑 Tra Cứu Mã Khóa";
             if (q.Contains("bản đồ") || q.Contains("di tích") || q.Contains("thiên mụ") || q.Contains("xe đạp")) return "🗺️ Mở Bản Đồ Di Sản";
-            if (q.Contains("quản trị") || q.Contains("admin") || q.Contains("công suất")) return "🔐 Bảng Điều Khiển Admin";
+            if (q.Contains("quản trị") || q.Contains("admin") || q.Contains("công suất")) return "📊 Bảng Điều Khiển Admin";
             return null;
         }
     }

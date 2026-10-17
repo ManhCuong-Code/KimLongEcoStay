@@ -1,0 +1,918 @@
+@inject IHRManagementUseCase HRUseCase
+@inject IJSRuntime JSRuntime
+
+<div class="hr-management-container">
+    <!-- Thống kê KPI Nhân Sự Tổng Thể -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-success">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Tổng Số Nhân Sự</span>
+                        <h3 class="fw-bold text-dark mb-0 mt-1 font-numeric">@totalEmployees <span class="fs-6 text-muted fw-normal">người</span></h3>
+                        <small class="text-success"><i class="bi bi-people-fill me-1"></i>Kim Long EcoStay</small>
+                    </div>
+                    <div class="rounded-circle p-3 bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-people fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-primary">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Đang Làm Việc</span>
+                        <h3 class="fw-bold text-primary mb-0 mt-1 font-numeric">@activeEmployees <span class="fs-6 text-muted fw-normal">nhân sự</span></h3>
+                        <small class="text-muted">Tỷ lệ: <strong class="font-numeric">@(totalEmployees > 0 ? (activeEmployees * 100 / totalEmployees) : 0)%</strong> bộ máy</small>
+                    </div>
+                    <div class="rounded-circle p-3 bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-person-check-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-danger">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">HĐ Sắp Hết Hạn (&lt; 45 ngày)</span>
+                        <h3 class="fw-bold text-danger mb-0 mt-1 font-numeric">@expiringContractsCount <span class="fs-6 text-muted fw-normal">hợp đồng</span></h3>
+                        <small class="text-danger fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i>Cần tái ký / đánh giá</small>
+                    </div>
+                    <div class="rounded-circle p-3 bg-danger bg-opacity-10 text-danger">
+                        <i class="bi bi-clock-history fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-warning">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Nghỉ Phép / Tạm Nghỉ</span>
+                        <h3 class="fw-bold text-warning mb-0 mt-1 font-numeric">@onLeaveEmployees <span class="fs-6 text-muted fw-normal">nhân sự</span></h3>
+                        <small class="text-muted">Đang bảo lưu vị trí</small>
+                    </div>
+                    <div class="rounded-circle p-3 bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-person-dash fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sub Navigation Tabs -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white border-bottom p-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <ul class="nav nav-pills gap-2">
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill px-4 @(activeSubTab == "employees" ? "active bg-success text-white fw-bold shadow-sm" : "text-muted")"
+                                @onclick='() => SetActiveSubTab("employees")'>
+                            <i class="bi bi-person-lines-fill me-1"></i>Hồ Sơ Nhân Sự (@totalEmployees)
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill px-4 @(activeSubTab == "departments" ? "active bg-success text-white fw-bold shadow-sm" : "text-muted")"
+                                @onclick='() => SetActiveSubTab("departments")'>
+                            <i class="bi bi-diagram-3-fill me-1"></i>Phòng Ban & Cơ Cấu (@departments.Count)
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill px-4 @(activeSubTab == "contracts" ? "active bg-success text-white fw-bold shadow-sm" : "text-muted")"
+                                @onclick='() => SetActiveSubTab("contracts")'>
+                            <i class="bi bi-file-earmark-text-fill me-1"></i>Hợp Đồng Lao Động (@contracts.Count)
+                            @if (expiringContractsCount > 0)
+                            {
+                                <span class="badge bg-danger ms-1">@expiringContractsCount</span>
+                            }
+                        </button>
+                    </li>
+                </ul>
+
+                <button class="btn btn-success rounded-pill px-3 fw-semibold shadow-sm" @onclick="OpenAddModal">
+                    <i class="bi bi-person-plus-fill me-1"></i>Thêm Hồ Sơ Nhân Sự Mới
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                    <p class="text-muted mt-2">Đang tải dữ liệu nhân sự Kim Long EcoStay...</p>
+                </div>
+            }
+            else if (activeSubTab == "employees")
+            {
+                <!-- BỘ LỌC VÀ TÌM KIẾM NHÂN SỰ -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 bg-light" 
+                                   placeholder="Tìm kiếm theo Tên, Mã NV, SĐT, Email..." 
+                                   @bind="searchTerm" @bind:event="oninput" @bind:after="ApplyFilter" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select bg-light" @bind="filterDepartmentId" @bind:after="ApplyFilter">
+                            <option value="0">-- Tất cả phòng ban --</option>
+                            @foreach (var dept in departments)
+                            {
+                                <option value="@dept.Id">@dept.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select bg-light" @bind="filterStatus" @bind:after="ApplyFilter">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            <option value="Đang làm việc">Đang làm việc</option>
+                            <option value="Nghỉ phép">Nghỉ phép</option>
+                            <option value="Tạm nghỉ">Tạm nghỉ</option>
+                            <option value="Đã nghỉ việc">Đã nghỉ việc</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button class="btn btn-outline-secondary w-100 rounded-3" @onclick="ResetFilter">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Đặt lại
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DANH SÁCH THẺ / BẢNG NHÂN SỰ -->
+                <div class="table-responsive rounded-3 border">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60px;" class="text-center">Ảnh</th>
+                                <th>Mã & Họ Tên</th>
+                                <th>Phòng Ban & Vị Trí</th>
+                                <th>Liên Hệ</th>
+                                <th>Ngày Vào Làm</th>
+                                <th>Thời Hạn Hợp Đồng</th>
+                                <th>Trạng Thái</th>
+                                <th class="text-end" style="width: 140px;">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (filteredEmployees.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                        Không tìm thấy hồ sơ nhân sự nào phù hợp với bộ lọc.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var emp in filteredEmployees)
+                                {
+                                    <tr>
+                                        <td class="text-center">
+                                            <img src="@(string.IsNullOrEmpty(emp.AvatarUrl) ? "/images/logo.jpg" : emp.AvatarUrl)" 
+                                                 alt="@emp.FullName" 
+                                                 class="rounded-circle border" 
+                                                 style="width: 44px; height: 44px; object-fit: cover;" 
+                                                 onerror="this.src='/images/logo.jpg'" />
+                                        </td>
+                                        <td>
+                                            <a href="javascript:void(0)" class="fw-bold text-dark text-decoration-none" @onclick="() => ViewEmployeeDetail(emp)">
+                                                @emp.FullName
+                                            </a>
+                                            <div class="small font-monospace text-primary">@emp.EmployeeCode</div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold text-dark">@emp.PositionTitle</div>
+                                            <small class="text-muted">@emp.DepartmentName</small>
+                                        </td>
+                                        <td>
+                                            <div><i class="bi bi-telephone text-success me-1 small"></i>@emp.PhoneNumber</div>
+                                            <div class="small text-muted"><i class="bi bi-envelope text-info me-1 small"></i>@emp.Email</div>
+                                        </td>
+                                        <td>
+                                            <div>@emp.HireDate.ToString("dd/MM/yyyy")</div>
+                                            <small class="badge bg-light text-dark border">@emp.ContractType</small>
+                                        </td>
+                                        <td>
+                                            @if (emp.ContractEndDate.HasValue)
+                                            {
+                                                <div class="@(emp.IsContractExpiringSoon ? "text-danger fw-bold" : "text-dark")">
+                                                    @emp.ContractEndDate.Value.ToString("dd/MM/yyyy")
+                                                </div>
+                                                @if (emp.IsContractExpiringSoon)
+                                                {
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger">
+                                                        <i class="bi bi-alarm me-1"></i>Hết hạn trong @emp.DaysUntilContractExpires ngày
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <small class="text-muted">Còn @emp.DaysUntilContractExpires ngày</small>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-info-subtle text-info">Không xác định</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge @GetStatusBadge(emp.WorkStatus) px-2 py-1">
+                                                @emp.WorkStatus
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-info" title="Xem chi tiết hồ sơ" @onclick="() => ViewEmployeeDetail(emp)">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-primary" title="Sửa thông tin" @onclick="() => EditEmployee(emp)">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" title="Xóa mềm / Nghỉ việc" @onclick="() => ConfirmDelete(emp)">
+                                                    <i class="bi bi-person-x"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else if (activeSubTab == "departments")
+            {
+                <!-- BIỂU ĐỒ TRỰC QUAN CƠ CẤU NHÂN SỰ THEO PHÒNG BAN -->
+                <div class="card border rounded-4 shadow-sm p-4 mb-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <div>
+                            <h6 class="fw-bold text-dark font-serif mb-1">
+                                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Biểu Đồ Định Biên Nhân Sự Giữa Các Phòng Ban
+                            </h6>
+                            <small class="text-muted">Trực quan hóa phân bổ cơ cấu tổ chức Kim Long EcoStay</small>
+                        </div>
+                        <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-2">
+                            <i class="bi bi-building me-1"></i>@departments.Count Phòng Ban Chuyên Trách
+                        </span>
+                    </div>
+                    <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas id="departmentDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- TAB PHÒNG BAN & CHỨC VỤ -->
+                <div class="row g-4">
+                    @foreach (var dept in departments)
+                    {
+                        var deptPositions = positions.Where(p => p.DepartmentId == dept.Id).ToList();
+                        <div class="col-lg-6">
+                            <div class="card h-100 border rounded-4 shadow-sm">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+                                    <div>
+                                        <span class="badge bg-primary me-2">@dept.Code</span>
+                                        <strong class="text-dark fs-6">@dept.Name</strong>
+                                    </div>
+                                    <span class="badge bg-success-subtle text-success fs-6 px-3 py-1 border border-success">
+                                        <i class="bi bi-people me-1"></i>@dept.EmployeeCount nhân sự
+                                    </span>
+                                </div>
+                                <div class="card-body p-3">
+                                    <p class="text-muted small mb-3">@dept.Description</p>
+                                    <h6 class="fw-bold text-dark mb-2 small text-uppercase">Danh sách vị trí / Chức danh:</h6>
+                                    <div class="list-group list-group-flush">
+                                        @foreach (var pos in deptPositions)
+                                        {
+                                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                                <div>
+                                                    <div class="fw-semibold text-dark">@pos.Title</div>
+                                                    <small class="text-muted">Mức lương: <span class="text-success fw-semibold">@pos.BaseSalaryRange</span></small>
+                                                </div>
+                                                <span class="badge bg-light text-dark border">@pos.EmployeeCount NV</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else if (activeSubTab == "contracts")
+            {
+                <!-- TAB HỢP ĐỒNG LAO ĐỘNG -->
+                <div class="table-responsive rounded-3 border">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã HĐ</th>
+                                <th>Nhân Viên</th>
+                                <th>Phòng Ban</th>
+                                <th>Loại Hợp Đồng</th>
+                                <th>Thời Hạn (Từ - Đến)</th>
+                                <th>Lương & Phụ Cấp</th>
+                                <th>Trạng Thái</th>
+                                <th>Số Ngày Còn Lại</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ct in contracts)
+                            {
+                                <tr>
+                                    <td><strong class="font-monospace text-primary">@ct.ContractCode</strong></td>
+                                    <td>
+                                        <div class="fw-bold text-dark">@ct.EmployeeName</div>
+                                        <small class="text-muted font-monospace">@ct.EmployeeCode</small>
+                                    </td>
+                                    <td>
+                                        <div>@ct.PositionTitle</div>
+                                        <small class="text-muted">@ct.DepartmentName</small>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border">@ct.ContractType</span></td>
+                                    <td>
+                                        <div>@ct.StartDate.ToString("dd/MM/yyyy") - @(ct.EndDate.HasValue ? ct.EndDate.Value.ToString("dd/MM/yyyy") : "Vô thời hạn")</div>
+                                        <small class="text-muted">Ký ngày: @ct.SignedDate.ToString("dd/MM/yyyy")</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-success">@ct.BasicSalary.ToString("N0") đ</div>
+                                        <small class="text-muted">+ PC: @ct.Allowance.ToString("N0") đ</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(ct.Status == "Sắp hết hạn" ? "bg-danger" : "bg-success")">
+                                            @ct.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (ct.EndDate.HasValue)
+                                        {
+                                            @if (ct.DaysRemaining <= 45 && ct.DaysRemaining >= 0)
+                                            {
+                                                <span class="badge bg-danger-subtle text-danger border border-danger">
+                                                    <i class="bi bi-exclamation-circle me-1"></i>Còn @ct.DaysRemaining ngày
+                                                </span>
+                                            }
+                                            else if (ct.DaysRemaining < 0)
+                                            {
+                                                <span class="badge bg-dark text-white">Đã quá hạn</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">Còn @ct.DaysRemaining ngày</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">Dài hạn</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- MODAL XEM CHI TIẾT HỒ SƠ NHÂN SỰ -->
+@if (isDetailModalOpen && selectedEmployee != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(10, 61, 44, 0.65); backdrop-filter: blur(4px); z-index: 1055;">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #0A3D2C 0%, #14533D 100%); border-bottom: 2px solid #D4AF37;">
+                    <h5 class="modal-title fw-bold mb-0 font-serif">
+                        <i class="bi bi-person-badge me-2 text-warning"></i>HỒ SƠ NHÂN SỰ CHI TIẾT
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => isDetailModalOpen = false"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="card border-0 rounded-3 p-4 bg-white shadow-sm mb-3">
+                        <div class="d-flex align-items-center gap-4 flex-wrap pb-3 border-bottom">
+                            <img src="@(string.IsNullOrEmpty(selectedEmployee.AvatarUrl) ? "/images/logo.jpg" : selectedEmployee.AvatarUrl)" 
+                                 alt="@selectedEmployee.FullName" 
+                                 class="rounded-circle border border-3 border-warning shadow" 
+                                 style="width: 80px; height: 80px; object-fit: cover;" 
+                                 onerror="this.src='/images/logo.jpg'" />
+                            <div>
+                                <h4 class="fw-bold text-dark mb-1">@selectedEmployee.FullName</h4>
+                                <div class="d-flex gap-2 align-items-center flex-wrap">
+                                    <span class="badge bg-primary font-monospace">@selectedEmployee.EmployeeCode</span>
+                                    <span class="badge @GetStatusBadge(selectedEmployee.WorkStatus)">@selectedEmployee.WorkStatus</span>
+                                    <span class="badge bg-light text-dark border">@selectedEmployee.ContractType</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 pt-3">
+                            <div class="col-md-6">
+                                <small class="text-muted">Phòng ban:</small>
+                                <div class="fw-bold text-dark">@selectedEmployee.DepartmentName</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Chức vụ / Vị trí:</small>
+                                <div class="fw-bold text-dark">@selectedEmployee.PositionTitle</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Số điện thoại:</small>
+                                <div class="fw-semibold text-dark"><i class="bi bi-telephone text-success me-1"></i>@selectedEmployee.PhoneNumber</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Email liên hệ:</small>
+                                <div class="fw-semibold text-dark"><i class="bi bi-envelope text-info me-1"></i>@selectedEmployee.Email</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Ngày sinh & Giới tính:</small>
+                                <div>@selectedEmployee.DateOfBirth.ToString("dd/MM/yyyy") (@selectedEmployee.Gender)</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Địa chỉ thường trú:</small>
+                                <div><i class="bi bi-geo-alt text-danger me-1"></i>@selectedEmployee.Address</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Ngày vào làm việc:</small>
+                                <div>@selectedEmployee.HireDate.ToString("dd/MM/yyyy")</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Thời hạn hợp đồng:</small>
+                                <div class="@(selectedEmployee.IsContractExpiringSoon ? "text-danger fw-bold" : "text-dark")">
+                                    @selectedEmployee.ContractStartDate.ToString("dd/MM/yyyy") - 
+                                    @(selectedEmployee.ContractEndDate.HasValue ? selectedEmployee.ContractEndDate.Value.ToString("dd/MM/yyyy") : "Vô thời hạn")
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Mức lương cơ bản:</small>
+                                <div class="fs-5 fw-bold text-success">@selectedEmployee.BaseSalary.ToString("N0") đ</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Phụ cấp hàng tháng:</small>
+                                <div class="fs-6 fw-semibold text-dark">+ @selectedEmployee.Allowance.ToString("N0") đ</div>
+                            </div>
+                            <div class="col-12">
+                                <small class="text-muted">Ghi chú hồ sơ:</small>
+                                <div class="p-2 bg-light rounded text-muted fst-italic">@(string.IsNullOrEmpty(selectedEmployee.Notes) ? "Không có ghi chú thêm." : selectedEmployee.Notes)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" @onclick="() => isDetailModalOpen = false">
+                        Đóng
+                    </button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4" @onclick="() => { isDetailModalOpen = false; EditEmployee(selectedEmployee); }">
+                        <i class="bi bi-pencil me-1"></i>Chỉnh Sửa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL THÊM / SỬA HỒ SƠ NHÂN SỰ -->
+@if (isFormModalOpen && editingEmployee != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(10, 61, 44, 0.65); backdrop-filter: blur(4px); z-index: 1055;">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #0A3D2C 0%, #14533D 100%); border-bottom: 2px solid #D4AF37;">
+                    <h5 class="modal-title fw-bold mb-0">
+                        <i class="bi @(editingEmployee.Id == 0 ? "bi-person-plus-fill" : "bi-pencil-square") me-2 text-warning"></i>
+                        @(editingEmployee.Id == 0 ? "THÊM HỒ SƠ NHÂN SỰ MỚI" : "CHỈNH SỬA HỒ SƠ NHÂN SỰ")
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => isFormModalOpen = false"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <EditForm Model="editingEmployee" OnValidSubmit="SaveEmployee">
+                        <DataAnnotationsValidator />
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger py-2 small mb-3">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>@errorMessage
+                            </div>
+                        }
+
+                        <div class="card border-0 rounded-3 p-4 bg-white shadow-sm mb-3">
+                            <h6 class="fw-bold text-success border-bottom pb-2 mb-3">1. Thông Tin Cá Nhân</h6>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Mã Nhân Viên</label>
+                                    <input type="text" class="form-control font-monospace" @bind="editingEmployee.EmployeeCode" placeholder="KLE-NV..." />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Họ và Tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" @bind="editingEmployee.FullName" required placeholder="Ví dụ: Trần Thị Mai" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Giới Tính</label>
+                                    <select class="form-select" @bind="editingEmployee.Gender">
+                                        <option value="Nam">Nam</option>
+                                        <option value="Nữ">Nữ</option>
+                                        <option value="Khác">Khác</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Ngày Sinh</label>
+                                    <input type="date" class="form-control" @bind="editingEmployee.DateOfBirth" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Số Điện Thoại <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" @bind="editingEmployee.PhoneNumber" required placeholder="0905..." />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" @bind="editingEmployee.Email" required placeholder="name@kimlongecostay.vn" />
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label small fw-semibold">Địa Chỉ</label>
+                                    <input type="text" class="form-control" @bind="editingEmployee.Address" placeholder="Địa chỉ thường trú tại Huế..." />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Link Ảnh Đại Diện</label>
+                                    <input type="text" class="form-control" @bind="editingEmployee.AvatarUrl" placeholder="https://..." />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 rounded-3 p-4 bg-white shadow-sm mb-3">
+                            <h6 class="fw-bold text-success border-bottom pb-2 mb-3">2. Phòng Ban, Chức Vụ & Hợp Đồng</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Phòng Ban <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="editingEmployee.DepartmentId" @bind:after="OnDepartmentChanged">
+                                        @foreach (var d in departments)
+                                        {
+                                            <option value="@d.Id">@d.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Chức Vụ <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="editingEmployee.PositionId">
+                                        @foreach (var p in availablePositions)
+                                        {
+                                            <option value="@p.Id">@p.Title</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Loại Hợp Đồng</label>
+                                    <select class="form-select" @bind="editingEmployee.ContractType">
+                                        <option value="Chính thức">Chính thức</option>
+                                        <option value="Thử việc">Thử việc</option>
+                                        <option value="Thời vụ">Thời vụ</option>
+                                        <option value="Bán thời gian">Bán thời gian</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Ngày Vào Làm</label>
+                                    <input type="date" class="form-control" @bind="editingEmployee.HireDate" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Ngày Hết Hạn HĐ</label>
+                                    <input type="date" class="form-control" @bind="editingEmployee.ContractEndDate" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Lương Cơ Bản (VNĐ)</label>
+                                    <input type="number" step="100000" class="form-control" @bind="editingEmployee.BaseSalary" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Phụ Cấp (VNĐ)</label>
+                                    <input type="number" step="100000" class="form-control" @bind="editingEmployee.Allowance" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Trạng Thái Làm Việc</label>
+                                    <select class="form-select" @bind="editingEmployee.WorkStatus">
+                                        <option value="Đang làm việc">Đang làm việc</option>
+                                        <option value="Nghỉ phép">Nghỉ phép</option>
+                                        <option value="Tạm nghỉ">Tạm nghỉ</option>
+                                        <option value="Đã nghỉ việc">Đã nghỉ việc</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Ghi Chú</label>
+                                    <textarea class="form-control" rows="2" @bind="editingEmployee.Notes" placeholder="Ghi chú kinh nghiệm, kỹ năng đặc biệt..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4" @onclick="() => isFormModalOpen = false">
+                                Hủy Bỏ
+                            </button>
+                            <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">
+                                <i class="bi bi-save me-1"></i>Lưu Hồ Sơ
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL XÁC NHẬN XÓA MỀM NHÂN VIÊN -->
+@if (isDeleteModalOpen && employeeToDelete != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); z-index: 1060;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow border-0 rounded-4">
+                <div class="modal-header bg-danger text-white px-4 py-3">
+                    <h5 class="modal-title fw-bold mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Xác Nhận Nghỉ Việc / Xóa Mềm
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => isDeleteModalOpen = false"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-2">Bạn có chắc chắn muốn chuyển trạng thái nhân viên sang <strong>"Đã nghỉ việc"</strong>?</p>
+                    <div class="alert alert-warning py-2 small mb-3">
+                        <strong>Lưu ý quan trọng:</strong> Hệ thống thực hiện <strong>Xóa mềm</strong> nhằm bảo lưu toàn bộ lịch sử chi trả lương, bảng chấm công và chứng từ kế toán liên quan của nhân sự <strong>@employeeToDelete.FullName (@employeeToDelete.EmployeeCode)</strong>.
+                    </div>
+                </div>
+                <div class="modal-footer px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" @onclick="() => isDeleteModalOpen = false">
+                        Hủy
+                    </button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4 fw-semibold" @onclick="ExecuteDelete">
+                        <i class="bi bi-check2 me-1"></i>Xác Nhận Nghỉ Việc
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private string activeSubTab = "employees";
+
+    private List<Employee> allEmployees = new();
+    private List<Employee> filteredEmployees = new();
+    private List<Department> departments = new();
+    private List<Position> positions = new();
+    private List<Position> availablePositions = new();
+    private List<EmployeeContract> contracts = new();
+
+    private string searchTerm = "";
+    private int filterDepartmentId = 0;
+    private string filterStatus = "";
+
+    // Stats
+    private int totalEmployees => allEmployees.Count;
+    private int activeEmployees => allEmployees.Count(e => e.WorkStatus == "Đang làm việc");
+    private int expiringContractsCount => allEmployees.Count(e => e.IsContractExpiringSoon);
+    private int onLeaveEmployees => allEmployees.Count(e => e.WorkStatus == "Nghỉ phép" || e.WorkStatus == "Tạm nghỉ");
+
+    // Modal states
+    private bool isDetailModalOpen = false;
+    private Employee? selectedEmployee;
+
+    private bool isFormModalOpen = false;
+    private Employee? editingEmployee;
+    private string errorMessage = "";
+
+    private bool isDeleteModalOpen = false;
+    private Employee? employeeToDelete;
+
+    private async Task SetActiveSubTab(string tab)
+    {
+        activeSubTab = tab;
+        if (tab == "departments")
+        {
+            StateHasChanged();
+            await Task.Delay(100);
+            await RenderDepartmentChartAsync();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!isLoading && activeSubTab == "departments")
+        {
+            await RenderDepartmentChartAsync();
+        }
+    }
+
+    private async Task RenderDepartmentChartAsync()
+    {
+        try
+        {
+            if (departments.Count == 0) return;
+            var labels = departments.Select(d => d.Name).ToArray();
+            var data = departments.Select(d => d.EmployeeCount).ToArray();
+            var colors = new[] { "#0A3D2C", "#10B981", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#14B8A6" };
+            await JSRuntime.InvokeVoidAsync("financialCharts.renderDepartmentBarChart", "departmentDistributionChart", labels, data, colors);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error rendering dept chart: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            departments = (await HRUseCase.GetDepartmentsAsync()).ToList();
+            positions = (await HRUseCase.GetPositionsAsync()).ToList();
+            contracts = (await HRUseCase.GetContractsAsync()).ToList();
+            allEmployees = (await HRUseCase.GetEmployeesAsync(includeDeleted: false)).ToList();
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading HR data: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ApplyFilter()
+    {
+        var query = allEmployees.AsEnumerable();
+
+        if (filterDepartmentId > 0)
+        {
+            query = query.Where(e => e.DepartmentId == filterDepartmentId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterStatus))
+        {
+            query = query.Where(e => e.WorkStatus.Equals(filterStatus, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            string term = searchTerm.Trim().ToLowerInvariant();
+            query = query.Where(e =>
+                e.FullName.ToLowerInvariant().Contains(term) ||
+                e.EmployeeCode.ToLowerInvariant().Contains(term) ||
+                e.Email.ToLowerInvariant().Contains(term) ||
+                e.PhoneNumber.Contains(term));
+        }
+
+        filteredEmployees = query.ToList();
+    }
+
+    private void ResetFilter()
+    {
+        searchTerm = "";
+        filterDepartmentId = 0;
+        filterStatus = "";
+        ApplyFilter();
+    }
+
+    private void ViewEmployeeDetail(Employee emp)
+    {
+        selectedEmployee = emp;
+        isDetailModalOpen = true;
+    }
+
+    private void OpenAddModal()
+    {
+        editingEmployee = new Employee
+        {
+            DepartmentId = departments.FirstOrDefault()?.Id ?? 1,
+            HireDate = DateTime.Today,
+            ContractStartDate = DateTime.Today,
+            ContractEndDate = DateTime.Today.AddYears(1),
+            WorkStatus = "Đang làm việc",
+            BaseSalary = 7000000,
+            Allowance = 800000
+        };
+        UpdateAvailablePositions();
+        editingEmployee.PositionId = availablePositions.FirstOrDefault()?.Id ?? 1;
+        errorMessage = "";
+        isFormModalOpen = true;
+    }
+
+    private void EditEmployee(Employee emp)
+    {
+        editingEmployee = new Employee
+        {
+            Id = emp.Id,
+            EmployeeCode = emp.EmployeeCode,
+            FullName = emp.FullName,
+            AvatarUrl = emp.AvatarUrl,
+            DateOfBirth = emp.DateOfBirth,
+            Gender = emp.Gender,
+            PhoneNumber = emp.PhoneNumber,
+            Email = emp.Email,
+            Address = emp.Address,
+            DepartmentId = emp.DepartmentId,
+            DepartmentName = emp.DepartmentName,
+            PositionId = emp.PositionId,
+            PositionTitle = emp.PositionTitle,
+            HireDate = emp.HireDate,
+            ContractType = emp.ContractType,
+            ContractStartDate = emp.ContractStartDate,
+            ContractEndDate = emp.ContractEndDate,
+            WorkStatus = emp.WorkStatus,
+            BaseSalary = emp.BaseSalary,
+            Allowance = emp.Allowance,
+            Notes = emp.Notes
+        };
+        UpdateAvailablePositions();
+        errorMessage = "";
+        isFormModalOpen = true;
+    }
+
+    private void OnDepartmentChanged()
+    {
+        UpdateAvailablePositions();
+        if (editingEmployee != null && availablePositions.Count > 0)
+        {
+            editingEmployee.PositionId = availablePositions.First().Id;
+        }
+    }
+
+    private void UpdateAvailablePositions()
+    {
+        if (editingEmployee != null)
+        {
+            availablePositions = positions.Where(p => p.DepartmentId == editingEmployee.DepartmentId).ToList();
+            if (availablePositions.Count == 0) availablePositions = positions;
+        }
+    }
+
+    private async Task SaveEmployee()
+    {
+        if (editingEmployee == null) return;
+        errorMessage = "";
+
+        if (string.IsNullOrWhiteSpace(editingEmployee.FullName))
+        {
+            errorMessage = "Vui lòng nhập họ và tên nhân viên.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(editingEmployee.PhoneNumber))
+        {
+            errorMessage = "Vui lòng nhập số điện thoại liên hệ.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(editingEmployee.Email) || !editingEmployee.Email.Contains("@"))
+        {
+            errorMessage = "Vui lòng nhập email hợp lệ.";
+            return;
+        }
+
+        try
+        {
+            if (editingEmployee.Id == 0)
+            {
+                await HRUseCase.AddEmployeeAsync(editingEmployee);
+            }
+            else
+            {
+                await HRUseCase.UpdateEmployeeAsync(editingEmployee);
+            }
+
+            isFormModalOpen = false;
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi lưu dữ liệu: {ex.Message}";
+        }
+    }
+
+    private void ConfirmDelete(Employee emp)
+    {
+        employeeToDelete = emp;
+        isDeleteModalOpen = true;
+    }
+
+    private async Task ExecuteDelete()
+    {
+        if (employeeToDelete != null)
+        {
+            await HRUseCase.SoftDeleteEmployeeAsync(employeeToDelete.Id);
+            isDeleteModalOpen = false;
+            await LoadData();
+        }
+    }
+
+    private string GetStatusBadge(string status) => status switch
+    {
+        "Đang làm việc" => "bg-success",
+        "Nghỉ phép" => "bg-warning text-dark",
+        "Tạm nghỉ" => "bg-secondary",
+        "Đã nghỉ việc" => "bg-danger",
+        _ => "bg-light text-dark"
+    };
+}

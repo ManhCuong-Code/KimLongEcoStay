@@ -29,6 +29,9 @@ using KimLongEcoStay.UseCases.AdminPortal.CheckInCheckOutScreen;
 using KimLongEcoStay.UseCases.AdminPortal.OccupancyReportScreen;
 using KimLongEcoStay.UseCases.SmartLockScreen;
 using KimLongEcoStay.CoreBusiness.Services.Interfaces;
+using KimLongEcoStay.UseCases.AdminPortal.HRManagementScreen;
+using KimLongEcoStay.UseCases.AdminPortal.PayrollManagementScreen;
+using KimLongEcoStay.UseCases.AdminPortal.FinancialManagementScreen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,10 +52,22 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("StaffOnly", policy => policy.RequireRole("Admin", "Administrator", "Staff"));
+    options.AddPolicy("StaffOnly", policy => policy.RequireRole("Admin", "Administrator", "Staff", "Manager", "HR", "Accountant"));
+    options.AddPolicy("HROnly", policy => policy.RequireRole("Admin", "Administrator", "HR", "Manager"));
+    options.AddPolicy("AccountantOnly", policy => policy.RequireRole("Admin", "Administrator", "Accountant", "Manager"));
     options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer"));
 });
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.SetIsOriginAllowed(_ => true)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 // 3. PLUGINS (PART 3 & PART 5)
 // Plugin LocalStorage & StateStore (Part 3)
@@ -66,6 +81,9 @@ builder.Services.AddScoped<IRoomRepository, KimLongEcoStay.DataStore.SQL.Dapper.
 builder.Services.AddScoped<IOrderRepository, KimLongEcoStay.DataStore.SQL.Dapper.OrderRepository>();
 builder.Services.AddScoped<IBookingRepository, KimLongEcoStay.DataStore.SQL.Dapper.OrderRepository>();
 builder.Services.AddScoped<IUserRepository, KimLongEcoStay.DataStore.SQL.Dapper.UserRepository>();
+builder.Services.AddScoped<IEmployeeRepository, KimLongEcoStay.DataStore.SQL.Dapper.EmployeeRepository>();
+builder.Services.AddScoped<IPayrollRepository, KimLongEcoStay.DataStore.SQL.Dapper.PayrollRepository>();
+builder.Services.AddScoped<IFinancialRepository, KimLongEcoStay.DataStore.SQL.Dapper.FinancialRepository>();
 
 // 4. CORE SERVICES & USE CASES (PART 1, 2, 3, 4)
 var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>() ?? new EmailSettings();
@@ -101,22 +119,36 @@ builder.Services.AddTransient<ICheckInCheckOutUseCase, CheckInCheckOutUseCase>()
 builder.Services.AddTransient<IOccupancyReportUseCase, OccupancyReportUseCase>();
 builder.Services.AddTransient<ISmartLockUseCase, SmartLockUseCase>();
 
+// Bổ sung các Use Cases mới: Quản lý Nhân sự, Tiền lương, Tài chính Dashboard
+builder.Services.AddTransient<IHRManagementUseCase, HRManagementUseCase>();
+builder.Services.AddTransient<IPayrollManagementUseCase, PayrollManagementUseCase>();
+builder.Services.AddTransient<IFinancialManagementUseCase, FinancialManagementUseCase>();
+
 var app = builder.Build();
 
 // 5. MIDDLEWARE PIPELINE
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
+                       Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto |
+                       Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedHost
+});
+
+app.UseCors();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.UseStaticFiles();
 
 // 6. MINIMAL API ENDPOINTS FOR AUTHENTICATION (PART 4)
 // Xử lý Login truyền thống bằng HTTP POST để phát hành Cookie trình duyệt
@@ -237,7 +269,10 @@ app.MapGet("/quick-login", async (string? role, HttpContext context) =>
     string targetRole = (role ?? "admin").Trim().ToLowerInvariant();
     AppUser user = targetRole switch
     {
-        "letan" or "staff" => new AppUser { Username = "letan", FullName = "Lễ Tân Kim Long EcoStay (Nhân Viên)", Role = "Staff" },
+        "letan" or "staff" or "nhanvien" => new AppUser { Username = "letan", FullName = "Lễ Tân Kim Long (Nhân Viên)", Role = "Staff" },
+        "ketoan" => new AppUser { Username = "ketoan", FullName = "Trần Minh Khoa (Kế Toán Trưởng - CFO)", Role = "Accountant" },
+        "nhansu" => new AppUser { Username = "nhansu", FullName = "Trần Viết Mạnh Cường (Trưởng Phòng Nhân Sự - COO)", Role = "HR" },
+        "quanly" or "host" => new AppUser { Username = "quanly", FullName = "Trần Thị Thu (Giám Đốc Quản Lý - CEO)", Role = "Manager" },
         "khachhang" or "customer" => new AppUser { Username = "khachhang", FullName = "Nguyễn Văn An (Khách Hàng)", Role = "Customer" },
         _ => new AppUser { Username = "admin", FullName = "Quản Trị Viên Kim Long EcoStay", Role = "Admin" }
     };
@@ -254,7 +289,26 @@ app.MapGet("/quick-login", async (string? role, HttpContext context) =>
     {
         claims.Add(new Claim(ClaimTypes.Role, "Staff"));
         claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
+        claims.Add(new Claim(ClaimTypes.Role, "Manager"));
+        claims.Add(new Claim(ClaimTypes.Role, "HR"));
+        claims.Add(new Claim(ClaimTypes.Role, "Accountant"));
         claims.Add(new Claim("Department", "Ban Điều Hành & Quản Trị Homestay"));
+    }
+    else if (user.Role.Equals("Manager", StringComparison.OrdinalIgnoreCase))
+    {
+        claims.Add(new Claim(ClaimTypes.Role, "Staff"));
+        claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
+        claims.Add(new Claim("Department", "Ban Giám Đốc Điều Hành"));
+    }
+    else if (user.Role.Equals("HR", StringComparison.OrdinalIgnoreCase))
+    {
+        claims.Add(new Claim(ClaimTypes.Role, "Staff"));
+        claims.Add(new Claim("Department", "Bộ Phận Nhân Sự & Tuyển Dụng"));
+    }
+    else if (user.Role.Equals("Accountant", StringComparison.OrdinalIgnoreCase))
+    {
+        claims.Add(new Claim(ClaimTypes.Role, "Staff"));
+        claims.Add(new Claim("Department", "Bộ Phận Tài Chính - Kế Toán"));
     }
     else if (user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase))
     {

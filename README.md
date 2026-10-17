@@ -726,4 +726,25 @@ dotnet build KimLongEcoStay.slnx
 # Khởi chạy Website Blazor
 dotnet run --project KimLongEcoStay.Web/KimLongEcoStay.Web.csproj
 ```
-Truy cập trình duyệt tại địa chỉ: `https://localhost:7082` (hoặc cổng hiển thị trên console).
+ Truy cập trình duyệt tại địa chỉ: `https://localhost:7082` (hoặc cổng hiển thị trên console).
+
+---
+
+## ☁️ 8. KHỞI CHẠY TRỰC TIẾP ONLINE TRÊN GITHUB CODESPACES (1-CLICK CLOUD)
+
+Dự án đã được tích hợp sẵn cấu hình **GitHub Codespaces & DevContainer (Docker SQL Server 2022 + .NET 10 SDK)**:
+
+1. **Khởi tạo Codespace:**
+   - Trên giao diện GitHub repository: [ManhCuong-Code/KimLongEcoStay](https://github.com/ManhCuong-Code/KimLongEcoStay)
+   - Nhấn nút xanh **Code** > Chọn tab **Codespaces** > Nhấn **Create codespace on main**.
+2. **Khởi chạy Server:**
+   - Khi môi trường Codespaces mở ra, hệ thống tự động thiết lập CSDL SQL Server và cấu hình cổng.
+   - Mở Terminal và chạy lệnh:
+     ```bash
+     ./start.sh
+     ```
+3. **Mở link Online toàn cầu (Public Link):**
+   - Vào tab **PORTS** ở panel dưới cùng cạnh Terminal.
+   - Tìm cổng **5204 (Kim Long EcoStay Web App)**.
+   - Chuột phải vào cổng 5204 > Chọn **Port Visibility** > **Public**.
+   - Nhấn biểu tượng quả địa cầu (Open in Browser) để nhận đường link HTTPS online toàn cầu (ví dụ: `https://xxx-5204.app.github.dev`) chia sẻ cho mọi người truy cập trực tiếp!

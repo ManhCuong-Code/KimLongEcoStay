@@ -24,7 +24,7 @@ namespace KimLongEcoStay.UseCases.ViewProductSrceen
             this.shoppingCartStateStore = shoppingCartStateStore;
         }
 
-        public async void Execute(int productId)
+        public async Task ExecuteAsync(int productId)
         {
             var product = productRepository.GetProduct(productId);
             if (product != null)
@@ -32,6 +32,11 @@ namespace KimLongEcoStay.UseCases.ViewProductSrceen
                 await shoppingCart.AddProductAsync(product);
                 this.shoppingCartStateStore.UpdateLineItemsCount();
             }
+        }
+
+        public async void Execute(int productId)
+        {
+            await ExecuteAsync(productId);
         }
     }
 }

@@ -13,6 +13,7 @@ namespace KimLongEcoStay.ShoppingCart.LocalStorage
     public class ShoppingCart : IShoppingCart
     {
         private const string cstrShoppingCart = "KimLongEcoStay.ShoppingCart";
+        private static Order? _memoryOrder;
         private readonly IJSRuntime jSRuntime;
         private readonly IProductRepository productRepository;
         public ShoppingCart(IJSRuntime jSRuntime, IProductRepository productRepository )
@@ -75,15 +76,33 @@ namespace KimLongEcoStay.ShoppingCart.LocalStorage
         private async Task<Order> GetOrder()
         {
             Order? order = null;
-            var strOrder = await jSRuntime.InvokeAsync<string>("localStorage.getItem", cstrShoppingCart);
-            if (!string.IsNullOrEmpty(strOrder) && strOrder.ToLower() != "null")
+            try
             {
-                order = JsonConvert.DeserializeObject<Order>(strOrder);
+                var strOrder = await jSRuntime.InvokeAsync<string>("localStorage.getItem", cstrShoppingCart);
+                if (!string.IsNullOrEmpty(strOrder) && strOrder.ToLower() != "null")
+                {
+                    order = JsonConvert.DeserializeObject<Order>(strOrder);
+                }
             }
-            else
+            catch
+            {
+                // Fallback to in-memory order when JS interop is not ready or during SSR
+            }
+
+            if (order == null && _memoryOrder != null && _memoryOrder.LineItems != null && _memoryOrder.LineItems.Count > 0)
+            {
+                order = _memoryOrder;
+            }
+
+            if (order == null)
             {
                 order = new Order();
-                await SetOrder(order);
+                _memoryOrder = order;
+                try
+                {
+                    await SetOrder(order);
+                }
+                catch { }
             }
 
             if (order?.LineItems != null)
@@ -94,12 +113,21 @@ namespace KimLongEcoStay.ShoppingCart.LocalStorage
                 }
             }
 
+            _memoryOrder = order;
             return order ?? new Order();
         }
 
         private async Task SetOrder(Order? order)
         {
-            await jSRuntime.InvokeVoidAsync("localStorage.setItem", cstrShoppingCart, JsonConvert.SerializeObject(order));
+            _memoryOrder = order ?? new Order();
+            try
+            {
+                await jSRuntime.InvokeVoidAsync("localStorage.setItem", cstrShoppingCart, JsonConvert.SerializeObject(order));
+            }
+            catch
+            {
+                // Fallback silently if JS is not ready
+            }
         }
     }
 

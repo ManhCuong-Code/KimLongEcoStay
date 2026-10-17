@@ -83,7 +83,7 @@
 
                 <AuthorizeView>
                     <Authorized>
-                        @if (context.User.IsInRole("Admin") || context.User.IsInRole("Staff") || context.User.IsInRole("Administrator"))
+                        @if (context.User.IsInRole("Admin") || context.User.IsInRole("Staff") || context.User.IsInRole("Administrator") || context.User.IsInRole("Manager") || context.User.IsInRole("HR") || context.User.IsInRole("Accountant"))
                         {
                             <li class="nav-item">
                                 <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="/admin">

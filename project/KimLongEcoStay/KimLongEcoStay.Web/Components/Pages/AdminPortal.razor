@@ -1,113 +1,291 @@
 @page "/admin"
-@attribute [Authorize(Roles = "Admin,Administrator,Staff")]
+@attribute [Authorize(Roles = "Admin,Administrator,Staff,Manager,HR,Accountant")]
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Quản Trị Hệ Thống - Kim Long EcoStay Admin Portal</PageTitle>
 
-<div class="container-fluid py-4">
-    <!-- Header Admin Portal -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+<div class="container-fluid py-4 admin-portal-wrapper">
+    <!-- Header Phân Hệ Quản Trị & Vận Hành -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 pb-3 border-bottom">
         <div>
-            <h2 class="fw-bold text-dark mb-1 font-serif">
-                <i class="bi bi-shield-lock-fill me-2 text-warning"></i>Phân Hệ Quản Trị & Vận Hành Homestay (Host Portal)
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold" style="background-color: #D4AF37 !important;">
+                    <i class="bi bi-shield-lock-fill me-1"></i>HỆ THỐNG ĐIỀU HÀNH
+                </span>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-1">
+                    🌿 Kim Long EcoStay • Cố Đô Huế
+                </span>
+            </div>
+            <h2 class="fw-bold text-dark mb-1" style="color: #0A3D2C !important; letter-spacing: -0.02em;">
+                Trung Tâm Quản Trị & Vận Hành Toàn Diện
             </h2>
             <p class="text-muted mb-0 small">
                 <AuthorizeView>
                     <Authorized>
-                        <span class="badge bg-primary me-2"><i class="bi bi-person-badge me-1"></i>Nhân viên đang đăng nhập: <strong>@context.User.Identity?.Name</strong></span>
-                        <span class="badge bg-success me-2"><i class="bi bi-shield-check me-1"></i>Quyền hạn: Host / Lễ Tân / Admin</span>
-                        <span class="badge bg-dark"><i class="bi bi-cpu me-1"></i>IoT Gateway: 5 Khóa Kết Nối</span>
+                        <span class="badge bg-primary me-2 shadow-sm">
+                            <i class="bi bi-person-badge me-1"></i>Đang đăng nhập: <strong>@context.User.Identity?.Name</strong>
+                        </span>
+                        <span class="badge bg-dark me-2">
+                            <i class="bi bi-person-gear me-1"></i>Vai trò: <strong>@GetUserRole(context.User)</strong>
+                        </span>
+                        <span class="badge bg-success">
+                            <i class="bi bi-cpu-fill me-1"></i>5 Khóa IoT Hub Kết Nối
+                        </span>
                     </Authorized>
                 </AuthorizeView>
             </p>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <AuthorizeView>
-                <Authorized>
-                    @if (context.User.IsInRole("Admin"))
-                    {
-                        <a href="/quick-login?role=letan" class="btn btn-outline-primary btn-sm rounded-pill" title="Chuyển sang vai trò Lễ tân Homestay"><i class="bi bi-arrow-repeat me-1"></i>Vai Trò: Lễ Tân</a>
-                    }
-                    else
-                    {
-                        <a href="/quick-login?role=admin" class="btn btn-outline-warning text-dark btn-sm rounded-pill" title="Chuyển sang vai trò Quản trị viên"><i class="bi bi-arrow-repeat me-1"></i>Vai Trò: Admin</a>
-                    }
-                </Authorized>
-            </AuthorizeView>
-            <a href="/lookup" class="btn btn-outline-warning text-dark btn-sm rounded-pill"><i class="bi bi-key-fill me-1"></i>Cổng Tra Cứu Khách</a>
-            <a href="products" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-shop me-1"></i>Xem Buồng Phòng</a>
-            <a href="/" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-house me-1"></i>Trang Khách Đặt Phòng</a>
-            <a href="/logout" class="btn btn-danger btn-sm rounded-pill"><i class="bi bi-box-arrow-right me-1"></i>Đăng Xuất</a>
+
+        <!-- Các liên kết điều hướng ngoài -->
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            <a href="/lookup" class="btn btn-outline-warning text-dark btn-sm rounded-pill fw-semibold shadow-sm" target="_blank">
+                <i class="bi bi-key-fill me-1"></i>Tra Cứu Khách
+            </a>
+            <a href="products" class="btn btn-outline-secondary btn-sm rounded-pill fw-semibold shadow-sm" target="_blank">
+                <i class="bi bi-shop me-1"></i>Xem Buồng Phòng
+            </a>
+            <a href="/" class="btn btn-outline-success btn-sm rounded-pill fw-semibold shadow-sm" target="_blank">
+                <i class="bi bi-house me-1"></i>Trang Khách Hàng
+            </a>
+            <a href="/logout" class="btn btn-danger btn-sm rounded-pill fw-semibold shadow-sm">
+                <i class="bi bi-box-arrow-right me-1"></i>Đăng Xuất
+            </a>
         </div>
     </div>
 
-    <!-- 6 Tabs Điều Hướng Toàn Diện Chuẩn Barem & Đề Án Kim Long EcoStay -->
-    <ul class="nav nav-tabs nav-fill mb-3">
-        <li class="nav-item">
-            <button class="nav-link fw-bold py-3 @(selectedTab == "outstanding" ? "active text-warning border-warning border-bottom-0" : "text-muted")" 
-                    @onclick='() => selectedTab = "outstanding"'>
-                <i class="bi bi-clock-history me-1"></i>1. Đơn Chờ Cọc & Cấp PIN
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link fw-bold py-3 @(selectedTab == "operations" ? "active text-primary border-primary border-bottom-0" : "text-muted")" 
-                    @onclick='() => selectedTab = "operations"'>
-                <i class="bi bi-calendar-check-fill me-1"></i>2. Check-in (14h) & Check-out (12h)
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link fw-bold py-3 @(selectedTab == "smartlock" ? "active text-success border-success border-bottom-0" : "text-muted")" 
-                    @onclick='() => selectedTab = "smartlock"'>
-                <i class="bi bi-cpu-fill me-1"></i>3. Khóa SmartLock IoT Hub
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link fw-bold py-3 @(selectedTab == "smartpaste" ? "active text-info border-info border-bottom-0" : "text-muted")" 
-                    @onclick='() => selectedTab = "smartpaste"'>
-                <i class="bi bi-robot me-1"></i>4. AI SmartPaste Zalo (Mục 10)
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link fw-bold py-3 @(selectedTab == "rooms" ? "active text-dark border-dark border-bottom-0" : "text-muted")" 
-                    @onclick='() => selectedTab = "rooms"'>
-                <i class="bi bi-door-open-fill me-1"></i>5. Tình Trạng Buồng Phòng
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link fw-bold py-3 @(selectedTab == "reports" ? "active text-danger border-danger border-bottom-0" : "text-muted")" 
-                    @onclick='() => selectedTab = "reports"'>
-                <i class="bi bi-graph-up-arrow me-1"></i>6. Báo Cáo Công Suất (UC16)
-            </button>
-        </li>
-    </ul>
+    <!-- HỆ THỐNG MENU ĐIỀU HƯỚNG CHÍNH (NAVIGATION MODULES - PHÂN QUYỀN THEO VAI TRÒ) -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4" style="background-color: #0A3D2C;">
+        <div class="card-body p-2">
+            <ul class="nav nav-pills nav-fill gap-1 flex-wrap">
+                <!-- 1. Dashboard Doanh Thu - Chi Phí (Chỉ Admin, Giám Đốc/CEO, Kế Toán Trưởng) -->
+                @if (CanAccessFinance)
+                {
+                    <li class="nav-item">
+                        <button class="nav-link py-3 rounded-3 fw-bold @(mainTab == "finance" ? "active bg-white text-success shadow" : "text-white opacity-85")"
+                                @onclick='() => SwitchMainTab("finance")'>
+                            <i class="bi bi-graph-up-arrow fs-5 d-block mb-1"></i>
+                            <span>Dashboard Tài Chính</span>
+                        </button>
+                    </li>
+                }
 
-    <!-- Nội dung Tab được chọn -->
-    @if (selectedTab == "outstanding")
+                <!-- 2. Quản Lý Tiền Lương (Admin, Giám Đốc/CEO, Kế Toán, Nhân Sự & Phiếu Lương Nhân Viên) -->
+                @if (CanAccessPayroll)
+                {
+                    <li class="nav-item">
+                        <button class="nav-link py-3 rounded-3 fw-bold @(mainTab == "payroll" ? "active bg-white text-success shadow" : "text-white opacity-85")"
+                                @onclick='() => SwitchMainTab("payroll")'>
+                            <i class="bi bi-cash-stack fs-5 d-block mb-1"></i>
+                            <span>@(IsStaffOnly ? "Phiếu Lương Của Tôi" : "Quản Lý Tiền Lương")</span>
+                        </button>
+                    </li>
+                }
+
+                <!-- 3. Quản Lý Nhân Sự (Chỉ Admin, Giám Đốc/CEO, Trưởng Phòng Nhân Sự) -->
+                @if (CanAccessHR)
+                {
+                    <li class="nav-item">
+                        <button class="nav-link py-3 rounded-3 fw-bold @(mainTab == "hr" ? "active bg-white text-success shadow" : "text-white opacity-85")"
+                                @onclick='() => SwitchMainTab("hr")'>
+                            <i class="bi bi-people-fill fs-5 d-block mb-1"></i>
+                            <span>Quản Lý Nhân Sự</span>
+                        </button>
+                    </li>
+                }
+
+                <!-- 4. Quản Lý Nhân Viên (Chỉ Admin, Giám Đốc/CEO, Trưởng Phòng Nhân Sự) -->
+                @if (CanAccessEmployees)
+                {
+                    <li class="nav-item">
+                        <button class="nav-link py-3 rounded-3 fw-bold @(mainTab == "employees" ? "active bg-white text-success shadow" : "text-white opacity-85")"
+                                @onclick='() => SwitchMainTab("employees")'>
+                            <i class="bi bi-person-lines-fill fs-5 d-block mb-1"></i>
+                            <span>Quản Lý Nhân Viên</span>
+                        </button>
+                    </li>
+                }
+
+                <!-- 5. Vận Hành Buồng Phòng & Khóa IoT (Tất cả nhân viên nội bộ) -->
+                <li class="nav-item">
+                    <button class="nav-link py-3 rounded-3 fw-bold @(mainTab == "operations" ? "active bg-white text-success shadow" : "text-white opacity-85")"
+                            @onclick='() => SwitchMainTab("operations")'>
+                        <i class="bi bi-door-open-fill fs-5 d-block mb-1"></i>
+                        <span>Vận Hành Homestay & Buồng Phòng</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- NỘI DUNG PHÂN HỆ ĐƯỢC CHỌN (BẢO VỆ CHẶT CHẼ THEO QUYỀN HẠN) -->
+    @if (mainTab == "finance" && CanAccessFinance)
     {
-        <KimLongEcoStay.Web.AdminPortal.Controls.OutstandingOrdersComponent />
+        <!-- PHÂN HỆ: DASHBOARD DOANH THU - CHI PHÍ -->
+        <KimLongEcoStay.Web.AdminPortal.Controls.FinancialDashboardComponent />
     }
-    else if (selectedTab == "operations")
+    else if (mainTab == "payroll" && CanAccessPayroll)
     {
-        <KimLongEcoStay.Web.AdminPortal.Controls.ActiveBookingsComponent />
+        <!-- PHÂN HỆ: QUẢN LÝ TIỀN LƯƠNG -->
+        <KimLongEcoStay.Web.AdminPortal.Controls.PayrollManagementComponent />
     }
-    else if (selectedTab == "smartlock")
+    else if (mainTab == "hr" && CanAccessHR)
     {
-        <KimLongEcoStay.Web.AdminPortal.Controls.SmartLockHubComponent />
+        <!-- PHÂN HỆ: QUẢN LÝ NHÂN SỰ -->
+        <KimLongEcoStay.Web.AdminPortal.Controls.HRManagementComponent />
     }
-    else if (selectedTab == "smartpaste")
+    else if (mainTab == "employees" && CanAccessEmployees)
     {
-        <KimLongEcoStay.Web.AdminPortal.Controls.SmartPasteModalComponent OnOrderCreated='() => selectedTab = "outstanding"' />
+        <!-- PHÂN HỆ: QUẢN LÝ NHÂN VIÊN (BẢNG DỮ LIỆU CHUYÊN NGHIỆP) -->
+        <KimLongEcoStay.Web.AdminPortal.Controls.EmployeeManagementComponent />
     }
-    else if (selectedTab == "rooms")
+    else if (mainTab == "operations")
     {
-        <KimLongEcoStay.Web.AdminPortal.Controls.RoomInspectionComponent />
-    }
-    else if (selectedTab == "reports")
-    {
-        <KimLongEcoStay.Web.AdminPortal.Controls.OccupancyReportComponent />
+        <!-- PHÂN HỆ: VẬN HÀNH HOMESTAY & IOT (CÁC TAB HIỆN CÓ CỦA DỰ ÁN) -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom p-3">
+                <ul class="nav nav-tabs nav-fill mb-0">
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold py-2 @(operationSubTab == "outstanding" ? "active text-warning border-warning border-bottom-0" : "text-muted")" 
+                                @onclick='() => operationSubTab = "outstanding"'>
+                            <i class="bi bi-clock-history me-1"></i>1. Đơn Chờ Cọc & Cấp PIN
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold py-2 @(operationSubTab == "checkinout" ? "active text-primary border-primary border-bottom-0" : "text-muted")" 
+                                @onclick='() => operationSubTab = "checkinout"'>
+                            <i class="bi bi-calendar-check-fill me-1"></i>2. Check-in (14h) & Check-out (12h)
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold py-2 @(operationSubTab == "smartlock" ? "active text-success border-success border-bottom-0" : "text-muted")" 
+                                @onclick='() => operationSubTab = "smartlock"'>
+                            <i class="bi bi-cpu-fill me-1"></i>3. Khóa SmartLock IoT Hub
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold py-2 @(operationSubTab == "smartpaste" ? "active text-info border-info border-bottom-0" : "text-muted")" 
+                                @onclick='() => operationSubTab = "smartpaste"'>
+                            <i class="bi bi-robot me-1"></i>4. AI SmartPaste Zalo
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold py-2 @(operationSubTab == "rooms" ? "active text-dark border-dark border-bottom-0" : "text-muted")" 
+                                @onclick='() => operationSubTab = "rooms"'>
+                            <i class="bi bi-door-open-fill me-1"></i>5. Tình Trạng Buồng Phòng
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold py-2 @(operationSubTab == "reports" ? "active text-danger border-danger border-bottom-0" : "text-muted")" 
+                                @onclick='() => operationSubTab = "reports"'>
+                            <i class="bi bi-graph-up-arrow me-1"></i>6. Báo Cáo Công Suất (UC16)
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-4">
+                @if (operationSubTab == "outstanding")
+                {
+                    <KimLongEcoStay.Web.AdminPortal.Controls.OutstandingOrdersComponent />
+                }
+                else if (operationSubTab == "checkinout")
+                {
+                    <KimLongEcoStay.Web.AdminPortal.Controls.ActiveBookingsComponent />
+                }
+                else if (operationSubTab == "smartlock")
+                {
+                    <KimLongEcoStay.Web.AdminPortal.Controls.SmartLockHubComponent />
+                }
+                else if (operationSubTab == "smartpaste")
+                {
+                    <KimLongEcoStay.Web.AdminPortal.Controls.SmartPasteModalComponent OnOrderCreated='() => operationSubTab = "outstanding"' />
+                }
+                else if (operationSubTab == "rooms")
+                {
+                    <KimLongEcoStay.Web.AdminPortal.Controls.RoomInspectionComponent />
+                }
+                else if (operationSubTab == "reports")
+                {
+                    <KimLongEcoStay.Web.AdminPortal.Controls.OccupancyReportComponent />
+                }
+            </div>
+        </div>
     }
 </div>
 
 @code {
-    private string selectedTab = "outstanding";
+    [SupplyParameterFromQuery(Name = "tab")]
+    public string? QueryTab { get; set; }
+
+    private string mainTab = "finance";
+    private string operationSubTab = "outstanding";
+
+    private System.Security.Claims.ClaimsPrincipal? currentUser;
+
+    private bool IsAdminOrCEO => currentUser != null && (currentUser.IsInRole("Admin") || currentUser.IsInRole("Administrator") || currentUser.IsInRole("Manager"));
+    private bool IsAccountant => currentUser != null && currentUser.IsInRole("Accountant");
+    private bool IsHR => currentUser != null && currentUser.IsInRole("HR");
+    private bool IsStaffOnly => currentUser != null && currentUser.IsInRole("Staff") && !IsAdminOrCEO && !IsAccountant && !IsHR;
+
+    private bool CanAccessFinance => IsAdminOrCEO || IsAccountant;
+    private bool CanAccessHR => IsAdminOrCEO || IsHR;
+    private bool CanAccessEmployees => IsAdminOrCEO || IsHR;
+    private bool CanAccessPayroll => IsAdminOrCEO || IsAccountant || IsHR || IsStaffOnly;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        currentUser = auth.User;
+        EnsureValidTab();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(QueryTab))
+        {
+            mainTab = QueryTab.ToLowerInvariant() switch
+            {
+                "finance" or "revenue" or "expenses" or "dashboard" => "finance",
+                "payroll" or "salary" => "payroll",
+                "hr" or "nhansu" => "hr",
+                "employees" or "nhanvien" => "employees",
+                "operations" or "rooms" => "operations",
+                _ => mainTab
+            };
+        }
+        EnsureValidTab();
+    }
+
+    private void EnsureValidTab()
+    {
+        if (currentUser == null) return;
+
+        if (mainTab == "finance" && !CanAccessFinance)
+        {
+            if (CanAccessHR) mainTab = "hr";
+            else if (CanAccessPayroll) mainTab = "payroll";
+            else mainTab = "operations";
+        }
+        else if ((mainTab == "hr" || mainTab == "employees") && !CanAccessHR)
+        {
+            if (CanAccessFinance) mainTab = "finance";
+            else if (CanAccessPayroll) mainTab = "payroll";
+            else mainTab = "operations";
+        }
+    }
+
+    private void SwitchMainTab(string tab)
+    {
+        mainTab = tab;
+    }
+
+    private string GetUserRole(System.Security.Claims.ClaimsPrincipal user)
+    {
+        if (user.IsInRole("Admin") || user.IsInRole("Administrator")) return "Quản Trị Viên (Admin)";
+        if (user.IsInRole("Manager")) return "Giám Đốc / Quản Lý (Host/CEO)";
+        if (user.IsInRole("Accountant")) return "Kế Toán Trưởng (CFO)";
+        if (user.IsInRole("HR")) return "Trưởng Phòng Nhân Sự (COO)";
+        if (user.IsInRole("Staff")) return "Nhân Viên / Lễ Tân";
+        return "Người Dùng Hệ Thống";
+    }
 }

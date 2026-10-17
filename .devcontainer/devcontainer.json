@@ -1,0 +1,36 @@
+{
+  "name": "Kim Long EcoStay (Blazor .NET + SQL Server)",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": "true"
+    },
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "latest"
+    }
+  },
+  "forwardPorts": [5204, 1433],
+  "portsAttributes": {
+    "5204": {
+      "label": "Kim Long EcoStay Web App",
+      "onAutoForward": "openBrowser",
+      "visibility": "public"
+    },
+    "1433": {
+      "label": "SQL Server 2022 Database",
+      "onAutoForward": "silent",
+      "visibility": "private"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "ms-mssql.mssql"
+      ]
+    }
+  }
+}

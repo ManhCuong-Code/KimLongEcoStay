@@ -31,22 +31,43 @@ namespace KimLongEcoStay.UseCases.ShoppingCartScreen
 
         public async Task<string?> Execute(Order order)
         {
-            // 1. Kiểm tra tính hợp lệ của đơn hàng và thông tin khách hàng qua OrderService
+            // 1. Tự động sinh mã UniqueId nếu chưa có
+            if (string.IsNullOrEmpty(order.UniqueId))
+            {
+                string timestamp = DateTime.Now.ToString("yyyyMMdd");
+                string randomSuffix = Random.Shared.Next(100, 999).ToString();
+                order.UniqueId = $"KLE-{timestamp}-{randomSuffix}";
+            }
+
+            // 2. Kiểm tra tính hợp lệ của đơn hàng và thông tin khách hàng qua OrderService
             if (!orderService.ValidateCreateOrder(order)) return null;
 
-            // 2. Thiết lập ngày đặt hàng hiện tại (UTC)
+            // 3. Thiết lập ngày đặt hàng hiện tại (UTC)
             order.DatePlaced = DateTime.UtcNow;
 
-            // 3. Lưu đơn hàng vào kho lưu trữ OrderRepository
+            // 4. Lưu đơn hàng vào kho lưu trữ OrderRepository
             orderRepository.CreateOrder(order);
 
-            // 4. Dọn sạch giỏ hàng trong LocalStorage của trình duyệt
-            await shoppingCart.EmptyAsync();
+            // 5. Dọn sạch giỏ hàng trong LocalStorage của trình duyệt
+            try
+            {
+                await shoppingCart.EmptyAsync();
+            }
+            catch
+            {
+                // Bỏ qua lỗi giỏ hàng nếu LocalStorage chưa sẵn sàng
+            }
 
-            // 5. Cập nhật huy hiệu giỏ hàng trên TopNavbar về số 0
-            shoppingCartStateStore.UpdateLineItemsCount();
+            // 6. Cập nhật huy hiệu giỏ hàng trên TopNavbar về số 0
+            try
+            {
+                shoppingCartStateStore.UpdateLineItemsCount();
+            }
+            catch
+            {
+            }
 
-            // 6. Trả về mã UniqueId (GUID) để chuyển sang trang xác nhận đơn hàng
+            // 7. Trả về mã UniqueId để chuyển sang trang xác nhận đơn hàng
             return order.UniqueId;
         }
     }

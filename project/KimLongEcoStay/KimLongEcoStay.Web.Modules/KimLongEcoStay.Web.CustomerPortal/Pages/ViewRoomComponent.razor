@@ -184,10 +184,18 @@
 
                     <!-- Nút Đặt Phòng & Tra Cứu -->
                     <div class="mt-auto">
-                        <button class="btn btn-success btn-lg w-100 fw-bold py-3 shadow d-flex align-items-center justify-content-center gap-2 rounded-3 mb-2" @onclick="AddToCart">
-                            <i class="bi bi-bag-plus-fill fs-5"></i>
-                            <span>CHỌN PHÒNG NÀY & ĐẶT CỌC VIETQR</span>
+                        <button class="btn btn-success btn-lg w-100 fw-bold py-3 shadow d-flex align-items-center justify-content-center gap-2 rounded-3 mb-2" @onclick="QuickBook">
+                            <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+                            <span>ĐẶT PHÒNG NHANH & NHẬN MÃ SMARTLOCK</span>
                         </button>
+                        <div class="d-flex gap-2 mb-2">
+                            <button class="btn btn-outline-success flex-grow-1 btn-sm rounded-pill py-2 fw-semibold" @onclick="AddToCart">
+                                <i class="bi bi-cart-plus me-1"></i>Thêm Vào Lịch Trình
+                            </button>
+                            <a href="tel:0905123456" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2 fw-semibold" title="Gọi Hotline đặt phòng trực tiếp">
+                                <i class="bi bi-telephone-fill me-1"></i>0905.123.456
+                            </a>
+                        </div>
                         <a href="/lookup" class="btn btn-outline-secondary w-100 btn-sm rounded-pill">
                             <i class="bi bi-key-fill text-warning me-1"></i>Đã có phòng? Tra cứu mã PIN SmartLock tại đây
                         </a>
@@ -301,11 +309,20 @@ else
         }
     }
 
-    private void AddToCart()
+    private async Task QuickBook()
     {
         if (product != null)
         {
-            AddProductToCartUseCase.Execute(product.productId);
+            await AddProductToCartUseCase.ExecuteAsync(product.productId);
+            NavigationManager.NavigateTo($"/placeorder?roomId={product.productId}");
+        }
+    }
+
+    private async Task AddToCart()
+    {
+        if (product != null)
+        {
+            await AddProductToCartUseCase.ExecuteAsync(product.productId);
             NavigationManager.NavigateTo("/cart");
         }
     }
