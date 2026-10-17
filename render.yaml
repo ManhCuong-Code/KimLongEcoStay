@@ -1,0 +1,20 @@
+# =========================================================================
+# RENDER.COM BLUEPRINT CHO KIM LONG ECOSTAY (.NET 10 BACKEND)
+# Miễn phí (Free Tier), tự động build Dockerfile và cấp HTTPS công khai
+# =========================================================================
+services:
+  - type: web
+    name: kimlong-ecostay-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore
+    branch: main
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:5204
+      - key: PORT
+        value: 5204

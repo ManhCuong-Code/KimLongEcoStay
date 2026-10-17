@@ -1,6 +1,8 @@
 # 🌿 HỆ THỐNG ĐẶT PHÒNG TRỰC TUYẾN KIM LONG ECOSTAY
 
 [![Live Website](https://img.shields.io/badge/WEBSITE%20LIVE-TRUY%20C%E1%BA%ACP%20NGAY-success?style=for-the-badge&logo=googlechrome)](https://manhcuong-code.github.io/KimLongEcoStay/)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/manhcuong-code/KimLongEcoStay)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Fmanhcuong-code%2FKimLongEcoStay)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ManhCuong-Code/KimLongEcoStay)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0%20LTS-purple.svg)](https://dotnet.microsoft.com/)
 [![Blazor Server](https://img.shields.io/badge/Blazor-Server%20Interactive-blue.svg)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
@@ -756,3 +758,29 @@ Dự án đã được tích hợp sẵn cấu hình **GitHub Codespaces & DevCo
    - Tìm cổng **5204 (Kim Long EcoStay Web App)**.
    - Chuột phải vào cổng 5204 > Chọn **Port Visibility** > **Public**.
    - Nhấn biểu tượng quả địa cầu (Open in Browser) để nhận đường link HTTPS online toàn cầu (ví dụ: `https://xxx-5204.app.github.dev`) chia sẻ cho mọi người truy cập trực tiếp!
+
+---
+
+## 🌐 9. TRIỂN KHAI BACKEND CLOUD & MÁY CHỦ INTERNET ĐỘC LẬP (RAILWAY, RENDER, DOCKER & TUNNEL)
+
+Để website hoạt động 24/7 trực tuyến trơn tru mượt mà như localhost mà không cần mở máy tính cá nhân, dự án đã chuẩn bị đầy đủ hệ sinh thái Cloud Deployment:
+
+### 9.1. Tùy Chọn 1: Triển Khai 1-Click Lên Nền Tảng Cloud (Render / Railway)
+* **Render.com Blueprint (`render.yaml`):**
+  - Đã tích hợp sẵn file [render.yaml](render.yaml) cấu hình Web Service Docker trên vùng Singapore (tối ưu độ trễ cho Việt Nam).
+  - Nhấp vào nút: [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/manhcuong-code/KimLongEcoStay) để triển khai tự động.
+* **Railway.app Blueprint (`railway.json` & `Dockerfile`):**
+  - Đã tích hợp sẵn file [railway.json](railway.json) và [Dockerfile](Dockerfile).
+  - Nhấp vào nút: [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Fmanhcuong-code%2FKimLongEcoStay) để kết nối GitHub repo và tự động deploy.
+
+### 9.2. Tùy Chọn 2: Triển Khai Docker Compose Độc Lập (.NET 10 + SQL Server)
+Chạy cả Backend ASP.NET Core và SQL Server 2022 với 1 lệnh duy nhất trên bất kỳ máy chủ Linux / VPS nào:
+```bash
+docker compose up -d --build
+```
+Hệ thống sẽ tự khởi tạo SQL Server, migrate CSDL KimLongEcoStayDB và mở cổng Kestrel tự động.
+
+### 9.3. Tùy Chọn 3: Mở Cổng Server Localhost Ra Toàn Cầu 1-Click (Public HTTPS Tunnel)
+Nếu muốn phát trực tiếp máy chủ đang chạy trên máy tính ra ngoài Internet với tên miền HTTPS công khai cho điện thoại, đối tác hoặc ban giám khảo kiểm tra:
+* Chỉ cần nhấp đúp file: **`MO_CONG_ONLINE_INTERNET.bat`** (đã tích hợp trong thư mục gốc dự án).
+* Hệ thống sẽ tự kiểm tra cổng 5204 và cấp một đường link HTTPS công khai (ví dụ `https://xxx.lhr.life`) để truy cập từ bất kỳ đâu trên thế giới!

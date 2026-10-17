@@ -38,4 +38,4 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 COPY --from=build /app/publish .
 
-ENTRYPOINT ["dotnet", "KimLongEcoStay.Web.dll"]
+ENTRYPOINT ["sh", "-c", "dotnet KimLongEcoStay.Web.dll --urls http://+:${PORT:-5204}"]
