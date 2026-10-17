@@ -3,8 +3,8 @@
 <nav class="navbar navbar-expand-xl navbar-dark kle-navbar px-3 px-lg-4 py-2 sticky-top shadow">
     <div class="container-fluid">
         <!-- Logo & Thương hiệu -->
-        <a class="brand-badge" href="/">
-            <img src="/images/logo.jpg" alt="Kim Long EcoStay" class="brand-logo-img" onerror="this.src='favicon.png'" />
+        <a class="brand-badge" href="">
+            <img src="images/logo.jpg" alt="Kim Long EcoStay" class="brand-logo-img" onerror="this.src='favicon.png'" />
             <div>
                 <span class="brand-text-title">Kim Long EcoStay</span>
                 <span class="brand-text-sub">Nhà Vườn Sinh Thái • Cố Đô Huế</span>
@@ -30,22 +30,22 @@
                     </NavLink>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link kle-nav-item" href="/#rooms">
+                    <a class="nav-link kle-nav-item" href="#rooms">
                         <i class="bi bi-door-open me-1"></i>Danh Sách Phòng Trống
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link kle-nav-item" href="/#gallery">
+                    <a class="nav-link kle-nav-item" href="#gallery">
                         <i class="bi bi-images me-1"></i>Thư Viện Ảnh
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link kle-nav-item" href="/#story">
+                    <a class="nav-link kle-nav-item" href="#story">
                         <i class="bi bi-flower1 me-1"></i>Văn Hóa Nhà Vườn
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link kle-nav-item" href="/#smart-tour">
+                    <a class="nav-link kle-nav-item" href="#smart-tour">
                         <i class="bi bi-bicycle me-1"></i>Tour Xe Đạp GPS
                     </a>
                 </li>
@@ -55,7 +55,7 @@
                     </NavLink>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link kle-nav-item" href="/#heritage-map">
+                    <a class="nav-link kle-nav-item" href="#heritage-map">
                         <i class="bi bi-map-fill text-warning me-1"></i>Bản Đồ Di Tích & Làng Nghề
                     </a>
                 </li>
@@ -86,7 +86,7 @@
                         @if (context.User.IsInRole("Admin") || context.User.IsInRole("Staff") || context.User.IsInRole("Administrator") || context.User.IsInRole("Manager") || context.User.IsInRole("HR") || context.User.IsInRole("Accountant"))
                         {
                             <li class="nav-item">
-                                <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="/admin">
+                                <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="admin">
                                     <i class="bi bi-speedometer2 me-1"></i>Quản Trị (Admin)
                                 </a>
                             </li>
@@ -102,19 +102,19 @@
                         }
 
                         <li class="nav-item">
-                            <a class="btn btn-outline-danger btn-sm rounded-pill px-3" href="/logout">
+                            <a class="btn btn-outline-danger btn-sm rounded-pill px-3" href="logout">
                                 <i class="bi bi-box-arrow-right me-1"></i>Thoát
                             </a>
                         </li>
                     </Authorized>
                     <NotAuthorized>
                         <li class="nav-item">
-                            <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="/admin" title="Cổng điều hành & quản trị homestay">
+                            <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="admin" title="Cổng điều hành & quản trị homestay">
                                 <i class="bi bi-shield-lock-fill me-1"></i>Quản Trị (Admin)
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="/login">
+                            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="login">
                                 <i class="bi bi-person me-1"></i>Đăng Nhập
                             </a>
                         </li>

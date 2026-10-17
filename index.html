@@ -1,7 +1,38 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <base href="/KimLongEcoStay/">
+    <script>
+        // Single Page Apps for GitHub Pages - Redirect Handler
+        (function(l) {
+            if (l.search[1] === '/' ) {
+                var decoded = l.search.slice(1).split('&').map(function(s) { 
+                    return s.replace(/~and~/g, '&');
+                }).join('?');
+                window.history.replaceState(null, null,
+                    l.pathname.slice(0, -1) + decoded + l.hash
+                );
+            } else if (l.search.indexOf('?p=/') === 0 || l.search.indexOf('?route=') === 0) {
+                var q = new URLSearchParams(l.search);
+                var p = q.get('p') || q.get('route') || '';
+                if (p) {
+                    if (p.indexOf('/') !== 0) p = '/' + p;
+                    window.history.replaceState(null, null,
+                        l.pathname.slice(0, -1) + p + l.hash
+                    );
+                }
+            }
+            // Dynamic base href adapter for localhost / subpath
+            var baseEl = document.querySelector('base');
+            if (baseEl) {
+                if (l.hostname === 'localhost' || l.hostname === '127.0.0.1' || l.protocol === 'file:') {
+                    if (l.pathname.indexOf('/KimLongEcoStay') === -1) {
+                        baseEl.setAttribute('href', '/');
+                    }
+                }
+            }
+        })(window.location);
+    </script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +48,7 @@
 
 <body>
 
-<div class="d-flex flex-column min-vh-100" b-w21kv7vhyh><nav class="navbar navbar-expand-xl navbar-dark kle-navbar px-3 px-lg-4 py-2 sticky-top shadow"><div class="container-fluid"><a class="brand-badge" href="/"><img src="images/logo.jpg" alt="Kim Long EcoStay" class="brand-logo-img" onerror="this.src='favicon.png'">
+<div class="d-flex flex-column min-vh-100" b-w21kv7vhyh><nav class="navbar navbar-expand-xl navbar-dark kle-navbar px-3 px-lg-4 py-2 sticky-top shadow"><div class="container-fluid"><a class="brand-badge" href="./" onclick="navigateToRoute(''); return false;"><img src="images/logo.jpg" alt="Kim Long EcoStay" class="brand-logo-img" onerror="this.src='favicon.png'">
             <div><span class="brand-text-title">Kim Long EcoStay</span>
                 <span class="brand-text-sub">Nhà Vườn Sinh Thái • Cố Đô Huế</span></div></a>
 
@@ -29,36 +60,60 @@
         
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"><span class="navbar-toggler-icon"></span></button>
 
-        <div class="collapse navbar-collapse" id="navbarMain"><ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-4 align-items-xl-center gap-1"><li class="nav-item"><a href="" class="nav-link kle-nav-item active" aria-current="page"><i class="bi bi-house-door me-1"></i>Trang Chủ
-                    </a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#rooms"><i class="bi bi-door-open me-1"></i>Danh Sách Phòng Trống
-                    </a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#gallery"><i class="bi bi-images me-1"></i>Thư Viện Ảnh
-                    </a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#rooms"><i class="bi bi-flower1 me-1"></i>Văn Hóa Nhà Vườn
-                    </a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map"><i class="bi bi-bicycle me-1"></i>Tour Xe Đạp GPS
-                    </a></li>
-                <li class="nav-item"><a href="javascript:void(0)" onclick="openLookupModal()" style="color: #FDE047 !important;" class="nav-link kle-nav-item fw-bold"><i class="bi bi-key-fill text-warning me-1"></i>Tra Cứu Mã Khóa
-                    </a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map"><i class="bi bi-map-fill text-warning me-1"></i>Bản Đồ Di Tích & Làng Nghề
-                    </a></li>
-                <li class="nav-item"><a href="javascript:void(0)" onclick="openAiChatModal()" style="color: #6EE7B7 !important;" class="nav-link kle-nav-item fw-bold"><i class="bi bi-robot text-success me-1"></i>Trợ Lý AI
-                    </a></li></ul>
+        <div class="collapse navbar-collapse" id="navbarMain"><ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-4 align-items-xl-center gap-1">
+                <li class="nav-item"><a href="./" onclick="navigateToRoute(''); return false;" class="nav-link kle-nav-item active" aria-current="page"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#rooms"><i class="bi bi-door-open me-1"></i>Danh Sách Phòng</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#gallery"><i class="bi bi-images me-1"></i>Thư Viện Ảnh</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#story"><i class="bi bi-flower1 me-1"></i>Văn Hóa Nhà Vườn</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map"><i class="bi bi-bicycle me-1"></i>Tour Xe Đạp GPS</a></li>
+                <li class="nav-item"><a href="lookup" onclick="navigateToRoute('lookup'); return false;" style="color: #FDE047 !important;" class="nav-link kle-nav-item fw-bold"><i class="bi bi-key-fill text-warning me-1"></i>Tra Cứu Mã Khóa</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map"><i class="bi bi-map-fill text-warning me-1"></i>Bản Đồ Di Tích</a></li>
+                <li class="nav-item"><a href="ai-assistant" onclick="navigateToRoute('ai-assistant'); return false;" style="color: #6EE7B7 !important;" class="nav-link kle-nav-item fw-bold"><i class="bi bi-robot text-success me-1"></i>Trợ Lý AI</a></li>
+                <!-- Phân Hệ Quản Trị & Vận Hành Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle kle-nav-item fw-bold text-warning" href="javascript:void(0)" id="subpagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-grid-fill me-1"></i>Phân Hệ
+                    </a>
+                    <ul class="dropdown-menu shadow-lg border-0 rounded-3 p-2" aria-labelledby="subpagesDropdown" style="min-width: 230px;">
+                        <li><a class="dropdown-item rounded-2 py-2 fw-semibold" href="dashboard" onclick="navigateToRoute('dashboard'); return false;"><i class="bi bi-graph-up-arrow text-success me-2"></i>Dashboard Tài Chính</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2 fw-semibold" href="nhanvien" onclick="navigateToRoute('nhanvien'); return false;"><i class="bi bi-people-fill text-primary me-2"></i>Quản Lý Nhân Viên</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2 fw-semibold" href="luong" onclick="navigateToRoute('luong'); return false;"><i class="bi bi-cash-stack text-warning me-2"></i>Quản Lý Tiền Lương</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2 fw-semibold" href="duan" onclick="navigateToRoute('duan'); return false;"><i class="bi bi-kanban text-info me-2"></i>Quản Lý Dự Án / Phòng</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item rounded-2 py-2 fw-bold text-success" href="admin" onclick="navigateToRoute('admin'); return false;"><i class="bi bi-shield-lock-fill me-2"></i>Cổng Quản Trị (Admin)</a></li>
+                    </ul>
+                </li>
+            </ul>
 
-            
-            <ul class="navbar-nav ms-auto align-items-xl-center gap-3"><li class="nav-item d-none d-lg-block"><a href="tel:0905123456" class="hotline-pill"><i class="bi bi-telephone-fill"></i>
-                        <span>0905.123.456</span></a></li>
+            <ul class="navbar-nav ms-auto align-items-xl-center gap-3">
+                <li class="nav-item d-none d-lg-block">
+                    <a href="tel:0905123456" class="hotline-pill">
+                        <i class="bi bi-telephone-fill"></i>
+                        <span>0905.123.456</span>
+                    </a>
+                </li>
 
-                
-                <li class="nav-item d-none d-xl-block"><a href="javascript:void(0)" onclick="openCartModal()" class="kle-cart-nav-btn text-decoration-none" title="Xem danh s&#xE1;ch bu&#x1ED3;ng ph&#xF2;ng &#x111;&#xE3; ch&#x1ECD;n"><div class="kle-cart-icon-box"><i class="bi bi-door-open-fill fs-6"></i></div>
-    <div class="kle-cart-text-wrap d-none d-sm-flex text-start"><span class="kle-cart-title">Phòng Đã Chọn</span>
-        <span class="kle-cart-sub">Ch&#x1B0;a ch&#x1ECD;n ph&#xF2;ng</span></div></a></li>
+                <li class="nav-item d-none d-xl-block">
+                    <a href="cart" onclick="navigateToRoute('cart'); return false;" class="kle-cart-nav-btn text-decoration-none" title="Xem danh sách buồng phòng đã chọn">
+                        <div class="kle-cart-icon-box"><i class="bi bi-door-open-fill fs-6"></i></div>
+                        <div class="kle-cart-text-wrap d-none d-sm-flex text-start">
+                            <span class="kle-cart-title">Phòng Đã Chọn</span>
+                            <span class="kle-cart-sub">Chưa chọn phòng</span>
+                        </div>
+                    </a>
+                </li>
 
-                <li class="nav-item"><a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="https://radius-analyst-diana-sustained.trycloudflare.com/admin" target="_blank" title="Cổng điều hành & quản trị homestay"><i class="bi bi-shield-lock-fill me-1"></i>Quản Trị (Admin)
-                            </a></li>
-                        <li class="nav-item"><a class="btn btn-outline-light btn-sm rounded-pill px-3" href="https://radius-analyst-diana-sustained.trycloudflare.com/login" target="_blank"><i class="bi bi-person me-1"></i>Đăng Nhập
-                            </a></li></ul></div></div></nav>
+                <li class="nav-item">
+                    <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="admin" onclick="navigateToRoute('admin'); return false;" title="Cổng điều hành & quản trị homestay">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Quản Trị (Admin)
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="login" onclick="navigateToRoute('login'); return false;">
+                        <i class="bi bi-person me-1"></i>Đăng Nhập
+                    </a>
+                </li>
+            </ul></div></div></nav>
 
     <main class="flex-grow-1" b-w21kv7vhyh>
 
@@ -1731,9 +1786,9 @@
 
                 
                 <div class="col-lg-3 col-md-6" b-w21kv7vhyh><h6 class="text-gold fw-bold text-uppercase mb-3" style="letter-spacing: 1px;" b-w21kv7vhyh>Cam Kết Dịch Vụ</h6>
-                    <ul class="footer-link-list" b-w21kv7vhyh><li b-w21kv7vhyh><a href="/#amenities" b-w21kv7vhyh><i class="bi bi-shield-check me-2 text-success" b-w21kv7vhyh></i>0% Trùng phòng (Overbooking)</a></li>
-                        <li b-w21kv7vhyh><a href="/#amenities" b-w21kv7vhyh><i class="bi bi-qr-code me-2 text-warning" b-w21kv7vhyh></i>Cọc 50% VietQR tự động</a></li>
-                        <li b-w21kv7vhyh><a href="/#amenities" b-w21kv7vhyh><i class="bi bi-arrow-repeat me-2 text-info" b-w21kv7vhyh></i>Hoàn cọc 100% trước 48h</a></li>
+                    <ul class="footer-link-list" b-w21kv7vhyh><li b-w21kv7vhyh><a href="#amenities" b-w21kv7vhyh><i class="bi bi-shield-check me-2 text-success" b-w21kv7vhyh></i>0% Trùng phòng (Overbooking)</a></li>
+                        <li b-w21kv7vhyh><a href="#amenities" b-w21kv7vhyh><i class="bi bi-qr-code me-2 text-warning" b-w21kv7vhyh></i>Cọc 50% VietQR tự động</a></li>
+                        <li b-w21kv7vhyh><a href="#amenities" b-w21kv7vhyh><i class="bi bi-arrow-repeat me-2 text-info" b-w21kv7vhyh></i>Hoàn cọc 100% trước 48h</a></li>
                         <li b-w21kv7vhyh><a href="#heritage-map" b-w21kv7vhyh><i class="bi bi-headphones me-2 text-primary" b-w21kv7vhyh></i>GPS Audio Guide 3 ngôn ngữ</a></li>
                         <li b-w21kv7vhyh><a href="#heritage-map" b-w21kv7vhyh><i class="bi bi-bicycle me-2 text-success" b-w21kv7vhyh></i>Xe đạp trợ lực điện Eco-Bike</a></li></ul></div>
 
@@ -2076,6 +2131,581 @@
   </div>
 </div>
 
+
+<!-- ========================================================================= -->
+<!-- 7. ADMIN PORTAL MODAL (DASHBOARD, NHÂN VIÊN, TIỀN LƯƠNG, DỰ ÁN, LOGIN) -->
+<!-- ========================================================================= -->
+<div class="modal fade" id="adminPortalModal" tabindex="-1" aria-labelledby="adminPortalModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden" style="background: #F8FAFC;">
+      <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #0A3D2C 0%, #14533D 100%); border-bottom: 2px solid #D4AF37;">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; background: rgba(212, 175, 55, 0.2); border: 2px solid #D4AF37;">
+            <i class="bi bi-shield-lock-fill fs-4" style="color: #FDE047;"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+              <span class="badge rounded-pill fw-bold" style="background: #D4AF37; color: #0A3D2C;">HỆ THỐNG ĐIỀU HÀNH</span>
+              <span class="badge bg-success bg-opacity-25 text-white border border-success rounded-pill px-2">
+                <i class="bi bi-cpu-fill me-1 text-warning"></i>5 Khóa IoT Online
+              </span>
+              <span id="adminSessionBadge" class="badge bg-primary rounded-pill px-2">
+                <i class="bi bi-person-check-fill me-1"></i>Trần Mạnh Cường (Admin)
+              </span>
+            </div>
+            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="adminPortalModalLabel">
+              Trung Tâm Quản Trị & Vận Hành Kim Long EcoStay
+            </h5>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng" onclick="onCloseAdminModal()"></button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="px-4 pt-3 pb-2 bg-white border-bottom shadow-sm">
+        <ul class="nav nav-pills nav-fill gap-2 flex-wrap" id="adminPortalNavTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2 active" id="tab-btn-dashboard" data-bs-toggle="pill" data-bs-target="#tab-pane-dashboard" type="button" role="tab" onclick="onAdminTabSwitch('dashboard')">
+              <i class="bi bi-graph-up-arrow text-success fs-5"></i>
+              <span>Dashboard Tài Chính</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-nhanvien" data-bs-toggle="pill" data-bs-target="#tab-pane-nhanvien" type="button" role="tab" onclick="onAdminTabSwitch('nhanvien')">
+              <i class="bi bi-people-fill text-primary fs-5"></i>
+              <span>Quản Lý Nhân Viên</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-luong" data-bs-toggle="pill" data-bs-target="#tab-pane-luong" type="button" role="tab" onclick="onAdminTabSwitch('luong')">
+              <i class="bi bi-cash-stack text-warning fs-5"></i>
+              <span>Quản Lý Tiền Lương</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-duan" data-bs-toggle="pill" data-bs-target="#tab-pane-duan" type="button" role="tab" onclick="onAdminTabSwitch('duan')">
+              <i class="bi bi-kanban text-info fs-5"></i>
+              <span>Vận Hành Dự Án / Phòng</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-login" data-bs-toggle="pill" data-bs-target="#tab-pane-login" type="button" role="tab" onclick="onAdminTabSwitch('login')">
+              <i class="bi bi-person-lock text-danger fs-5"></i>
+              <span>Đăng Nhập Quản Trị</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tab Content Panes -->
+      <div class="modal-body p-4 bg-light">
+        <div class="tab-content" id="adminPortalTabContent">
+
+          <!-- 1. DASHBOARD TÀI CHÍNH -->
+          <div class="tab-pane fade show active" id="tab-pane-dashboard" role="tabpanel">
+            <div class="row g-3 mb-4">
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-success">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">DOANH THU THÁNG 10</span>
+                    <span class="badge bg-success bg-opacity-10 text-success fw-bold">+18.4%</span>
+                  </div>
+                  <h3 class="fw-bold text-success mb-1">128.500.000 <small class="fs-6 text-muted">đ</small></h3>
+                  <div class="small text-muted"><i class="bi bi-check-circle-fill text-success me-1"></i>Đạt 107% kế hoạch tháng</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-warning">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">CHI PHÍ VẬN HÀNH</span>
+                    <span class="badge bg-warning bg-opacity-10 text-warning fw-bold">37.5% DT</span>
+                  </div>
+                  <h3 class="fw-bold text-dark mb-1">48.200.000 <small class="fs-6 text-muted">đ</small></h3>
+                  <div class="small text-muted"><i class="bi bi-shield-check text-warning me-1"></i>Kiểm soát tối ưu định phí</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-primary">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">LỢI NHUẬN RÒNG (EBITDA)</span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold">62.5%</span>
+                  </div>
+                  <h3 class="fw-bold text-primary mb-1">80.300.000 <small class="fs-6 text-muted">đ</small></h3>
+                  <div class="small text-muted"><i class="bi bi-arrow-up-right text-primary me-1"></i>Tăng trưởng bền vững</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-info">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">CÔNG SUẤT LẤP ĐẦY</span>
+                    <span class="badge bg-info bg-opacity-10 text-info fw-bold">5 Phòng Mẫu</span>
+                  </div>
+                  <h3 class="fw-bold text-info mb-1">84.6% <small class="fs-6 text-muted">trung bình</small></h3>
+                  <div class="small text-muted"><i class="bi bi-calendar-check text-info me-1"></i>Cuối tuần đạt 95%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+              <div class="col-lg-7">
+                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white h-100">
+                  <h6 class="fw-bold font-serif text-dark mb-3"><i class="bi bi-bar-chart-fill text-success me-2"></i>Doanh Thu 6 Tháng Gần Nhất (Triệu VNĐ)</h6>
+                  <div class="d-flex flex-column gap-3">
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 05/2026</span><strong>68.0 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-secondary" style="width: 53%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 06/2026</span><strong>82.5 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-info" style="width: 64%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 07/2026</span><strong>104.2 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" style="width: 81%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 08/2026</span><strong>118.0 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-warning text-dark" style="width: 92%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 09/2026</span><strong>110.4 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" style="width: 86%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 10/2026 (Hiện tại)</span><strong class="text-success">128.5 tr đ (Đỉnh điểm)</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-success" style="width: 100%;"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-5">
+                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white h-100">
+                  <h6 class="fw-bold font-serif text-dark mb-3"><i class="bi bi-pie-chart-fill text-warning me-2"></i>Cơ Cấu Nguồn Doanh Thu</h6>
+                  <div class="d-flex flex-column gap-3">
+                    <div class="p-3 rounded-3 bg-light border-start border-3 border-success">
+                      <div class="d-flex justify-content-between fw-bold mb-1"><span>🌿 Thuê phòng lưu trú</span><span>92.520.000 đ (72%)</span></div>
+                      <small class="text-muted">5 buồng phòng sinh thái ven sông Hương & vườn bưởi</small>
+                    </div>
+                    <div class="p-3 rounded-3 bg-light border-start border-3 border-warning">
+                      <div class="d-flex justify-content-between fw-bold mb-1"><span>🍵 Ẩm thực & Trà Sen Cung Đình</span><span>23.130.000 đ (18%)</span></div>
+                      <small class="text-muted">Bánh ướt thịt nướng, ngâm chân thảo mộc Cung Đình</small>
+                    </div>
+                    <div class="p-3 rounded-3 bg-light border-start border-3 border-primary">
+                      <div class="d-flex justify-content-between fw-bold mb-1"><span>🚲 Tour Xe Đạp Trợ Lực GPS</span><span>12.850.000 đ (10%)</span></div>
+                      <small class="text-muted">Cho thuê xe đạp Eco-Bike & GPS Audio Guide di sản</small>
+                    </div>
+                  </div>
+                  <div class="alert alert-success border-0 rounded-3 mt-3 mb-0 p-2 small text-center">
+                    <i class="bi bi-shield-check text-success me-1"></i><strong>Tiết kiệm 18.500.000 đ</strong> hoa hồng OTA nhờ Direct Booking & SmartLock!
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. QUẢN LÝ NHÂN VIÊN -->
+          <div class="tab-pane fade" id="tab-pane-nhanvien" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0"><i class="bi bi-people-fill text-primary me-2"></i>Danh Sách Đội Ngũ Nhân Sự & Sáng Lập (7 Nhân Sự)</h6>
+                <small class="text-muted">Đội ngũ vận hành mô hình nhà vườn sinh thái & giải pháp SmartLock IoT</small>
+              </div>
+              <div class="d-flex gap-2">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success p-2 rounded-pill">5 Toàn thời gian</span>
+                <span class="badge bg-info bg-opacity-10 text-info border border-info p-2 rounded-pill">2 Bán thời gian</span>
+              </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-3">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Họ và Tên</th>
+                      <th>Vị Trí & Chức Vụ</th>
+                      <th>Phòng Ban</th>
+                      <th>Hình Thức</th>
+                      <th>KPI Hoàn Thành</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-4">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-primary text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">MC</div><div><strong class="d-block text-dark">Trần Mạnh Cường</strong><small class="text-muted">cuong.tran@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-danger">Giám Đốc Điều Hành (CEO)</span></td>
+                      <td>Ban Giám Đốc</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">98.5%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Trần Mạnh Cường - CEO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-success text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">ML</div><div><strong class="d-block text-dark">Lê Thị Mai Lan</strong><small class="text-muted">lan.le@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-warning text-dark">Kế Toán Trưởng (CFO)</span></td>
+                      <td>Tài Chính - Kế Toán</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">97.0%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Lê Thị Mai Lan - CFO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-info text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">VA</div><div><strong class="d-block text-dark">Nguyễn Văn An</strong><small class="text-muted">an.nguyen@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-primary">Trưởng Phòng Vận Hành (COO)</span></td>
+                      <td>Vận Hành Buồng Phòng</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">96.0%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Nguyễn Văn An - COO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-warning text-dark fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">NL</div><div><strong class="d-block text-dark">Hoàng Nhật Linh</strong><small class="text-muted">linh.hoang@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-info text-dark">Trưởng Phòng Marketing (CMO)</span></td>
+                      <td>Tiếp Thị & Đối Tác OTA</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">95.5%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Hoàng Nhật Linh - CMO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-dark text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">QA</div><div><strong class="d-block text-dark">Phạm Quỳnh Anh</strong><small class="text-muted">anh.pham@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-dark">Kỹ Sư IoT & Phần Mềm (CTO)</span></td>
+                      <td>Công Nghệ & SmartLock</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">99.0%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Phạm Quỳnh Anh - CTO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-secondary text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">TT</div><div><strong class="d-block text-dark">Đặng Thu Thảo</strong><small class="text-muted">thao.dang@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-success">Lễ Tân Ca Sáng & Trà Sen</span></td>
+                      <td>Dịch Vụ Khách Hàng</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">96.5%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Đặng Thu Thảo - Lễ Tân Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-secondary text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">QB</div><div><strong class="d-block text-dark">Trần Quốc Bảo</strong><small class="text-muted">bao.tran@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-secondary">Lễ Tân Ca Chiều & Xe Đạp</span></td>
+                      <td>Dịch Vụ Vận Hành</td>
+                      <td>Bán thời gian</td>
+                      <td><span class="fw-bold text-success">94.0%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Trần Quốc Bảo - Lễ Tân Bán Thời Gian')">Chi tiết</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. QUẢN LÝ TIỀN LƯƠNG -->
+          <div class="tab-pane fade" id="tab-pane-luong" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0"><i class="bi bi-cash-stack text-warning me-2"></i>Bảng Lương Tháng 10/2026 (Kỳ Chi Trả Ngày 05/11/2026)</h6>
+                <small class="text-muted">Tính lương theo hợp đồng lao động, phụ cấp và thưởng KPI buồng phòng</small>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="alert('Đã xuất file bảng lương Excel: BangLuong_KimLongEcoStay_10_2026.xlsx')">
+                  <i class="bi bi-file-earmark-excel me-1"></i>Xuất Excel
+                </button>
+                <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="alert('Đã tạo phiếu lương PDF cho toàn bộ 7 nhân sự!')">
+                  <i class="bi bi-printer me-1"></i>In Phiếu Lương
+                </button>
+              </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-3">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã NV</th>
+                      <th>Họ và Tên</th>
+                      <th>Chức Danh</th>
+                      <th>Lương Cơ Bản</th>
+                      <th>Phụ Cấp</th>
+                      <th>Thưởng KPI</th>
+                      <th>Thực Lĩnh</th>
+                      <th>Trạng Thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV001</td>
+                      <td><strong>Trần Mạnh Cường</strong></td>
+                      <td>CEO / Host</td>
+                      <td>15.000.000 đ</td>
+                      <td>2.000.000 đ</td>
+                      <td><span class="text-success fw-bold">+3.000.000 đ</span></td>
+                      <td><strong class="text-success fs-6">20.000.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV002</td>
+                      <td><strong>Lê Thị Mai Lan</strong></td>
+                      <td>CFO / Kế Toán</td>
+                      <td>10.500.000 đ</td>
+                      <td>1.500.000 đ</td>
+                      <td><span class="text-success fw-bold">+2.000.000 đ</span></td>
+                      <td><strong class="text-success fs-6">14.000.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV003</td>
+                      <td><strong>Nguyễn Văn An</strong></td>
+                      <td>COO / Vận Hành</td>
+                      <td>8.500.000 đ</td>
+                      <td>1.200.000 đ</td>
+                      <td><span class="text-success fw-bold">+1.500.000 đ</span></td>
+                      <td><strong class="text-success fs-6">11.200.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV004</td>
+                      <td><strong>Hoàng Nhật Linh</strong></td>
+                      <td>CMO / Tiếp Thị</td>
+                      <td>8.500.000 đ</td>
+                      <td>1.200.000 đ</td>
+                      <td><span class="text-success fw-bold">+1.500.000 đ</span></td>
+                      <td><strong class="text-success fs-6">11.200.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV005</td>
+                      <td><strong>Phạm Quỳnh Anh</strong></td>
+                      <td>CTO / IoT Hub</td>
+                      <td>9.000.000 đ</td>
+                      <td>1.500.000 đ</td>
+                      <td><span class="text-success fw-bold">+2.000.000 đ</span></td>
+                      <td><strong class="text-success fs-6">12.500.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV006</td>
+                      <td><strong>Đặng Thu Thảo</strong></td>
+                      <td>Lễ Tân Ca Sáng</td>
+                      <td>5.500.000 đ</td>
+                      <td>800.000 đ</td>
+                      <td><span class="text-success fw-bold">+1.000.000 đ</span></td>
+                      <td><strong class="text-success fs-6">7.300.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV007</td>
+                      <td><strong>Trần Quốc Bảo</strong></td>
+                      <td>Lễ Tân Ca Chiều</td>
+                      <td>4.000.000 đ</td>
+                      <td>500.000 đ</td>
+                      <td><span class="text-success fw-bold">+700.000 đ</span></td>
+                      <td><strong class="text-success fs-6">5.200.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="table-light fw-bold">
+                    <tr>
+                      <td colspan="3" class="ps-4 text-dark">TỔNG CỘNG QUỸ LƯƠNG THÁNG 10</td>
+                      <td>61.000.000 đ</td>
+                      <td>8.700.000 đ</td>
+                      <td class="text-success">+11.700.000 đ</td>
+                      <td class="text-success fs-5">81.400.000 đ</td>
+                      <td><span class="badge bg-primary">100% Đã chi trả</span></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. VẬN HÀNH DỰ ÁN / BUỒNG PHÒNG & KHÓA IOT -->
+          <div class="tab-pane fade" id="tab-pane-duan" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0"><i class="bi bi-kanban text-info me-2"></i>Tình Trạng 05 Buồng Phòng Sinh Thái & Khóa Thông Minh SmartLock IoT</h6>
+                <small class="text-muted">Cấp mã PIN tự động trong 10 giây qua Zalo & đồng bộ đám mây Hub Zigbee</small>
+              </div>
+              <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="alert('Đã làm mới dữ liệu trạng thái khóa IoT từ Gateway Kim Long!')">
+                <i class="bi bi-arrow-repeat me-1"></i>Làm Mới IoT Hub
+              </button>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6 col-xl-4">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-success">ĐÃ SẴN SÀNG</span>
+                    <span class="badge bg-light text-dark font-monospace">KLE-R101</span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1">Eco-Nest Ban Mai</h6>
+                  <p class="small text-muted mb-2">Nhà Vườn Hương Sen (View lúa & sông Hương)</p>
+                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span>Mã PIN Hiện Tại:</span>
+                      <strong class="font-monospace text-success fs-6">839201</strong>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                      <span>Pin Khóa: <strong>99%</strong></span>
+                      <span>Tín Hiệu: <strong>-48 dBm (Tốt)</strong></span>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill" onclick="alert('Đã cấp lại mã PIN mới cho phòng KLE-R101!')">Cấp Lại PIN</button>
+                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('101')">Thử Khóa</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-xl-4">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-warning">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-warning text-dark">ĐANG CÓ KHÁCH</span>
+                    <span class="badge bg-light text-dark font-monospace">KLE-R102</span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1">Eco-Nest Hoàng Hôn</h6>
+                  <p class="small text-muted mb-2">Nhà Vườn Hương Sen (View ráng chiều)</p>
+                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span>Mã PIN Hiện Tại:</span>
+                      <strong class="font-monospace text-primary fs-6">512940</strong>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                      <span>Pin Khóa: <strong>95%</strong></span>
+                      <span>Tín Hiệu: <strong>-52 dBm (Tốt)</strong></span>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-warning flex-fill rounded-pill text-dark" onclick="alert('Khách trả phòng: Đã gửi mã dọn dẹp cho tổ buồng phòng!')">Check-out</button>
+                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('102')">Thử Khóa</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-xl-4">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-info">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-info text-white">ĐÃ DỌN DẸP</span>
+                    <span class="badge bg-light text-dark font-monospace">KLE-R201</span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1">Garden Suite Cố Đô Thanh Trà</h6>
+                  <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Vườn bưởi 40 năm)</p>
+                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span>Mã PIN Hiện Tại:</span>
+                      <strong class="font-monospace text-success fs-6">724819</strong>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                      <span>Pin Khóa: <strong>97%</strong></span>
+                      <span>Tín Hiệu: <strong>-46 dBm (Tốt)</strong></span>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill" onclick="alert('Đã sẵn sàng đón tiếp khách!')">Bật Sẵn Sàng</button>
+                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('201')">Thử Khóa</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-xl-4">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-primary">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary">ĐÃ ĐẶT TRƯỚC</span>
+                    <span class="badge bg-light text-dark font-monospace">KLE-R202</span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1">Family Eco-Villa Gắn Kết</h6>
+                  <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Biệt thự sân vườn)</p>
+                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span>Mã PIN Hiện Tại:</span>
+                      <strong class="font-monospace text-primary fs-6">395104</strong>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                      <span>Pin Khóa: <strong>92%</strong></span>
+                      <span>Tín Hiệu: <strong>-55 dBm (Ổn định)</strong></span>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-success flex-fill rounded-pill" onclick="alert('Đã gửi mã PIN Zalo nhắc khách giờ nhận phòng 14:00!')">Gửi Zalo PIN</button>
+                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('202')">Thử Khóa</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-xl-4">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-success">ĐÃ SẴN SÀNG</span>
+                    <span class="badge bg-light text-dark font-monospace">KLE-R203</span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1">Heritage Studio Trầm Mặc</h6>
+                  <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Độc bản văn hóa)</p>
+                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span>Mã PIN Hiện Tại:</span>
+                      <strong class="font-monospace text-success fs-6">608372</strong>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                      <span>Pin Khóa: <strong>98%</strong></span>
+                      <span>Tín Hiệu: <strong>-49 dBm (Tốt)</strong></span>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill" onclick="alert('Đã làm mới mã PIN cho Heritage Studio!')">Cấp Lại PIN</button>
+                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('203')">Thử Khóa</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. ĐĂNG NHẬP QUẢN TRỊ -->
+          <div class="tab-pane fade" id="tab-pane-login" role="tabpanel">
+            <div class="row justify-content-center">
+              <div class="col-md-8 col-lg-6">
+                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
+                  <div class="text-center mb-4">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-2" style="background: rgba(10, 61, 44, 0.1);">
+                      <i class="bi bi-shield-lock-fill fs-2" style="color: #0A3D2C;"></i>
+                    </div>
+                    <h5 class="fw-bold font-serif text-dark mb-1">Đăng Nhập Cổng Điều Hành</h5>
+                    <p class="small text-muted mb-0">Hệ thống phân quyền bảo mật cho ban quản trị và nhân sự</p>
+                  </div>
+
+                  <form onsubmit="handleAdminLogin(event)">
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold text-muted">Tên Đăng Nhập / Email</label>
+                      <input type="text" id="adminLoginUser" class="form-control rounded-3" value="admin" required>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold text-muted">Mật Khẩu</label>
+                      <input type="password" id="adminLoginPass" class="form-control rounded-3" value="123456" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 rounded-pill py-2 fw-bold mb-3 shadow-sm">
+                      <i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống
+                    </button>
+                  </form>
+
+                  <div class="border-top pt-3">
+                    <div class="small text-muted fw-bold mb-2 text-center">HOẶC ĐĂNG NHẬP NHANH (MÔ PHỎNG VAI TRÒ):</div>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                      <button class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="quickLoginAs('Trần Mạnh Cường (Admin)', 'CEO')">👑 Admin (CEO)</button>
+                      <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="quickLoginAs('Đặng Thu Thảo (Lễ Tân)', 'Staff')">🛎️ Lễ Tân</button>
+                      <button class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3" onclick="quickLoginAs('Lê Thị Mai Lan (CFO)', 'CFO')">💰 Kế Toán Trưởng</button>
+                      <button class="btn btn-sm btn-outline-info text-dark rounded-pill px-3" onclick="quickLoginAs('Nguyễn Văn An (COO)', 'COO')">📋 Nhân Sự / Vận Hành</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 // =========================================================================
@@ -2615,6 +3245,216 @@ window.drawRoute = function(destCoords, spotName) {
 
   scrollToSection('heritage-map');
 };
+
+// =========================================================================
+// 8. SPA CLIENT-SIDE ROUTER & SUBPAGE NAVIGATION (/KimLongEcoStay/ ROUTING)
+// =========================================================================
+window.getBaseUrl = function() {
+  var baseEl = document.querySelector('base');
+  if (baseEl) {
+    var href = baseEl.getAttribute('href');
+    if (href) {
+      return href.endsWith('/') ? href : href + '/';
+    }
+  }
+  return '/KimLongEcoStay/';
+};
+
+window.normalizeRoute = function(route) {
+  if (!route) return '';
+  route = route.toString().trim();
+  // Strip origin or full URL if passed
+  if (route.startsWith('http://') || route.startsWith('https://')) {
+    try {
+      var parsed = new URL(route);
+      route = parsed.pathname;
+    } catch(e) {}
+  }
+  // Strip repo name /KimLongEcoStay/
+  if (route.startsWith('/KimLongEcoStay/')) {
+    route = route.substring('/KimLongEcoStay/'.length);
+  } else if (route.startsWith('KimLongEcoStay/')) {
+    route = route.substring('KimLongEcoStay/'.length);
+  } else if (route.startsWith('./')) {
+    route = route.substring(2);
+  } else if (route.startsWith('/')) {
+    route = route.substring(1);
+  }
+  // Remove hash or query params if any
+  route = route.split('?')[0].split('#')[0];
+  return route.replace(/\/+$/, '');
+};
+
+window.navigateToRoute = function(route) {
+  var cleanRoute = normalizeRoute(route);
+  var basePath = getBaseUrl();
+  var targetUrl = basePath + (cleanRoute ? cleanRoute : '');
+  
+  if (window.location.pathname !== targetUrl) {
+    window.history.pushState({ route: cleanRoute }, '', targetUrl);
+  }
+  activateRoute(cleanRoute);
+};
+
+window.openAdminPortalModal = function(subTab) {
+  subTab = normalizeRoute(subTab) || 'dashboard';
+  var modalEl = document.getElementById('adminPortalModal');
+  if (!modalEl) return;
+
+  var tabId = 'dashboard';
+  if (subTab === 'nhanvien') tabId = 'nhanvien';
+  else if (subTab === 'luong') tabId = 'luong';
+  else if (subTab === 'duan') tabId = 'duan';
+  else if (subTab === 'login') tabId = 'login';
+  else if (subTab === 'admin' || subTab === 'dashboard') tabId = 'dashboard';
+
+  // Activate tab button and pane
+  var tabBtn = document.getElementById('tab-btn-' + tabId);
+  if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+    var tabInstance = new bootstrap.Tab(tabBtn);
+    tabInstance.show();
+  }
+
+  var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+  modalInstance.show();
+};
+
+window.onAdminTabSwitch = function(tabName) {
+  var cleanTab = normalizeRoute(tabName);
+  var basePath = getBaseUrl();
+  var targetUrl = basePath + cleanTab;
+  window.history.pushState({ route: cleanTab }, '', targetUrl);
+};
+
+window.onCloseAdminModal = function() {
+  var basePath = getBaseUrl();
+  window.history.pushState({ route: '' }, '', basePath);
+};
+
+window.handleAdminLogin = function(e) {
+  if (e) e.preventDefault();
+  var user = document.getElementById('adminLoginUser').value.trim() || 'admin';
+  quickLoginAs(user + ' (Đã xác thực)', 'Admin');
+};
+
+window.quickLoginAs = function(displayName, role) {
+  var badge = document.getElementById('adminSessionBadge');
+  if (badge) {
+    badge.innerHTML = '<i class="bi bi-person-check-fill me-1"></i>' + displayName;
+  }
+  alert('Đăng nhập thành công với vai trò: ' + role + '!\nĐang kích hoạt quyền điều hành hệ thống.');
+  onAdminTabSwitch('dashboard');
+  var tabBtn = document.getElementById('tab-btn-dashboard');
+  if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+    new bootstrap.Tab(tabBtn).show();
+  }
+};
+
+window.activateRoute = function(cleanRoute) {
+  cleanRoute = normalizeRoute(cleanRoute);
+
+  if (!cleanRoute || cleanRoute === '' || cleanRoute === 'index.html') {
+    var adminModalEl = document.getElementById('adminPortalModal');
+    if (adminModalEl && typeof bootstrap !== 'undefined') {
+      var modalInst = bootstrap.Modal.getInstance(adminModalEl);
+      if (modalInst) modalInst.hide();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login'].indexOf(cleanRoute) !== -1) {
+    openAdminPortalModal(cleanRoute);
+    return;
+  }
+
+  if (cleanRoute === 'lookup') {
+    openLookupModal();
+    return;
+  }
+
+  if (cleanRoute === 'cart') {
+    openCartModal();
+    return;
+  }
+
+  if (cleanRoute === 'ai-assistant') {
+    openAiChatModal();
+    return;
+  }
+
+  if (cleanRoute === 'heritage-map' || cleanRoute === 'map') {
+    scrollToSection('heritage-map');
+    return;
+  }
+
+  if (cleanRoute === 'rooms') {
+    scrollToSection('rooms');
+    return;
+  }
+
+  if (cleanRoute === 'gallery') {
+    scrollToSection('gallery');
+    return;
+  }
+
+  if (cleanRoute === 'story') {
+    scrollToSection('story');
+    return;
+  }
+};
+
+// Handle browser Back / Forward buttons
+window.addEventListener('popstate', function() {
+  var path = window.location.pathname;
+  var basePath = getBaseUrl();
+  var route = '';
+  if (path.indexOf(basePath) === 0) {
+    route = path.substring(basePath.length);
+  } else if (path.indexOf('/KimLongEcoStay/') === 0) {
+    route = path.substring('/KimLongEcoStay/'.length);
+  }
+  activateRoute(route);
+});
+
+// Modal hide event to reset URL if needed
+document.addEventListener('DOMContentLoaded', function() {
+  var adminModalEl = document.getElementById('adminPortalModal');
+  if (adminModalEl) {
+    adminModalEl.addEventListener('hidden.bs.modal', function() {
+      var path = window.location.pathname;
+      var basePath = getBaseUrl();
+      var clean = path.replace(basePath, '').replace(/^\/+/, '');
+      if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login'].indexOf(clean) !== -1) {
+        window.history.pushState({ route: '' }, '', basePath);
+      }
+    });
+  }
+
+  // Parse initial route from pathname or query param (?p=... or ?route=...)
+  var searchParams = new URLSearchParams(window.location.search);
+  var initialRoute = searchParams.get('route') || searchParams.get('p') || '';
+  if (!initialRoute) {
+    var path = window.location.pathname;
+    var basePath = getBaseUrl();
+    if (path.indexOf(basePath) === 0) {
+      initialRoute = path.substring(basePath.length);
+    } else if (path.indexOf('/KimLongEcoStay') === 0) {
+      initialRoute = path.replace(/^\/KimLongEcoStay\/?/, '');
+    }
+  }
+
+  if (initialRoute) {
+    initialRoute = normalizeRoute(initialRoute);
+    if (searchParams.has('route') || searchParams.has('p')) {
+      var basePath = getBaseUrl();
+      window.history.replaceState(null, '', basePath + initialRoute);
+    }
+    setTimeout(function() {
+      activateRoute(initialRoute);
+    }, 200);
+  }
+});
 </script>
 
 </body></html>

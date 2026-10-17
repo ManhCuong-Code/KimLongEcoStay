@@ -1,7 +1,12 @@
 @page "/admin"
+@page "/dashboard"
+@page "/nhanvien"
+@page "/luong"
+@page "/duan"
 @attribute [Authorize(Roles = "Admin,Administrator,Staff,Manager,HR,Accountant")]
 @rendermode InteractiveServer
 @inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
 
 <PageTitle>Quản Trị Hệ Thống - Kim Long EcoStay Admin Portal</PageTitle>
 
@@ -39,16 +44,16 @@
 
         <!-- Các liên kết điều hướng ngoài -->
         <div class="d-flex gap-2 flex-wrap align-items-center">
-            <a href="/lookup" class="btn btn-outline-warning text-dark btn-sm rounded-pill fw-semibold shadow-sm" target="_blank">
+            <a href="lookup" class="btn btn-outline-warning text-dark btn-sm rounded-pill fw-semibold shadow-sm" target="_blank">
                 <i class="bi bi-key-fill me-1"></i>Tra Cứu Khách
             </a>
             <a href="products" class="btn btn-outline-secondary btn-sm rounded-pill fw-semibold shadow-sm" target="_blank">
                 <i class="bi bi-shop me-1"></i>Xem Buồng Phòng
             </a>
-            <a href="/" class="btn btn-outline-success btn-sm rounded-pill fw-semibold shadow-sm" target="_blank">
+            <a href="" class="btn btn-outline-success btn-sm rounded-pill fw-semibold shadow-sm" target="_blank">
                 <i class="bi bi-house me-1"></i>Trang Khách Hàng
             </a>
-            <a href="/logout" class="btn btn-danger btn-sm rounded-pill fw-semibold shadow-sm">
+            <a href="logout" class="btn btn-danger btn-sm rounded-pill fw-semibold shadow-sm">
                 <i class="bi bi-box-arrow-right me-1"></i>Đăng Xuất
             </a>
         </div>
@@ -241,7 +246,24 @@
 
     protected override void OnParametersSet()
     {
-        if (!string.IsNullOrWhiteSpace(QueryTab))
+        var currentUri = NavManager.Uri.ToLowerInvariant();
+        if (currentUri.Contains("/dashboard"))
+        {
+            mainTab = "finance";
+        }
+        else if (currentUri.Contains("/nhanvien"))
+        {
+            mainTab = "employees";
+        }
+        else if (currentUri.Contains("/luong"))
+        {
+            mainTab = "payroll";
+        }
+        else if (currentUri.Contains("/duan"))
+        {
+            mainTab = "operations";
+        }
+        else if (!string.IsNullOrWhiteSpace(QueryTab))
         {
             mainTab = QueryTab.ToLowerInvariant() switch
             {

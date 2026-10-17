@@ -5,6 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
+    <script>
+        (function() {
+            var baseEl = document.querySelector('base');
+            if (baseEl && window.location.pathname.indexOf('/KimLongEcoStay') === 0) {
+                baseEl.setAttribute('href', '/KimLongEcoStay/');
+            }
+        })();
+    </script>
     <ResourcePreloader />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,10 +33,10 @@
     <script src="@Assets["lib/bootstrap/dist/js/bootstrap.bundle.min.js"]"></script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="/js/heritageMap.js?v=20261014.2"></script>
-    <script src="/lib/chartjs/chart.umd.min.js"></script>
-    <script src="/js/financialCharts.js"></script>
-    <script src="/js/downloadHelper.js"></script>
+    <script src="js/heritageMap.js?v=20261014.2"></script>
+    <script src="lib/chartjs/chart.umd.min.js"></script>
+    <script src="js/financialCharts.js"></script>
+    <script src="js/downloadHelper.js"></script>
     <script>
         window.scrollToSection = function(id) {
             var el = document.getElementById(id);

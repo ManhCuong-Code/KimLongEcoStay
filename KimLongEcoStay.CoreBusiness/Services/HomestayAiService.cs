@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -155,7 +155,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
 • **Sức chứa:** 6 – 8 khách người lớn.
 • **Đặc điểm:** Khuôn viên biệt lập rộng 300m², 2 phòng ngủ lớn, bếp gia đình đầy đủ gia vị truyền thống, hiên ngắm vườn bưởi thanh trà và sân nướng BBQ ngoài trời.
 • **Đặc quyền kèm theo:** 04 xe đạp trợ lực điện Eco-Bike miễn phí và set trà sen Cung đình Huế đón tiếp! 🍵",
-                        ActionUrl = "/room/4",
+                        ActionUrl = "room/4",
                         ActionLabel = "👉 Xem Chi Tiết Family Eco-Villa",
                         Category = "Booking"
                     };
@@ -171,7 +171,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
 • **Sức chứa:** 2 người lớn (phù hợp cặp đôi, bạn thân).
 • **Không gian:** Ban công hướng thẳng ra ngã ba sông Hương, ngắm ánh hoàng hôn tím xứ Huế và thuyền rồng qua lại cực kỳ thơ mộng.
 • **Tiện nghi:** Giường King đệm cao su thiên nhiên, Smart TV, trà hoa cúc Huế và bồn tắm thư giãn. 🌸",
-                        ActionUrl = "/room/2",
+                        ActionUrl = "room/2",
                         ActionLabel = "👉 Xem Phòng Eco-Nest Hoàng Hôn",
                         Category = "Booking"
                     };
@@ -187,7 +187,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
 • **Sức chứa:** 3 người lớn (01 giường King + 01 giường phụ sinh thái).
 • **Kiến trúc:** Dựng theo lối nhà rường Huế cổ 1 gian 2 chái, vì kèo gỗ chạm hoa sen tinh xảo, nằm giữa vườn bưởi Thanh Trà Kim Long râm mát.
 • **Đặc quyền riêng:** Tặng kèm 01 bồn ngâm chân thảo mộc hoa bưởi Kim Long và xe đạp Eco-Bike miễn phí! 🛁",
-                        ActionUrl = "/room/3",
+                        ActionUrl = "room/3",
                         ActionLabel = "👉 Xem Chi Tiết Garden Suite",
                         Category = "Booking"
                     };
@@ -208,7 +208,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
 • Tiết kiệm **10%** tiền hoa hồng so với đặt qua các sàn OTA trung gian.
 • Tặng 01 phần bánh ướt thịt nướng than hoa Kim Long và mứt gừng Huế nồng ấm.
 • Miễn phí 100% xe đạp trợ lực điện Eco-Bike & tai nghe thuyết minh GPS di sản!",
-                    ActionUrl = "/#rooms",
+                    ActionUrl = "#rooms",
                     ActionLabel = "👉 Chọn Buồng Phòng Nghỉ Dưỡng",
                     Category = "Booking"
                 };
@@ -228,7 +228,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
   2. Nhập mã PIN 6 số và nhấn dấu `#`.
   3. Khóa sẽ bật chốt xanh trong 0.5 giây và quý khách tự do vào phòng nghỉ ngơi 24/7!
 • Quý khách có thể tra cứu lại mã PIN bất cứ lúc nào bằng mã đơn hoặc số điện thoại.",
-                    ActionUrl = "/lookup",
+                    ActionUrl = "lookup",
                     ActionLabel = "🔑 Tra Cứu Mã Khóa SmartLock",
                     Category = "SmartLock"
                 };
@@ -248,7 +248,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
   - Chủ tài khoản: **TRẦN VIẾT MẠNH CƯỜNG**
   - Cú pháp chuyển khoản: `KLE [Mã đơn đặt phòng]` *(Ví dụ: `KLE BK1234`)*
 • **Mã VietQR tự động:** Khi đặt phòng, màn hình sẽ hiển thị sẵn mã VietQR có đúng số tiền cọc và nội dung. Quý khách chỉ cần mở app ngân hàng bất kỳ để quét mã trong 10 giây!",
-                    ActionUrl = "/#rooms",
+                    ActionUrl = "#rooms",
                     ActionLabel = "👉 Đặt Phòng & Nhận Mã VietQR",
                     Category = "Policy"
                 };
@@ -267,7 +267,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
 • **Hủy trong vòng dưới 48 giờ:**
   - Tiền cọc không được hoàn lại nhằm hỗ trợ nhà vườn bù đắp chi phí chuẩn bị buồng phòng sinh thái và hoa quả tươi đón tiếp.
 • **Thao tác hủy:** Quý khách chỉ cần vào mục **Tra Cứu Mã Khóa / Đơn Phòng**, nhập số điện thoại hoặc mã đơn và nhấn nút *""Yêu Cầu Hủy Phòng""*.",
-                    ActionUrl = "/lookup",
+                    ActionUrl = "lookup",
                     ActionLabel = "🔍 Tra Cứu & Quản Lý Đơn Phòng",
                     Category = "Policy"
                 };
@@ -289,7 +289,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
   - Nhà Vườn Cổ An Hiên: 600 m (3 phút)
   - Cầu Dã Viên & Bờ bắc sông Hương: 800 m (4 phút)
   - Đại Nội Huế (Kinh Thành): 3.5 km (12 phút)",
-                    ActionUrl = "/map",
+                    ActionUrl = "#heritage-map",
                     ActionLabel = "🗺️ Mở Bản Đồ Di Tích & Làng Nghề",
                     Category = "Heritage"
                 };
@@ -307,7 +307,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
   - Homestay liên kết trực tiếp với các nghệ nhân làng bánh ướt Kim Long để phục vụ bữa sáng hoặc ăn xế nóng hổi tận phòng.
 • **Trà sen Cung đình & Mứt gừng Huế:** Đón tiếp khách lúc check-in bằng trà ủ trong búp sen tươi hồ Tịnh Tâm ấm nồng.
 • **Gợi ý ẩm thực quanh homestay:** Bánh ướt Huyền Anh Kim Long (cách 400m), Quán bún bò bà Rơi (cách 900m), Bánh ép Cầu Dã Viên và Chè hẻm Cố đô.",
-                    ActionUrl = "/#smart-tour",
+                    ActionUrl = "#heritage-map",
                     ActionLabel = "🍵 Khám Phá Văn Hóa Ẩm Thực",
                     Category = "Cuisine"
                 };
@@ -325,7 +325,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
 • **Kiểm định vệ sinh SOP 8 bước:** Giám sát trạng thái dọn buồng phòng sinh thái (Cleaned, Inspected, Occupied).
 • **Quản lý khóa SmartLock IoT:** Cấp mã PIN thủ công từ xa, theo dõi mức pin chốt khóa tại `/admin`.
 • **SmartPaste:** Trích xuất nhanh dữ liệu tin nhắn Zalo của khách thành đơn phòng trong 1 giây tại `/admin`.",
-                    ActionUrl = "/admin",
+                    ActionUrl = "admin",
                     ActionLabel = "🔍 Vào Phân Hệ Quản Trị Admin",
                     Category = "Admin"
                 };
@@ -345,7 +345,7 @@ Em có thể hỗ trợ quý khách tức thì các thông tin sau:
 • 🍲 **Thưởng thức bánh ướt thịt nướng Kim Long** giao nóng hổi tận phòng.
 
 Quý khách cần em tư vấn thêm về nội dung nào ạ?",
-                ActionUrl = "/#rooms",
+                ActionUrl = "#rooms",
                 ActionLabel = "🌿 Xem Danh Sách Buồng Phòng",
                 Category = "General"
             };

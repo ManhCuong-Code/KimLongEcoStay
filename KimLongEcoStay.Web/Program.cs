@@ -134,6 +134,24 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
                        Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedHost
 });
 
+var configuredPathBase = Environment.GetEnvironmentVariable("ASPNETCORE_PATHBASE") ?? "";
+if (!string.IsNullOrWhiteSpace(configuredPathBase))
+{
+    app.UsePathBase(configuredPathBase);
+}
+else
+{
+    app.Use((context, next) =>
+    {
+        if (context.Request.Path.StartsWithSegments("/KimLongEcoStay", out var remaining))
+        {
+            context.Request.PathBase = "/KimLongEcoStay";
+            context.Request.Path = remaining;
+        }
+        return next();
+    });
+}
+
 app.UseCors();
 
 if (!app.Environment.IsDevelopment())
