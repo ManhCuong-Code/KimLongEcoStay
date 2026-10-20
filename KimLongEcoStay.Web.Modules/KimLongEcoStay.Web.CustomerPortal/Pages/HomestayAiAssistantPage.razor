@@ -326,6 +326,14 @@
         if (int.TryParse(e.Value?.ToString(), out int val))
         {
             config.Provider = (AiProviderType)val;
+            if (config.Provider == AiProviderType.Gemini)
+            {
+                config.Model = "gemini-3.8-flash";
+            }
+            else if (config.Provider == AiProviderType.OpenAi)
+            {
+                config.Model = "gpt-4o-mini";
+            }
         }
     }
 

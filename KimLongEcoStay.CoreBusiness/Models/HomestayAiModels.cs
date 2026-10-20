@@ -46,7 +46,7 @@ namespace KimLongEcoStay.CoreBusiness.Models
     {
         public AiProviderType Provider { get; set; } = AiProviderType.LocalSmartEngine;
         public string ApiKey { get; set; } = string.Empty;
-        public string Model { get; set; } = "gemini-2.5-flash";
+        public string Model { get; set; } = "gemini-3.8-flash";
         public bool IsEnabled { get; set; } = true;
 
         /// <summary>

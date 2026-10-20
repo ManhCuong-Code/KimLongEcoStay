@@ -1,4 +1,4 @@
-﻿@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
 @rendermode InteractiveServer
 @using Microsoft.JSInterop
 @using KimLongEcoStay.CoreBusiness.Models
@@ -210,7 +210,7 @@
                                     <span class="badge bg-primary">Trực tuyến</span>
                                 </div>
                                 <div class="text-muted small mt-1" style="font-size: 0.72rem;">
-                                    Mô hình ngôn ngữ tự nhiên thông minh của Google (gemini-2.5-flash / gemini-1.5-pro). Cần nhập Gemini API Key.
+                                    Mô hình ngôn ngữ tự nhiên thông minh của Google (gemini-3.8-flash / gemini-flash-latest). Cần nhập Gemini API Key.
                                 </div>
                             </div>
 
@@ -373,7 +373,7 @@
         config.Provider = provider;
         if (provider == AiProviderType.Gemini && string.IsNullOrWhiteSpace(config.Model))
         {
-            config.Model = "gemini-2.5-flash";
+            config.Model = "gemini-3.8-flash";
         }
         else if (provider == AiProviderType.OpenAi && string.IsNullOrWhiteSpace(config.Model))
         {

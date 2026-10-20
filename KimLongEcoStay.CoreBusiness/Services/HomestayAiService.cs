@@ -18,16 +18,17 @@ namespace KimLongEcoStay.CoreBusiness.Services
         public HomestayAiService(HttpClient? httpClient = null)
         {
             _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-            var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
             var geminiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+            var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            var hasGemini = !string.IsNullOrWhiteSpace(geminiKey);
             var hasOpenAi = !string.IsNullOrWhiteSpace(openAiKey);
 
             _config = new HomestayAiConfiguration
             {
-                Provider = hasOpenAi ? AiProviderType.OpenAi : AiProviderType.LocalSmartEngine,
-                Model = hasOpenAi ? "gpt-4o-mini" : "gemini-2.5-flash",
+                Provider = hasGemini ? AiProviderType.Gemini : (hasOpenAi ? AiProviderType.OpenAi : AiProviderType.LocalSmartEngine),
+                Model = hasGemini ? "gemini-3.8-flash" : (hasOpenAi ? "gpt-4o-mini" : "gemini-3.8-flash"),
                 IsEnabled = true,
-                ApiKey = openAiKey ?? geminiKey ?? string.Empty
+                ApiKey = (hasGemini ? geminiKey : openAiKey) ?? string.Empty
             };
         }
 
@@ -353,7 +354,7 @@ Quý khách cần em tư vấn thêm về nội dung nào ạ?",
 
         private async Task<string> CallGeminiAsync(string question, List<AiChatMessage> history)
         {
-            var selectedModel = (_config.Model.Contains("2.0") || _config.Model == "gemini-2.5-flash") ? "gemini-1.5-flash" : _config.Model;
+            var selectedModel = (string.IsNullOrWhiteSpace(_config.Model) || _config.Model.Contains("1.5") || _config.Model.Contains("2.0") || _config.Model.Contains("2.5")) ? "gemini-3.8-flash" : _config.Model;
             var endpoint = $"https://generativelanguage.googleapis.com/v1beta/models/{selectedModel}:generateContent?key={_config.ApiKey}";
 
             string systemPrompt = @"Bạn là Trợ lý AI du lịch và quản lý buồng phòng thông minh của 'Kim Long EcoStay' - một mô hình Homestay Nhà Vườn Sinh Thái kết hợp Du lịch Di sản Cố Đô Huế tại phường Kim Long, TP. Huế.
