@@ -63,13 +63,14 @@
 
         <div class="collapse navbar-collapse" id="navbarMain"><ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-4 align-items-xl-center gap-1">
                 <li class="nav-item"><a href="./" onclick="navigateToRoute(''); return false;" class="nav-link kle-nav-item active" aria-current="page"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#rooms"><i class="bi bi-door-open me-1"></i>Danh Sách Phòng</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#rooms"><i class="bi bi-door-open me-1"></i>Danh Sách Phòng Trống</a></li>
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#gallery"><i class="bi bi-images me-1"></i>Thư Viện Ảnh</a></li>
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#story"><i class="bi bi-flower1 me-1"></i>Văn Hóa Nhà Vườn</a></li>
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map"><i class="bi bi-bicycle me-1"></i>Tour Xe Đạp GPS</a></li>
                 <li class="nav-item"><a href="lookup" onclick="navigateToRoute('lookup'); return false;" style="color: #FDE047 !important;" class="nav-link kle-nav-item fw-bold"><i class="bi bi-key-fill text-warning me-1"></i>Tra Cứu Mã Khóa</a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map"><i class="bi bi-map-fill text-warning me-1"></i>Bản Đồ Di Tích</a></li>
-                <!-- Phân Hệ Quản Trị & Vận Hành Dropdown -->
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map"><i class="bi bi-map-fill text-warning me-1"></i>Bản Đồ Di Tích & Làng Nghề</a></li>
+                <li class="nav-item"><a href="ai-assistant" onclick="navigateToRoute('ai-assistant'); return false;" style="color: #6EE7B7 !important;" class="nav-link kle-nav-item fw-bold"><i class="bi bi-robot text-success me-1"></i>Trợ Lý AI</a></li>
+                <!-- Phân Hệ Dropdown (Dành cho Quản Trị & Vận Hành) -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle kle-nav-item fw-bold text-warning" href="javascript:void(0)" id="subpagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-grid-fill me-1"></i>Phân Hệ
@@ -103,6 +104,11 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="admin" onclick="navigateToRoute('admin'); return false;" title="Cổng điều hành & quản trị homestay">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Quản Trị (Admin)
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="login" onclick="navigateToRoute('login'); return false;">
                         <i class="bi bi-person me-1"></i>Đăng Nhập
@@ -3348,6 +3354,18 @@ window.quickLoginAs = function(displayName, role) {
   }
 };
 
+window.openRoomById = function(id) {
+  var roomMap = {
+    '1': { name: 'Eco-Nest Ban Mai (KLE-R101)', price: 390000, garden: 'Nhà Vườn Hương Sen', img: 'images/room_econest.jpg' },
+    '2': { name: 'Eco-Nest Hoàng Hôn (KLE-R102)', price: 420000, garden: 'Nhà Vườn Hương Sen', img: 'images/room_hoanghon.jpg' },
+    '3': { name: 'Garden Suite Thanh Trà (KLE-R201)', price: 550000, garden: 'Nhà Vườn Cổ An Hiên', img: 'images/room_gardensuite.jpg' },
+    '4': { name: 'Family Eco-Villa (KLE-R202)', price: 850000, garden: 'Nhà Vườn Cổ An Hiên', img: 'images/nha_ruong_1.jpg' },
+    '5': { name: 'Heritage Studio (KLE-R203)', price: 490000, garden: 'Nhà Vườn Cổ An Hiên', img: 'images/nha_ruong_2.jpg' }
+  };
+  var r = roomMap[id.toString()] || roomMap['1'];
+  openBookingModal(id, r.name, r.price, r.garden, r.img);
+};
+
 window.activateRoute = function(cleanRoute) {
   cleanRoute = normalizeRoute(cleanRoute);
 
@@ -3366,7 +3384,7 @@ window.activateRoute = function(cleanRoute) {
     return;
   }
 
-  if (cleanRoute === 'lookup') {
+  if (cleanRoute === 'lookup' || cleanRoute === 'tracuu') {
     openLookupModal();
     return;
   }
@@ -3376,17 +3394,34 @@ window.activateRoute = function(cleanRoute) {
     return;
   }
 
-  if (cleanRoute === 'ai-assistant') {
+  if (cleanRoute === 'placeorder') {
+    openBookingModal('1', 'Eco-Nest Ban Mai (KLE-R101)', 390000, 'Nhà Vườn Hương Sen', 'images/room_econest.jpg');
+    return;
+  }
+
+  if (cleanRoute === 'orderconfirm' || cleanRoute.indexOf('orderconfirm') === 0 || cleanRoute === 'orderconfirmation' || cleanRoute.indexOf('orderconfirmation') === 0) {
+    openLookupModal();
+    return;
+  }
+
+  if (cleanRoute === 'ai-assistant' || cleanRoute === 'tro-ly-ai') {
     openAiChatModal();
     return;
   }
 
-  if (cleanRoute === 'heritage-map' || cleanRoute === 'map') {
+  if (cleanRoute.indexOf('room/') === 0 || cleanRoute.indexOf('products/') === 0 || cleanRoute.indexOf('product/') === 0 || cleanRoute.indexOf('legacy-product/') === 0) {
+    var parts = cleanRoute.split('/');
+    var roomId = parts[parts.length - 1] || '1';
+    openRoomById(roomId);
+    return;
+  }
+
+  if (['heritage-map', 'map', 'ban-do', 'ban-do-di-san', 'lang-nghe'].indexOf(cleanRoute) !== -1) {
     scrollToSection('heritage-map');
     return;
   }
 
-  if (cleanRoute === 'rooms') {
+  if (['rooms', 'room', 'products', 'product', 'search'].indexOf(cleanRoute) !== -1) {
     scrollToSection('rooms');
     return;
   }
@@ -3398,6 +3433,16 @@ window.activateRoute = function(cleanRoute) {
 
   if (cleanRoute === 'story') {
     scrollToSection('story');
+    return;
+  }
+
+  if (cleanRoute === 'logout' || cleanRoute === 'logout-screen') {
+    var badge = document.getElementById('adminSessionBadge');
+    if (badge) {
+      badge.innerHTML = '<i class="bi bi-person-fill me-1"></i>Chưa đăng nhập';
+    }
+    alert('Đã đăng xuất phiên làm việc khỏi Kim Long EcoStay.');
+    navigateToRoute('');
     return;
   }
 };

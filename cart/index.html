@@ -1,17 +1,565 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <title>Kim Long EcoStay — Danh Sách Phòng Đã Chọn</title>
-  <script>
-    var target = '../?p=/cart' + (window.location.search ? '&' + window.location.search.slice(1) : '') + window.location.hash;
-    window.location.replace(target);
-  </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/" />
+    <script>
+        (function(l) {
+            var isGitHubProject = l.hostname.endsWith('github.io') && l.pathname.indexOf('/KimLongEcoStay') === 0;
+            var baseEl = document.querySelector('base');
+            if (baseEl) {
+                baseEl.setAttribute('href', isGitHubProject ? '/KimLongEcoStay/' : '/');
+            }
+        })(window.location);
+    </script>
+    <title>Lịch Trình & Buồng Phòng Đã Chọn — Kim Long EcoStay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="KimLongEcoStay.Web.styles.css" />
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        .kle-cart-item-card {
+            background: #fff;
+            border-radius: 1rem;
+            border: 1px solid #E2E8F0;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+        .kle-cart-item-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            border-color: #CBD5E1;
+        }
+        .kle-cart-thumb-wrap {
+            position: relative;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            height: 120px;
+        }
+        .kle-cart-thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .kle-cart-thumb-badge {
+            position: absolute;
+            bottom: 6px;
+            left: 6px;
+            background: rgba(10, 61, 44, 0.85);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .kle-qty-control {
+            display: inline-flex;
+            align-items: center;
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            border-radius: 2rem;
+            padding: 2px;
+        }
+        .kle-qty-btn {
+            border: none;
+            background: transparent;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0A3D2C;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .kle-qty-btn:hover {
+            background: #E2E8F0;
+        }
+        .kle-qty-input {
+            width: 44px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            font-size: 14px;
+            color: #0F172A;
+        }
+        .kle-qty-input:focus {
+            outline: none;
+        }
+        .kle-summary-card {
+            background: #fff;
+            border-radius: 1.25rem;
+            border: 1px solid #E2E8F0;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        .kle-summary-header {
+            background: #0A3D2C;
+            padding: 1.25rem 1.5rem;
+            color: #fff;
+        }
+        .kle-summary-body {
+            padding: 1.5rem;
+        }
+        .kle-deposit-box {
+            background: #FEF3C7;
+            border: 1px dashed #D97706;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
-<body style="background: #0A3D2C; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-  <div style="text-align: center;">
-    <h2 style="color: #D4AF37;">🌿 Kim Long EcoStay</h2>
-    <p>Đang tải Danh Sách Phòng Đã Chọn...</p>
-  </div>
+<body style="background: #F8FAFC;">
+
+<div class="d-flex flex-column min-vh-100">
+    <!-- TOP NAVBAR -->
+    <nav class="navbar navbar-expand-xl navbar-dark kle-navbar px-3 px-lg-4 py-2 sticky-top shadow">
+        <div class="container-fluid">
+            <a class="brand-badge" href="./">
+                <img src="images/logo.jpg" alt="Kim Long EcoStay" class="brand-logo-img" onerror="this.src='favicon.png'">
+                <div>
+                    <span class="brand-text-title">Kim Long EcoStay</span>
+                    <span class="brand-text-sub">Nhà Vườn Sinh Thái • Cố Đô Huế</span>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-4 align-items-xl-center gap-1">
+                    <li class="nav-item"><a href="./" class="nav-link kle-nav-item"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link kle-nav-item" href="./#rooms"><i class="bi bi-door-open me-1"></i>Danh Sách Phòng Trống</a></li>
+                    <li class="nav-item"><a class="nav-link kle-nav-item" href="./#gallery"><i class="bi bi-images me-1"></i>Thư Viện Ảnh</a></li>
+                    <li class="nav-item"><a class="nav-link kle-nav-item" href="./#story"><i class="bi bi-flower1 me-1"></i>Văn Hóa Nhà Vườn</a></li>
+                    <li class="nav-item"><a class="nav-link kle-nav-item" href="./#smart-tour"><i class="bi bi-bicycle me-1"></i>Tour Xe Đạp GPS</a></li>
+                    <li class="nav-item"><a href="lookup" style="color: #FDE047 !important;" class="nav-link kle-nav-item fw-bold"><i class="bi bi-key-fill text-warning me-1"></i>Tra Cứu Mã Khóa</a></li>
+                    <li class="nav-item"><a class="nav-link kle-nav-item" href="./#heritage-map"><i class="bi bi-map-fill text-warning me-1"></i>Bản Đồ Di Tích & Làng Nghề</a></li>
+                    <li class="nav-item"><a href="ai-assistant" style="color: #6EE7B7 !important;" class="nav-link kle-nav-item fw-bold"><i class="bi bi-robot text-success me-1"></i>Trợ Lý AI</a></li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-xl-center gap-2">
+                    <li class="nav-item">
+                        <a href="cart" class="btn btn-outline-warning text-white btn-sm rounded-pill px-3 shadow-sm active">
+                            <i class="bi bi-calendar-check me-1"></i>Phòng Đã Chọn <span class="badge bg-warning text-dark rounded-pill ms-1" id="navCartCount">1</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="admin" title="Cổng điều hành & quản trị homestay">
+                            <i class="bi bi-shield-lock-fill me-1"></i>Quản Trị (Admin)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="login">
+                            <i class="bi bi-person me-1"></i>Đăng Nhập
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CART CONTENT -->
+    <main class="flex-grow-1 py-4">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb bg-white p-3 rounded-3 border shadow-sm small mb-0">
+                    <li class="breadcrumb-item"><a href="./" class="text-success text-decoration-none"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
+                    <li class="breadcrumb-item"><a href="./#rooms" class="text-success text-decoration-none">Buồng Phòng</a></li>
+                    <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">Lịch Trình & Phòng Đã Chọn</li>
+                </ol>
+            </nav>
+
+            <!-- Header Tiêu Đề -->
+            <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="fw-bold text-dark font-serif mb-1" style="color: #0A3D2C !important;">
+                        <i class="bi bi-calendar2-check-fill text-warning me-2"></i>Lịch Trình & Buồng Phòng Đã Chọn
+                    </h2>
+                    <p class="text-muted mb-0 small">
+                        Kiểm tra thông tin chi tiết các buồng phòng sinh thái Kim Long trước khi tiến hành đặt cọc qua VietQR
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="./#rooms" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm">
+                        <i class="bi bi-plus-circle me-1"></i>Chọn Thêm Buồng Phòng
+                    </a>
+                </div>
+            </div>
+
+            <!-- Content Area (Cart List or Empty State) -->
+            <div id="cartContentWrapper">
+                <div class="row g-4">
+                    <!-- Cột Trái: Danh sách buồng phòng -->
+                    <div class="col-lg-7">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="fw-bold text-dark">
+                                <i class="bi bi-door-open-fill text-success me-1"></i>Danh Sách Buồng Phòng (<span id="cartItemTypesCount">1</span> loại phòng)
+                            </span>
+                            <span class="badge bg-success bg-opacity-10 text-success small">
+                                <i class="bi bi-check-circle me-1"></i>Đang giữ phòng tạm thời
+                            </span>
+                        </div>
+
+                        <div id="cartItemsContainer">
+                            <!-- Items injected via JS -->
+                        </div>
+
+                        <!-- Voucher Box -->
+                        <div class="p-3 bg-white rounded-3 border shadow-sm mb-3">
+                            <label class="form-label fw-bold text-dark small mb-2"><i class="bi bi-ticket-perforated-fill text-warning me-1"></i>Mã Giảm Giá / Ưu Đãi Đề Án 2026:</label>
+                            <div class="input-group">
+                                <input type="text" id="voucherInput" class="form-control" placeholder="Nhập mã voucher (VD: KIMLONG2026)" value="KIMLONG2026">
+                                <button class="btn btn-outline-success fw-bold px-3" type="button" onclick="applyVoucher()">Áp Dụng</button>
+                            </div>
+                            <small class="text-success mt-1 d-block" id="voucherMsg"><i class="bi bi-check-circle me-1"></i>Đã kích hoạt mã KIMLONG2026: Giảm 10% tổng chi phí lưu trú!</small>
+                        </div>
+
+                        <!-- Cam kết trải nghiệm sinh thái -->
+                        <div class="p-3 bg-white rounded-3 border shadow-sm mt-3">
+                            <h6 class="fw-bold text-success mb-2 small"><i class="bi bi-stars me-1"></i>Đặc quyền tặng kèm dành riêng cho quý khách:</h6>
+                            <div class="row g-2 text-muted" style="font-size: 12px;">
+                                <div class="col-sm-6"><i class="bi bi-check2-circle text-success me-1"></i>Xe đạp trợ lực điện Eco-Bike tham quan nhà vườn</div>
+                                <div class="col-sm-6"><i class="bi bi-check2-circle text-success me-1"></i>Khóa cửa thông minh SmartLock tạo mã PIN riêng</div>
+                                <div class="col-sm-6"><i class="bi bi-check2-circle text-success me-1"></i>Trà sen cung đình & Bánh mễ làng cổ Kim Long</div>
+                                <div class="col-sm-6"><i class="bi bi-check2-circle text-success me-1"></i>Hướng dẫn viên AI định vị GPS 3 thứ tiếng</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột Phải: Bảng Tóm Tắt Chi Phí -->
+                    <div class="col-lg-5">
+                        <div class="sticky-top" style="top: 90px; z-index: 10;">
+                            <div class="kle-summary-card">
+                                <div class="kle-summary-header">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 text-white font-serif">
+                                            <i class="bi bi-receipt me-2 text-warning"></i>Chi Phí Lưu Trú
+                                        </h5>
+                                        <span class="badge bg-warning text-dark fw-bold px-2 py-1">Kim Long EcoStay</span>
+                                    </div>
+                                    <small class="text-white-50 mt-1 d-block">Giá niêm yết minh bạch • Không phí ẩn</small>
+                                </div>
+
+                                <div class="kle-summary-body">
+                                    <!-- Chi tiết tiền phòng -->
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-secondary">
+                                            <i class="bi bi-moon-stars me-1 text-primary"></i>Tổng thời gian lưu trú:
+                                        </span>
+                                        <span class="fw-bold text-dark" id="summaryNights">1 đêm</span>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-secondary">
+                                            <i class="bi bi-door-closed me-1 text-success"></i>Tiền phòng tạm tính:
+                                        </span>
+                                        <span class="fw-bold text-dark" id="summarySubtotal">390,000 VNĐ</span>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2" id="summaryDiscountRow">
+                                        <span class="text-secondary">
+                                            <i class="bi bi-ticket-perforated me-1 text-danger"></i>Ưu đãi Voucher (10%):
+                                        </span>
+                                        <span class="fw-bold text-success" id="summaryDiscount">-39,000 VNĐ</span>
+                                    </div>
+
+                                    <!-- Dịch vụ sinh thái tặng kèm -->
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-secondary">
+                                            <i class="bi bi-bicycle me-1 text-info"></i>Xe đạp trợ lực GPS:
+                                        </span>
+                                        <span class="badge bg-success bg-opacity-10 text-success fw-bold">Tặng kèm (0 đ)</span>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-secondary">
+                                            <i class="bi bi-cup-hot me-1 text-danger"></i>Trà sen & Bánh mễ Huế:
+                                        </span>
+                                        <span class="badge bg-success bg-opacity-10 text-success fw-bold">Tặng kèm (0 đ)</span>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-secondary">
+                                            <i class="bi bi-shield-check me-1 text-warning"></i>Bảo hiểm lưu trú & VAT:
+                                        </span>
+                                        <span class="text-muted small">Đã bao gồm</span>
+                                    </div>
+
+                                    <hr class="my-3 text-muted" />
+
+                                    <!-- Tổng tiền lưu trú -->
+                                    <div class="d-flex justify-content-between align-items-baseline mb-3">
+                                        <span class="fw-bold text-dark fs-6">Tổng Chi Phí:</span>
+                                        <span class="fw-bold text-danger fs-5" id="summaryTotal">351,000 VNĐ</span>
+                                    </div>
+
+                                    <!-- Khung Cọc Giữ Phòng 50% qua VietQR -->
+                                    <div class="kle-deposit-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-bold text-dark small">
+                                                <i class="bi bi-qr-code text-warning me-1"></i>Tiền Cọc 50% (VietQR):
+                                            </span>
+                                            <span class="fw-bold text-danger fs-5" id="summaryDeposit">175,500 VNĐ</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 11.5px;">
+                                            <span>50% còn lại (<span id="summaryRemaining">175,500 đ</span>):</span>
+                                            <span>Thanh toán khi nhận phòng</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Chính sách hoàn hủy & nhận phòng -->
+                                    <div class="bg-light p-2 rounded-3 text-muted mb-3" style="font-size: 11.5px;">
+                                        <div class="mb-1"><i class="bi bi-check-circle-fill text-success me-1"></i>Miễn phí hủy phòng trước 48h (Hoàn 100% tiền cọc).</div>
+                                        <div><i class="bi bi-clock-history text-primary me-1"></i>Giờ nhận phòng: 14:00 | Giờ trả phòng: 12:00 hôm sau.</div>
+                                    </div>
+
+                                    <button class="btn btn-success btn-lg w-100 py-3 fw-bold rounded-3 shadow d-flex align-items-center justify-content-center gap-2" onclick="proceedToCheckout()">
+                                        <span>TIẾN HÀNH ĐẶT PHÒNG & LẤY MÃ CỌC</span>
+                                        <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                    <div class="text-center mt-2 text-muted" style="font-size: 11px;">
+                                        <i class="bi bi-shield-lock-fill me-1 text-success"></i>Bảo mật thông tin & Hỗ trợ xác nhận 24/7
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State Wrapper (Hidden by default) -->
+            <div id="cartEmptyWrapper" class="bg-white rounded-4 border p-5 text-center shadow-sm my-4" style="display: none;">
+                <div class="mb-3">
+                    <i class="bi bi-house-door-fill text-muted" style="font-size: 4rem; color: #CBD5E1 !important;"></i>
+                </div>
+                <h4 class="fw-bold text-dark font-serif mb-2">Quý Khách Chưa Chọn Buồng Phòng Nào</h4>
+                <p class="text-muted mx-auto mb-4" style="max-width: 500px;">
+                    Hãy khám phá 5 buồng phòng sinh thái Kim Long với kiến trúc nhà vườn Cố đô Huế, khóa thông minh SmartLock và xe đạp điện GPS.
+                </p>
+                <a href="./#rooms" class="btn btn-success btn-lg px-4 py-2 rounded-pill fw-bold shadow">
+                    <i class="bi bi-compass me-2"></i>Khám Phá Các Buồng Phòng Nhà Vườn
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-white py-4 mt-auto border-top border-secondary">
+        <div class="container text-center">
+            <p class="mb-1 fw-bold text-success">🌿 Kim Long EcoStay — Hệ Thống Du Lịch Di Sản & Nhà Vườn Sinh Thái Thông Minh Cố Đô Huế</p>
+            <p class="text-muted small mb-0">Địa chỉ: 108/4 Kim Long, Phường Kim Long, TP. Huế • Hotline: 0905.123.456 • Email: stay@kimlongecostay.vn</p>
+        </div>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    var defaultCart = [
+        {
+            id: 1,
+            name: "Eco-Nest Ban Mai (KLE-R101)",
+            price: 390000,
+            quantity: 1,
+            garden: "Nhà Vườn Hương Sen",
+            image: "images/room_econest.jpg"
+        }
+    ];
+
+    var discountPercent = 0.10; // 10% voucher KIMLONG2026
+
+    function getCart() {
+        try {
+            var raw = localStorage.getItem('kle_cart');
+            if (raw) {
+                var parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch(e) {}
+        return defaultCart;
+    }
+
+    function saveCart(cart) {
+        localStorage.setItem('kle_cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    function updateNavBadge(count) {
+        var el = document.getElementById('navCartCount');
+        if (el) el.textContent = count;
+    }
+
+    function renderCart() {
+        var cart = getCart();
+        var container = document.getElementById('cartItemsContainer');
+        var contentWrap = document.getElementById('cartContentWrapper');
+        var emptyWrap = document.getElementById('cartEmptyWrapper');
+
+        if (!cart || cart.length === 0) {
+            contentWrap.style.display = 'none';
+            emptyWrap.style.display = 'block';
+            updateNavBadge(0);
+            return;
+        }
+
+        contentWrap.style.display = 'block';
+        emptyWrap.style.display = 'none';
+
+        var totalNights = 0;
+        var subtotal = 0;
+        var html = '';
+
+        cart.forEach(function(item, idx) {
+            totalNights += item.quantity;
+            var itemTotal = item.price * item.quantity;
+            subtotal += itemTotal;
+
+            html += `
+            <div class="kle-cart-item-card">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-sm-4 col-md-3">
+                        <div class="kle-cart-thumb-wrap shadow-sm">
+                            <img src="${item.image || 'images/room_econest.jpg'}" alt="${item.name}" class="kle-cart-thumb-img" onerror="this.src='images/room_econest.jpg'" />
+                            <span class="kle-cart-thumb-badge">
+                                <i class="bi bi-flower1 me-1"></i>${item.garden || 'Nhà Vườn Kim Long'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-8 col-md-5">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-success bg-opacity-10 text-success fw-bold" style="font-size: 11px;">
+                                <i class="bi bi-shield-check me-1"></i>Khóa SmartLock 10s
+                            </span>
+                            <span class="badge bg-warning bg-opacity-25 text-dark fw-bold" style="font-size: 11px;">
+                                <i class="bi bi-bicycle me-1"></i>Free Eco-Bike
+                            </span>
+                        </div>
+
+                        <h5 class="fw-bold mb-1 text-dark font-serif">
+                            <a href="./#rooms" class="text-decoration-none text-dark hover-gold">
+                                ${item.name}
+                            </a>
+                        </h5>
+
+                        <div class="text-muted small mb-2">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>Nhà Vườn Sinh Thái Kim Long, TP. Huế
+                        </div>
+
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="text-muted small">Đơn giá:</span>
+                            <span class="fw-bold text-success">${item.price.toLocaleString('vi-VN')} VNĐ <small class="text-muted fw-normal">/ đêm</small></span>
+                        </div>
+                    </div>
+
+                    <div class="col-7 col-md-2 text-start text-md-center">
+                        <label class="form-label text-muted small fw-semibold d-block mb-1">Số đêm lưu trú:</label>
+                        <div class="kle-qty-control shadow-sm">
+                            <button type="button" class="kle-qty-btn" onclick="changeQty(${idx}, -1)" title="Giảm số đêm">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <input type="number" min="1" max="60" class="kle-qty-input" value="${item.quantity}" onchange="setQty(${idx}, this.value)" />
+                            <button type="button" class="kle-qty-btn" onclick="changeQty(${idx}, 1)" title="Tăng số đêm">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-5 col-md-2 text-end">
+                        <div class="text-muted small mb-1">Thành tiền:</div>
+                        <div class="fw-bold text-danger fs-6 mb-2">
+                            ${itemTotal.toLocaleString('vi-VN')} đ
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 shadow-sm" onclick="removeItem(${idx})" title="Bỏ buồng phòng này khỏi danh sách">
+                            <i class="bi bi-trash3 me-1"></i>Bỏ chọn
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        container.innerHTML = html;
+        document.getElementById('cartItemTypesCount').textContent = cart.length;
+        updateNavBadge(totalNights);
+
+        // Summary Calculations
+        var discount = subtotal * discountPercent;
+        var total = subtotal - discount;
+        var deposit = total * 0.5;
+
+        document.getElementById('summaryNights').textContent = totalNights + ' đêm';
+        document.getElementById('summarySubtotal').textContent = subtotal.toLocaleString('vi-VN') + ' VNĐ';
+        document.getElementById('summaryDiscount').textContent = '-' + discount.toLocaleString('vi-VN') + ' VNĐ';
+        document.getElementById('summaryTotal').textContent = total.toLocaleString('vi-VN') + ' VNĐ';
+        document.getElementById('summaryDeposit').textContent = deposit.toLocaleString('vi-VN') + ' VNĐ';
+        document.getElementById('summaryRemaining').textContent = deposit.toLocaleString('vi-VN') + ' đ';
+    }
+
+    function changeQty(idx, delta) {
+        var cart = getCart();
+        if (!cart[idx]) return;
+        var newQty = cart[idx].quantity + delta;
+        if (newQty < 1) newQty = 1;
+        cart[idx].quantity = newQty;
+        saveCart(cart);
+    }
+
+    function setQty(idx, val) {
+        var cart = getCart();
+        if (!cart[idx]) return;
+        var n = parseInt(val, 10);
+        if (isNaN(n) || n < 1) n = 1;
+        cart[idx].quantity = n;
+        saveCart(cart);
+    }
+
+    function removeItem(idx) {
+        var cart = getCart();
+        cart.splice(idx, 1);
+        saveCart(cart);
+    }
+
+    function applyVoucher() {
+        var code = document.getElementById('voucherInput').value.trim().toUpperCase();
+        var msg = document.getElementById('voucherMsg');
+        if (code === 'KIMLONG2026' || code === 'KIMLONG' || code === 'HUE2026') {
+            discountPercent = 0.10;
+            msg.className = 'text-success mt-1 d-block';
+            msg.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đã áp dụng mã <strong>' + code + '</strong>: Giảm 10%!';
+        } else if (code === 'VIP20') {
+            discountPercent = 0.20;
+            msg.className = 'text-success mt-1 d-block';
+            msg.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đã áp dụng mã VIP: Giảm 20%!';
+        } else {
+            discountPercent = 0;
+            msg.className = 'text-danger mt-1 d-block';
+            msg.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Mã ưu đãi không hợp lệ hoặc đã hết hạn.';
+        }
+        renderCart();
+    }
+
+    function proceedToCheckout() {
+        var cart = getCart();
+        if (!cart || cart.length === 0) return;
+        var item = cart[0];
+        alert('Đang chuyển hướng tới cổng Đặt Cọc VietQR & Tạo Mã Khóa SmartLock cho ' + item.name + '...');
+        window.location.href = './#rooms';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        renderCart();
+    });
+</script>
 </body>
 </html>

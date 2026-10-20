@@ -58,6 +58,8 @@ jobs:
           [ -d duan ] && cp -r duan dist_pages/ || true
           [ -d dashboard ] && cp -r dashboard dist_pages/ || true
           [ -d ai-assistant ] && cp -r ai-assistant dist_pages/ || true
+          [ -d tracuu ] && cp -r tracuu dist_pages/ || true
+          [ -d tro-ly-ai ] && cp -r tro-ly-ai dist_pages/ || true
 
           # 2. Hop nhat cac tai nguyen tinh tu release/wwwroot (_framework, lib, CSS/JS compiled)
           if [ -d release/wwwroot ]; then
