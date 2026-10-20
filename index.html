@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="/KimLongEcoStay/">
+    <base href="/" />
     <script>
-        // Single Page Apps for GitHub Pages - Redirect Handler
+        // Single Page Apps for GitHub Pages - Dynamic Base & Redirect Handler
         (function(l) {
+            var isGitHubProject = l.hostname.endsWith('github.io') && l.pathname.indexOf('/KimLongEcoStay') === 0;
+            var baseEl = document.querySelector('base');
+            if (baseEl) {
+                baseEl.setAttribute('href', isGitHubProject ? '/KimLongEcoStay/' : '/');
+            }
+
             if (l.search[1] === '/' ) {
                 var decoded = l.search.slice(1).split('&').map(function(s) { 
-                    return s.replace(/~and~/g, '&');
+                    var clean = s.replace(/~and~/g, '&');
+                    return clean.startsWith('q=') ? clean.substring(2) : clean;
                 }).join('?');
+                var basePathPrefix = isGitHubProject ? '/KimLongEcoStay' : '';
+                var targetPath = decoded.startsWith('/') ? decoded : '/' + decoded;
                 window.history.replaceState(null, null,
-                    l.pathname.slice(0, -1) + decoded + l.hash
+                    basePathPrefix + targetPath + l.hash
                 );
             } else if (l.search.indexOf('?p=/') === 0 || l.search.indexOf('?route=') === 0) {
                 var q = new URLSearchParams(l.search);
                 var p = q.get('p') || q.get('route') || '';
                 if (p) {
                     if (p.indexOf('/') !== 0) p = '/' + p;
+                    var basePathPrefix = isGitHubProject ? '/KimLongEcoStay' : '';
                     window.history.replaceState(null, null,
-                        l.pathname.slice(0, -1) + p + l.hash
+                        basePathPrefix + p + l.hash
                     );
-                }
-            }
-            // Dynamic base href adapter for localhost / subpath
-            var baseEl = document.querySelector('base');
-            if (baseEl) {
-                if (l.hostname === 'localhost' || l.hostname === '127.0.0.1' || l.protocol === 'file:') {
-                    if (l.pathname.indexOf('/KimLongEcoStay') === -1) {
-                        baseEl.setAttribute('href', '/');
-                    }
                 }
             }
         })(window.location);
@@ -3251,7 +3252,10 @@ window.getBaseUrl = function() {
       return href.endsWith('/') ? href : href + '/';
     }
   }
-  return '/KimLongEcoStay/';
+  if (window.location.hostname.endsWith('github.io') && window.location.pathname.indexOf('/KimLongEcoStay') === 0) {
+    return '/KimLongEcoStay/';
+  }
+  return '/';
 };
 
 window.normalizeRoute = function(route) {

@@ -1,0 +1,94 @@
+name: Deploy Blazor & Solution to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build .NET Solution & Prepare GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          include-prerelease: true
+
+      - name: Restore Dependencies
+        run: dotnet restore KimLongEcoStay.sln
+
+      - name: Build Solution (Release)
+        run: dotnet build KimLongEcoStay.sln --no-restore -c Release
+
+      - name: Publish Blazor Web Project
+        run: dotnet publish KimLongEcoStay.Web/KimLongEcoStay.Web.csproj --no-build -c Release -o release --nologo
+
+      - name: Assemble Static Web Bundle for GitHub Pages
+        run: |
+          mkdir -p dist_pages
+
+          # 1. Sao chep toan bo ma nguon tinh SPA tu goc repo
+          cp -f index.html 404.html .nojekyll favicon.png app.css dist_pages/
+          [ -f logo_chinh_thuc.jpg ] && cp logo_chinh_thuc.jpg dist_pages/ || true
+          [ -f KimLongEcoStay.Web.styles.css ] && cp KimLongEcoStay.Web.styles.css dist_pages/ || true
+          [ -d images ] && cp -r images dist_pages/ || true
+          [ -d js ] && cp -r js dist_pages/ || true
+          [ -d data ] && cp -r data dist_pages/ || true
+          [ -d cart ] && cp -r cart dist_pages/ || true
+          [ -d admin ] && cp -r admin dist_pages/ || true
+          [ -d login ] && cp -r login dist_pages/ || true
+          [ -d lookup ] && cp -r lookup dist_pages/ || true
+          [ -d nhanvien ] && cp -r nhanvien dist_pages/ || true
+          [ -d luong ] && cp -r luong dist_pages/ || true
+          [ -d duan ] && cp -r duan dist_pages/ || true
+          [ -d dashboard ] && cp -r dashboard dist_pages/ || true
+          [ -d ai-assistant ] && cp -r ai-assistant dist_pages/ || true
+
+          # 2. Hop nhat cac tai nguyen tinh tu release/wwwroot (_framework, lib, CSS/JS compiled)
+          if [ -d release/wwwroot ]; then
+            cp -rn release/wwwroot/* dist_pages/ 2>/dev/null || cp -r release/wwwroot/* dist_pages/
+            # Bao dam index.html, 404.html va .nojekyll giu dung phien ban SPA Routing
+            cp -f index.html dist_pages/index.html
+            cp -f 404.html dist_pages/404.html
+            touch dist_pages/.nojekyll
+          fi
+
+          # 3. Bao toan file CNAME cho Custom Domain neu co
+          if [ -f CNAME ]; then
+            cp -f CNAME dist_pages/CNAME
+          fi
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'dist_pages'
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
