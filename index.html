@@ -86,7 +86,7 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item" id="topNavAuthItem">
                     <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" href="login" onclick="navigateToRoute('login'); return false;">
                         <i class="bi bi-person me-1"></i>Đăng Nhập
                     </a>
@@ -569,10 +569,10 @@
 
         
         <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border mb-4"><div class="row g-3 align-items-center"><div class="col-lg-5 col-md-12"><div class="input-group"><span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control bg-light border-start-0 py-2" placeholder="T&#xEC;m b&#xE1;nh &#x1B0;&#x1EDB;t, b&#xFA;n b&#xF2;, ch&#xE8; h&#x1EBB;m, Th&#x1EE7;y Xu&#xE2;n, &#x110;&#x1EA1;i N&#x1ED9;i..." value="" /></div></div>
+                        <input type="text" id="mapSearchInput" class="form-control bg-light border-start-0 py-2" placeholder="Tìm bánh ướt, bún bò, chè hẻm, Thủy Xuân, Đại Nội..." value="" oninput="searchHeritageMap(this.value)" /></div></div>
 
                 
-                <div class="col-lg-7 col-md-12"><div class="d-flex gap-2 flex-wrap justify-content-lg-end"><button type="button" class="map-filter-btn active">T&#x1EA5;t C&#x1EA3; &#x110;&#x1ECB;a &#x110;i&#x1EC3;m</button><button type="button" class="map-filter-btn "><i class="bi bi-bank2 me-1 text-warning"></i>Qu&#x1EA7;n Th&#x1EC3; Di T&#xED;ch C&#x1ED1; &#x110;&#xF4;</button><button type="button" class="map-filter-btn "><i class="bi bi-flower2 me-1" style="color: #EA580C;"></i>L&#xE0;ng Ngh&#x1EC1; Truy&#x1EC1;n Th&#x1ED1;ng</button><button type="button" class="map-filter-btn "><i class="bi bi-egg-fried me-1 text-danger"></i>&#x1EA8;m Th&#x1EF1;c X&#x1EE9; Hu&#x1EBF;</button><button type="button" class="map-filter-btn ">Ch&#xF9;a C&#x1ED5; &amp; T&#xE2;m Linh</button><button type="button" class="map-filter-btn ">Nh&#xE0; V&#x1B0;&#x1EDD;n Di S&#x1EA3;n</button><button type="button" class="map-filter-btn ">G&#x1EA7;n Homestay (&lt; 3km)</button></div></div></div></div>
+                <div class="col-lg-7 col-md-12"><div class="d-flex gap-2 flex-wrap justify-content-lg-end"><button type="button" class="map-filter-btn active" onclick="filterHeritageMapByCategory('Tất Cả Địa Điểm', this)">Tất Cả Địa Điểm</button><button type="button" class="map-filter-btn" onclick="filterHeritageMapByCategory('Quần Thể Di Tích Cố Đô', this)"><i class="bi bi-bank2 me-1 text-warning"></i>Quần Thể Di Tích Cố Đô</button><button type="button" class="map-filter-btn" onclick="filterHeritageMapByCategory('Làng Nghề Truyền Thống', this)"><i class="bi bi-flower2 me-1" style="color: #EA580C;"></i>Làng Nghề Truyền Thống</button><button type="button" class="map-filter-btn" onclick="filterHeritageMapByCategory('Ẩm Thực Xứ Huế', this)"><i class="bi bi-egg-fried me-1 text-danger"></i>Ẩm Thực Xứ Huế</button><button type="button" class="map-filter-btn" onclick="filterHeritageMapByCategory('Chùa Cổ & Tâm Linh', this)">Chùa Cổ &amp; Tâm Linh</button><button type="button" class="map-filter-btn" onclick="filterHeritageMapByCategory('Nhà Vườn Di Sản', this)">Nhà Vườn Di Sản</button><button type="button" class="map-filter-btn" onclick="filterHeritageMapByCategory('Gần Homestay (< 3km)', this)">Gần Homestay (&lt; 3km)</button></div></div></div></div>
 
         
         <div class="map-wrapper-card mb-4 position-relative shadow-sm rounded-4 overflow-hidden border"><div class="p-3 bg-light border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2"><div class="d-flex align-items-center gap-2 flex-grow-1 flex-wrap"><span class="badge py-2 px-3 rounded-pill fw-bold text-white shadow-sm" style="background: #15803D; font-size: 12px;"><i class="bi bi-house-door-fill me-1"></i>Xuất phát: Kim Long EcoStay
@@ -580,31 +580,31 @@
                     <i class="bi bi-arrow-right text-muted d-none d-md-inline fs-6"></i>
                     
                     
-                    <div class="flex-grow-1" style="min-width: 250px; max-width: 380px;"><select id="heritage-dest-select" class="form-select form-select-sm border-success rounded-pill shadow-sm py-2 fw-semibold text-dark" onchange="if(this.value && window.heritageMapController) window.heritageMapController.navigateFromHomestayTo(this.value, 'bike')"><option value>-- Chọn điểm muốn chỉ đường đến --</option>
-                            <optgroup label="&#x1F35C; &#x1EA8;m Th&#x1EF1;c X&#x1EE9; Hu&#x1EBF; (8 qu&#xE1;n n&#x1EE9;c ti&#x1EBF;ng)"><option value="FOOD-BANH-UOT">B&#xE1;nh &#x1AF;&#x1EDB;t Th&#x1ECB;t N&#x1B0;&#x1EDB;ng Huy&#x1EC1;n Anh (&#x110;&#x1EC7; Nh&#x1EA5;t Kim Long) (0.25 km)</option><option value="FOOD-BUN-BO">B&#xFA;n B&#xF2; Hu&#x1EBF; M&#x1EE5; R&#x1A1;i (C&#x1ED5; Truy&#x1EC1;n C&#x1ED1; &#x110;&#xF4;) (4.8 km)</option><option value="FOOD-BANH-BEO">Qu&#xE1;n B&#xE1;nh B&#xE8;o - N&#x1EAD;m - L&#x1ECD;c B&#xE0; &#x110;&#x1ECF; (4.2 km)</option><option value="FOOD-COM-HEN">C&#x1A1;m H&#x1EBF;n &amp; B&#xFA;n H&#x1EBF;n Hoa &#x110;&#xF4;ng (&#x110;&#x1EB7;c S&#x1EA3;n C&#x1ED3;n H&#x1EBF;n) (5.8 km)</option><option value="FOOD-CHE-HEM">Ch&#xE8; H&#x1EBB;m C&#x1ED1; &#x110;&#xF4; (Ch&#xE8; B&#x1ED9;t L&#x1ECD;c Heo Quay &amp; Sen Nh&#xE3;n) (4.5 km)</option><option value="FOOD-CA-PHE-MUOI">Qu&#xE1;n C&#xE0; Ph&#xEA; Mu&#x1ED1;i X&#x1EE9; Hu&#x1EBF; (S&#x1ED1; 10 Nguy&#x1EC5;n L&#x1B0;&#x1A1;ng B&#x1EB1;ng) (3.8 km)</option><option value="FOOD-BANH-CANH">B&#xE1;nh Canh Nam Ph&#x1ED5; Th&#xFA;y (L&#xE0;ng C&#x1ED5; Nam Ph&#x1ED5;) (3.9 km)</option><option value="FOOD-COM-CHAY">C&#x1A1;m Chay Thanh Li&#x1EC5;u (&#x1EA8;m Th&#x1EF1;c Chay Thi&#x1EC1;n M&#xF4;n) (5 km)</option><option value="FOOD-BANH-EP">B&#xE1;nh &#xC9;p Hu&#x1EBF; Ch&#x1ECB; Hu&#x1EC7; (&#x110;&#x1EB7;c S&#x1EA3;n &#x110;&#x1B0;&#x1EDD;ng Ph&#x1ED1; N&#xF3;ng H&#x1ED5;i) (4.3 km)</option><option value="FOOD-BANH-KHOAI">B&#xE1;nh Kho&#xE1;i Ho&#xE0;ng Gia L&#x1EA1;c Thi&#x1EC7;n (C&#x1EED;a Th&#x1B0;&#x1EE3;ng T&#x1EE9;) (3.8 km)</option><option value="FOOD-CHE-MO-TON-DICH">Ch&#xE8; M&#x1EE3; T&#xF4;n &#x110;&#xED;ch (Ch&#xE8; Heo Quay C&#x1EED;a Th&#x1B0;&#x1EE3;ng T&#x1EE9;) (3.7 km)</option><option value="FOOD-BANH-MI-TRUONG-TIEN">B&#xE1;nh M&#xEC; &#x110;&#xEA;m C&#x1EA7;u Tr&#x1B0;&#x1EDD;ng Ti&#x1EC1;n (B&#xE1;nh M&#xEC; O Tho) (4 km)</option><option value="FOOD-CA-PHE-RUNG-THONG">C&#xE0; Ph&#xEA; R&#x1EEB;ng Th&#xF4;ng Sunset (View &#x110;&#x1ED3;i V&#x1ECD;ng C&#x1EA3;nh) (4.7 km)</option><option value="FOOD-NHA-HANG-Y-THAO">Nh&#xE0; H&#xE0;ng &#x1EA8;m Th&#x1EF1;c Cung &#x110;&#xEC;nh Y Th&#x1EA3;o Garden (Nh&#xE0; V&#x1B0;&#x1EDD;n V&#x1EF9; D&#x1EA1;) (3.2 km)</option></optgroup>
-                            <optgroup label="&#x1F3DB;&#xFE0F; Qu&#x1EA7;n Th&#x1EC3; Di T&#xED;ch C&#x1ED1; &#x110;&#xF4; (11 di t&#xED;ch)"><option value="HERITAGE-DAI-NOI">&#x110;&#x1EA1;i N&#x1ED9;i Hu&#x1EBF; (Ho&#xE0;ng Th&#xE0;nh &amp; T&#x1EED; C&#x1EA5;m Th&#xE0;nh) (2.8 km)</option><option value="HERITAGE-TU-DUC">L&#x103;ng T&#x1EF1; &#x110;&#x1EE9;c (Khi&#xEA;m L&#x103;ng) (4.5 km)</option><option value="HERITAGE-KHAI-DINH">L&#x103;ng Kh&#x1EA3;i &#x110;&#x1ECB;nh (&#x1EE8;ng L&#x103;ng) (8.5 km)</option><option value="HERITAGE-MINH-MANG">L&#x103;ng Minh M&#x1EA1;ng (Hi&#x1EBF;u L&#x103;ng) (9.2 km)</option><option value="HERITAGE-VAN-MIEU">V&#x103;n Mi&#x1EBF;u Hu&#x1EBF; (V&#x103;n Th&#xE1;nh) (1.4 km)</option><option value="HERITAGE-CUNG-AN-DINH">Cung An &#x110;&#x1ECB;nh (Vi&#xEA;n Ng&#x1ECD;c T&#xE2;n C&#x1ED5; &#x110;i&#x1EC3;n) (4 km)</option><option value="HERITAGE-HO-QUYEN">&#x110;&#x1EA5;u Tr&#x1B0;&#x1EDD;ng H&#x1ED5; Quy&#x1EC1;n &amp; &#x110;i&#x1EC7;n Voi R&#xE9; (2.2 km)</option><option value="HERITAGE-DOI-VONG-CANH">&#x110;&#x1ED3;i V&#x1ECD;ng C&#x1EA3;nh (&#x110;i&#x1EC3;m Ng&#x1EAF;m Kh&#xFA;c Quanh S&#xF4;ng H&#x1B0;&#x1A1;ng &#x110;&#x1EB9;p Nh&#x1EA5;t) (4.6 km)</option><option value="HERITAGE-CAU-TRUONG-TIEN">C&#x1EA7;u Tr&#x1B0;&#x1EDD;ng Ti&#x1EC1;n (Bi&#x1EC3;u T&#x1B0;&#x1EE3;ng 127 N&#x103;m S&#xF4;ng H&#x1B0;&#x1A1;ng) (3.9 km)</option><option value="HERITAGE-CHO-DONG-BA">Ch&#x1EE3; &#x110;&#xF4;ng Ba (Khu Ch&#x1EE3; Truy&#x1EC1;n Th&#x1ED1;ng 125 N&#x103;m Tu&#x1ED5;i) (4.1 km)</option><option value="HERITAGE-QUOC-HOC">Tr&#x1B0;&#x1EDD;ng Qu&#x1ED1;c H&#x1ECD;c Hu&#x1EBF; (Ng&#xF4;i Tr&#x1B0;&#x1EDD;ng C&#x1ED5; K&#xED;nh 1896 Ven S&#xF4;ng H&#x1B0;&#x1A1;ng) (3.5 km)</option><option value="HERITAGE-LANG-GIA-LONG">L&#x103;ng Vua Gia Long (Thi&#xEA;n Th&#x1ECD; L&#x103;ng Gi&#x1EEF;a 36 Ng&#x1ECD;n N&#xFA;i) (9.2 km)</option></optgroup>
-                            <optgroup label="&#x1F3EE; L&#xE0;ng Ngh&#x1EC1; Th&#x1EE7; C&#xF4;ng (9 l&#xE0;ng ngh&#x1EC1;)"><option value="CRAFT-THUY-XUAN">L&#xE0;ng H&#x1B0;&#x1A1;ng Th&#x1EE7;y Xu&#xE2;n (H&#x1B0;&#x1A1;ng Tr&#x1EA7;m &amp; N&#xF3;n L&#xE1;) (4.2 km)</option><option value="CRAFT-KIM-LONG">L&#xE0;ng B&#x1B0;&#x1EDF;i Thanh Tr&#xE0; &amp; B&#xE1;nh &#x1AF;&#x1EDB;t Th&#x1ECB;t N&#x1B0;&#x1EDB;ng Kim Long (0.3 km)</option><option value="CRAFT-LANG-SINH">L&#xE0;ng Tranh D&#xE2;n Gian L&#xE0;ng S&#xEC;nh (7.5 km)</option><option value="CRAFT-THANH-TIEN">L&#xE0;ng Hoa Gi&#x1EA5;y Thanh Ti&#xEA;n (7.8 km)</option><option value="CRAFT-PHUONG-DUC">L&#xE0;ng &#x110;&#xFA;c &#x110;&#x1ED3;ng Ph&#x1B0;&#x1EDD;ng &#x110;&#xFA;c (2.5 km)</option><option value="CRAFT-TAY-HO">L&#xE0;ng N&#xF3;n L&#xE1; T&#xE2;y H&#x1ED3; (N&#xF3;n B&#xE0;i Th&#x1A1; Hu&#x1EBF;) (11.2 km)</option><option value="CRAFT-PHUOC-TICH">L&#xE0;ng C&#x1ED5; &amp; G&#x1ED1;m &#x110;&#x1EA5;t Nung Ph&#x1B0;&#x1EDB;c T&#xED;ch (38.5 km)</option><option value="CRAFT-BAO-LA">L&#xE0;ng M&#xE2;y Tre &#x110;an Bao La (14.5 km)</option><option value="CRAFT-NON-TAY-HO">L&#xE0;ng N&#xF3;n L&#xE1; T&#xE2;y H&#x1ED3; (C&#xE1;i N&#xF4;i N&#xF3;n B&#xE0;i Th&#x1A1; X&#x1EE9; Hu&#x1EBF;) (7.8 km)</option><option value="CRAFT-LANG-CHUON">L&#xE0;ng R&#x1B0;&#x1EE3;u Chu&#x1ED3;n &amp; Ch&#x1EE3; N&#x1ED5;i &#x110;&#x1EA7;m Chu&#x1ED3;n (&#x110;&#x1EA7;m Ph&#xE1; Tam Giang) (11.5 km)</option></optgroup>
-                            <optgroup label="&#x26E9;&#xFE0F; Ch&#xF9;a C&#x1ED5; &amp; Nh&#xE0; V&#x1B0;&#x1EDD;n Di S&#x1EA3;n"><option value="HERITAGE-THIEN-MU">Ch&#xF9;a Thi&#xEA;n M&#x1EE5; (Linh M&#x1EE5; T&#x1EF1;) (0.85 km)</option><option value="HERITAGE-AN-HIEN">Nh&#xE0; V&#x1B0;&#x1EDD;n An Hi&#xEA;n (&#x110;&#x1EC7; Nh&#x1EA5;t Nh&#xE0; V&#x1B0;&#x1EDD;n X&#x1EE9; Hu&#x1EBF;) (0.45 km)</option><option value="HERITAGE-HON-CHEN">&#x110;i&#x1EC7;n H&#xF2;n Ch&#xE9;n (Hu&#x1EC7; Nam &#x110;i&#x1EC7;n) (5.8 km)</option><option value="HERITAGE-TU-HIEU">Ch&#xF9;a T&#x1EEB; Hi&#x1EBF;u (Ng&#xF4;i Ch&#xF9;a Th&#xE1;i Gi&#xE1;m &amp; R&#x1EEB;ng Th&#xF4;ng) (4.8 km)</option><option value="HERITAGE-CHUA-DIEU-DE">Ch&#xF9;a Di&#x1EC7;u &#x110;&#x1EBF; (&#x110;&#x1EC7; Tam Qu&#x1ED1;c T&#x1EF1; &amp; B&#xED;ch H&#x1ECD;a Long V&#xE2;n Kh&#x1EBF; H&#x1ED9;i) (4.4 km)</option><option value="HERITAGE-CHUA-BAO-QUOC">Ch&#xF9;a B&#xE1;o Qu&#x1ED1;c &amp; Gi&#x1EBF;ng H&#xE0;m Long (C&#x1ED5; T&#x1EF1; 350 N&#x103;m) (3.1 km)</option></optgroup></select></div>
+                    <div class="flex-grow-1" style="min-width: 250px; max-width: 380px;"><select id="heritage-dest-select" class="form-select form-select-sm border-success rounded-pill shadow-sm py-2 fw-semibold text-dark" onchange="if(this.value && window.heritageMapController) window.heritageMapController.navigateFromHomestayTo(this.value, window.currentNavTravelMode || 'bike')"><option value>-- Chọn điểm muốn chỉ đường đến --</option>
+                            <optgroup label="🍜 Ẩm Thực Xứ Huế (8 quán nức tiếng)"><option value="FOOD-BANH-UOT">Bánh Ướt Thịt Nướng Huyền Anh (Đệ Nhất Kim Long) (0.25 km)</option><option value="FOOD-BUN-BO">Bún Bò Huế Mụ Rơi (Cổ Truyền Cố Đô) (4.8 km)</option><option value="FOOD-BANH-BEO">Quán Bánh Bèo - Nậm - Lọc Bà Đỏ (4.2 km)</option><option value="FOOD-COM-HEN">Cơm Hến &amp; Bún Hến Hoa Đông (Đặc Sản Cồn Hến) (5.8 km)</option><option value="FOOD-CHE-HEM">Chè Hẻm Cố Đô (Chè Bột Lọc Heo Quay &amp; Sen Nhãn) (4.5 km)</option><option value="FOOD-CA-PHE-MUOI">Quán Cà Phê Muối Xứ Huế (Số 10 Nguyễn Lương Bằng) (3.8 km)</option><option value="FOOD-BANH-CANH">Bánh Canh Nam Phổ Thúy (Làng Cổ Nam Phổ) (3.9 km)</option><option value="FOOD-COM-CHAY">Cơm Chay Thanh Liễu (Ẩm Thực Chay Thiền Môn) (5 km)</option><option value="FOOD-BANH-EP">Bánh Ép Huế Chị Huệ (Đặc Sản Đường Phố Nóng Hổi) (4.3 km)</option><option value="FOOD-BANH-KHOAI">Bánh Khoái Hoàng Gia Lạc Thiện (Cửa Thượng Tứ) (3.8 km)</option><option value="FOOD-CHE-MO-TON-DICH">Chè Mợ Tôn Đích (Chè Heo Quay Cửa Thượng Tứ) (3.7 km)</option><option value="FOOD-BANH-MI-TRUONG-TIEN">Bánh Mì Đêm Cầu Trường Tiền (Bánh Mì O Tho) (4 km)</option><option value="FOOD-CA-PHE-RUNG-THONG">Cà Phê Rừng Thông Sunset (View Đồi Vọng Cảnh) (4.7 km)</option><option value="FOOD-NHA-HANG-Y-THAO">Nhà Hàng Ẩm Thực Cung Đình Y Thảo Garden (Nhà Vườn Vỹ Dạ) (3.2 km)</option></optgroup>
+                            <optgroup label="🏛️ Quần Thể Di Tích Cố Đô (11 di tích)"><option value="HERITAGE-DAI-NOI">Đại Nội Huế (Hoàng Thành &amp; Tử Cấm Thành) (2.8 km)</option><option value="HERITAGE-TU-DUC">Lăng Tự Đức (Khiêm Lăng) (4.5 km)</option><option value="HERITAGE-KHAI-DINH">Lăng Khải Định (Ứng Lăng) (8.5 km)</option><option value="HERITAGE-MINH-MANG">Lăng Minh Mạng (Hiếu Lăng) (9.2 km)</option><option value="HERITAGE-VAN-MIEU">Văn Miếu Huế (Văn Thánh) (1.4 km)</option><option value="HERITAGE-CUNG-AN-DINH">Cung An Định (Viên Ngọc Tân Cổ Điển) (4 km)</option><option value="HERITAGE-HO-QUYEN">Đấu Trường Hổ Quyền &amp; Điện Voi Ré (2.2 km)</option><option value="HERITAGE-DOI-VONG-CANH">Đồi Vọng Cảnh (Điểm Ngắm Khúc Quanh Sông Hương Đẹp Nhất) (4.6 km)</option><option value="HERITAGE-CAU-TRUONG-TIEN">Cầu Trường Tiền (Biểu Tượng 127 Năm Sông Hương) (3.9 km)</option><option value="HERITAGE-CHO-DONG-BA">Chợ Đông Ba (Khu Chợ Truyền Thống 125 Năm Tuổi) (4.1 km)</option><option value="HERITAGE-QUOC-HOC">Trường Quốc Học Huế (Ngôi Trường Cổ Kính 1896 Ven Sông Hương) (3.5 km)</option><option value="HERITAGE-LANG-GIA-LONG">Lăng Vua Gia Long (Thiên Thọ Lăng Giữa 36 Ngọn Núi) (9.2 km)</option></optgroup>
+                            <optgroup label="🏮 Làng Nghề Thủ Công (9 làng nghề)"><option value="CRAFT-THUY-XUAN">Làng Hương Thủy Xuân (Hương Trầm &amp; Nón Lá) (4.2 km)</option><option value="CRAFT-KIM-LONG">Làng Bưởi Thanh Trà &amp; Bánh Ướt Thịt Nướng Kim Long (0.3 km)</option><option value="CRAFT-LANG-SINH">Làng Tranh Dân Gian Làng Sình (7.5 km)</option><option value="CRAFT-THANH-TIEN">Làng Hoa Giấy Thanh Tiên (7.8 km)</option><option value="CRAFT-PHUONG-DUC">Làng Đúc Đồng Phường Đúc (2.5 km)</option><option value="CRAFT-TAY-HO">Làng Nón Lá Tây Hồ (Nón Bài Thơ Huế) (11.2 km)</option><option value="CRAFT-PHUOC-TICH">Làng Cổ &amp; Gốm Đất Nung Phước Tích (38.5 km)</option><option value="CRAFT-BAO-LA">Làng Mây Tre Đan Bao La (14.5 km)</option><option value="CRAFT-NON-TAY-HO">Làng Nón Lá Tây Hồ (Cái Nôi Nón Bài Thơ Xứ Huế) (7.8 km)</option><option value="CRAFT-LANG-CHUON">Làng Rượu Chuồn &amp; Chợ Nổi Đầm Chuồn (Đầm Phá Tam Giang) (11.5 km)</option></optgroup>
+                            <optgroup label="⛩️ Chùa Cổ &amp; Nhà Vườn Di Sản"><option value="HERITAGE-THIEN-MU">Chùa Thiên Mụ (Linh Mụ Tự) (0.85 km)</option><option value="HERITAGE-AN-HIEN">Nhà Vườn An Hiên (Đệ Nhất Nhà Vườn Xứ Huế) (0.45 km)</option><option value="HERITAGE-HON-CHEN">Điện Hòn Chén (Huệ Nam Điện) (5.8 km)</option><option value="HERITAGE-TU-HIEU">Chùa Từ Hiếu (Ngôi Chùa Thái Giám &amp; Rừng Thông) (4.8 km)</option><option value="HERITAGE-CHUA-DIEU-DE">Chùa Diệu Đế (Đệ Tam Quốc Tự &amp; Bích Họa Long Vân Khế Hội) (4.4 km)</option><option value="HERITAGE-CHUA-BAO-QUOC">Chùa Báo Quốc &amp; Giếng Hàm Long (Cổ Tự 350 Năm) (3.1 km)</option></optgroup></select></div>
 
                     
-                    <div class="btn-group btn-group-sm rounded-pill border bg-white p-1 shadow-sm"><button type="button" class="btn btn-sm rounded-pill btn-success fw-bold text-white shadow-sm" title="Xe &#x111;&#x1EA1;p tr&#x1EE3; l&#x1EF1;c &#x111;i&#x1EC7;n Eco-Bike"><i class="bi bi-bicycle"></i> Eco-Bike
+                    <div class="btn-group btn-group-sm rounded-pill border bg-white p-1 shadow-sm"><button type="button" class="btn btn-sm rounded-pill btn-success fw-bold text-white shadow-sm" onclick="setTravelMode('bike', this)" title="Xe đạp trợ lực điện Eco-Bike"><i class="bi bi-bicycle"></i> Eco-Bike
                         </button>
-                        <button type="button" class="btn btn-sm rounded-pill btn-light text-secondary" title="&#x110;i b&#x1ED9; d&#x1EA1;o ph&#x1ED1;"><i class="bi bi-person-walking"></i> Đi bộ
+                        <button type="button" class="btn btn-sm rounded-pill btn-light text-secondary" onclick="setTravelMode('walk', this)" title="Đi bộ dạo phố"><i class="bi bi-person-walking"></i> Đi bộ
                         </button>
-                        <button type="button" class="btn btn-sm rounded-pill btn-light text-secondary" title="Xe m&#xE1;y ho&#x1EB7;c Taxi"><i class="bi bi-scooter"></i> Xe máy
+                        <button type="button" class="btn btn-sm rounded-pill btn-light text-secondary" onclick="setTravelMode('motor', this)" title="Xe máy hoặc Taxi"><i class="bi bi-scooter"></i> Xe máy
                         </button></div></div>
 
                 <div class="d-flex align-items-center gap-2"></div></div>
 
             
-            <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2"><div class="d-flex align-items-center gap-3 small flex-wrap"><div class="map-layer-switch shadow-sm"><button type="button" class="map-layer-btn active" title="B&#x1EA3;n &#x111;&#x1ED3; &#x111;&#x1B0;&#x1EDD;ng ph&#x1ED1; du l&#x1ECB;ch C&#x1ED1; &#x111;&#xF4; - T&#x1B0;&#x1A1;i s&#xE1;ng, n&#x1ED5;i b&#x1EAD;t s&#xF4;ng H&#x1B0;&#x1A1;ng &amp; danh th&#x1EAF;ng"><i class="bi bi-map-fill text-primary"></i>
+            <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2"><div class="d-flex align-items-center gap-3 small flex-wrap"><div class="map-layer-switch shadow-sm"><button type="button" class="map-layer-btn active" onclick="switchMapMode('street', this)" title="Bản đồ đường phố du lịch Cố đô - Tươi sáng, nổi bật sông Hương &amp; danh thắng"><i class="bi bi-map-fill text-primary"></i>
                             <span>Bản đồ phố (Du lịch)</span></button>
-                        <button type="button" class="map-layer-btn " title="B&#x1EA3;n &#x111;&#x1ED3; giao th&#xF4;ng - Chi ti&#x1EBF;t t&#x1EEB;ng t&#xEA;n &#x111;&#x1B0;&#x1EDD;ng, ng&#xF5; h&#x1EBB;m v&#xE0; c&#x1EA7;u qua s&#xF4;ng H&#x1B0;&#x1A1;ng"><i class="bi bi-signpost-split-fill text-warning"></i>
+                        <button type="button" class="map-layer-btn" onclick="switchMapMode('esri_street', this)" title="Bản đồ giao thông - Chi tiết từng tên đường, ngõ hẻm và cầu qua sông Hương"><i class="bi bi-signpost-split-fill text-warning"></i>
                             <span>Bản đồ phố (Giao thông)</span></button>
-                        <button type="button" class="map-layer-btn " title="&#x1EA2;nh v&#x1EC7; tinh th&#x1EF1;c t&#x1EBF; &#x111;&#x1ED9; ph&#xE2;n gi&#x1EA3;i cao"><i class="bi bi-globe-americas text-success"></i>
+                        <button type="button" class="map-layer-btn" onclick="switchMapMode('satellite', this)" title="Ảnh vệ tinh thực tế độ phân giải cao"><i class="bi bi-globe-americas text-success"></i>
                             <span>Vệ tinh thực tế</span></button></div>
 
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold" title="T&#x1EA3;i l&#x1EA1;i b&#x1EA3;n &#x111;&#x1ED3; v&#xE0; c&#x103;n gi&#x1EEF;a v&#x1ECB; tr&#xED; Homestay Kim Long"><i class="bi bi-arrow-clockwise me-1"></i>Về tâm Homestay
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold" onclick="resetHeritageMap()" title="Tải lại bản đồ và căn giữa vị trí Homestay Kim Long"><i class="bi bi-arrow-clockwise me-1"></i>Về tâm Homestay
                     </button>
 
                     <div class="vr d-none d-md-block" style="height: 24px;"></div>
@@ -618,19 +618,19 @@
                         <span><span class="badge" style="background:#7C3AED;">●</span> Chùa cổ</span></div></div>
 
                 <div class="d-flex align-items-center gap-2 flex-wrap"><span class="small text-muted d-none d-sm-inline">Lộ trình:</span>
-                    <button class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1">
+                    <button class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-SUNSET')">
                         🌅 Tuyến 5: Hoàng Hôn
                     </button>
-                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1">
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-FOOD')">
                         🍲 Tuyến 4: Ẩm Thực
                     </button>
-                    <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1">
+                    <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-RIVER')">
                         🚴 Tuyến 1: Sông Hương
                     </button>
-                    <button class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1">
+                    <button class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-CRAFTS')">
                         🏮 Tuyến 2: Làng Nghề
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1" title="&#x110;&#x1B0;a b&#x1EA3;n &#x111;&#x1ED3; v&#x1EC1; t&#xE2;m &#x111;i&#x1EC3;m Kim Long EcoStay"><i class="bi bi-crosshair"></i></button></div></div>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1" onclick="resetHeritageMap()" title="Đưa bản đồ về tâm điểm Kim Long EcoStay"><i class="bi bi-crosshair"></i></button></div></div>
 
             
             <div class="position-relative"><div id="heritage-leaflet-map" style="min-height: 540px; width: 100%;"></div>
@@ -722,12 +722,12 @@
                                     <span>2.8 km</span></div></div></div><div class="quick-strip-card"><img src="images/ho_sen_hue.jpg" alt="L&#x103;ng T&#x1EF1; &#x110;&#x1EE9;c (Khi&#xEA;m L&#x103;ng)" class="quick-strip-img" onerror="this.src=&#x27;/images/hero_ecostay.jpg&#x27;" />
                             <div class="quick-strip-info"><div class="quick-strip-name" title="L&#x103;ng T&#x1EF1; &#x110;&#x1EE9;c (Khi&#xEA;m L&#x103;ng)">L&#x103;ng T&#x1EF1; &#x110;&#x1EE9;c (Khi&#xEA;m L&#x103;ng)</div>
                                 <div class="quick-strip-sub"><span class="badge" style="background:#B8860B; font-size: 9px; padding: 2px 5px;">Di T&#xED;ch C&#x1ED1; &#x110;&#xF4;</span>
-                                    <span>4.5 km</span></div></div></div><div class="quick-strip-card"><img src="images/song_huong_hoanghon.jpg" alt="L&#x103;ng Kh&#x1EA3;i &#x110;&#x1ECB;nh (&#x1EE8;ng L&#x103;ng)" class="quick-strip-img" onerror="this.src=&#x27;/images/hero_ecostay.jpg&#x27;" />
-                            <div class="quick-strip-info"><div class="quick-strip-name" title="L&#x103;ng Kh&#x1EA3;i &#x110;&#x1ECB;nh (&#x1EE8;ng L&#x103;ng)">L&#x103;ng Kh&#x1EA3;i &#x110;&#x1ECB;nh (&#x1EE8;ng L&#x103;ng)</div>
-                                <div class="quick-strip-sub"><span class="badge" style="background:#B8860B; font-size: 9px; padding: 2px 5px;">Di T&#xED;ch C&#x1ED1; &#x110;&#xF4;</span>
-                                    <span>8.5 km</span></div></div></div><div class="quick-strip-card"><img src="images/kien_truc_vuon_hue.jpg" alt="L&#x103;ng Minh M&#x1EA1;ng (Hi&#x1EBF;u L&#x103;ng)" class="quick-strip-img" onerror="this.src=&#x27;/images/hero_ecostay.jpg&#x27;" />
-                            <div class="quick-strip-info"><div class="quick-strip-name" title="L&#x103;ng Minh M&#x1EA1;ng (Hi&#x1EBF;u L&#x103;ng)">L&#x103;ng Minh M&#x1EA1;ng (Hi&#x1EBF;u L&#x103;ng)</div>
-                                <div class="quick-strip-sub"><span class="badge" style="background:#B8860B; font-size: 9px; padding: 2px 5px;">Di T&#xED;ch C&#x1ED1; &#x110;&#xF4;</span>
+                                    <span>4.5 km</span></div></div></div><div class="quick-strip-card"><img src="images/song_huong_hoanghon.jpg" alt="Lăng Khải Định (Ứng Lăng)" class="quick-strip-img" onerror="this.src='/images/hero_ecostay.jpg'" />
+                            <div class="quick-strip-info"><div class="quick-strip-name" title="Lăng Khải Định (Ứng Lăng)">Lăng Khải Định (Ứng Lăng)</div>
+                                <div class="quick-strip-sub"><span class="badge" style="background:#B8860B; font-size: 9px; padding: 2px 5px;">Di Tích Cố Đô</span>
+                                    <span>8.5 km</span></div></div></div><div class="quick-strip-card"><img src="images/kien_truc_vuon_hue.jpg" alt="Lăng Minh Mạng (Hiếu Lăng)" class="quick-strip-img" onerror="this.src='/images/hero_ecostay.jpg'" />
+                            <div class="quick-strip-info"><div class="quick-strip-name" title="Lăng Minh Mạng (Hiếu Lăng)">Lăng Minh Mạng (Hiếu Lăng)</div>
+                                <div class="quick-strip-sub"><span class="badge" style="background:#B8860B; font-size: 9px; padding: 2px 5px;">Di Tích Cố Đô</span>
                                     <span>9.2 km</span></div></div></div></div></div></div>
 
         
@@ -735,32 +735,32 @@
                 </h3>
                 <small class="text-muted">Xuất phát trực tiếp từ Kim Long EcoStay kèm GPS dẫn đường</small></div></div>
 
-        <div class="row g-3 mb-5"><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">Tour Xe &#x110;&#x1EA1;p Ph&#x1ED5; Bi&#x1EBF;n Nh&#x1EA5;t</span>
-                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Kho&#x1EA3;ng 2 - 3 gi&#x1EDD;</span></div>
-                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuy&#x1EBF;n 1: Cung &#x110;&#x1B0;&#x1EDD;ng Di S&#x1EA3;n Ven S&#xF4;ng H&#x1B0;&#x1A1;ng &amp; Nh&#xE0; V&#x1B0;&#x1EDD;n Kim Long</h5>
-                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kh&#x1EDF;i h&#xE0;nh t&#x1EEB; Kim Long EcoStay &#x2794; Nh&#xE0; V&#x1B0;&#x1EDD;n An Hi&#xEA;n (th&#x103;m nh&#xE0; r&#x1B0;&#x1EDD;ng) &#x2794; Ch&#xF9;a Thi&#xEA;n M&#x1EE5; (ng&#x1EAF;m Th&#xE1;p Ph&#x1B0;&#x1EDB;c Duy&#xEA;n) &#x2794; V&#x103;n Mi&#x1EBF;u Hu&#x1EBF; (32 bia ti&#x1EBF;n s&#x129;) &#x2794; L&#xF2; B&#xE1;nh &#x1AF;&#x1EDB;t Kim Long (th&#x1B0;&#x1EDF;ng th&#x1EE9;c b&#xE1;nh &#x1B0;&#x1EDB;t th&#x1ECB;t n&#x1B0;&#x1EDB;ng than hoa).</p></div>
-                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Xe &#x111;&#x1EA1;p tr&#x1EE3; l&#x1EF1;c &#x111;i&#x1EC7;n Eco-Bike (Mi&#x1EC5;n ph&#xED; t&#x1EEB; Kim Long EcoStay)</small>
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">Tr&#x1EA3;i Nghi&#x1EC7;m Th&#x1EE7; C&#xF4;ng Ngh&#x1EC7; Thu&#x1EAD;t</span>
-                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Kho&#x1EA3;ng 3.5 - 4.5 gi&#x1EDD;</span></div>
-                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuy&#x1EBF;n 2: Kh&#xE1;m Ph&#xE1; L&#xE0;ng Ngh&#x1EC1; Th&#x1EE7; C&#xF4;ng &amp; L&#x103;ng T&#x1EA9;m Thi Ca</h5>
-                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kim Long EcoStay &#x2794; C&#x1EA7;u D&#xE3; Vi&#xEA;n &#x2794; L&#xE0;ng &#x110;&#xFA;c &#x110;&#x1ED3;ng Ph&#x1B0;&#x1EDD;ng &#x110;&#xFA;c &#x2794; L&#xE0;ng H&#x1B0;&#x1A1;ng Th&#x1EE7;y Xu&#xE2;n (t&#x1EF1; tay se h&#x1B0;&#x1A1;ng) &#x2794; L&#x103;ng T&#x1EF1; &#x110;&#x1EE9;c (th&#x1A1; m&#x1ED9;ng h&#x1ED3; sen) &#x2794; Ch&#xF9;a T&#x1EEB; Hi&#x1EBF;u (r&#x1EEB;ng th&#xF4;ng th&#xE1;i gi&#xE1;m).</p></div>
-                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Xe &#x111;&#x1EA1;p Eco-Bike ho&#x1EB7;c xe m&#xE1;y</small>
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">V&#x103;n H&#xF3;a Cung &#x110;&#xEC;nh &amp; D&#xE2;n Gian</span>
-                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Kho&#x1EA3;ng 4 - 5 gi&#x1EDD;</span></div>
-                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuy&#x1EBF;n 3: Tr&#xE1;i Tim Ho&#xE0;ng Gia &amp; Th&#x1EE7; Ph&#x1EE7; M&#x1ED9;c B&#x1EA3;n L&#xE0;ng S&#xEC;nh</h5>
-                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kim Long EcoStay &#x2794; &#x110;&#x1EA1;i N&#x1ED9;i Hu&#x1EBF; (Ng&#x1ECD; M&#xF4;n &amp; T&#x1EED; C&#x1EA5;m Th&#xE0;nh) &#x2794; Cung An &#x110;&#x1ECB;nh (ki&#x1EBF;n tr&#xFA;c t&#xE2;n c&#x1ED5; &#x111;i&#x1EC3;n) &#x2794; L&#xE0;ng Tranh L&#xE0;ng S&#xEC;nh (in tranh m&#x1ED9;c b&#x1EA3;n) &#x2794; L&#xE0;ng Hoa Gi&#x1EA5;y Thanh Ti&#xEA;n (x&#x1EBF;p c&#xE1;nh hoa sen).</p></div>
-                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>K&#x1EBF;t h&#x1EE3;p xe &#x111;&#x1EA1;p</small>
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1 small">Tour V&#x1ECB; Gi&#xE1;c C&#x1ED1; &#x110;&#xF4;</span>
-                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Kho&#x1EA3;ng 3 - 4 gi&#x1EDD;</span></div>
-                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuy&#x1EBF;n 4: Thi&#xEA;n &#x110;&#x1B0;&#x1EDD;ng &#x1EA8;m Th&#x1EF1;c &amp; M&#xF3;n Ngon X&#x1EE9; Hu&#x1EBF;</h5>
-                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kim Long EcoStay &#x2794; B&#xE1;nh &#x1B0;&#x1EDB;t Huy&#x1EC1;n Anh Kim Long (250m) &#x2794; B&#xE1;nh b&#xE8;o n&#x1EAD;m l&#x1ECD;c B&#xE0; &#x110;&#x1ECF; &#x2794; C&#xE0; ph&#xEA; mu&#x1ED1;i Nguy&#x1EC5;n L&#x1B0;&#x1A1;ng B&#x1EB1;ng &#x2794; Ch&#xE8; H&#x1EBB;m H&#xF9;ng V&#x1B0;&#x1A1;ng (ch&#xE8; b&#x1ED9;t l&#x1ECD;c heo quay) &#x2794; B&#xFA;n b&#xF2; Hu&#x1EBF; M&#x1EE5; R&#x1A1;i.</p></div>
-                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Xe &#x111;&#x1EA1;p tr&#x1EE3; l&#x1EF1;c &#x111;i&#x1EC7;n Eco-Bike ho&#x1EB7;c xe m&#xE1;y d&#x1EA1;o ph&#x1ED1;</small>
-                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">Tour Ho&#xE0;ng H&#xF4;n Tri&#x1EC7;u &#x110;&#xF4;</span>
-                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Kho&#x1EA3;ng 3 gi&#x1EDD;</span></div>
-                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuy&#x1EBF;n 5: Chi&#x1EC1;u T&#xE0; S&#xF4;ng H&#x1B0;&#x1A1;ng &amp; Ho&#xE0;ng H&#xF4;n &#x110;&#x1ED3;i V&#x1ECD;ng C&#x1EA3;nh</h5>
-                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kim Long EcoStay &#x2794; Ch&#xF9;a Thi&#xEA;n M&#x1EE5; &#x2794; C&#x1EA7;u D&#xE3; Vi&#xEA;n &#x2794; L&#xE0;ng H&#x1B0;&#x1A1;ng Th&#x1EE7;y Xu&#xE2;n &#x2794; &#x110;&#x1ED3;i V&#x1ECD;ng C&#x1EA3;nh (ng&#x1EAF;m ho&#xE0;ng h&#xF4;n tri&#x1EC7;u &#x111;&#xF4;) &#x2794; C&#xE0; Ph&#xEA; R&#x1EEB;ng Th&#xF4;ng Sunset.</p></div>
-                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Xe &#x111;&#x1EA1;p tr&#x1EE3; l&#x1EF1;c &#x111;i&#x1EC7;n Eco-Bike ho&#x1EB7;c xe m&#xE1;y</small>
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div></div>
+        <div class="row g-3 mb-5"><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">Tour Xe Đạp Phổ Biến Nhất</span>
+                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Khoảng 2 - 3 giờ</span></div>
+                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuyến 1: Cung Đường Di Sản Ven Sông Hương &amp; Nhà Vườn Kim Long</h5>
+                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Khởi hành từ Kim Long EcoStay ➔ Nhà Vườn An Hiên (thăm nhà rường) ➔ Chùa Thiên Mụ (ngắm Tháp Phước Duyên) ➔ Văn Miếu Huế (32 bia tiến sĩ) ➔ Lò Bánh Ướt Kim Long (thưởng thức bánh ướt thịt nướng than hoa).</p></div>
+                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Xe đạp trợ lực điện Eco-Bike (Miễn phí từ Kim Long EcoStay)</small>
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-RIVER')" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">Trải Nghiệm Thủ Công Nghệ Thuật</span>
+                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Khoảng 3.5 - 4.5 giờ</span></div>
+                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuyến 2: Khám Phá Làng Nghề Thủ Công &amp; Lăng Tẩm Thi Ca</h5>
+                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kim Long EcoStay ➔ Cầu Dã Viên ➔ Làng Đúc Đồng Phường Đúc ➔ Làng Hương Thủy Xuân (tự tay se hương) ➔ Lăng Tự Đức (thơ mộng hồ sen) ➔ Chùa Từ Hiếu (rừng thông thái giám).</p></div>
+                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Xe đạp Eco-Bike hoặc xe máy</small>
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-CRAFTS')" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">Văn Hóa Cung Đình &amp; Dân Gian</span>
+                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Khoảng 4 - 5 giờ</span></div>
+                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuyến 3: Trái Tim Hoàng Gia &amp; Thủ Phủ Mộc Bản Làng Sình</h5>
+                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kim Long EcoStay ➔ Đại Nội Huế (Ngọ Môn &amp; Tử Cấm Thành) ➔ Cung An Định (kiến trúc tân cổ điển) ➔ Làng Tranh Làng Sình (in tranh mộc bản) ➔ Làng Hoa Giấy Thanh Tiên (xếp cánh hoa sen).</p></div>
+                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Kết hợp xe đạp</small>
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-ROYAL')" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1 small">Tour Vị Giác Cố Đô</span>
+                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Khoảng 3 - 4 giờ</span></div>
+                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuyến 4: Thiên Đường Ẩm Thực &amp; Món Ngon Xứ Huế</h5>
+                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kim Long EcoStay ➔ Bánh ướt Huyền Anh Kim Long (250m) ➔ Bánh bèo nậm lọc Bà Đỏ ➔ Cà phê muối Nguyễn Lương Bằng ➔ Chè Hẻm Hùng Vương (chè bột lọc heo quay) ➔ Bún bò Huế Mụ Rơi.</p></div>
+                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Xe đạp trợ lực điện Eco-Bike hoặc xe máy dạo phố</small>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-FOOD')" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-xl-3 col-lg-6 col-md-6"><div class="p-3 bg-white rounded-4 border shadow-sm h-100 d-flex flex-column justify-content-between " style="transition: all 0.25s ease;"><div><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">Tour Hoàng Hôn Triệu Đô</span>
+                                <span class="badge bg-light text-muted border small"><i class="bi bi-clock me-1"></i>Khoảng 3 giờ</span></div>
+                            <h5 class="font-serif fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.35;">Tuyến 5: Chiều Tà Sông Hương &amp; Hoàng Hôn Đồi Vọng Cảnh</h5>
+                            <p class="text-muted small mb-2" style="line-height: 1.5; font-size: 12px;">Kim Long EcoStay ➔ Chùa Thiên Mụ ➔ Cầu Dã Viên ➔ Làng Hương Thủy Xuân ➔ Đồi Vọng Cảnh (ngắm hoàng hôn triệu đô) ➔ Cà Phê Rừng Thông Sunset.</p></div>
+                        <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center"><small class="text-secondary" style="font-size: 11px;"><i class="bi bi-bicycle me-1"></i>Xe đạp trợ lực điện Eco-Bike hoặc xe máy</small>
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" onclick="triggerTourRoute('ROUTE-SUNSET')" style="font-size: 12px;"><span>Xem lộ trình</span> <i class="bi bi-arrow-right"></i></button></div></div></div></div>
 
         
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"><div><h3 class="font-serif fw-bold text-dark mb-0" style="font-size: 22px;">
@@ -3106,146 +3106,245 @@ window.sendAiMessage = function() {
 };
 
 // =========================================================================
-// 6. LEAFLET MAP INITIALIZER
+// 6. HERITAGE GIS MAP & REAL-TIME ROUTING BRIDGES
 // =========================================================================
-var map = null;
-var routeLine = null;
+window.currentNavTravelMode = 'bike';
+window.currentSelectedCategory = 'Tất Cả Địa Điểm';
 
-function initSimpleLeafletMap() {
-  var mapContainer = document.getElementById('heritage-leaflet-map');
-  if (!mapContainer || typeof L === 'undefined') return;
+var tourRouteMapping = {
+  'ROUTE-RIVER': ["KLE-CENTER", "HERITAGE-AN-HIEN", "HERITAGE-THIEN-MU", "HERITAGE-VAN-MIEU", "CRAFT-KIM-LONG"],
+  'ROUTE-CRAFTS': ["KLE-CENTER", "CRAFT-PHUONG-DUC", "CRAFT-THUY-XUAN", "HERITAGE-TU-DUC", "HERITAGE-TU-HIEU"],
+  'ROUTE-ROYAL': ["KLE-CENTER", "HERITAGE-DAI-NOI", "HERITAGE-CUNG-AN-DINH", "CRAFT-LANG-SINH", "CRAFT-THANH-TIEN"],
+  'ROUTE-FOOD': ["KLE-CENTER", "FOOD-BANH-UOT", "FOOD-BANH-BEO", "FOOD-CA-PHE-MUOI", "FOOD-CHE-HEM", "FOOD-BUN-BO"],
+  'ROUTE-SUNSET': ["KLE-CENTER", "HERITAGE-THIEN-MU", "CRAFT-THUY-XUAN", "HERITAGE-DOI-VONG-CANH", "FOOD-CA-PHE-RUNG-THONG"]
+};
 
-  var ecoStayCoords = [16.4560, 107.5495];
-  map = L.map('heritage-leaflet-map', {
-    center: ecoStayCoords,
-    zoom: 14,
-    scrollWheelZoom: false
+window.triggerTourRoute = function(routeId) {
+  if (!window.heritageMapController || !window.heritageLocations) return;
+  var stopIds = tourRouteMapping[routeId];
+  if (stopIds) {
+    scrollToSection('heritage-map');
+    setTimeout(function() {
+      window.heritageMapController.drawRoute(stopIds, window.heritageLocations);
+    }, 150);
+  }
+};
+
+window.filterHeritageMapByCategory = function(category, btnEl) {
+  window.currentSelectedCategory = category;
+  if (btnEl) {
+    document.querySelectorAll('.map-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btnEl.classList.add('active');
+  }
+  var query = document.getElementById('mapSearchInput') ? document.getElementById('mapSearchInput').value : '';
+  if (window.heritageMapController) {
+    window.heritageMapController.filterMarkers(category, query);
+  }
+  // Đồng bộ ẩn hiện danh sách thẻ điểm đến
+  document.querySelectorAll('.heritage-card').forEach(function(card) {
+    var cardText = card.textContent || '';
+    var matchCat = (category === 'Tất Cả Địa Điểm') ||
+                   (category === 'Quần Thể Di Tích Cố Đô' && cardText.includes('Di Tích')) ||
+                   (category === 'Làng Nghề Truyền Thống' && cardText.includes('Làng Nghề')) ||
+                   (category === 'Ẩm Thực Xứ Huế' && cardText.includes('Ẩm Thực')) ||
+                   (category === 'Chùa Cổ & Tâm Linh' && (cardText.includes('Chùa') || cardText.includes('Tâm Linh'))) ||
+                   (category === 'Nhà Vườn Di Sản' && (cardText.includes('Nhà Vườn') || cardText.includes('An Hiên'))) ||
+                   (category === 'Gần Homestay (< 3km)' && (cardText.includes('0.') || cardText.includes('1.') || cardText.includes('2.')));
+    var matchQuery = (!query || cardText.toLowerCase().includes(query.toLowerCase()));
+    var col = card.closest('.col-xl-4') || card.parentElement;
+    if (col) {
+      col.style.display = (matchCat && matchQuery) ? '' : 'none';
+    }
   });
+};
 
-  var streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    subdomains: 'abcd',
-    attribution: '&copy; OpenStreetMap &copy; CARTO | Kim Long EcoStay'
-  }).addTo(map);
-
-  // Custom Icon for Kim Long EcoStay
-  var homeIcon = L.divIcon({
-    className: 'custom-home-icon',
-    html: '<div style="background: #0A3D2C; color: #D4AF37; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #D4AF37; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><i class="bi bi-house-heart-fill fs-5"></i></div>',
-    iconSize: [44, 44],
-    iconAnchor: [22, 22]
+window.searchHeritageMap = function(val) {
+  var cat = window.currentSelectedCategory || 'Tất Cả Địa Điểm';
+  if (window.heritageMapController) {
+    window.heritageMapController.filterMarkers(cat, val);
+  }
+  document.querySelectorAll('.heritage-card').forEach(function(card) {
+    var cardText = (card.textContent || '').toLowerCase();
+    var q = (val || '').toLowerCase().trim();
+    var matchQuery = (!q || cardText.includes(q));
+    var col = card.closest('.col-xl-4') || card.parentElement;
+    if (col) {
+      col.style.display = matchQuery ? '' : 'none';
+    }
   });
+};
 
-  L.marker(ecoStayCoords, { icon: homeIcon })
-    .addTo(map)
-    .bindPopup('<strong>🌿 Kim Long EcoStay</strong><br>Nhà Vườn Sinh Thái & Khóa Thông Minh SmartLock<br><em>Điểm xuất phát tour di sản</em>')
-    .openPopup();
-
-  // Top Hue Spots
-  var spots = [
-    { name: 'Chùa Thiên Mụ', coords: [16.4528, 107.5447], desc: 'Ngôi chùa cổ kính 425 năm tuổi ven sông Hương', dist: '850m' },
-    { name: 'Nhà Vườn An Hiên', coords: [16.4542, 107.5480], desc: 'Đệ nhất nhà vườn xứ Huế', dist: '450m' },
-    { name: 'Bánh Ướt Huyền Anh', coords: [16.4550, 107.5510], desc: 'Đặc sản bánh ướt thịt nướng trứ danh Kim Long', dist: '250m' },
-    { name: 'Đại Nội Huế', coords: [16.4678, 107.5786], desc: 'Hoàng thành & Tử Cấm Thành triều Nguyễn', dist: '2.8 km' },
-    { name: 'Làng Hương Thủy Xuân', coords: [16.4350, 107.5680], desc: 'Làng nghề làm hương trầm & nón bài thơ', dist: '4.2 km' }
-  ];
-
-  spots.forEach(function(s) {
-    var spotIcon = L.divIcon({
-      className: 'custom-spot-icon',
-      html: '<div style="background: #D97706; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.25);"><i class="bi bi-geo-alt-fill"></i></div>',
-      iconSize: [34, 34],
-      iconAnchor: [17, 17]
+window.setTravelMode = function(mode, btnEl) {
+  window.currentNavTravelMode = mode;
+  if (btnEl && btnEl.parentElement) {
+    btnEl.parentElement.querySelectorAll('button').forEach(function(b) {
+      b.className = 'btn btn-sm rounded-pill btn-light text-secondary';
     });
+    btnEl.className = 'btn btn-sm rounded-pill btn-success fw-bold text-white shadow-sm';
+  }
+  var destSelect = document.getElementById('heritage-dest-select');
+  if (destSelect && destSelect.value && window.heritageMapController) {
+    window.heritageMapController.navigateFromHomestayTo(destSelect.value, mode);
+  }
+};
 
-    var marker = L.marker(s.coords, { icon: spotIcon }).addTo(map);
-    marker.bindPopup(`
-      <strong>${s.name}</strong><br>
-      <span class="text-muted small">${s.desc}</span><br>
-      <span class="badge bg-success mt-1">Cách Homestay: ${s.dist}</span><br>
-      <button class="btn btn-sm btn-outline-success mt-2 rounded-pill px-2 py-1" onclick="drawRoute([${s.coords[0]}, ${s.coords[1]}], '${s.name}')">Vẽ tuyến đường Eco-Bike</button>
-    `);
-  });
+window.switchMapMode = function(mode, btnEl) {
+  if (btnEl && btnEl.parentElement) {
+    btnEl.parentElement.querySelectorAll('.map-layer-btn').forEach(function(b) { b.classList.remove('active'); });
+    btnEl.classList.add('active');
+  }
+  if (window.heritageMapController) {
+    window.heritageMapController.toggleMapMode(mode);
+  }
+};
 
-  // Connect destination cards buttons to map
+window.resetHeritageMap = function() {
+  var destSelect = document.getElementById('heritage-dest-select');
+  if (destSelect) destSelect.value = '';
+  if (window.heritageMapController) {
+    window.heritageMapController.clearNavigationLayers();
+    window.heritageMapController.refreshMap();
+  }
+};
+
+window.focusHeritageLocationById = function(locId) {
+  if (!window.heritageMapController || !window.heritageLocations) return;
+  var loc = window.heritageLocations.find(function(l) { return l.id === locId; });
+  if (loc) {
+    scrollToSection('heritage-map');
+    setTimeout(function() {
+      window.heritageMapController.focusLocation(loc.latitude, loc.longitude, 16);
+    }, 150);
+  }
+};
+
+window.drawRoute = function(destCoords, spotName) {
+  if (!window.heritageMapController) return;
+  var loc = null;
+  if (window.heritageLocations) {
+    loc = window.heritageLocations.find(function(l) {
+      return (spotName && (l.name.includes(spotName) || spotName.includes(l.name.substring(0, 8))));
+    });
+  }
+  if (loc) {
+    window.heritageMapController.navigateFromHomestayTo(loc.id, window.currentNavTravelMode || 'bike');
+  } else {
+    window.heritageMapController.navigateFromHomestayTo('KLE-CENTER', 'bike');
+  }
+  scrollToSection('heritage-map');
+};
+
+function wireHeritageCardButtons() {
   document.querySelectorAll('.heritage-card').forEach(function(card) {
     var titleEl = card.querySelector('.heritage-card-title');
-    var btn = card.querySelector('button.btn-success');
-    if (btn && titleEl) {
-      btn.addEventListener('click', function(e) {
+    if (!titleEl) return;
+    var title = titleEl.textContent.trim();
+    var navBtn = card.querySelector('.heritage-card-footer button.btn-success');
+    var viewBtn = card.querySelector('.heritage-card-footer button.btn-outline-success');
+    
+    var matchedLoc = null;
+    if (window.heritageLocations) {
+      matchedLoc = window.heritageLocations.find(function(l) {
+        return title.includes(l.name) || l.name.includes(title) || (l.name.length > 8 && title.includes(l.name.substring(0, 8)));
+      });
+    }
+
+    if (navBtn && !navBtn.hasAttribute('data-wired')) {
+      navBtn.setAttribute('data-wired', 'true');
+      navBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        var cardTitle = titleEl.textContent.trim();
-        var targetSpot = spots.find(function(s) { return cardTitle.includes(s.name) || s.name.includes(cardTitle.substring(0, 10)); });
-        if (targetSpot) {
-          drawRoute(targetSpot.coords, targetSpot.name);
-        } else {
-          // Draw sample route to random offset
-          drawRoute([16.4528 + (Math.random()-0.5)*0.03, 107.5447 + (Math.random()-0.5)*0.03], cardTitle);
+        if (matchedLoc && window.heritageMapController) {
+          scrollToSection('heritage-map');
+          window.heritageMapController.navigateFromHomestayTo(matchedLoc.id, window.currentNavTravelMode || 'bike');
+          var select = document.getElementById('heritage-dest-select');
+          if (select) select.value = matchedLoc.id;
+        }
+      });
+    }
+
+    if (viewBtn && !viewBtn.hasAttribute('data-wired')) {
+      viewBtn.setAttribute('data-wired', 'true');
+      viewBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (matchedLoc && window.heritageMapController) {
+          scrollToSection('heritage-map');
+          window.heritageMapController.focusLocation(matchedLoc.latitude, matchedLoc.longitude, 16);
         }
       });
     }
   });
-
-  // Map layer toggle buttons
-  var layerBtns = document.querySelectorAll('.map-layer-btn');
-  layerBtns.forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      layerBtns.forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      var title = btn.textContent.trim();
-      if (title.includes('Vệ tinh')) {
-        map.removeLayer(streetLayer);
-        streetLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-          maxZoom: 19,
-          attribution: '&copy; Esri &copy; Kim Long EcoStay'
-        }).addTo(map);
-      } else {
-        map.removeLayer(streetLayer);
-        streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          subdomains: 'abcd',
-          attribution: '&copy; OpenStreetMap &copy; CARTO | Kim Long EcoStay'
-        }).addTo(map);
-      }
-    });
-  });
 }
 
-window.drawRoute = function(destCoords, spotName) {
-  if (!map) return;
-  var ecoStayCoords = [16.4560, 107.5495];
-
-  if (routeLine) {
-    map.removeLayer(routeLine);
+// =========================================================================
+// 7. SESSION & TOPBAR AUTHORIZATION MANAGEMENT
+// =========================================================================
+window.getKLESession = function() {
+  try {
+    return JSON.parse(localStorage.getItem('kle_session'));
+  } catch(e) {
+    return null;
   }
+};
 
-  // Draw smooth polyline
-  routeLine = L.polyline([ecoStayCoords, destCoords], {
-    color: '#15803D',
-    weight: 5,
-    dashArray: '10, 10',
-    opacity: 0.85
-  }).addTo(map);
+window.isStaffAuthorized = function() {
+  var sess = getKLESession();
+  var allowedRoles = ['Admin', 'CEO', 'Staff', 'Administrator', 'Manager', 'HR', 'Accountant'];
+  return (sess && sess.role && allowedRoles.indexOf(sess.role) !== -1);
+};
 
-  map.fitBounds([ecoStayCoords, destCoords], { padding: [50, 50] });
+window.syncNavbarSession = function() {
+  var sess = getKLESession();
+  var authItem = document.getElementById('topNavAuthItem');
+  if (!authItem) return;
 
-  var hud = document.getElementById('guest-navigation-hud');
-  if (hud) {
-    hud.innerHTML = `
-      <div class="alert alert-success border-success m-3 rounded-4 shadow-lg d-flex align-items-center justify-content-between p-3 animate__animated animate__fadeInUp">
+  if (sess && sess.role) {
+    if (isStaffAuthorized()) {
+      authItem.innerHTML = `
         <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-bicycle fs-3 text-success"></i>
-          <div>
-            <div class="fw-bold text-dark">Lộ trình xe đạp Eco-Bike: Kim Long EcoStay ➔ ${spotName}</div>
-            <small class="text-muted">Đang bật định vị GPS thời gian thực • Miễn phí thiết bị thuyết minh Audio Guide</small>
-          </div>
+          <a class="btn btn-outline-warning btn-sm rounded-pill px-3 py-1 fw-semibold shadow-sm text-white" href="admin" onclick="navigateToRoute('admin'); return false;" title="Vào Bảng điều hành quản trị nội bộ">
+            <i class="bi bi-speedometer2 me-1"></i>Bảng Điều Hành
+          </a>
+          <span class="badge bg-success border border-light d-none d-md-inline" title="${sess.name || sess.username}">
+            <i class="bi bi-person-badge me-1"></i>${sess.role}
+          </span>
+          <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" onclick="handleGlobalLogout()" title="Đăng xuất">
+            <i class="bi bi-box-arrow-right me-1"></i>Thoát
+          </button>
         </div>
-        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="this.parentElement.remove(); if(routeLine) map.removeLayer(routeLine);">Đóng</button>
-      </div>
+      `;
+    } else {
+      // Customer
+      authItem.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-info text-dark" title="${sess.name || sess.username}">
+            <i class="bi bi-person me-1"></i>Khách: ${(sess.name || sess.username).split('(')[0].trim()}
+          </span>
+          <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" onclick="handleGlobalLogout()" title="Đăng xuất">
+            <i class="bi bi-box-arrow-right me-1"></i>Thoát
+          </button>
+        </div>
+      `;
+    }
+  } else {
+    // Public guest
+    authItem.innerHTML = `
+      <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" href="login" onclick="navigateToRoute('login'); return false;">
+        <i class="bi bi-person me-1"></i>Đăng Nhập
+      </a>
     `;
   }
+};
 
-  scrollToSection('heritage-map');
+window.handleGlobalLogout = function() {
+  localStorage.removeItem('kle_session');
+  syncNavbarSession();
+  alert('Đã đăng xuất phiên làm việc khỏi Kim Long EcoStay.');
+  var adminModal = document.getElementById('adminPortalModal');
+  if (adminModal && typeof bootstrap !== 'undefined') {
+    var inst = bootstrap.Modal.getInstance(adminModal);
+    if (inst) inst.hide();
+  }
+  navigateToRoute('');
 };
 
 // =========================================================================
@@ -3303,6 +3402,16 @@ window.navigateToRoute = function(route) {
 
 window.openAdminPortalModal = function(subTab) {
   subTab = normalizeRoute(subTab) || 'dashboard';
+
+  // Security Check: Từ chối truy cập nếu chưa xác thực quyền Quản trị / Nhân viên
+  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin'].indexOf(subTab) !== -1) {
+    if (!isStaffAuthorized()) {
+      alert('Truy cập bị từ chối! Bạn cần đăng nhập với vai trò Quản trị viên hoặc Nhân viên để vào khu vực quản trị.');
+      window.location.href = 'login?error=denied';
+      return;
+    }
+  }
+
   var modalEl = document.getElementById('adminPortalModal');
   if (!modalEl) return;
 
@@ -3343,6 +3452,14 @@ window.handleAdminLogin = function(e) {
 };
 
 window.quickLoginAs = function(displayName, role) {
+  var username = (role === 'CEO' || role === 'Admin') ? 'admin' : (role === 'Staff' ? 'letan' : 'nhanvien');
+  localStorage.setItem('kle_session', JSON.stringify({
+    username: username,
+    name: displayName,
+    role: role,
+    loggedInAt: new Date().toISOString()
+  }));
+  syncNavbarSession();
   var badge = document.getElementById('adminSessionBadge');
   if (badge) {
     badge.innerHTML = '<i class="bi bi-person-check-fill me-1"></i>' + displayName;
@@ -3438,12 +3555,7 @@ window.activateRoute = function(cleanRoute) {
   }
 
   if (cleanRoute === 'logout' || cleanRoute === 'logout-screen') {
-    var badge = document.getElementById('adminSessionBadge');
-    if (badge) {
-      badge.innerHTML = '<i class="bi bi-person-fill me-1"></i>Chưa đăng nhập';
-    }
-    alert('Đã đăng xuất phiên làm việc khỏi Kim Long EcoStay.');
-    navigateToRoute('');
+    handleGlobalLogout();
     return;
   }
 };
@@ -3463,6 +3575,10 @@ window.addEventListener('popstate', function() {
 
 // Modal hide event to reset URL if needed
 document.addEventListener('DOMContentLoaded', function() {
+  // Đồng bộ trạng thái đăng nhập trên Topbar và gắn sự kiện cho thẻ di tích
+  syncNavbarSession();
+  wireHeritageCardButtons();
+
   var adminModalEl = document.getElementById('adminPortalModal');
   if (adminModalEl) {
     adminModalEl.addEventListener('hidden.bs.modal', function() {

@@ -48,6 +48,7 @@ jobs:
           [ -f KimLongEcoStay.Web.styles.css ] && cp KimLongEcoStay.Web.styles.css dist_pages/ || true
           [ -d images ] && cp -r images dist_pages/ || true
           [ -d js ] && cp -r js dist_pages/ || true
+          [ -d lib ] && cp -r lib dist_pages/ || true
           [ -d data ] && cp -r data dist_pages/ || true
           [ -d cart ] && cp -r cart dist_pages/ || true
           [ -d admin ] && cp -r admin dist_pages/ || true
