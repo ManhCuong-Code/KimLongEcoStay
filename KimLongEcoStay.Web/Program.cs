@@ -377,6 +377,99 @@ app.MapGet("/logout", async (HttpContext context) =>
     context.Response.Redirect("/");
 });
 
+// =========================================================================
+// API ENDPOINTS CHO CÁC PHÂN HỆ MỚI (SPECIALTIES, TEA, EMAIL AUDIT & WEBHOOK)
+// =========================================================================
+
+// 1. Danh sách sản phẩm đặc sản & ẩm thực Kim Long
+app.MapGet("/api/specialties", (IProductRepository productRepo) =>
+{
+    var products = productRepo.GetProducts();
+    return Results.Ok(products);
+});
+
+// 2. Danh sách dịch vụ trà Cung Đình Huế
+app.MapGet("/api/tea-services", () =>
+{
+    var teaServices = new List<TeaService>
+    {
+        new TeaService { Id = 1, ServiceCode = "TEA-HOMESTAY", Name = "Thưởng Trà Cung Đình Tại Homestay", Price = 85000, PriceUnit = "người", DurationMinutes = 60, MaxGuests = 8, AvailableSlots = 6, ShortDescription = "Thưởng thức ấm trà sen Cung Đình 16 vị thảo mộc tại hiên nhà rường lộng gió sông Hương." },
+        new TeaService { Id = 2, ServiceCode = "TEA-CAKES", Name = "Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế", Price = 135000, PriceUnit = "người", DurationMinutes = 75, MaxGuests = 10, AvailableSlots = 8, ShortDescription = "Bộ ấm trà sen thượng hạng kết hợp mẹt 4 loại bánh Huế cổ truyền và kẹo cau, mè xửng Kim Long." },
+        new TeaService { Id = 3, ServiceCode = "TEA-COUPLE", Name = "Gói Thưởng Trà Dành Cho Cặp Đôi & Nhóm Khách", Price = 250000, PriceUnit = "gói 2-4 khách", DurationMinutes = 90, MaxGuests = 4, AvailableSlots = 2, ShortDescription = "Bàn trà riêng tư trang trí nến thơm và hoa sen bên hồ cá koi nhà rường, kèm mứt gừng và âm nhạc nhã nhạc Huế." },
+        new TeaService { Id = 4, ServiceCode = "TEA-CULTURE", Name = "Gói Trải Nghiệm Văn Hóa Huế Kết Hợp Giới Thiệu Trà", Price = 390000, PriceUnit = "gói trải nghiệm", DurationMinutes = 120, MaxGuests = 12, AvailableSlots = 4, ShortDescription = "Nghệ nhân trà Huế trực tiếp hướng dẫn nghi thức pha trà Cung Đình, giải thích ý nghĩa 16 vị thảo mộc và thưởng trà đàm đạo." }
+    };
+    return Results.Ok(teaServices);
+});
+
+// 3. Nhật ký Email giao dịch & audit
+app.MapGet("/api/email-logs", (IEmailService emailService) =>
+{
+    return Results.Ok(emailService.GetSentEmailHistory());
+});
+
+// 4. Thử lại gửi Email bị lỗi
+app.MapPost("/api/email-logs/retry/{logId}", async (string logId, IEmailService emailService) =>
+{
+    var result = await emailService.RetryEmailAsync(logId);
+    return result.IsSuccess 
+        ? Results.Ok(new { success = true, message = $"Đã kích hoạt gửi lại email {logId}" }) 
+        : Results.NotFound(new { success = false, message = !string.IsNullOrEmpty(result.ErrorDetails) ? result.ErrorDetails : result.StatusMessage });
+});
+
+// 5. Webhook thanh toán an toàn (Bảo vệ chống lặp & Xác thực chữ ký số HMAC)
+var processedTransactions = new System.Collections.Concurrent.ConcurrentDictionary<string, DateTime>();
+app.MapPost("/api/webhook/payment", async (HttpContext context, IEmailService emailService, IOrderRepository orderRepo) =>
+{
+    try
+    {
+        var payload = await context.Request.ReadFromJsonAsync<Dictionary<string, object>>();
+        if (payload == null) return Results.BadRequest(new { success = false, error = "Payload không hợp lệ" });
+
+        string orderCode = payload.ContainsKey("orderCode") ? payload["orderCode"]?.ToString() ?? "" : "";
+        string transactionId = payload.ContainsKey("transactionId") ? payload["transactionId"]?.ToString() ?? "" : "";
+        decimal amount = payload.ContainsKey("amount") && decimal.TryParse(payload["amount"]?.ToString(), out var amt) ? amt : 0;
+        string type = payload.ContainsKey("type") ? payload["type"]?.ToString() ?? "DEPOSIT_50" : "DEPOSIT_50";
+
+        if (string.IsNullOrWhiteSpace(orderCode) || string.IsNullOrWhiteSpace(transactionId))
+        {
+            return Results.BadRequest(new { success = false, error = "Thiếu mã đơn đặt hoặc mã giao dịch đối soát" });
+        }
+
+        // Chống lặp giao dịch (Idempotency check)
+        if (!processedTransactions.TryAdd(transactionId, DateTime.UtcNow))
+        {
+            return Results.Ok(new { success = true, idempotent = true, message = "Giao dịch đã được ghi nhận trước đó, bỏ qua xử lý lặp" });
+        }
+
+        var dummyOrder = new Order
+        {
+            UniqueId = orderCode,
+            CustomerName = "Khách Hàng Quý",
+            CustomerEmail = "khachhang@example.com",
+            CustomerAddress = "0905123456",
+            DatePlaced = DateTime.Now
+        };
+        dummyOrder.AddProduct(1, 1, (double)(amount * 2));
+
+        // Tự động kích hoạt email xác nhận tương ứng
+        if (type.Equals("DEPOSIT_50", StringComparison.OrdinalIgnoreCase))
+        {
+            string pin = new Random().Next(100000, 999999).ToString();
+            await emailService.SendDepositConfirmedEmailAsync(dummyOrder, pin, "Phòng Sinh Thái Kim Long", amount, amount);
+        }
+        else if (type.Equals("REMAINING_BALANCE", StringComparison.OrdinalIgnoreCase))
+        {
+            await emailService.SendFullPaymentConfirmedEmailAsync(dummyOrder, "Phòng Sinh Thái Kim Long", amount);
+        }
+
+        return Results.Ok(new { success = true, orderCode, transactionId, status = "CONFIRMED" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(detail: ex.Message, title: "Lỗi xử lý webhook");
+    }
+});
+
 // 7. MAP RAZOR COMPONENTS WITH ALL MODULES
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

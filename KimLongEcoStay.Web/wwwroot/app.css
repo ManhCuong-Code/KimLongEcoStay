@@ -2667,3 +2667,281 @@ h1, h2, h3 {
   font-weight: 600;
   font-size: 12px;
 }
+
+/* =========================================================================
+   PHÂN HỆ: ĐẶC SẢN & ẨM THỰC KIM LONG & TRÀ CUNG ĐÌNH HUẾ
+   ========================================================================= */
+.specialty-section, .tea-section {
+  padding: 70px 0;
+  background: #FAFCFA;
+  position: relative;
+}
+
+.specialty-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(10, 61, 44, 0.15), transparent);
+}
+
+.specialty-product-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid #E2E8F0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.specialty-product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(7, 59, 43, 0.12);
+  border-color: #A7F3D0;
+}
+
+.specialty-img-wrap {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: #E2E8F0;
+}
+
+.specialty-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.specialty-product-card:hover .specialty-img-wrap img {
+  transform: scale(1.06);
+}
+
+.specialty-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
+  z-index: 2;
+}
+
+.specialty-badge.featured {
+  background: rgba(217, 119, 6, 0.9);
+  color: #FFFFFF;
+}
+
+.specialty-badge.stock-in {
+  background: rgba(16, 185, 129, 0.9);
+  color: #FFFFFF;
+}
+
+.specialty-badge.stock-out {
+  background: rgba(239, 68, 68, 0.9);
+  color: #FFFFFF;
+}
+
+.specialty-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.specialty-category {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #059669;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.specialty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.specialty-desc {
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.6;
+  margin-bottom: 14px;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.specialty-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px dashed #E2E8F0;
+  margin-top: auto;
+}
+
+.specialty-price-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: #073B2B;
+}
+
+.specialty-price-unit {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94A3B8;
+}
+
+/* TEA SERVICE CARDS */
+.tea-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  border: 1px solid #E2E8F0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.tea-card:hover {
+  transform: translateY(-6px);
+  border-color: #D4AF37;
+  box-shadow: 0 16px 36px rgba(212, 175, 55, 0.18);
+}
+
+.tea-card-header {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.tea-card-header img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.tea-card:hover .tea-card-header img {
+  transform: scale(1.08);
+}
+
+.tea-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.tea-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0A3D2C;
+  font-family: 'Playfair Display', Georgia, serif;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.tea-info-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tea-info-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #F1F5F9;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tea-schedule-box {
+  background: #FFFDF5;
+  border: 1px solid #FEF08A;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: #854D0E;
+  margin-bottom: 16px;
+}
+
+/* CART & CHECKOUT TOASTS */
+.kle-cart-floating-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1040;
+  background: #073B2B;
+  color: #FFFFFF;
+  border: 2px solid #D4AF37;
+  border-radius: 50px;
+  padding: 12px 24px;
+  box-shadow: 0 10px 30px rgba(7, 59, 43, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.kle-cart-floating-trigger:hover {
+  transform: translateY(-3px) scale(1.02);
+  background: #0F5C43;
+  color: #FFFFFF;
+}
+
+.reconciliation-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.reconciliation-badge.pending {
+  background: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FCD34D;
+}
+
+.reconciliation-badge.verified {
+  background: #DCFCE7;
+  color: #15803D;
+  border: 1px solid #86EFAC;
+}
+
+.reconciliation-badge.checkedin {
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+}
+
+.reconciliation-badge.completed {
+  background: #F3E8FF;
+  color: #7E22CE;
+  border: 1px solid #E9D5FF;
+}

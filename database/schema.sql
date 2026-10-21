@@ -535,23 +535,122 @@ BEGIN
 END
 GO
 
--- 12.8. BẢNG GIAO DỊCH TÀI CHÍNH TỔNG HỢP (FinancialTransactions)
-IF OBJECT_ID(N'dbo.FinancialTransactions', N'U') IS NULL
+-- ==========================================================================================
+-- 13. MÔ HÌNH DỮ LIỆU ĐẶC SẢN, TRÀ CUNG ĐÌNH, THANH TOÁN CỌC 50% & NHẬT KÝ EMAIL
+-- ==========================================================================================
+
+-- 13.1. BẢNG SẢN PHẨM ĐẶC SẢN & ẨM THỰC KIM LONG (SpecialtyProducts)
+IF OBJECT_ID(N'dbo.SpecialtyProducts', N'U') IS NULL
 BEGIN
-    CREATE TABLE dbo.FinancialTransactions (
-        Id INT IDENTITY(1,1) CONSTRAINT PK_FinancialTransactions PRIMARY KEY,
-        TransactionCode VARCHAR(50) NOT NULL CONSTRAINT UQ_FinancialTransactions_Code UNIQUE,
-        TransactionDate DATETIME2(0) NOT NULL CONSTRAINT DF_FinancialTransactions_Date DEFAULT (SYSUTCDATETIME()),
-        Type VARCHAR(20) NOT NULL CONSTRAINT CK_FinancialTransactions_Type CHECK (Type IN ('INCOME', 'EXPENSE')),
-        Category NVARCHAR(100) NOT NULL,
-        SourceType VARCHAR(50) NOT NULL,
-        SourceRefId VARCHAR(50) NULL,
-        Amount DECIMAL(18,2) NOT NULL CONSTRAINT CK_FinancialTransactions_Amount CHECK (Amount >= 0),
-        PaymentMethod NVARCHAR(50) NOT NULL CONSTRAINT DF_FinancialTransactions_Method DEFAULT (N'VietQR'),
-        Status VARCHAR(20) NOT NULL CONSTRAINT DF_FinancialTransactions_Status DEFAULT ('COMPLETED'),
-        CreatedBy NVARCHAR(100) NOT NULL,
-        Description NVARCHAR(500) NULL
+    CREATE TABLE dbo.SpecialtyProducts (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_SpecialtyProducts PRIMARY KEY,
+        ProductCode VARCHAR(50) NOT NULL CONSTRAINT UQ_SpecialtyProducts_Code UNIQUE,
+        Name NVARCHAR(200) NOT NULL,
+        Category NVARCHAR(100) NOT NULL, -- Ẩm thực địa phương, Đặc sản & bánh Huế, Trà cung đình & quà tặng, Đặc sản đóng gói
+        Price DECIMAL(18,2) NOT NULL CONSTRAINT CK_SpecialtyProducts_Price CHECK (Price >= 0),
+        Unit NVARCHAR(50) NOT NULL DEFAULT (N'phần'),
+        StockQuantity INT NOT NULL DEFAULT (50) CONSTRAINT CK_SpecialtyProducts_Stock CHECK (StockQuantity >= 0),
+        ImageLink NVARCHAR(500) NULL,
+        Description NVARCHAR(MAX) NULL,
+        IsActive BIT NOT NULL DEFAULT (1),
+        IsFeatured BIT NOT NULL DEFAULT (0),
+        IsSample BIT NOT NULL DEFAULT (0),
+        CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_SpecialtyProducts_CreatedAt DEFAULT (SYSUTCDATETIME())
     );
+
+    CREATE INDEX IX_SpecialtyProducts_Cat ON dbo.SpecialtyProducts (Category, IsActive);
+
+    -- Dữ liệu mẫu chuẩn Cố đô Huế
+    INSERT INTO dbo.SpecialtyProducts (ProductCode, Name, Category, Price, Unit, StockQuantity, ImageLink, Description, IsActive, IsFeatured)
+    VALUES
+    ('SP-BANH-UOT', N'Bánh Ướt Thịt Nướng Kim Long (Suất Đặc Biệt)', N'Ẩm thực địa phương và món ăn đặc trưng Huế', 65000, N'suất', 40, '/images/mon_banhuot.jpg', N'Đặc sản đệ nhất Kim Long: Bánh ướt tráng mỏng nóng hổi cuốn thịt ba chỉ nướng than hoa thơm lừng và nước chấm tương mè gia truyền.', 1, 1),
+    ('SP-BUN-BO', N'Bún Bò Giò Heo Cố Đô Kim Long', N'Ẩm thực địa phương và món ăn đặc trưng Huế', 55000, N'tô', 35, '/images/mon_banhuot.jpg', N'Nước dùng ninh xương bò và ruốc Huế truyền thống, dậy mùi sả thơm nồng, chả cua quết tay và tiết mềm.', 1, 1),
+    ('SP-COM-HEN', N'Cơm Hến Hoa Đông Cồn Hến', N'Ẩm thực địa phương và món ăn đặc trưng Huế', 40000, N'tô', 30, '/images/mon_banhuot.jpg', N'Hến xào đậm đà, tóp mỡ giòn rụm, môn bạc hà thanh mát kèm nước hến nóng sốt nêm ớt bột Huế.', 1, 0),
+    ('SP-MET-BANH-HUE', N'Mẹt 5 Loại Bánh Huế Cố Đô (Bèo, Nậm, Lọc, Ít Trần, Ram Ít)', N'Đặc sản, bánh Huế và các sản phẩm thủ công địa phương', 85000, N'mẹt', 25, '/images/mon_banhuot.jpg', N'Đầy đủ phong vị bánh truyền thống cung đình gói lá chuối tiêu xanh, tôm thịt đậm vị, nước mắm ớt sim cay nồng.', 1, 1),
+    ('SP-TRA-SEN', N'Trà Sen Cung Đình Huế (Hộp 10 Túi Ứp Gạo Sen Tịnh Tâm)', N'Trà, sản phẩm trà và quà tặng văn hóa Huế', 180000, N'hộp', 50, '/images/ho_sen_hue.jpg', N'Tuyển chọn búp trà Shan tuyết ủ cùng hạt gạo hoa sen hồ Tịnh Tâm thơm ngát quý phái, thanh tao.', 1, 1),
+    ('SP-TRA-16-VI', N'Trà Cung Đình Huế 16 Vị Thảo Mộc Hoàng Gia', N'Trà, sản phẩm trà và quà tặng văn hóa Huế', 120000, N'gói 500g', 60, '/images/nha_ruong_2.jpg', N'Thức uống bồi bổ của bậc đế vương: Atiso, cúc hoa, cỏ ngọt, tim sen, đại táo, hoài sơn, hoa hòe giúp an thần.', 1, 1),
+    ('SP-TRAM-THUY-XUAN', N'Tinh Dầu Tràm Gió Thủy Xuân Nguyên Chất (100ml)', N'Đặc sản đóng gói phù hợp để mua mang về hoặc làm quà', 150000, N'chai', 45, '/images/kien_truc_vuon_hue.jpg', N'Chưng cất thủ công từ lá tràm gió tự nhiên, mùi hương ấm áp ngừa cảm lạnh, xua muỗi cho trẻ nhỏ và người lớn tuổi.', 1, 0),
+    ('SP-MUT-GUNG', N'Mứt Gừng Kim Long Cay Nồng (Hộp 300g)', N'Đặc sản đóng gói phù hợp để mua mang về hoặc làm quà', 65000, N'hộp', 50, '/images/nha_ruong_3.jpg', N'Làm từ củ gừng dé Kim Long củ nhỏ cay đậm, ngào đường phèn giòn tan, nhâm nhi cùng chén trà sen nóng ngày se lạnh.', 1, 0);
 END
 GO
+
+-- 13.2. BẢNG DỊCH VỤ TRÀ CUNG ĐÌNH HUẾ (TeaServices)
+IF OBJECT_ID(N'dbo.TeaServices', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TeaServices (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_TeaServices PRIMARY KEY,
+        ServiceCode VARCHAR(50) NOT NULL CONSTRAINT UQ_TeaServices_Code UNIQUE,
+        Name NVARCHAR(200) NOT NULL,
+        PackageType NVARCHAR(50) NOT NULL, -- Cá nhân, Cặp đôi, Nhóm bạn, Gói văn hóa
+        Price DECIMAL(18,2) NOT NULL CONSTRAINT CK_TeaServices_Price CHECK (Price >= 0),
+        PriceUnit NVARCHAR(50) NOT NULL DEFAULT (N'khách'),
+        DurationMinutes INT NOT NULL DEFAULT (60),
+        MaxGuests INT NOT NULL DEFAULT (8),
+        AvailableSlots INT NOT NULL DEFAULT (8),
+        ServingSchedule NVARCHAR(200) NOT NULL DEFAULT (N'08:30 - 10:30, 15:30 - 17:30, 19:30 - 21:00'),
+        ImageUrl NVARCHAR(500) NULL,
+        Description NVARCHAR(MAX) NULL,
+        TermsAndCancellation NVARCHAR(MAX) NULL,
+        IsActive BIT NOT NULL DEFAULT (1),
+        RequiresManualConfirmation BIT NOT NULL DEFAULT (0)
+    );
+
+    -- Dữ liệu 4 gói trà cấu hình
+    INSERT INTO dbo.TeaServices (ServiceCode, Name, PackageType, Price, PriceUnit, DurationMinutes, MaxGuests, AvailableSlots, ServingSchedule, ImageUrl, Description, TermsAndCancellation, IsActive)
+    VALUES
+    ('TEA-HOMESTAY', N'Thưởng Trà Cung Đình Tại Homestay', N'Cá nhân', 85000, N'người', 45, 8, 8, N'08:30, 15:30, 19:30', '/images/nha_ruong_2.jpg', N'Thưởng thức ấm trà sen Tịnh Tâm hoặc trà thảo mộc 16 vị ngắm hoa cau vườn bưởi thanh trà ven sông Hương kèm mứt gừng Huế nồng ấm.', N'Đặt trước tối thiểu 02 tiếng. Hủy miễn phí trước 04 tiếng.', 1),
+    ('TEA-CAKES', N'Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế', N'Cá nhân', 135000, N'người', 60, 12, 12, N'09:00, 15:00, 19:30', '/images/mon_banhuot.jpg', N'Set trà thượng hạng cung đình đi kèm mẹt 5 loại bánh tiến vua: bánh bèo chén tôm chấy, bánh nậm mộc, bánh bột lọc trong vắt và bánh ít trần.', N'Đặt trước tối thiểu 03 tiếng để chuẩn bị bánh nóng. Hủy miễn phí trước 06 tiếng.', 1),
+    ('TEA-COUPLE', N'Gói Thưởng Trà Dành Cho Cặp Đôi & Nhóm Khách', N'Gói', 250000, N'gói 2-4 khách', 75, 4, 4, N'09:30, 16:00, 20:00', '/images/room_gardensuite.jpg', N'Không gian riêng tư bên hiên nhà rường cổ kính, nến thơm tinh dầu sả chanh, ấm trà sen ướp hoa tươi và đĩa bánh mứt tiến vua cao cấp.', N'Đặt trước tối thiểu 04 tiếng. Hủy hoàn tiền 100% trước 12 tiếng.', 1),
+    ('TEA-CULTURE', N'Gói Trải Nghiệm Văn Hóa Huế Kết Hợp Giới Thiệu Trà', N'Gói văn hóa', 390000, N'gói 4-6 khách', 90, 6, 6, N'09:00, 15:30', '/images/nha_ruong_1.jpg', N'Nghệ nhân trà Cố đô trực tiếp hướng dẫn nghi thức pha trà triều Nguyễn, kỹ thuật chọn nước giếng Hàm Long, cách ngửi hương sen và đàm đạo lịch sử.', N'Đặt trước tối thiểu 12 tiếng để xếp lịch nghệ nhân. Hủy hoàn cọc trước 24 tiếng.', 1);
+END
+GO
+
+-- 13.3. BẢNG GIAO DỊCH THANH TOÁN CỌC & SỐ DƯ (PaymentTransactions)
+IF OBJECT_ID(N'dbo.PaymentTransactions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PaymentTransactions (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_PaymentTransactions PRIMARY KEY,
+        TransactionCode VARCHAR(50) NOT NULL CONSTRAINT UQ_PaymentTransactions_Code UNIQUE,
+        BookingId INT NULL,
+        OrderOrBookingCode VARCHAR(50) NOT NULL,
+        Amount DECIMAL(18,2) NOT NULL CONSTRAINT CK_PaymentTransactions_Amount CHECK (Amount >= 0),
+        TransactionType VARCHAR(30) NOT NULL, -- DEPOSIT_50, REMAINING_BALANCE, FULL_PAYMENT, SPECIALTY_ORDER, TEA_SERVICE
+        PaymentMethod VARCHAR(50) NOT NULL DEFAULT ('VIETQR_BANK_TRANSFER'),
+        Status VARCHAR(30) NOT NULL DEFAULT ('PENDING_VERIFICATION'), -- PENDING_VERIFICATION, VERIFIED_SUCCESS, REJECTED_FAILED, REFUNDED
+        TransferContent VARCHAR(100) NOT NULL, -- KLE <Code> COC50 hoặc DU50
+        VerifiedAt DATETIME2(0) NULL,
+        VerifiedBy NVARCHAR(100) NULL,
+        ExternalRefId VARCHAR(100) NULL,
+        Notes NVARCHAR(500) NULL,
+        CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_PaymentTransactions_CreatedAt DEFAULT (SYSUTCDATETIME()),
+        CONSTRAINT FK_PaymentTransactions_Bookings FOREIGN KEY (BookingId) REFERENCES dbo.Bookings(Id) ON DELETE SET NULL
+    );
+
+    CREATE INDEX IX_PaymentTransactions_Code ON dbo.PaymentTransactions (OrderOrBookingCode);
+    CREATE INDEX IX_PaymentTransactions_Status ON dbo.PaymentTransactions (Status);
+END
+GO
+
+-- 13.4. BẢNG NHẬT KÝ EMAIL GIAO DỊCH TỰ ĐỘNG (EmailLogs)
+IF OBJECT_ID(N'dbo.EmailLogs', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.EmailLogs (
+        Id INT IDENTITY(1,1) CONSTRAINT PK_EmailLogs PRIMARY KEY,
+        EmailId VARCHAR(50) NOT NULL CONSTRAINT UQ_EmailLogs_EmailId UNIQUE,
+        TemplateType VARCHAR(50) NOT NULL, -- BOOKING_REQUEST_RECEIVED, DEPOSIT_CONFIRMED, REMAINING_BALANCE_REQUEST, FULL_PAYMENT_CONFIRMED, etc.
+        RecipientEmail VARCHAR(150) NOT NULL,
+        Subject NVARCHAR(300) NOT NULL,
+        Status VARCHAR(30) NOT NULL DEFAULT ('SUCCESS'), -- SUCCESS, FAILED, RETRIED
+        StatusMessage NVARCHAR(500) NULL,
+        AssociatedBookingCode VARCHAR(50) NULL,
+        SentAt DATETIME2(0) NOT NULL CONSTRAINT DF_EmailLogs_SentAt DEFAULT (SYSUTCDATETIME()),
+        RetryCount INT NOT NULL DEFAULT (0),
+        ErrorDetails NVARCHAR(MAX) NULL
+    );
+
+    CREATE INDEX IX_EmailLogs_BookingCode ON dbo.EmailLogs (AssociatedBookingCode);
+    CREATE INDEX IX_EmailLogs_Template ON dbo.EmailLogs (TemplateType);
+END
+GO
+
 

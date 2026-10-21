@@ -60,17 +60,19 @@
                 <span class="brand-text-sub">Nhà Vườn Sinh Thái • Huế</span></div></a>
 
         
-        <div class="d-flex align-items-center d-xl-none ms-auto me-2"><a href="javascript:void(0)" onclick="openCartModal()" class="kle-cart-nav-btn text-decoration-none" title="Xem danh sách buồng phòng đã chọn"><div class="kle-cart-icon-box"><i class="bi bi-door-open-fill fs-6"></i></div></a></div>
+        <div class="d-flex align-items-center d-xl-none ms-auto me-2"><a href="javascript:void(0)" onclick="openShoppingCartModal()" class="kle-cart-nav-btn text-decoration-none position-relative" title="Xem giỏ hàng"><div class="kle-cart-icon-box"><i class="bi bi-cart3 fs-6"></i></div><span class="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle rounded-pill" id="mobileCartBadge">0</span></a></div>
 
         
         <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
         <div class="collapse navbar-collapse" id="navbarMain"><ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-3 align-items-xl-center gap-1">
                 <li class="nav-item"><a href="./" onclick="navigateToRoute(''); return false;" class="nav-link kle-nav-item active" aria-current="page"><i class="bi bi-house-door me-1"></i>Trang Chủ</a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#rooms"><i class="bi bi-door-open me-1"></i>Phòng Nghỉ</a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#gallery"><i class="bi bi-images me-1"></i>Không Gian</a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#story"><i class="bi bi-flower1 me-1"></i>Văn Hóa</a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map"><i class="bi bi-map-fill me-1"></i>Bản Đồ Di Tích</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#rooms" onclick="scrollToSection('rooms'); return false;"><i class="bi bi-door-open me-1"></i>Phòng Nghỉ</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#specialties" onclick="scrollToSection('specialties'); return false;"><i class="bi bi-basket2-fill me-1 text-warning"></i>Đặc Sản & Ẩm Thực</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#royal-tea" onclick="scrollToSection('royal-tea'); return false;"><i class="bi bi-cup-hot-fill me-1" style="color: #6EE7B7;"></i>Trà Cung Đình</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#gallery" onclick="scrollToSection('gallery'); return false;"><i class="bi bi-images me-1"></i>Không Gian</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#story" onclick="scrollToSection('story'); return false;"><i class="bi bi-flower1 me-1"></i>Văn Hóa</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map" onclick="scrollToSection('heritage-map'); return false;"><i class="bi bi-map-fill me-1"></i>Bản Đồ Di Tích</a></li>
                 <li class="nav-item"><a href="lookup" onclick="navigateToRoute('lookup'); return false;" class="nav-link kle-nav-item fw-bold text-warning"><i class="bi bi-key-fill me-1"></i>Tra Cứu Khóa</a></li>
             </ul>
 
@@ -83,12 +85,13 @@
                 </li>
 
                 <li class="nav-item d-none d-xl-block">
-                    <a href="cart" onclick="navigateToRoute('cart'); return false;" class="kle-cart-nav-btn text-decoration-none py-1" title="Xem danh sách buồng phòng đã chọn">
-                        <div class="kle-cart-icon-box"><i class="bi bi-door-open-fill fs-6"></i></div>
+                    <a href="javascript:void(0)" onclick="openShoppingCartModal()" class="kle-cart-nav-btn text-decoration-none py-1" title="Xem giỏ hàng buồng phòng & đặc sản">
+                        <div class="kle-cart-icon-box"><i class="bi bi-cart3 fs-6"></i></div>
                         <div class="kle-cart-text-wrap d-none d-sm-flex text-start">
-                            <span class="kle-cart-title">Phòng Đã Chọn</span>
-                            <span class="kle-cart-sub">Chưa chọn phòng</span>
+                            <span class="kle-cart-title">Giỏ Hàng</span>
+                            <span class="kle-cart-sub" id="navCartSummaryText">0 món đã chọn</span>
                         </div>
+                        <span class="badge bg-warning text-dark rounded-pill ms-1" id="navCartBadgeCount">0</span>
                     </a>
                 </li>
 
@@ -496,11 +499,257 @@
                                 Xem phòng <i class="bi bi-arrow-right"></i></a></div></div></div><div class="kle-showcase-item"><img src="images/logo.jpg" alt="D&#x1EA5;u &#x1EA5;n bi&#x1EC3;u tr&#x1B0;ng di s&#x1EA3;n v&#x103;n h&#xF3;a Kim Long EcoStay C&#x1ED1; &#x110;&#xF4; Hu&#x1EBF;" onerror="this.src=&#x27;/images/room_econest.jpg&#x27;" loading="lazy" />
                     <div class="kle-showcase-overlay"><span class="kle-showcase-tag">D&#x1EA5;u &#x1EA4;n Di S&#x1EA3;n</span>
                         <h6 class="kle-showcase-title">D&#x1EA5;u &#x1EA5;n bi&#x1EC3;u tr&#x1B0;ng di s&#x1EA3;n v&#x103;n h&#xF3;a Kim Long EcoStay C&#x1ED1; &#x110;&#xF4; Hu&#x1EBF;</h6>
-                        <div class="d-flex justify-content-between align-items-center mt-1"><span class="kle-showcase-roomname"><i class="bi bi-door-open me-1"></i>Heritage Studio Tr&#x1EA7;m M&#x1EB7;c (KLE-R203)</span>
+                        <div class="d-flex justify-content-between align-items-center mt-1"><span class="kle-showcase-roomname"><i class="bi bi-door-open me-1"></i>Heritage Studio Trầm Mặc (KLE-R203)</span>
                             <a href="javascript:void(0)" onclick="openBookingModal('5', 'Heritage Studio Trầm Mặc (KLE-R203)', 590000, 'Nhà Vườn Nguyệt Biều', 'images/nha_ruong_2.jpg')" class="btn btn-sm btn-outline-light rounded-pill px-2 py-1" style="font-size: 11px;">
                                 Xem phòng <i class="bi bi-arrow-right"></i></a></div></div></div></div></div>
 
-    
+    <!-- =========================================================================
+         MỤC 1: ĐẶC SẢN & ẨM THỰC KIM LONG (SPECIALTIES & LOCAL CUISINE)
+         ========================================================================= -->
+    <div class="specialty-section mt-5" id="specialties">
+      <div class="container">
+        <div class="section-heading-wrap text-center mb-4">
+          <span class="section-tag" style="background: rgba(184, 134, 11, 0.15); color: #B8860B; padding: 6px 18px; border-radius: 30px; font-weight: 700; font-size: 12px; letter-spacing: 1px;">
+            <i class="bi bi-basket2-fill me-1"></i>TINH HOA ẨM THỰC CỐ ĐÔ HUẾ
+          </span>
+          <h2 class="section-main-title font-serif fw-bold text-dark mt-2 mb-2" style="font-size: 32px;">
+            Đặc Sản & Ẩm Thực Kim Long
+          </h2>
+          <p class="section-main-sub mx-auto text-muted" style="max-width: 820px; font-size: 15px; line-height: 1.7;">
+            Thưởng thức hương vị bánh ướt thịt nướng trứ danh, các mẹt bánh tiến vua cổ truyền, và chọn mua quà tặng trà sen Cung Đình, tinh dầu tràm tự nhiên chuẩn gốc Kim Long.
+          </p>
+
+          <!-- Thanh tìm kiếm, lọc danh mục và sắp xếp theo giá -->
+          <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border mt-4 text-start">
+            <div class="row g-3 align-items-center">
+              <div class="col-lg-4 col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                  <input type="text" id="specialtySearchInput" class="form-control bg-light border-start-0 py-2" placeholder="Tìm bánh ướt, trà sen, mứt gừng..." oninput="filterSpecialties()">
+                </div>
+              </div>
+              <div class="col-lg-5 col-md-6">
+                <div class="d-flex gap-1 flex-wrap" id="specialtyCatFilters">
+                  <button type="button" class="btn btn-sm btn-success rounded-pill px-3 active" onclick="setSpecialtyCategory('all', this)">Tất Cả</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="setSpecialtyCategory('Ẩm thực địa phương', this)">Ẩm Thực Huế</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="setSpecialtyCategory('Đặc sản, bánh Huế', this)">Bánh Huế</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="setSpecialtyCategory('Trà', this)">Trà Cung Đình</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="setSpecialtyCategory('Đặc sản đóng gói', this)">Quà Mang Về</button>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-12">
+                <div class="d-flex align-items-center justify-content-lg-end gap-2">
+                  <label class="small text-muted fw-bold text-nowrap"><i class="bi bi-sort-down me-1"></i>Sắp xếp:</label>
+                  <select id="specialtySortSelect" class="form-select form-select-sm rounded-pill" onchange="filterSpecialties()">
+                    <option value="featured">Nổi bật nhất</option>
+                    <option value="price-asc">Giá: Thấp đến Cao</option>
+                    <option value="price-desc">Giá: Cao đến Thấp</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lưới sản phẩm đặc sản -->
+        <div class="row g-4" id="specialtyProductGrid">
+          <!-- Rendered dynamically by JavaScript with 8 realistic products -->
+        </div>
+
+        <!-- Banner cam kết nguồn gốc & Vận chuyển -->
+        <div class="alert alert-light border shadow-sm rounded-4 p-3 mt-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success bg-opacity-25 text-success rounded-circle p-2"><i class="bi bi-shield-check fs-5"></i></span>
+            <div>
+              <strong class="text-dark">Cam Kết Chuẩn Nguồn Gốc Xứ Huế:</strong>
+              <span class="text-muted small">Nguyên liệu địa phương tươi ngon, chế biến nóng hổi tại lò bánh gia truyền Kim Long. Miễn phí giao tận phòng homestay!</span>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="openShoppingCartModal()">
+            <i class="bi bi-cart3 me-1"></i>Xem Giỏ Hàng Đã Chọn
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         MỤC 2: TRẢI NGHIỆM TRÀ CUNG ĐÌNH HUẾ (ROYAL TEA EXPERIENCE)
+         ========================================================================= -->
+    <div class="tea-section mt-5" id="royal-tea">
+      <div class="container">
+        <div class="section-heading-wrap text-center mb-4">
+          <span class="section-tag" style="background: rgba(14, 94, 69, 0.15); color: #0E5E45; padding: 6px 18px; border-radius: 30px; font-weight: 700; font-size: 12px; letter-spacing: 1px;">
+            <i class="bi bi-flower1 me-1"></i>NGHI THỨC TRÀ CỐ ĐÔ
+          </span>
+          <h2 class="section-main-title font-serif fw-bold text-dark mt-2 mb-2" style="font-size: 32px;">
+            Trải Nghiệm Trà Cung Đình Huế
+          </h2>
+          <p class="section-main-sub mx-auto text-muted" style="max-width: 820px; font-size: 15px; line-height: 1.7;">
+            Không gian thưởng trà thanh tịnh dưới mái nhà rường cổ kính và rặng bưởi Thanh Trà Kim Long. 
+            Tuyển chọn 4 gói trải nghiệm văn hóa tao nhã dành cho quý khách lưu trú và khách tham quan.
+          </p>
+        </div>
+
+        <div class="row g-4" id="teaServicesGrid">
+          <!-- Gói 1: Thưởng trà tại homestay -->
+          <div class="col-lg-6 col-xl-3">
+            <div class="tea-card">
+              <div class="tea-card-header">
+                <img src="images/nha_ruong_2.jpg" alt="Thưởng Trà Cung Đình Tại Homestay" onerror="this.src='images/hero_ecostay.jpg'">
+                <span class="badge bg-success position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm">
+                  <i class="bi bi-cup-hot-fill me-1"></i>Cá Nhân
+                </span>
+                <span class="badge bg-dark bg-opacity-75 text-warning position-absolute bottom-0 end-0 m-3 rounded-pill px-2 py-1 small">
+                  Còn 8 chỗ
+                </span>
+              </div>
+              <div class="tea-card-body">
+                <h5 class="tea-card-title">Thưởng Trà Cung Đình Tại Homestay</h5>
+                <p class="text-muted small mb-3" style="line-height: 1.6;">
+                  Thưởng thức ấm trà sen Tịnh Tâm hoặc 16 vị thảo mộc bên hiên ngắm hoa cau vườn bưởi thanh trà ven sông Hương kèm mứt gừng Huế nồng ấm.
+                </p>
+                <div class="tea-info-pill-row">
+                  <span class="tea-info-pill"><i class="bi bi-clock"></i>45 phút</span>
+                  <span class="tea-info-pill"><i class="bi bi-people"></i>Tối đa 8 khách</span>
+                  <span class="tea-info-pill"><i class="bi bi-calendar-event"></i>Sáng / Chiều / Tối</span>
+                </div>
+                <div class="tea-schedule-box">
+                  <i class="bi bi-info-circle me-1 text-warning"></i><strong>Lịch phục vụ:</strong> 08:30 • 15:30 • 19:30
+                </div>
+                <div class="d-flex align-items-baseline justify-content-between pt-2 border-top mt-auto">
+                  <div>
+                    <span class="fs-5 fw-bold text-success font-monospace">85,000 đ</span>
+                    <small class="text-muted">/người</small>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-HOMESTAY', 'Thưởng Trà Cung Đình Tại Homestay', 85000, 'người', 8)">
+                    Đặt Chỗ <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gói 2: Trà + Bánh Huế -->
+          <div class="col-lg-6 col-xl-3">
+            <div class="tea-card">
+              <div class="tea-card-header">
+                <img src="images/mon_banhuot.jpg" alt="Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế" onerror="this.src='images/hero_ecostay.jpg'">
+                <span class="badge position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm text-white" style="background:#D97706;">
+                  <i class="bi bi-stars me-1"></i>Trà & Bánh
+                </span>
+                <span class="badge bg-dark bg-opacity-75 text-warning position-absolute bottom-0 end-0 m-3 rounded-pill px-2 py-1 small">
+                  Còn 12 chỗ
+                </span>
+              </div>
+              <div class="tea-card-body">
+                <h5 class="tea-card-title">Thưởng Trà Kết Hợp Bánh Huế</h5>
+                <p class="text-muted small mb-3" style="line-height: 1.6;">
+                  Set trà thượng hạng cung đình đi kèm mẹt 5 loại bánh tiến vua: bánh bèo chén tôm chấy, bánh nậm mộc, bánh bột lọc trong vắt và bánh ít trần.
+                </p>
+                <div class="tea-info-pill-row">
+                  <span class="tea-info-pill"><i class="bi bi-clock"></i>60 phút</span>
+                  <span class="tea-info-pill"><i class="bi bi-people"></i>Tối đa 12 khách</span>
+                  <span class="tea-info-pill"><i class="bi bi-calendar-event"></i>Sáng / Chiều / Tối</span>
+                </div>
+                <div class="tea-schedule-box">
+                  <i class="bi bi-info-circle me-1 text-warning"></i><strong>Lịch phục vụ:</strong> 09:00 • 15:00 • 19:30
+                </div>
+                <div class="d-flex align-items-baseline justify-content-between pt-2 border-top mt-auto">
+                  <div>
+                    <span class="fs-5 fw-bold text-success font-monospace">135,000 đ</span>
+                    <small class="text-muted">/người</small>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-CAKES', 'Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế', 135000, 'người', 12)">
+                    Đặt Chỗ <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gói 3: Cặp đôi hoặc nhóm -->
+          <div class="col-lg-6 col-xl-3">
+            <div class="tea-card">
+              <div class="tea-card-header">
+                <img src="images/room_gardensuite.jpg" alt="Gói Thưởng Trà Cặp Đôi & Nhóm Bạn" onerror="this.src='images/hero_ecostay.jpg'">
+                <span class="badge bg-danger position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm">
+                  <i class="bi bi-heart-fill me-1"></i>Cặp Đôi / Nhóm
+                </span>
+                <span class="badge bg-dark bg-opacity-75 text-warning position-absolute bottom-0 end-0 m-3 rounded-pill px-2 py-1 small">
+                  Còn 4 chỗ
+                </span>
+              </div>
+              <div class="tea-card-body">
+                <h5 class="tea-card-title">Gói Thưởng Trà Cặp Đôi & Nhóm Bạn</h5>
+                <p class="text-muted small mb-3" style="line-height: 1.6;">
+                  Không gian riêng tư bên hiên nhà rường cổ kính, nến thơm tinh dầu sả chanh, ấm trà sen ướp hoa tươi và đĩa bánh mứt tiến vua thượng hạng.
+                </p>
+                <div class="tea-info-pill-row">
+                  <span class="tea-info-pill"><i class="bi bi-clock"></i>75 phút</span>
+                  <span class="tea-info-pill"><i class="bi bi-people"></i>Gói 2-4 khách</span>
+                  <span class="tea-info-pill"><i class="bi bi-calendar-event"></i>Sáng / Chiều / Tối</span>
+                </div>
+                <div class="tea-schedule-box">
+                  <i class="bi bi-info-circle me-1 text-warning"></i><strong>Lịch phục vụ:</strong> 09:30 • 16:00 • 20:00
+                </div>
+                <div class="d-flex align-items-baseline justify-content-between pt-2 border-top mt-auto">
+                  <div>
+                    <span class="fs-5 fw-bold text-success font-monospace">250,000 đ</span>
+                    <small class="text-muted">/gói 2-4 khách</small>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-COUPLE', 'Gói Thưởng Trà Cặp Đôi & Nhóm Bạn', 250000, 'gói', 4)">
+                    Đặt Chỗ <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gói 4: Gói trải nghiệm văn hóa trà triều Nguyễn -->
+          <div class="col-lg-6 col-xl-3">
+            <div class="tea-card">
+              <div class="tea-card-header">
+                <img src="images/nha_ruong_1.jpg" alt="Trải Nghiệm Văn Hóa Trà Triều Nguyễn" onerror="this.src='images/hero_ecostay.jpg'">
+                <span class="badge position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm text-white" style="background: #7C3AED;">
+                  <i class="bi bi-gem me-1"></i>Di Sản Triều Nguyễn
+                </span>
+                <span class="badge bg-dark bg-opacity-75 text-warning position-absolute bottom-0 end-0 m-3 rounded-pill px-2 py-1 small">
+                  Còn 6 chỗ
+                </span>
+              </div>
+              <div class="tea-card-body">
+                <h5 class="tea-card-title">Văn Hóa Trà Triều Nguyễn</h5>
+                <p class="text-muted small mb-3" style="line-height: 1.6;">
+                  Nghệ nhân trà Cố đô trực tiếp hướng dẫn nghi thức pha trà hoàng cung, chọn nước giếng Hàm Long, kỹ thuật ngửi hương và đàm đạo lịch sử.
+                </p>
+                <div class="tea-info-pill-row">
+                  <span class="tea-info-pill"><i class="bi bi-clock"></i>90 phút</span>
+                  <span class="tea-info-pill"><i class="bi bi-people"></i>Gói 4-6 khách</span>
+                  <span class="tea-info-pill"><i class="bi bi-calendar-event"></i>Sáng / Chiều</span>
+                </div>
+                <div class="tea-schedule-box">
+                  <i class="bi bi-info-circle me-1 text-warning"></i><strong>Lịch phục vụ:</strong> 09:00 • 15:30 (Cần đặt trước 12h)
+                </div>
+                <div class="d-flex align-items-baseline justify-content-between pt-2 border-top mt-auto">
+                  <div>
+                    <span class="fs-5 fw-bold text-success font-monospace">390,000 đ</span>
+                    <small class="text-muted">/gói 4-6 khách</small>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-CULTURE', 'Gói Trải Nghiệm Văn Hóa Huế Kết Hợp Giới Thiệu Trà', 390000, 'gói', 6)">
+                    Đặt Chỗ <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-white border rounded-4 text-center text-muted small">
+          <i class="bi bi-shield-check text-success me-1"></i><strong>Chính sách thưởng trà:</strong> Đặt trước tối thiểu 02 tiếng. Hủy hoàn cọc 100% trước 04 tiếng. Khách lưu trú phòng tại homestay được giảm <strong>15%</strong> khi đặt trước.
+        </div>
+      </div>
+    </div>
+
     <div class="experience-story-card" id="smart-tour"><div class="row g-4 align-items-center"><div class="col-lg-6"><span class="story-pill-badge"><i class="bi bi-bicycle me-1"></i>HỆ THỐNG DU LỊCH DI SẢN THÔNG MINH
                 </span>
                 <h3 class="font-serif fw-bold text-dark mb-3" style="font-size: 28px; line-height: 1.3;">
@@ -1854,6 +2103,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
       </div>
 
+      <!-- STEP 1: FORM ĐẶT PHÒNG & TÍNH TIỀN LINH HOẠT -->
       <div class="modal-body p-4 bg-light" id="bookingModalBody">
         <!-- Room Summary Box -->
         <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
@@ -1864,14 +2114,14 @@
             <div class="col-md-8 p-3 bg-white">
               <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small mb-1" id="modalRoomGarden">Nhà Vườn Sinh Thái Kim Long</span>
               <h5 class="fw-bold font-serif text-dark mb-1" id="modalRoomTitle">Eco-Nest Ban Mai (KLE-R101)</h5>
-              <div class="d-flex align-items-baseline gap-2 mb-2">
+              <div class="d-flex align-items-baseline gap-2 mb-2 flex-wrap">
                 <span class="fs-5 fw-bold text-success" id="modalRoomPrice">390,000 đ</span>
-                <span class="text-muted small">/ đêm</span>
-                <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill ms-auto px-2 py-1" id="modalRoomDeposit">Cọc 50%: 195,000 đ</span>
+                <span class="text-muted small">/ đêm (Ngày thường)</span>
+                <span class="badge bg-warning text-dark rounded-pill ms-auto px-2 py-1" id="modalRoomDepositBadge">Cọc 50%: 195,000 đ</span>
               </div>
               <div class="small text-muted d-flex gap-2 flex-wrap">
                 <span><i class="bi bi-shield-lock text-success me-1"></i>Khóa SmartLock 10s</span>
-                <span><i class="bi bi-bicycle text-primary me-1"></i>Xe đạp Eco-Bike</span>
+                <span><i class="bi bi-bicycle text-primary me-1"></i>02 Xe đạp Eco-Bike</span>
                 <span><i class="bi bi-cup-hot text-warning me-1"></i>Trà sen Cung Đình</span>
               </div>
             </div>
@@ -1886,59 +2136,192 @@
 
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label fw-bold text-dark small"><i class="bi bi-person-fill text-success me-1"></i>Họ và tên quý khách <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold text-dark small"><i class="bi bi-person-fill text-success me-1"></i>Họ và tên khách đặt <span class="text-danger">*</span></label>
               <input type="text" class="form-control rounded-3 py-2" id="guestName" placeholder="Ví dụ: Nguyễn Văn An" required>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold text-dark small"><i class="bi bi-telephone-fill text-primary me-1"></i>Số điện thoại / Zalo <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control rounded-3 py-2" id="guestPhone" placeholder="Ví dụ: 0912 345 678" required>
+              <input type="tel" class="form-control rounded-3 py-2" id="guestPhone" placeholder="Ví dụ: 0905 123 456" required>
             </div>
             <div class="col-12">
               <label class="form-label fw-bold text-dark small">
-                <i class="bi bi-envelope-check-fill text-warning me-1"></i>Email nhận mã PIN mở cửa SmartLock <span class="text-danger">*</span>
+                <i class="bi bi-envelope-check-fill text-warning me-1"></i>Email nhận thư xác nhận & Mã PIN SmartLock <span class="text-danger">*</span>
               </label>
               <input type="email" class="form-control rounded-3 py-2 border-warning" id="guestEmail" placeholder="name@example.com" required>
               <div class="form-text text-muted small">
-                <i class="bi bi-info-circle text-success me-1"></i>Hệ thống sẽ gửi thư xác nhận đặt phòng và <strong>Mã PIN bí mật 6 số</strong> trực tiếp đến địa chỉ email này.
+                <i class="bi bi-info-circle text-success me-1"></i>Hệ thống sẽ gửi email tự động 4 bước theo trạng thái lưu trú trực tiếp về hòm thư này.
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label fw-bold text-dark small"><i class="bi bi-calendar-check text-success me-1"></i>Ngày nhận phòng (14:00)</label>
-              <input type="date" class="form-control rounded-3 py-2" id="checkInDate" value="2026-10-18" required>
+              <input type="date" class="form-control rounded-3 py-2" id="checkInDate" value="2026-10-18" onchange="calculateBookingBreakdown()" required>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label fw-bold text-dark small"><i class="bi bi-calendar-x text-danger me-1"></i>Ngày trả phòng (12:00)</label>
-              <input type="date" class="form-control rounded-3 py-2" id="checkOutDate" value="2026-10-20" required>
+              <input type="date" class="form-control rounded-3 py-2" id="checkOutDate" value="2026-10-20" onchange="calculateBookingBreakdown()" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold text-dark small"><i class="bi bi-people-fill text-info me-1"></i>Số lượng khách</label>
+              <select class="form-select rounded-3 py-2" id="guestCount">
+                <option value="1">1 người lớn</option>
+                <option value="2" selected>2 người lớn</option>
+                <option value="3">3 người (Có phụ thu kê đệm)</option>
+                <option value="4">4 người (Phù hợp Family Villa)</option>
+              </select>
             </div>
             <div class="col-12">
               <label class="form-label fw-bold text-dark small"><i class="bi bi-chat-left-dots text-muted me-1"></i>Yêu cầu đặc biệt (tùy chọn)</label>
-              <input type="text" class="form-control rounded-3 py-2" id="guestNotes" placeholder="Ví dụ: Xe đạp trợ lực đôi, thưởng trà sen chiều, xuất hóa đơn...">
+              <input type="text" class="form-control rounded-3 py-2" id="guestNotes" placeholder="Ví dụ: Cần 02 xe đạp trợ lực, thưởng trà sen chiều, nhận phòng sau 20h...">
+            </div>
+          </div>
+
+          <!-- Price Calculation Breakdown Card -->
+          <div class="card border border-success-subtle bg-white rounded-4 p-3 mt-4 shadow-sm">
+            <h6 class="fw-bold font-serif text-dark mb-2 border-bottom pb-2">
+              <i class="bi bi-calculator text-success me-1"></i>Chi Tiết Tính Toán & Chính Sách Cọc 50%
+            </h6>
+            <div class="d-flex justify-content-between py-1 small">
+              <span class="text-muted">Tiền phòng trước điều chỉnh (<span id="calcNightsCount">2 đêm</span>):</span>
+              <span class="fw-semibold text-dark" id="calcBaseStayAmount">780,000 đ</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 small">
+              <span class="text-muted">Phụ thu cuối tuần (T6, T7, CN tính +20%):</span>
+              <span class="fw-semibold text-warning" id="calcWeekendSurcharge">+0 đ</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 border-top pt-2">
+              <span class="fw-bold text-dark">Tổng tiền phòng:</span>
+              <span class="fw-bold fs-6 text-success" id="calcTotalStayAmount">780,000 đ</span>
+            </div>
+            <div class="d-flex justify-content-between py-2 px-3 bg-light rounded-3 mt-2 border">
+              <div>
+                <span class="d-block fw-bold text-danger"><i class="bi bi-cash-stack me-1"></i>Tiền Đặt Cọc Cần Thanh Toán (50%):</span>
+                <small class="text-muted">Chuyển khoản VietQR để giữ phòng</small>
+              </div>
+              <span class="fw-bold fs-5 text-danger" id="calcDepositRequiredAmount">390,000 đ</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 small text-muted px-1 mt-1">
+              <span>Số tiền còn lại thanh toán khi nhận phòng (50%):</span>
+              <span class="fw-bold text-dark" id="calcRemainingOnArrival">390,000 đ</span>
             </div>
           </div>
 
           <div class="d-flex align-items-center justify-content-between mt-4 pt-3 border-top flex-wrap gap-2">
             <div class="small text-muted">
-              <i class="bi bi-check-circle-fill text-success me-1"></i>0% Phí sàn OTA • Hoàn 100% trước 48h
+              <i class="bi bi-check-circle-fill text-success me-1"></i>Chống Overbooking theo đêm • Hoàn 100% trước 48h
             </div>
             <div class="d-flex gap-2">
               <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
               <button type="submit" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm" id="btnSubmitBooking" style="background: linear-gradient(135deg, #0A3D2C, #15803D);">
-                <i class="bi bi-lock-fill text-warning me-1"></i>Xác Nhận & Cấp Mã PIN Ngay
+                <i class="bi bi-arrow-right-circle-fill me-1"></i>Tiếp Tục Thanh Toán Cọc 50% ➔
               </button>
             </div>
           </div>
         </form>
       </div>
 
-      <!-- Booking Success Container (Hidden by default, shown after submit) -->
+      <!-- STEP 2: MÀN HÌNH CHUYỂN KHOẢN VIETQR CỌC 50% (CHỜ ĐỐI SOÁT - BẢO MẬT) -->
+      <div class="modal-body p-4 bg-light d-none" id="bookingPaymentBody">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
+          <div class="p-3 text-center text-white" style="background: linear-gradient(135deg, #0A3D2C, #14533D);">
+            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-1">BƯỚC 2: THANH TOÁN TIỀN CỌC 50%</span>
+            <h5 class="font-serif fw-bold text-white mb-0">Quét Mã VietQR Chuyển Khoản Ngân Hàng</h5>
+            <small class="text-white-50">Nội dung chuyển khoản chuẩn mã đơn để đối soát tức thì</small>
+          </div>
+
+          <div class="p-4 bg-white">
+            <!-- Alert an toàn bảo mật -->
+            <div class="alert alert-warning border-warning p-3 rounded-4 mb-3 small d-flex gap-2 align-items-start">
+              <i class="bi bi-shield-exclamation text-warning fs-5 flex-shrink-0"></i>
+              <div>
+                <strong>Lưu ý bảo mật & đối soát giao dịch:</strong> Hệ thống <em>không</em> tự động xác nhận đơn khi khách chỉ vừa quét mã hoặc mở ứng dụng. Trạng thái đặt phòng sẽ chính thức chuyển sang <strong>CONFIRMED</strong> và cấp mã PIN sau khi cổng thanh toán hoặc quản trị viên đối soát thực tế.
+              </div>
+            </div>
+
+            <div class="row g-4 align-items-center">
+              <div class="col-md-5 text-center">
+                <div class="p-2 border rounded-4 bg-light shadow-sm d-inline-block">
+                  <img id="paymentVietQrImg" src="" alt="VietQR Đặt cọc 50%" class="img-fluid rounded-3" style="max-height: 230px;">
+                </div>
+                <div class="small text-muted mt-2">
+                  <i class="bi bi-phone me-1"></i>Mở App ngân hàng bất kỳ để quét
+                </div>
+              </div>
+
+              <div class="col-md-7">
+                <div class="bg-light p-3 rounded-4 border mb-3">
+                  <div class="d-flex justify-content-between py-1 small border-bottom pb-2 mb-2">
+                    <span class="text-muted">Mã Đặt Phòng:</span>
+                    <strong class="font-monospace text-primary fs-6" id="payOrderCode">KLE-20261018-01</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-1 small">
+                    <span class="text-muted">Ngân Hàng Tiếp Nhận:</span>
+                    <strong class="text-dark">MB Bank (Quân Đội)</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-1 small">
+                    <span class="text-muted">Số Tài Khoản:</span>
+                    <strong class="text-dark font-monospace">0905123456</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-1 small">
+                    <span class="text-muted">Chủ Tài Khoản:</span>
+                    <strong class="text-dark">KIM LONG ECOSTAY</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-1 border-top pt-2 mt-2">
+                    <span class="fw-bold text-danger">Tiền Cọc 50%:</span>
+                    <strong class="text-danger fs-5 font-monospace" id="payDepositAmount">390,000 đ</strong>
+                  </div>
+                  <div class="p-2 bg-warning bg-opacity-15 border border-warning rounded-3 mt-2">
+                    <div class="small text-muted">Nội dung chuyển khoản (bắt buộc):</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <strong class="font-monospace text-dark fs-6" id="payTransferContent">KLE 20261018 COC50</strong>
+                      <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-2 py-0" onclick="copyTransferContent()">Copy</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Trạng thái kiểm tra giao dịch thời gian thực -->
+                <div class="p-3 bg-white border border-success-subtle rounded-3 d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="spinner-grow spinner-grow-sm text-warning" role="status"></div>
+                    <div>
+                      <strong class="small text-dark d-block">Trạng thái: Đang chờ đối soát cọc</strong>
+                      <small class="text-muted" id="payLiveStatusText">Hệ thống đang lắng nghe webhook ngân hàng...</small>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="triggerManualReconciliationCheck()">
+                    <i class="bi bi-arrow-repeat me-1"></i>Kiểm Tra
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Testing & Demo Bypass for Administrator/User Simulation -->
+            <div class="mt-4 pt-3 border-top text-center">
+              <small class="text-muted d-block mb-2">
+                <i class="bi bi-info-circle me-1"></i>[CHỨC NĂNG KIỂM THỬ ĐỐI SOÁT & PHÊ DUYỆT CỌC]:
+              </small>
+              <div class="d-flex gap-2 justify-content-center flex-wrap">
+                <button type="button" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm" onclick="simulateSuccessfulReconciliation()">
+                  <i class="bi bi-patch-check-fill me-1 text-warning"></i>Xác Nhận Đã Nhận Cọc (Mô Phỏng Đối Soát Thành Công)
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="openAdminReconciliationTab()">
+                  <i class="bi bi-shield-lock me-1"></i>Mở Admin Portal Duyệt Thủ Công
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: MÀN HÌNH XÁC NHẬN CỌC THÀNH CÔNG & CẤP MÃ PIN SMARTLOCK -->
       <div class="modal-body p-4 bg-light d-none" id="bookingSuccessBody">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
           <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #0A3D2C, #14533D);">
             <div class="rounded-circle bg-white text-success d-inline-flex align-items-center justify-content-center mb-2 shadow" style="width: 60px; height: 60px;">
               <i class="bi bi-check-lg fs-1"></i>
             </div>
-            <h4 class="font-serif fw-bold text-gold mb-1">Đặt Phòng Thành Công!</h4>
-            <p class="text-white-50 small mb-0">Hệ thống IoT Kim Long EcoStay đã ghi nhận đơn đặt phòng và cấp mã SmartLock</p>
+            <!-- BẮT BUỘC: Thông báo chính xác theo yêu cầu đề bài -->
+            <h4 class="font-serif fw-bold text-gold mb-1">Thanh toán tiền cọc thành công!</h4>
+            <p class="text-white-50 small mb-0">Đặt phòng của bạn đã được xác nhận. Số tiền còn lại sẽ được thanh toán khi nhận phòng.</p>
           </div>
 
           <div class="p-4 bg-white">
@@ -1947,7 +2330,7 @@
                 <i class="bi bi-key-fill"></i>
               </div>
               <div class="flex-grow-1">
-                <div class="small text-muted text-uppercase fw-bold">MÃ PIN MỞ CỬA SMARTLOCK IOT CỦA BẠN:</div>
+                <div class="small text-muted text-uppercase fw-bold">MÃ PIN MỞ CỬA SMARTLOCK IOT CỦA BẠN (TỰ ĐỘNG 24/7):</div>
                 <div class="display-6 fw-bold text-success font-monospace letter-spacing-2" id="successPinCode">839201</div>
                 <div class="small text-muted">Có hiệu lực từ 14:00 ngày nhận phòng đến 12:00 ngày trả phòng</div>
               </div>
@@ -1957,7 +2340,7 @@
             <div class="p-3 bg-light rounded-3 border mb-3">
               <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div>
-                  <div class="fw-bold text-dark small"><i class="bi bi-envelope-paper-heart-fill text-danger me-1"></i>Thư xác nhận & mã PIN đã gửi tới:</div>
+                  <div class="fw-bold text-dark small"><i class="bi bi-envelope-paper-heart-fill text-danger me-1"></i>Email 2 (Xác nhận cọc & mã PIN) đã gửi tới:</div>
                   <div class="fw-bold text-success" id="successGuestEmail">khachhang@example.com</div>
                 </div>
                 <a href="#" id="btnOpenMailClient" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
@@ -1971,7 +2354,7 @@
               <table class="table table-sm table-borderless small mb-0">
                 <tbody>
                   <tr>
-                    <td class="text-muted" style="width: 35%;">Mã đơn đặt:</td>
+                    <td class="text-muted" style="width: 35%;">Mã đặt phòng:</td>
                     <td class="fw-bold text-dark" id="successOrderCode">KLE-20261017-8821</td>
                   </tr>
                   <tr>
@@ -1980,30 +2363,27 @@
                   </tr>
                   <tr>
                     <td class="text-muted">Thời gian lưu trú:</td>
-                    <td class="fw-bold text-dark" id="successStayDates">18/10/2026 ➔ 20/10/2026 (2 đêm)</td>
+                    <td class="fw-bold text-dark" id="successStayDates">18/10/2026 ➔ 20/10/2026</td>
                   </tr>
                   <tr>
                     <td class="text-muted">Tổng tiền phòng:</td>
                     <td class="fw-bold text-dark" id="successTotalPrice">780,000 đ</td>
                   </tr>
                   <tr>
-                    <td class="text-muted">Tiền đặt cọc 50%:</td>
+                    <td class="text-muted">Tiền cọc 50% đã thanh toán:</td>
                     <td class="fw-bold text-success fs-6" id="successDepositPrice">390,000 đ</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Số tiền còn lại khi Check-in:</td>
+                    <td class="fw-bold text-danger fs-6" id="successRemainingPrice">390,000 đ</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <!-- VietQR Code Payment Box -->
-            <div class="p-3 rounded-4 border text-center bg-light mb-3">
-              <div class="fw-bold text-dark small mb-2"><i class="bi bi-qr-code text-success me-1"></i>QUÉT MÃ VIETQR ĐẶT CỌC 50% TỰ ĐỘNG</div>
-              <img id="successVietQrImg" src="" alt="VietQR" class="img-fluid rounded-3 shadow-sm border mb-2" style="max-height: 220px;">
-              <div class="small text-muted">Ngân hàng MB Bank • Số tài khoản: <strong>0905123456</strong> • Chủ TK: <strong>KIM LONG ECOSTAY</strong></div>
-            </div>
-
             <!-- Interactive Keypad Button -->
             <div class="d-grid gap-2">
-              <button type="button" class="btn btn-warning fw-bold rounded-pill py-2 shadow-sm" onclick="openKeypadModal()">
+              <button type="button" class="btn btn-warning fw-bold rounded-pill py-2 shadow-sm text-dark" onclick="openKeypadModal()">
                 <i class="bi bi-shield-lock-fill me-1"></i>Thử Nghiệm Bấm Mã PIN Mở Khóa SmartLock ➔
               </button>
               <button type="button" class="btn btn-outline-secondary rounded-pill py-2" data-bs-dismiss="modal">
@@ -2013,6 +2393,247 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL: CHI TIẾT SẢN PHẨM ĐẶC SẢN & ẨM THỰC KIM LONG
+     ========================================================================= -->
+<div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white" style="background: #0A3D2C; border-bottom: 2px solid #D4AF37;">
+        <h5 class="modal-title font-serif fw-bold text-white mb-0" id="productDetailModalLabel">
+          <i class="bi bi-basket2-fill text-warning me-2"></i>Chi Tiết Sản Phẩm Đặc Sản Kim Long
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body p-4 bg-light">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-5">
+            <div class="rounded-4 overflow-hidden shadow-sm border bg-white position-relative">
+              <img id="detailProductImg" src="images/mon_banhuot.jpg" alt="Sản phẩm" class="img-fluid w-100" style="height: 260px; object-fit: cover;">
+              <span class="badge bg-success position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm" id="detailProductStockBadge">Còn hàng</span>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <span class="badge bg-warning text-dark rounded-pill px-2 py-1 small mb-1" id="detailProductCategory">Ẩm Thực Huế</span>
+            <h4 class="font-serif fw-bold text-dark mb-2" id="detailProductName">Bánh Ướt Thịt Nướng Kim Long</h4>
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+              <span class="fs-4 fw-bold text-success font-monospace" id="detailProductPrice">65,000 đ</span>
+              <span class="text-muted small">/ <span id="detailProductUnit">suất</span></span>
+            </div>
+            <p class="text-muted small mb-3" style="line-height: 1.7;" id="detailProductDesc">
+              Đặc sản đệ nhất Kim Long: Bánh ướt tráng mỏng nóng hổi cuốn thịt ba chỉ nướng than hoa thơm lừng và nước chấm tương mè gia truyền.
+            </p>
+            <div class="p-3 bg-white border rounded-3 mb-3 small">
+              <div><i class="bi bi-geo-alt-fill text-danger me-1"></i><strong>Nguồn gốc:</strong> Làng cổ Kim Long, Phường Kim Long, TP. Huế</div>
+              <div><i class="bi bi-shield-check text-success me-1"></i><strong>Tình trạng:</strong> Còn <span id="detailProductStockQty" class="fw-bold text-success">40</span> suất trong ngày</div>
+            </div>
+
+            <!-- Điều chỉnh số lượng & Nút thêm vào giỏ -->
+            <div class="d-flex align-items-center gap-3">
+              <div class="d-flex align-items-center border rounded-pill bg-white px-2 py-1 shadow-sm">
+                <button type="button" class="btn btn-sm btn-link text-dark p-1 text-decoration-none" onclick="adjustDetailQty(-1)"><i class="bi bi-dash fs-5"></i></button>
+                <input type="number" id="detailProductQty" class="form-control form-control-sm text-center border-0 fw-bold" value="1" min="1" max="50" style="width: 50px;">
+                <button type="button" class="btn btn-sm btn-link text-dark p-1 text-decoration-none" onclick="adjustDetailQty(1)"><i class="bi bi-plus fs-5"></i></button>
+              </div>
+              <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm flex-grow-1" onclick="addProductFromDetailToCart()">
+                <i class="bi bi-cart-plus-fill me-1"></i>Thêm Vào Giỏ Hàng
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL: GIỎ HÀNG & XÁC NHẬN ĐƠN HÀNG ĐẶC SẢN / PHÒNG NGHỈ
+     ========================================================================= -->
+<div class="modal fade" id="shoppingCartModal" tabindex="-1" aria-labelledby="shoppingCartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden">
+      <div class="modal-header text-white" style="background: #0A3D2C; border-bottom: 2px solid #D4AF37;">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-cart3 fs-4 text-warning"></i>
+          <div>
+            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="shoppingCartModalLabel">Giỏ Hàng & Xác Nhận Đơn Hàng</h5>
+            <small class="text-white-50">Kim Long EcoStay • Giao nóng tận phòng hoặc nhận tại lễ tân</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+
+      <div class="modal-body p-4 bg-light">
+        <!-- Danh sách sản phẩm trong giỏ -->
+        <div id="cartItemsListContainer">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Chi tiết thanh toán & phí giao hàng -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mt-3" id="cartSummaryCard">
+          <h6 class="fw-bold font-serif text-dark border-bottom pb-2 mb-3">Tóm Tắt Đơn Hàng & Vận Chuyển</h6>
+          <div class="d-flex justify-content-between py-1 small">
+            <span class="text-muted">Tổng tiền sản phẩm:</span>
+            <span class="fw-bold text-dark" id="cartSubtotalText">0 đ</span>
+          </div>
+          <div class="d-flex justify-content-between py-1 small">
+            <span class="text-muted">Phí giao hàng:</span>
+            <span class="fw-bold text-success" id="cartShippingFeeText">0 đ (Miễn phí nội phường Kim Long)</span>
+          </div>
+          <div class="d-flex justify-content-between py-2 border-top mt-2">
+            <span class="fw-bold fs-6 text-dark">Tổng thanh toán:</span>
+            <span class="fw-bold fs-5 text-success font-monospace" id="cartTotalPaymentText">0 đ</span>
+          </div>
+
+          <!-- Form thông tin giao nhận -->
+          <div class="mt-3 pt-3 border-top">
+            <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-person-lines-fill text-success me-1"></i>Thông Tin Người Nhận & Địa Điểm</h6>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <input type="text" id="cartCustomerName" class="form-control form-control-sm rounded-3" placeholder="Họ và tên quý khách" required>
+              </div>
+              <div class="col-md-6">
+                <input type="tel" id="cartCustomerPhone" class="form-control form-control-sm rounded-3" placeholder="Số điện thoại / Zalo" required>
+              </div>
+              <div class="col-12">
+                <input type="email" id="cartCustomerEmail" class="form-control form-control-sm rounded-3" placeholder="Email nhận hóa đơn & biên nhận">
+              </div>
+              <div class="col-12">
+                <input type="text" id="cartDeliveryAddress" class="form-control form-control-sm rounded-3" placeholder="Địa chỉ: Số phòng homestay (VD: Phòng R101) hoặc địa chỉ tại Huế">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Màn hình QR thanh toán cho đơn hàng đặc sản (Ẩn mặc định) -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mt-3 d-none text-center" id="cartOrderQrContainer">
+          <div class="badge bg-success px-3 py-1 rounded-pill mb-2">ĐÃ TẠO ĐƠN HÀNG THÀNH CÔNG</div>
+          <h5 class="fw-bold font-serif text-dark mb-1" id="cartSuccessOrderCode">KLE-SP-20261018</h5>
+          <p class="small text-muted mb-2">Quét mã VietQR chuyển khoản thanh toán đơn hàng đặc sản:</p>
+          <img id="cartOrderVietQrImg" src="" alt="VietQR" class="img-fluid rounded-3 border shadow-sm mx-auto mb-2" style="max-height: 220px;">
+          <div class="small text-muted font-monospace" id="cartOrderTransferNote">KLE SP20261018</div>
+        </div>
+      </div>
+
+      <div class="modal-footer p-3 bg-white border-top d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Tiếp Tục Chọn Món</button>
+        <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" id="btnCheckoutCart" onclick="handleCartCheckout()">
+          <i class="bi bi-check2-circle me-1"></i>Xác Nhận & Đặt Hàng Ngay
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL: ĐẶT LỊCH TRẢI NGHIỆM TRÀ CUNG ĐÌNH HUẾ
+     ========================================================================= -->
+<div class="modal fade" id="teaBookingModal" tabindex="-1" aria-labelledby="teaBookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white" style="background: #064E3B; border-bottom: 2px solid #FCD34D;">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-cup-hot-fill text-warning fs-5"></i>
+          <div>
+            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="teaBookingModalLabel">Đặt Trải Nghiệm Trà Cung Đình</h5>
+            <small class="text-white-50">Kim Long EcoStay • Nhà Rường Di Sản</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+
+      <div class="modal-body p-4 bg-light">
+        <form id="teaBookingForm" onsubmit="handleTeaBookingSubmit(event)">
+          <input type="hidden" id="teaServiceCode" value="TEA-HOMESTAY">
+          <input type="hidden" id="teaServiceName" value="Thưởng Trà Cung Đình Tại Homestay">
+          <input type="hidden" id="teaServiceUnitPrice" value="85000">
+          <input type="hidden" id="teaServicePriceType" value="người">
+          <input type="hidden" id="teaServiceMaxCapacity" value="8">
+
+          <div class="card border-0 p-3 rounded-4 shadow-sm bg-white mb-3">
+            <h6 class="fw-bold font-serif text-dark mb-1" id="teaModalSelectedTitle">Thưởng Trà Cung Đình Tại Homestay</h6>
+            <div class="d-flex justify-content-between align-items-center small text-muted">
+              <span>Đơn giá: <strong class="text-success font-monospace" id="teaModalSelectedPrice">85,000 đ</strong> / người</span>
+              <span>Sức chứa tối đa: <strong id="teaModalSelectedCapacity">8 khách</strong></span>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark"><i class="bi bi-calendar-event text-success me-1"></i>Ngày thưởng trà</label>
+              <input type="date" class="form-control rounded-3" id="teaBookingDate" value="2026-10-19" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark"><i class="bi bi-clock text-primary me-1"></i>Khung giờ phục vụ</label>
+              <select class="form-select rounded-3" id="teaTimeSlot">
+                <option value="08:30 - 09:30">08:30 - 09:30 (Sáng sớm mai)</option>
+                <option value="15:30 - 16:30" selected>15:30 - 16:30 (Trà chiều hoàng hôn)</option>
+                <option value="19:30 - 20:30">19:30 - 20:30 (Trà đêm trăng thanh)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark"><i class="bi bi-people text-info me-1"></i>Số lượng người</label>
+              <input type="number" class="form-control rounded-3 fw-bold" id="teaGuestsCount" value="2" min="1" max="12" onchange="calculateTeaBookingTotal()" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark"><i class="bi bi-cash text-success me-1"></i>Tổng chi phí</label>
+              <div class="form-control rounded-3 bg-light fw-bold text-success font-monospace" id="teaBookingTotalDisplay">170,000 đ</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold text-dark"><i class="bi bi-person text-secondary me-1"></i>Họ tên khách</label>
+              <input type="text" class="form-control rounded-3" id="teaCustomerName" placeholder="Ví dụ: Lê Thị Mai Lan" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark"><i class="bi bi-telephone text-secondary me-1"></i>Số điện thoại / Zalo</label>
+              <input type="tel" class="form-control rounded-3" id="teaCustomerPhone" placeholder="0914 654 321" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-dark"><i class="bi bi-envelope text-secondary me-1"></i>Email nhận xác nhận</label>
+              <input type="email" class="form-control rounded-3" id="teaCustomerEmail" placeholder="lan.le@example.com" required>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Đóng</button>
+            <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" style="background:#064E3B;">
+              <i class="bi bi-send-check-fill me-1"></i>Gửi Yêu Cầu Đặt Trà
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL: XEM TRƯỚC NỘI DUNG EMAIL GIAO DỊCH (EMAIL PREVIEW MODAL)
+     ========================================================================= -->
+<div class="modal fade" id="emailPreviewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden">
+      <div class="modal-header bg-dark text-white p-3">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-envelope-paper-fill text-warning"></i>
+          <div>
+            <h6 class="modal-title fw-bold mb-0 text-white" id="emailPreviewSubject">Xem Trước Nội Dung Email</h6>
+            <small class="text-white-50" id="emailPreviewRecipient">Gửi đến: khachhang@example.com</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0 bg-white" style="min-height: 480px;">
+        <iframe id="emailPreviewIframe" style="width:100%; height:520px; border:none;"></iframe>
+      </div>
+      <div class="modal-footer p-2 bg-light">
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -2164,7 +2785,31 @@
       <div class="px-4 pt-3 pb-2 bg-white border-bottom shadow-sm">
         <ul class="nav nav-pills nav-fill gap-2 flex-wrap" id="adminPortalNavTabs" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2 active" id="tab-btn-dashboard" data-bs-toggle="pill" data-bs-target="#tab-pane-dashboard" type="button" role="tab" onclick="onAdminTabSwitch('dashboard')">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2 active" id="tab-btn-reconciliation" data-bs-toggle="pill" data-bs-target="#tab-pane-reconciliation" type="button" role="tab" onclick="onAdminTabSwitch('reconciliation')">
+              <i class="bi bi-cash-coin text-warning fs-5"></i>
+              <span>Đối Soát Cọc & Phòng</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-specialties-admin" data-bs-toggle="pill" data-bs-target="#tab-pane-specialties-admin" type="button" role="tab" onclick="onAdminTabSwitch('specialties-admin')">
+              <i class="bi bi-basket2-fill text-danger fs-5"></i>
+              <span>Đặc Sản & Ẩm Thực</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-tea-admin" data-bs-toggle="pill" data-bs-target="#tab-pane-tea-admin" type="button" role="tab" onclick="onAdminTabSwitch('tea-admin')">
+              <i class="bi bi-cup-hot-fill text-success fs-5"></i>
+              <span>Trà Cung Đình</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-emaillogs" data-bs-toggle="pill" data-bs-target="#tab-pane-emaillogs" type="button" role="tab" onclick="onAdminTabSwitch('emaillogs')">
+              <i class="bi bi-envelope-paper-heart-fill text-info fs-5"></i>
+              <span>Nhật Ký Email & Giao Dịch</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-dashboard" data-bs-toggle="pill" data-bs-target="#tab-pane-dashboard" type="button" role="tab" onclick="onAdminTabSwitch('dashboard')">
               <i class="bi bi-graph-up-arrow text-success fs-5"></i>
               <span>Dashboard Tài Chính</span>
             </button>
@@ -2200,8 +2845,324 @@
       <div class="modal-body p-4 bg-light">
         <div class="tab-content" id="adminPortalTabContent">
 
+          <!-- =========================================================================
+               TAB 1: ĐỐI SOÁT CỌC & PHÒNG (RECONCILIATION & 50% DEPOSIT DISPATCH)
+               ========================================================================= -->
+          <div class="tab-pane fade show active" id="tab-pane-reconciliation" role="tabpanel">
+            <!-- Thống kê tài chính & đối soát -->
+            <div class="row g-3 mb-4">
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-warning">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small fw-semibold">CHỜ ĐỐI SOÁT CỌC</span>
+                    <span class="badge bg-warning text-dark fw-bold" id="statPendingReconcileCount">1 Đơn</span>
+                  </div>
+                  <h4 class="fw-bold text-dark mb-1" id="statPendingReconcileAmount">390,000 <small class="fs-6 text-muted">đ</small></h4>
+                  <div class="small text-muted"><i class="bi bi-clock-history text-warning me-1"></i>Cần nhân viên kiểm tra tài khoản</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-success">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small fw-semibold">TIỀN CỌC 50% ĐÃ THU</span>
+                    <span class="badge bg-success bg-opacity-10 text-success fw-bold">Đã Xác Nhận</span>
+                  </div>
+                  <h4 class="fw-bold text-success mb-1" id="statConfirmedDepositAmount">1,780,000 <small class="fs-6 text-muted">đ</small></h4>
+                  <div class="small text-muted"><i class="bi bi-shield-check text-success me-1"></i>Đã cấp mã PIN SmartLock</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-danger">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small fw-semibold">SỐ TIỀN CÒN LẠI (CHECK-IN)</span>
+                    <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">Thu Khi Đến</span>
+                  </div>
+                  <h4 class="fw-bold text-danger mb-1" id="statRemainingBalanceAmount">1,400,000 <small class="fs-6 text-muted">đ</small></h4>
+                  <div class="small text-muted"><i class="bi bi-bell-fill text-danger me-1"></i>Sẽ tự động gửi Email 3 khi Check-in</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-primary">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small fw-semibold">TỔNG LƯỢT ĐẶT PHÒNG</span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold" id="statTotalBookingsCount">4 Lượt</span>
+                  </div>
+                  <h4 class="fw-bold text-primary mb-1" id="statTotalBookingValue">3,560,000 <small class="fs-6 text-muted">đ</small></h4>
+                  <div class="small text-muted"><i class="bi bi-door-open-fill text-primary me-1"></i>Tỉ lệ lấp đầy đạt 84.6%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cấu hình chính sách cọc & phương thức thanh toán -->
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white mb-4">
+              <div class="row g-3 align-items-center">
+                <div class="col-lg-3 col-md-6">
+                  <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-percent text-success me-1"></i>Tỷ Lệ Đặt Cọc Cấu Hình:</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" id="adminDepositRatioInput" class="form-control fw-bold" value="50" min="10" max="100" step="5">
+                    <span class="input-group-text bg-light">% Tổng Tiền</span>
+                    <button class="btn btn-outline-success fw-bold" type="button" onclick="saveAdminDepositRatio()">Lưu</button>
+                  </div>
+                  <small class="text-muted d-block mt-1" style="font-size:11px;">Mặc định 50% theo yêu cầu nghiệp vụ Kim Long EcoStay.</small>
+                </div>
+                <div class="col-lg-5 col-md-6">
+                  <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-credit-card-2-front-fill text-primary me-1"></i>Phương Thức Thanh Toán Hỗ Trợ:</label>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle p-2 rounded-3 small">
+                      <i class="bi bi-qr-code-scan me-1"></i>VietQR Chuyển Khoản (Bật)
+                    </span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle p-2 rounded-3 small">
+                      <i class="bi bi-bank me-1"></i>MB Bank 0905123456 (Bật)
+                    </span>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle p-2 rounded-3 small" title="HMAC-SHA512 Webhook">
+                      <i class="bi bi-shield-lock me-1"></i>Cổng VNPAY / Onepay (Sẵn sàng)
+                    </span>
+                  </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold me-2" onclick="renderAdminReconciliationList()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới Danh Sách
+                  </button>
+                  <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openBookingModal('1', 'Eco-Nest Ban Mai (KLE-R101)', 390000, 'Nhà Vườn Hương Sen', 'images/room_econest.jpg')">
+                    <i class="bi bi-plus-circle me-1"></i>Tạo Lượt Đặt Mới
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bảng đối soát đơn đặt phòng & kích hoạt email -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-journal-check text-success me-2"></i>Danh Sách Đơn Đặt Phòng, Đối Soát Cọc & Giao Dịch Thực Nhận
+                </h6>
+                <div class="d-flex gap-2">
+                  <select id="adminReconcileFilterSelect" class="form-select form-select-sm rounded-pill" onchange="renderAdminReconciliationList()" style="width: 170px;">
+                    <option value="ALL">Tất cả trạng thái</option>
+                    <option value="WAITING">Chờ đối soát cọc</option>
+                    <option value="CONFIRMED">Đã cọc (CONFIRMED)</option>
+                    <option value="CHECKED_IN">Đang ở (CHECKED_IN)</option>
+                    <option value="COMPLETED">Tất toán (COMPLETED)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Đơn</th>
+                      <th>Khách Hàng / SĐT</th>
+                      <th>Phòng Nghỉ</th>
+                      <th>Lưu Trú</th>
+                      <th>Tổng Tiền</th>
+                      <th>Cọc 50%</th>
+                      <th>Còn Lại</th>
+                      <th>Trạng Thái Đơn</th>
+                      <th>Thanh Toán</th>
+                      <th class="text-end pe-4">Thao Tác Nghiệp Vụ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminReconciliationTableBody">
+                    <!-- Rendered dynamically via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- =========================================================================
+               TAB 2: QUẢN LÝ ĐẶC SẢN & ẨM THỰC KIM LONG (SPECIALTIES ADMIN)
+               ========================================================================= -->
+          <div class="tab-pane fade" id="tab-pane-specialties-admin" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-basket2-fill text-danger me-2"></i>Quản Lý Sản Phẩm Đặc Sản, Ẩm Thực & Đơn Giao Tận Phòng
+                </h6>
+                <small class="text-muted">Cập nhật đơn giá, tồn kho trong ngày, hình ảnh và trạng thái kinh doanh</small>
+              </div>
+              <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="showAddProductPrompt()">
+                <i class="bi bi-plus-lg me-1"></i>Thêm Món / Quà Đặc Sản Mới
+              </button>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-4">
+              <div class="card-header bg-white py-3 px-4 border-bottom">
+                <strong class="text-dark"><i class="bi bi-grid-3x3-gap-fill text-warning me-2"></i>Danh Mục 08 Sản Phẩm Khởi Tạo Sẵn Sàng Kinh Doanh</strong>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">ID</th>
+                      <th>Hình Ảnh</th>
+                      <th>Tên Sản Phẩm</th>
+                      <th>Danh Mục</th>
+                      <th>Đơn Giá</th>
+                      <th>Tồn Kho</th>
+                      <th>Đơn Vị</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-4">Cập Nhật</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminSpecialtiesTableBody">
+                    <!-- Rendered dynamically via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Đơn hàng đặc sản đặt từ giỏ hàng -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+                <strong class="text-dark"><i class="bi bi-bag-check-fill text-success me-2"></i>Đơn Hàng Ẩm Thực Đặt Trực Tuyến Từ Giỏ Hàng</strong>
+                <span class="badge bg-success rounded-pill" id="adminSpecialtyOrdersBadge">0 Đơn</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Đơn</th>
+                      <th>Khách Hàng</th>
+                      <th>Số Điện Thoại</th>
+                      <th>Địa Chỉ / Phòng</th>
+                      <th>Các Món Đã Đặt</th>
+                      <th>Tổng Tiền</th>
+                      <th>Trạng Thái Giao</th>
+                      <th class="text-end pe-4">Xử Lý</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminSpecialtyOrdersTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- =========================================================================
+               TAB 3: QUẢN LÝ TRÀ CUNG ĐÌNH HUẾ (TEA SERVICES ADMIN)
+               ========================================================================= -->
+          <div class="tab-pane fade" id="tab-pane-tea-admin" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-cup-hot-fill text-success me-2"></i>Quản Lý Dịch Vụ Trà Cung Đình & Lịch Đặt Chỗ
+                </h6>
+                <small class="text-muted">Cấu hình 04 gói thưởng trà, kiểm tra sức chứa tối đa và xét duyệt lịch khách hẹn</small>
+              </div>
+              <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="renderAdminTea()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới Lịch Trà
+              </button>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-4">
+              <div class="card-header bg-white py-3 px-4 border-bottom">
+                <strong class="text-dark"><i class="bi bi-stars text-warning me-2"></i>04 Gói Dịch Vụ Trà Cung Đình Đang Hoạt Động</strong>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Gói</th>
+                      <th>Tên Gói Trải Nghiệm</th>
+                      <th>Đơn Giá</th>
+                      <th>Thời Lượng</th>
+                      <th>Sức Chứa Tối Đa</th>
+                      <th>Lịch Phục Vụ Hàng Ngày</th>
+                      <th>Trạng Thái Nhận Đặt</th>
+                      <th class="text-end pe-4">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminTeaServicesTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Yêu cầu đặt lịch trà từ khách -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+                <strong class="text-dark"><i class="bi bi-calendar-heart-fill text-danger me-2"></i>Danh Sách Yêu Cầu Đặt Lịch Thưởng Trà</strong>
+                <span class="badge bg-success rounded-pill" id="adminTeaBookingsBadge">0 Yêu cầu</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Đặt</th>
+                      <th>Khách Hàng</th>
+                      <th>Số Điện Thoại</th>
+                      <th>Gói Trà</th>
+                      <th>Ngày Hẹn</th>
+                      <th>Khung Giờ</th>
+                      <th>Số Khách</th>
+                      <th>Tổng Tiền</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-4">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminTeaBookingsTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- =========================================================================
+               TAB 4: NHẬT KÝ EMAIL & GIAO DỊCH (EMAIL AUDIT & RETRY LOGS)
+               ========================================================================= -->
+          <div class="tab-pane fade" id="tab-pane-emaillogs" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-envelope-paper-heart-fill text-info me-2"></i>Nhật Ký Tự Động Gửi 4 Mẫu Email Theo Trạng Thái & Đối Soát
+                </h6>
+                <small class="text-muted">Theo dõi Email 1 (Tiếp nhận), Email 2 (Cọc 50% + PIN), Email 3 (Yêu cầu 50% khi Check-in), Email 4 (Tất toán 100%)</small>
+              </div>
+              <div class="d-flex gap-2">
+                <select id="adminEmailLogFilterSelect" class="form-select form-select-sm rounded-pill" onchange="renderAdminEmailLogs()" style="width: 160px;">
+                  <option value="ALL">Tất cả mẫu email</option>
+                  <option value="BOOKING_RECEIVED">Email 1 (Tiếp nhận)</option>
+                  <option value="DEPOSIT_CONFIRMED">Email 2 (Xác nhận cọc)</option>
+                  <option value="REMAINING_REQUEST">Email 3 (Yêu cầu còn lại)</option>
+                  <option value="FINAL_PAID">Email 4 (Tất toán 100%)</option>
+                </select>
+                <button class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold" onclick="renderAdminEmailLogs()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới
+                </button>
+              </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Log</th>
+                      <th>Thời Gian</th>
+                      <th>Mẫu Email</th>
+                      <th>Mã Đơn Đặt</th>
+                      <th>Hòm Thư Người Nhận</th>
+                      <th>Tiêu Đề Thư</th>
+                      <th>Trạng Thái Gửi</th>
+                      <th>Thử Lại</th>
+                      <th class="text-end pe-4">Hành Động</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminEmailLogsTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <!-- 1. DASHBOARD TÀI CHÍNH -->
-          <div class="tab-pane fade show active" id="tab-pane-dashboard" role="tabpanel">
+          <div class="tab-pane fade" id="tab-pane-dashboard" role="tabpanel">
             <div class="row g-3 mb-4">
               <div class="col-xl-3 col-md-6">
                 <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-success">
@@ -2821,9 +3782,625 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // =========================================================================
-// 2. BOOKING MODAL & REAL EMAIL DISPATCH
+// DATA REPOSITORY INITIALIZATION & SEED STORES (LOCALSTORAGE SYNCHRONIZATION)
 // =========================================================================
-var currentPin = '839201';
+var DEFAULT_PRODUCTS = [
+  { id: 'SP001', name: 'Bánh Ướt Thịt Nướng Kim Long', category: 'Ẩm Thực Huế', price: 65000, stock: 40, unit: 'suất', img: 'images/mon_banhuot.jpg', desc: 'Đặc sản trứ danh đệ nhất Kim Long: Bánh ướt mỏng mềm cuốn thịt heo ba chỉ nướng than hoa thơm lừng và nước chấm tương mè gia truyền.', isActive: true, isSample: false },
+  { id: 'SP002', name: 'Mẹt Bánh Bèo - Nậm - Lọc Cung Đình', category: 'Ẩm Thực Huế', price: 85000, stock: 35, unit: 'mẹt', img: 'images/mon_banhbeonamloc.jpg', desc: 'Mẹt bánh truyền thống gồm 10 chén bánh bèo tôm chấy, 4 bánh nậm lá dong, 4 bánh bột lọc tôm thịt trong veo chấm mắm ớt cay nồng.', isActive: true, isSample: false },
+  { id: 'SP003', name: 'Nem Lụi Nướng Than Hoa Cố Đô', category: 'Ẩm Thực Huế', price: 75000, stock: 30, unit: 'suất', img: 'images/mon_nemlui.jpg', desc: 'Nem lụi quấn sả tươi nướng than hồng, ăn kèm bánh tráng mỏng, rau sống vườn Kim Long và nước lèo đậu phụng sánh mịn béo ngậy.', isActive: true, isSample: false },
+  { id: 'SP004', name: 'Cơm Hến Kim Long Chuẩn Vị', category: 'Ẩm Thực Huế', price: 45000, stock: 25, unit: 'tô', img: 'images/mon_comhen.jpg', desc: 'Cơm nguội trộn hến xào sông Hương, tóp mỡ giòn rụm, môn bạc hà, hoa chuối, mè rang, ớt sa tế và nước dùng hến nóng hổi.', isActive: true, isSample: false },
+  { id: 'SP005', name: 'Hộp Bánh Mè Xửng Giòn Kim Long', category: 'Đặc Sản Đóng Gói', price: 55000, stock: 60, unit: 'hộp 300g', img: 'images/qua_mexung.jpg', desc: 'Mè xửng giòn kẹp bánh tráng nướng vàng rụm, ngọt thanh mạch nha, bùi béo mè rang và đậu phộng quê hương.', isActive: true, isSample: false },
+  { id: 'SP006', name: 'Trà Sen Cung Đình Huế Thượng Hạng', category: 'Trà & Quà Tặng', price: 180000, stock: 20, unit: 'hộp 10 bông', img: 'images/qua_trasen.jpg', desc: 'Trà ướp trong búp sen Tịnh Tâm vào buổi sớm mai, ngậm trọn sương mai thanh tao và hương thơm hoàng gia thuần khiết.', isActive: true, isSample: false },
+  { id: 'SP007', name: 'Mứt Gừng Kim Long Cổ Truyền', category: 'Đặc Sản Đóng Gói', price: 65000, stock: 45, unit: 'hộp 250g', img: 'images/qua_mutgung.jpg', desc: 'Mứt gừng lát mỏng đều hạt bắp của xứ bãi bồi Kim Long, cay nồng ấm lòng, ngào đường phèn trắng tinh khiết ăn kèm trà sen.', isActive: true, isSample: false },
+  { id: 'SP008', name: 'Tinh Dầu Tràm Gió Huế Nguyên Chất', category: 'Trà & Quà Tặng', price: 120000, stock: 50, unit: 'chai 100ml', img: 'images/qua_tinhdautram.jpg', desc: 'Chiết xuất từ lá tràm tự nhiên xứ Huế, giữ ấm, kháng khuẩn, phòng cảm mạo cực tốt cho người lớn tuổi và trẻ nhỏ.', isActive: true, isSample: false }
+];
+
+var DEFAULT_TEA_SERVICES = [
+  { code: 'TEA-HOMESTAY', name: 'Thưởng Trà Cung Đình Tại Homestay', price: 85000, priceType: 'người', duration: '60 phút', maxCapacity: 8, schedule: '08:30 - 21:00 (Mỗi tiếng 1 lượt)', remainingSlots: 6, status: 'OPEN', desc: 'Thưởng thức ấm trà sen Cung Đình 16 vị thảo mộc tại hiên nhà rường lộng gió sông Hương.' },
+  { code: 'TEA-CAKES', name: 'Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế', price: 135000, priceType: 'người', duration: '75 phút', maxCapacity: 10, schedule: '09:00, 15:30, 19:30', remainingSlots: 8, status: 'OPEN', desc: 'Bộ ấm trà sen thượng hạng kết hợp mẹt 4 loại bánh Huế cổ truyền và kẹo cau, mè xửng Kim Long.' },
+  { code: 'TEA-COUPLE', name: 'Gói Thưởng Trà Dành Cho Cặp Đôi & Nhóm Khách', price: 250000, priceType: 'gói 2-4 khách', duration: '90 phút', maxCapacity: 4, schedule: '16:00 - 18:00 (Hoàng hôn) hoặc 20:00 (Trăng thanh)', remainingSlots: 2, status: 'OPEN', desc: 'Bàn trà riêng tư trang trí nến thơm và hoa sen bên hồ cá koi nhà rường, kèm mứt gừng và âm nhạc nhã nhạc Huế.' },
+  { code: 'TEA-CULTURE', name: 'Gói Trải Nghiệm Văn Hóa Huế Kết Hợp Giới Thiệu Trà', price: 390000, priceType: 'gói trải nghiệm', duration: '120 phút', maxCapacity: 12, schedule: '15:00 - 17:00 Hàng ngày', remainingSlots: 4, status: 'OPEN', desc: 'Nghệ nhân trà Huế trực tiếp hướng dẫn nghi thức pha trà Cung Đình, giải thích ý nghĩa 16 vị thảo mộc và thưởng trà đàm đạo.' }
+];
+
+var DEFAULT_INITIAL_BOOKINGS = [
+  {
+    orderCode: 'KLE-20261018-01',
+    pin: '839201',
+    name: 'Nguyễn Văn An',
+    phone: '0905123456',
+    email: 'khachhang@example.com',
+    roomName: 'Eco-Nest Ban Mai (KLE-R101)',
+    checkIn: '2026-10-18',
+    checkOut: '2026-10-20',
+    totalPrice: 780000,
+    depositRequired: 390000,
+    depositPaid: 390000,
+    remainingBalance: 390000,
+    status: 'WAITING_RECONCILIATION',
+    bookingStatus: 'PENDING_DEPOSIT',
+    paymentMethod: 'VietQR',
+    transferContent: 'KLE 2026101801 COC50',
+    createdAt: new Date().toISOString()
+  },
+  {
+    orderCode: 'KLE-20261015-88',
+    pin: '512940',
+    name: 'Hoàng Minh Tuấn',
+    phone: '0912334455',
+    email: 'tuan.hoang@example.com',
+    roomName: 'Eco-Nest Hoàng Hôn (KLE-R102)',
+    checkIn: '2026-10-16',
+    checkOut: '2026-10-18',
+    totalPrice: 840000,
+    depositRequired: 420000,
+    depositPaid: 420000,
+    remainingBalance: 420000,
+    status: 'CONFIRMED',
+    bookingStatus: 'CONFIRMED',
+    paymentMethod: 'VietQR',
+    transferContent: 'KLE 2026101588 COC50',
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
+  },
+  {
+    orderCode: 'KLE-20261014-42',
+    pin: '724819',
+    name: 'Đặng Thanh Nga',
+    phone: '0988776655',
+    email: 'nga.dang@example.com',
+    roomName: 'Garden Suite Cố Đô (KLE-R201)',
+    checkIn: '2026-10-14',
+    checkOut: '2026-10-16',
+    totalPrice: 1100000,
+    depositRequired: 550000,
+    depositPaid: 550000,
+    remainingBalance: 550000,
+    status: 'CHECKED_IN',
+    bookingStatus: 'CHECKED_IN',
+    paymentMethod: 'VietQR',
+    transferContent: 'KLE 2026101442 COC50',
+    createdAt: new Date(Date.now() - 86400000 * 4).toISOString()
+  },
+  {
+    orderCode: 'KLE-20261010-19',
+    pin: '608372',
+    name: 'Lê Hoàng Long',
+    phone: '0933221100',
+    email: 'long.le@example.com',
+    roomName: 'Heritage Studio Trầm Mặc (KLE-R203)',
+    checkIn: '2026-10-10',
+    checkOut: '2026-10-12',
+    totalPrice: 980000,
+    depositRequired: 490000,
+    depositPaid: 490000,
+    remainingBalance: 0,
+    status: 'COMPLETED',
+    bookingStatus: 'COMPLETED',
+    paymentMethod: 'VietQR',
+    transferContent: 'KLE 2026101019 COC50',
+    createdAt: new Date(Date.now() - 86400000 * 7).toISOString()
+  }
+];
+
+function initKleStorage() {
+  if (!localStorage.getItem('kle_products')) {
+    localStorage.setItem('kle_products', JSON.stringify(DEFAULT_PRODUCTS));
+  }
+  if (!localStorage.getItem('kle_tea_services')) {
+    localStorage.setItem('kle_tea_services', JSON.stringify(DEFAULT_TEA_SERVICES));
+  }
+  if (!localStorage.getItem('kle_all_bookings')) {
+    localStorage.setItem('kle_all_bookings', JSON.stringify(DEFAULT_INITIAL_BOOKINGS));
+  }
+  if (!localStorage.getItem('kle_cart')) {
+    localStorage.setItem('kle_cart', JSON.stringify([]));
+  }
+  if (!localStorage.getItem('kle_transactions')) {
+    localStorage.setItem('kle_transactions', JSON.stringify([]));
+  }
+  if (!localStorage.getItem('kle_email_logs')) {
+    localStorage.setItem('kle_email_logs', JSON.stringify([]));
+  }
+  if (!localStorage.getItem('kle_specialty_orders')) {
+    localStorage.setItem('kle_specialty_orders', JSON.stringify([]));
+  }
+  if (!localStorage.getItem('kle_tea_bookings')) {
+    localStorage.setItem('kle_tea_bookings', JSON.stringify([]));
+  }
+  if (!localStorage.getItem('kle_deposit_ratio')) {
+    localStorage.setItem('kle_deposit_ratio', '50');
+  }
+}
+initKleStorage();
+
+// Helper to access stores
+function getProducts() { return JSON.parse(localStorage.getItem('kle_products') || '[]'); }
+function saveProducts(p) { localStorage.setItem('kle_products', JSON.stringify(p)); }
+function getTeaServices() { return JSON.parse(localStorage.getItem('kle_tea_services') || '[]'); }
+function saveTeaServices(s) { localStorage.setItem('kle_tea_services', JSON.stringify(s)); }
+function getAllBookings() { return JSON.parse(localStorage.getItem('kle_all_bookings') || '[]'); }
+function saveAllBookings(b) { localStorage.setItem('kle_all_bookings', JSON.stringify(b)); }
+function getCart() { return JSON.parse(localStorage.getItem('kle_cart') || '[]'); }
+function saveCart(c) { localStorage.setItem('kle_cart', JSON.stringify(c)); updateCartUi(); }
+function getEmailLogs() { return JSON.parse(localStorage.getItem('kle_email_logs') || '[]'); }
+function saveEmailLogs(l) { localStorage.setItem('kle_email_logs', JSON.stringify(l)); }
+
+// =========================================================================
+// MỤC 1: ĐẶC SẢN & ẨM THỰC KIM LONG (SPECIALTIES & CART UI LOGIC)
+// =========================================================================
+var currentSpecialtyCategory = 'ALL';
+var currentSelectedProductId = null;
+
+window.renderSpecialties = function() {
+  var container = document.getElementById('specialtiesGrid');
+  if (!container) return;
+
+  var products = getProducts();
+  var searchTerm = (document.getElementById('specialtySearchInput') ? document.getElementById('specialtySearchInput').value : '').toLowerCase().trim();
+  var sortVal = document.getElementById('specialtySortSelect') ? document.getElementById('specialtySortSelect').value : 'featured';
+
+  var filtered = products.filter(function(p) {
+    var matchCat = (currentSpecialtyCategory === 'ALL' || p.category === currentSpecialtyCategory);
+    var matchSearch = (!searchTerm || p.name.toLowerCase().includes(searchTerm) || p.desc.toLowerCase().includes(searchTerm));
+    return matchCat && matchSearch && p.isActive !== false;
+  });
+
+  if (sortVal === 'price-asc') {
+    filtered.sort(function(a, b) { return a.price - b.price; });
+  } else if (sortVal === 'price-desc') {
+    filtered.sort(function(a, b) { return b.price - a.price; });
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i class="bi bi-basket2 fs-1 d-block mb-2"></i>Không tìm thấy sản phẩm đặc sản phù hợp trong danh mục này.</div>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(p) {
+    var stockBadge = p.stock > 0 
+      ? '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1"><i class="bi bi-check2-circle me-1"></i>Còn ' + p.stock + ' ' + (p.unit || 'suất') + '</span>'
+      : '<span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1"><i class="bi bi-x-circle me-1"></i>Tạm hết hàng</span>';
+
+    html += `
+      <div class="col-xl-3 col-lg-4 col-md-6">
+        <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden specialty-product-card bg-white">
+          <div class="position-relative overflow-hidden" style="height: 200px;">
+            <img src="${p.img}" alt="${p.name}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" onerror="this.src='images/mon_banhuot.jpg'">
+            <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 rounded-pill px-2 py-1 shadow-sm font-serif" style="font-size: 11px;">
+              ${p.category}
+            </span>
+          </div>
+          <div class="card-body p-3 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              ${stockBadge}
+              <small class="text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Kim Long</small>
+            </div>
+            <h6 class="fw-bold font-serif text-dark mb-1 text-truncate" title="${p.name}">${p.name}</h6>
+            <p class="text-muted small mb-3 flex-grow-1" style="font-size: 12.5px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              ${p.desc}
+            </p>
+            <div class="d-flex justify-content-between align-items-baseline mb-3">
+              <span class="fw-bold fs-5 text-success font-monospace">${p.price.toLocaleString('vi-VN')} đ</span>
+              <span class="text-muted small">/ ${p.unit || 'suất'}</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 flex-fill" onclick="openProductDetailModal('${p.id}')">
+                <i class="bi bi-eye me-1"></i>Chi Tiết
+              </button>
+              <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold flex-fill shadow-sm" ${p.stock <= 0 ? 'disabled' : ''} onclick="quickAddToCart('${p.id}')">
+                <i class="bi bi-cart-plus-fill me-1"></i>Thêm
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+};
+
+window.filterSpecialties = function() {
+  renderSpecialties();
+};
+
+window.setSpecialtyCategory = function(cat, btnEl) {
+  currentSpecialtyCategory = cat;
+  if (btnEl && btnEl.parentElement) {
+    btnEl.parentElement.querySelectorAll('.kle-spec-filter-btn').forEach(function(b) {
+      b.className = 'btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn';
+    });
+    btnEl.className = 'btn btn-sm btn-success rounded-pill px-3 fw-bold kle-spec-filter-btn';
+  }
+  renderSpecialties();
+};
+
+window.openProductDetailModal = function(id) {
+  var p = getProducts().find(function(item) { return item.id === id; });
+  if (!p) return;
+  currentSelectedProductId = id;
+
+  document.getElementById('detailProductImg').src = p.img;
+  document.getElementById('detailProductName').textContent = p.name;
+  document.getElementById('detailProductCategory').textContent = p.category;
+  document.getElementById('detailProductPrice').textContent = p.price.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('detailProductUnit').textContent = p.unit || 'suất';
+  document.getElementById('detailProductDesc').textContent = p.desc;
+  document.getElementById('detailProductStockQty').textContent = p.stock;
+  document.getElementById('detailProductQty').value = 1;
+  document.getElementById('detailProductQty').max = p.stock || 1;
+
+  var badge = document.getElementById('detailProductStockBadge');
+  if (p.stock > 0) {
+    badge.className = 'badge bg-success position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm';
+    badge.textContent = 'Còn hàng (' + p.stock + ' ' + (p.unit || 'suất') + ')';
+  } else {
+    badge.className = 'badge bg-danger position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm';
+    badge.textContent = 'Tạm hết hàng';
+  }
+
+  var modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+  modal.show();
+};
+
+window.adjustDetailQty = function(delta) {
+  var input = document.getElementById('detailProductQty');
+  var currentVal = parseInt(input.value) || 1;
+  var max = parseInt(input.max) || 50;
+  var newVal = currentVal + delta;
+  if (newVal < 1) newVal = 1;
+  if (newVal > max) newVal = max;
+  input.value = newVal;
+};
+
+window.addProductFromDetailToCart = function() {
+  if (!currentSelectedProductId) return;
+  var qty = parseInt(document.getElementById('detailProductQty').value) || 1;
+  addSpecialtyToCart(currentSelectedProductId, qty);
+
+  var modalEl = document.getElementById('productDetailModal');
+  var modalInst = bootstrap.Modal.getInstance(modalEl);
+  if (modalInst) modalInst.hide();
+};
+
+window.quickAddToCart = function(id) {
+  addSpecialtyToCart(id, 1);
+};
+
+function addSpecialtyToCart(id, qty) {
+  var product = getProducts().find(function(p) { return p.id === id; });
+  if (!product) return;
+  if (product.stock < qty) {
+    alert('Số lượng tồn kho trong ngày chỉ còn ' + product.stock + ' ' + (product.unit || 'suất') + '. Vui lòng chọn lại.');
+    return;
+  }
+
+  var cart = getCart();
+  var existing = cart.find(function(item) { return item.id === id; });
+  if (existing) {
+    if (existing.qty + qty > product.stock) {
+      alert('Không thể thêm vượt quá tồn kho còn lại (' + product.stock + ' ' + product.unit + ').');
+      return;
+    }
+    existing.qty += qty;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      unit: product.unit || 'suất',
+      img: product.img,
+      category: product.category,
+      qty: qty
+    });
+  }
+
+  saveCart(cart);
+  alert('Đã thêm ' + qty + ' ' + (product.unit || 'món') + ' "' + product.name + '" vào giỏ hàng thành công!');
+}
+
+// Giỏ hàng & tính toán tiền
+window.updateCartUi = function() {
+  var cart = getCart();
+  var totalItems = cart.reduce(function(acc, item) { return acc + item.qty; }, 0);
+
+  // Topbar badges
+  var desktopBadge = document.getElementById('navCartBadgeCount');
+  var mobileBadge = document.getElementById('mobileCartBadge');
+  var summaryText = document.getElementById('navCartSummaryText');
+
+  if (desktopBadge) desktopBadge.textContent = totalItems;
+  if (mobileBadge) mobileBadge.textContent = totalItems;
+  if (summaryText) summaryText.textContent = totalItems > 0 ? (totalItems + ' món đã chọn') : 'Chưa có món nào';
+};
+
+window.openShoppingCartModal = function() {
+  var cart = getCart();
+  var container = document.getElementById('cartItemsListContainer');
+  var summaryCard = document.getElementById('cartSummaryCard');
+  var qrContainer = document.getElementById('cartOrderQrContainer');
+  var btnCheckout = document.getElementById('btnCheckoutCart');
+
+  if (qrContainer) qrContainer.classList.add('d-none');
+  if (summaryCard) summaryCard.classList.remove('d-none');
+  if (btnCheckout) btnCheckout.classList.remove('d-none');
+
+  if (!cart || cart.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-cart-x fs-1 d-block mb-2 text-warning"></i>
+        <h6 class="fw-bold text-dark">Giỏ hàng của quý khách đang trống</h6>
+        <p class="small text-muted mb-3">Hãy chọn thêm các món bánh Huế, đặc sản và trà sen Kim Long để thưởng thức nhé!</p>
+        <button type="button" class="btn btn-sm btn-success rounded-pill px-4" data-bs-dismiss="modal" onclick="scrollToSection('specialties')">
+          <i class="bi bi-basket2-fill me-1"></i>Xem Menu Đặc Sản Kim Long
+        </button>
+      </div>
+    `;
+    document.getElementById('cartSubtotalText').textContent = '0 đ';
+    document.getElementById('cartShippingFeeText').textContent = '0 đ';
+    document.getElementById('cartTotalPaymentText').textContent = '0 đ';
+    if (btnCheckout) btnCheckout.disabled = true;
+  } else {
+    var subtotal = 0;
+    var html = '<div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Món Đặc Sản</th><th>Đơn Giá</th><th class="text-center">Số Lượng</th><th>Thành Tiền</th><th></th></tr></thead><tbody>';
+
+    cart.forEach(function(item) {
+      var itemTotal = item.price * item.qty;
+      subtotal += itemTotal;
+      html += `
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <img src="${item.img}" alt="${item.name}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
+              <div>
+                <strong class="text-dark small d-block">${item.name}</strong>
+                <span class="badge bg-light text-muted font-monospace" style="font-size: 10px;">${item.category}</span>
+              </div>
+            </div>
+          </td>
+          <td class="font-monospace small text-dark">${item.price.toLocaleString('vi-VN')} đ</td>
+          <td class="text-center">
+            <div class="d-inline-flex align-items-center border rounded-pill px-2 py-0 bg-white">
+              <button class="btn btn-sm btn-link text-dark p-0" onclick="adjustCartItemQty('${item.id}', -1)"><i class="bi bi-dash"></i></button>
+              <span class="px-2 fw-bold font-monospace small">${item.qty}</span>
+              <button class="btn btn-sm btn-link text-dark p-0" onclick="adjustCartItemQty('${item.id}', 1)"><i class="bi bi-plus"></i></button>
+            </div>
+          </td>
+          <td class="font-monospace fw-bold text-success small">${itemTotal.toLocaleString('vi-VN')} đ</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-danger border-0 p-1" onclick="removeCartItem('${item.id}')" title="Xóa"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>
+      `;
+    });
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+
+    // Phí giao hàng: Miễn phí nội phường Kim Long hoặc đơn từ 150.000 đ
+    var shippingFee = 0;
+    var shippingText = '0 đ (Miễn phí nội homestay & phường Kim Long)';
+    if (subtotal < 100000) {
+      shippingFee = 15000;
+      shippingText = '15,000 đ (Đơn dưới 100.000 đ)';
+    }
+
+    var totalPayment = subtotal + shippingFee;
+    document.getElementById('cartSubtotalText').textContent = subtotal.toLocaleString('vi-VN') + ' đ';
+    document.getElementById('cartShippingFeeText').textContent = shippingText;
+    document.getElementById('cartTotalPaymentText').textContent = totalPayment.toLocaleString('vi-VN') + ' đ';
+    if (btnCheckout) btnCheckout.disabled = false;
+  }
+
+  var modal = new bootstrap.Modal(document.getElementById('shoppingCartModal'));
+  modal.show();
+};
+
+window.adjustCartItemQty = function(id, delta) {
+  var cart = getCart();
+  var item = cart.find(function(i) { return i.id === id; });
+  if (!item) return;
+
+  var product = getProducts().find(function(p) { return p.id === id; });
+  var stock = product ? product.stock : 999;
+
+  item.qty += delta;
+  if (item.qty <= 0) {
+    cart = cart.filter(function(i) { return i.id !== id; });
+  } else if (item.qty > stock) {
+    alert('Không thể đặt vượt quá số lượng tồn kho trong ngày (' + stock + ').');
+    item.qty = stock;
+  }
+
+  saveCart(cart);
+  openShoppingCartModal();
+};
+
+window.removeCartItem = function(id) {
+  var cart = getCart().filter(function(i) { return i.id !== id; });
+  saveCart(cart);
+  openShoppingCartModal();
+};
+
+window.handleCartCheckout = function() {
+  var cart = getCart();
+  if (!cart || cart.length === 0) return;
+
+  var name = document.getElementById('cartCustomerName').value.trim();
+  var phone = document.getElementById('cartCustomerPhone').value.trim();
+  var email = document.getElementById('cartCustomerEmail').value.trim() || 'khach@example.com';
+  var address = document.getElementById('cartDeliveryAddress').value.trim() || 'Nhận tại hiên phòng homestay Kim Long';
+
+  if (!name || !phone) {
+    alert('Vui lòng nhập Họ tên và Số điện thoại nhận hàng.');
+    return;
+  }
+
+  var subtotal = cart.reduce(function(acc, i) { return acc + (i.price * i.qty); }, 0);
+  var shippingFee = (subtotal < 100000) ? 15000 : 0;
+  var total = subtotal + shippingFee;
+  var orderCode = 'KLE-SP-' + Math.floor(100000 + Math.random() * 900000);
+
+  // Trừ tồn kho sản phẩm thực tế
+  var products = getProducts();
+  cart.forEach(function(cartItem) {
+    var p = products.find(function(prod) { return prod.id === cartItem.id; });
+    if (p) {
+      p.stock = Math.max(0, p.stock - cartItem.qty);
+    }
+  });
+  saveProducts(products);
+
+  // Lưu đơn đặc sản
+  var specialtyOrders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+  specialtyOrders.unshift({
+    orderCode: orderCode,
+    customerName: name,
+    phone: phone,
+    email: email,
+    address: address,
+    items: cart,
+    subtotal: subtotal,
+    shippingFee: shippingFee,
+    total: total,
+    status: 'CHỜ GIAO HÀNG',
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem('kle_specialty_orders', JSON.stringify(specialtyOrders));
+
+  // Ghi nhận nhật ký email
+  logEmailDispatch('SPECIALTY_ORDER', orderCode, email, '[Kim Long EcoStay] Xác Nhận Đơn Hàng Đặc Sản ' + orderCode, `
+    <h3>Xác nhận đơn hàng đặc sản Kim Long</h3>
+    <p>Chào ${name}, cảm ơn bạn đã đặt món. Tổng thanh toán: ${total.toLocaleString('vi-VN')} đ.</p>
+    <p>Địa chỉ giao: ${address}. Đơn sẽ được chuẩn bị và giao trong 20-30 phút.</p>
+  `, 'DELIVERED');
+
+  // VietQR URL cho đơn đặc sản
+  var vietQrUrl = 'https://api.vietqr.io/image/970422-0905123456-compact2.png?amount=' + total + '&addInfo=' + encodeURIComponent('KLE ' + orderCode.replace(/-/g, '')) + '&accountName=KIM%20LONG%20ECOSTAY';
+
+  // Hiển thị mã QR thành công ngay trên modal giỏ hàng
+  document.getElementById('cartSummaryCard').classList.add('d-none');
+  document.getElementById('btnCheckoutCart').classList.add('d-none');
+  var qrCard = document.getElementById('cartOrderQrContainer');
+  qrCard.classList.remove('d-none');
+  document.getElementById('cartSuccessOrderCode').textContent = orderCode;
+  document.getElementById('cartOrderVietQrImg').src = vietQrUrl;
+  document.getElementById('cartOrderTransferNote').textContent = 'Nội dung CK: KLE ' + orderCode.replace(/-/g, '');
+
+  // Xóa giỏ hàng
+  saveCart([]);
+  renderSpecialties();
+};
+
+// =========================================================================
+// MỤC 2: TRẢI NGHIỆM TRÀ CUNG ĐÌNH HUẾ (ROYAL TEA EXPERIENCES)
+// =========================================================================
+window.openTeaBookingModal = function(serviceCode) {
+  var services = getTeaServices();
+  var service = services.find(function(s) { return s.code === serviceCode; }) || services[0];
+  if (!service) return;
+
+  document.getElementById('teaServiceCode').value = service.code;
+  document.getElementById('teaServiceName').value = service.name;
+  document.getElementById('teaServiceUnitPrice').value = service.price;
+  document.getElementById('teaServicePriceType').value = service.priceType;
+  document.getElementById('teaServiceMaxCapacity').value = service.maxCapacity;
+
+  document.getElementById('teaModalSelectedTitle').textContent = service.name;
+  document.getElementById('teaModalSelectedPrice').textContent = service.price.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('teaModalSelectedCapacity').textContent = service.maxCapacity + ' khách (Còn ' + service.remainingSlots + ' chỗ)';
+
+  var guestsInput = document.getElementById('teaGuestsCount');
+  guestsInput.value = (service.priceType.includes('gói') || service.priceType.includes('trải nghiệm')) ? 2 : 2;
+  guestsInput.max = service.maxCapacity;
+
+  calculateTeaBookingTotal();
+  var modal = new bootstrap.Modal(document.getElementById('teaBookingModal'));
+  modal.show();
+};
+
+window.calculateTeaBookingTotal = function() {
+  var unitPrice = parseInt(document.getElementById('teaServiceUnitPrice').value) || 85000;
+  var priceType = document.getElementById('teaServicePriceType').value;
+  var guests = parseInt(document.getElementById('teaGuestsCount').value) || 1;
+  var maxCapacity = parseInt(document.getElementById('teaServiceMaxCapacity').value) || 10;
+
+  if (guests > maxCapacity) {
+    alert('Sức chứa tối đa của không gian trà này là ' + maxCapacity + ' người. Vui lòng điều chỉnh số lượng hoặc chọn gói khác.');
+    guests = maxCapacity;
+    document.getElementById('teaGuestsCount').value = maxCapacity;
+  }
+
+  var total = (priceType.includes('gói') || priceType.includes('trải nghiệm')) ? unitPrice : (unitPrice * guests);
+  document.getElementById('teaBookingTotalDisplay').textContent = total.toLocaleString('vi-VN') + ' đ';
+};
+
+window.handleTeaBookingSubmit = function(e) {
+  e.preventDefault();
+
+  var code = document.getElementById('teaServiceCode').value;
+  var name = document.getElementById('teaServiceName').value;
+  var date = document.getElementById('teaBookingDate').value;
+  var timeSlot = document.getElementById('teaTimeSlot').value;
+  var guests = parseInt(document.getElementById('teaGuestsCount').value) || 2;
+  var customerName = document.getElementById('teaCustomerName').value.trim();
+  var customerPhone = document.getElementById('teaCustomerPhone').value.trim();
+  var customerEmail = document.getElementById('teaCustomerEmail').value.trim();
+  var unitPrice = parseInt(document.getElementById('teaServiceUnitPrice').value) || 85000;
+  var priceType = document.getElementById('teaServicePriceType').value;
+  var total = (priceType.includes('gói') || priceType.includes('trải nghiệm')) ? unitPrice : (unitPrice * guests);
+
+  var bookingCode = 'TEA-' + Math.floor(100000 + Math.random() * 900000);
+
+  // Giảm số chỗ còn lại
+  var services = getTeaServices();
+  var s = services.find(function(item) { return item.code === code; });
+  if (s) {
+    if (s.remainingSlots < guests && !priceType.includes('gói')) {
+      alert('Rất tiếc! Suất trà vào khung giờ này hiện chỉ còn ' + s.remainingSlots + ' chỗ. Không đủ cho ' + guests + ' khách.');
+      return;
+    }
+    s.remainingSlots = Math.max(0, s.remainingSlots - (priceType.includes('gói') ? 1 : guests));
+    saveTeaServices(services);
+  }
+
+  // Lưu yêu cầu
+  var teaBookings = JSON.parse(localStorage.getItem('kle_tea_bookings') || '[]');
+  teaBookings.unshift({
+    bookingCode: bookingCode,
+    serviceCode: code,
+    serviceName: name,
+    date: date,
+    timeSlot: timeSlot,
+    guests: guests,
+    customerName: customerName,
+    phone: customerPhone,
+    email: customerEmail,
+    total: total,
+    status: 'CHỜ XÁC NHẬN LỊCH',
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem('kle_tea_bookings', JSON.stringify(teaBookings));
+
+  // Ghi log email
+  logEmailDispatch('TEA_SERVICE', bookingCode, customerEmail, '[Kim Long EcoStay] Xác Nhận Yêu Cầu Đặt Trải Nghiệm Trà Cung Đình ' + bookingCode, `
+    <h3>Tiếp nhận yêu cầu thưởng trà Cung Đình Huế</h3>
+    <p>Kính chào ${customerName},</p>
+    <p>Kim Long EcoStay đã tiếp nhận yêu cầu đặt lịch <strong>${name}</strong> vào ngày <strong>${date}</strong> (${timeSlot}) cho ${guests} người.</p>
+    <p>Tổng chi phí dự kiến: <strong>${total.toLocaleString('vi-VN')} đ</strong>. Bộ phận Trà quán sẽ liên hệ qua SĐT ${customerPhone} để xác nhận chỗ ngồi đẹp nhất bên vườn sông Hương.</p>
+  `, 'DELIVERED');
+
+  alert('Gửi yêu cầu đặt lịch trà Cung Đình thành công!\nMã đặt lịch: ' + bookingCode + '\nHomestay sẽ liên hệ xác nhận bàn trà của quý khách trong ít phút.');
+  var modalEl = document.getElementById('teaBookingModal');
+  var modalInst = bootstrap.Modal.getInstance(modalEl);
+  if (modalInst) modalInst.hide();
+};
+
+// =========================================================================
+// MỤC 3: QUY TRÌNH ĐẶT PHÒNG & THANH TOÁN CỌC 50%
+// =========================================================================
+var currentBookingOrderCode = 'KLE-20261018-01';
+var currentBookingPin = '839201';
+var currentBookingData = null;
 
 window.openBookingModal = function(id, name, price, garden, img) {
   document.getElementById('formRoomId').value = id;
@@ -2831,16 +4408,63 @@ window.openBookingModal = function(id, name, price, garden, img) {
   document.getElementById('formRoomPrice').value = price;
   document.getElementById('modalRoomTitle').textContent = name;
   document.getElementById('modalRoomPrice').textContent = price.toLocaleString('vi-VN') + ' đ';
-  document.getElementById('modalRoomDeposit').textContent = 'Cọc 50%: ' + (price * 0.5).toLocaleString('vi-VN') + ' đ';
   document.getElementById('modalRoomGarden').textContent = garden;
   document.getElementById('modalRoomImg').src = img;
 
-  // Reset view
+  // Reset steps
   document.getElementById('bookingModalBody').classList.remove('d-none');
+  document.getElementById('bookingPaymentBody').classList.add('d-none');
   document.getElementById('bookingSuccessBody').classList.add('d-none');
+
+  calculateBookingBreakdown();
 
   var modal = new bootstrap.Modal(document.getElementById('bookingModal'));
   modal.show();
+};
+
+window.calculateBookingBreakdown = function() {
+  var pricePerNight = parseInt(document.getElementById('formRoomPrice').value) || 390000;
+  var checkInVal = document.getElementById('checkInDate').value;
+  var checkOutVal = document.getElementById('checkOutDate').value;
+
+  var dIn = new Date(checkInVal);
+  var dOut = new Date(checkOutVal);
+
+  if (isNaN(dIn.getTime()) || isNaN(dOut.getTime()) || dOut <= dIn) {
+    dOut = new Date(dIn.getTime() + 86400000);
+    document.getElementById('checkOutDate').value = dOut.toISOString().split('T')[0];
+  }
+
+  var diffTime = Math.abs(dOut - dIn);
+  var nights = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+  // Tính phụ thu cuối tuần (Thứ Sáu, Thứ Bảy, Chủ Nhật: +20%)
+  var weekendSurcharge = 0;
+  var cur = new Date(dIn.getTime());
+  for (var i = 0; i < nights; i++) {
+    var dayOfWeek = cur.getDay(); // 0: CN, 5: T6, 6: T7
+    if (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6) {
+      weekendSurcharge += Math.round(pricePerNight * 0.20);
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  var baseStayAmount = pricePerNight * nights;
+  var totalStayAmount = baseStayAmount + weekendSurcharge;
+
+  // Đọc tỷ lệ cọc từ cấu hình hệ thống (mặc định 50%)
+  var depositRatio = parseInt(localStorage.getItem('kle_deposit_ratio')) || 50;
+  var depositAmount = Math.round(totalStayAmount * (depositRatio / 100));
+  var remainingAmount = totalStayAmount - depositAmount;
+
+  // Cập nhật DOM
+  document.getElementById('calcNightsCount').textContent = nights + ' đêm';
+  document.getElementById('calcBaseStayAmount').textContent = baseStayAmount.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('calcWeekendSurcharge').textContent = (weekendSurcharge > 0 ? '+' : '') + weekendSurcharge.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('calcTotalStayAmount').textContent = totalStayAmount.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('calcDepositRequiredAmount').textContent = depositAmount.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('calcRemainingOnArrival').textContent = remainingAmount.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('modalRoomDepositBadge').textContent = 'Cọc ' + depositRatio + '%: ' + depositAmount.toLocaleString('vi-VN') + ' đ';
 };
 
 window.handleBookingSubmit = function(e) {
@@ -2852,83 +4476,832 @@ window.handleBookingSubmit = function(e) {
   var checkIn = document.getElementById('checkInDate').value;
   var checkOut = document.getElementById('checkOutDate').value;
   var roomName = document.getElementById('formRoomName').value;
-  var roomPrice = parseInt(document.getElementById('formRoomPrice').value) || 390000;
-  var deposit = roomPrice * 0.5;
+  var notes = document.getElementById('guestNotes') ? document.getElementById('guestNotes').value.trim() : '';
 
-  // Generate real 6-digit PIN and Order Code
-  currentPin = Math.floor(100000 + Math.random() * 900000).toString();
-  var orderCode = 'KLE-' + Math.floor(100000 + Math.random() * 900000).toString();
+  var basePrice = parseInt(document.getElementById('calcBaseStayAmount').textContent.replace(/[^\d]/g, '')) || 780000;
+  var totalPrice = parseInt(document.getElementById('calcTotalStayAmount').textContent.replace(/[^\d]/g, '')) || 780000;
+  var depositAmount = parseInt(document.getElementById('calcDepositRequiredAmount').textContent.replace(/[^\d]/g, '')) || 390000;
+  var remainingAmount = parseInt(document.getElementById('calcRemainingOnArrival').textContent.replace(/[^\d]/g, '')) || 390000;
 
-  // Save to localStorage for instant lookup
-  var bookingData = {
-    orderCode: orderCode,
-    pin: currentPin,
+  // Kiểm tra trùng phòng cùng thời gian (Overbooking check)
+  var allBookings = getAllBookings();
+  var conflict = allBookings.find(function(b) {
+    if (b.roomName === roomName && (b.status === 'CONFIRMED' || b.status === 'CHECKED_IN')) {
+      var existingIn = new Date(b.checkIn);
+      var existingOut = new Date(b.checkOut);
+      var newIn = new Date(checkIn);
+      var newOut = new Date(checkOut);
+      return (newIn < existingOut && newOut > existingIn);
+    }
+    return false;
+  });
+
+  if (conflict) {
+    alert('Phòng "' + roomName + '" đã có khách đặt trong khoảng thời gian từ ' + conflict.checkIn + ' đến ' + conflict.checkOut + '.\nVui lòng chọn phòng khác hoặc đổi ngày lưu trú.');
+    return;
+  }
+
+  // Tạo mã đơn và mã PIN ngẫu nhiên bảo mật 6 số
+  currentBookingOrderCode = 'KLE-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(10 + Math.random() * 90);
+  currentBookingPin = Math.floor(100000 + Math.random() * 900000).toString();
+
+  var transferCode = 'KLE ' + currentBookingOrderCode.replace(/-/g, '') + ' COC50';
+
+  currentBookingData = {
+    orderCode: currentBookingOrderCode,
+    pin: currentBookingPin,
     name: name,
     phone: phone,
     email: email,
     roomName: roomName,
     checkIn: checkIn,
     checkOut: checkOut,
-    totalPrice: roomPrice,
-    deposit: deposit,
-    timestamp: new Date().toISOString()
+    totalPrice: totalPrice,
+    depositRequired: depositAmount,
+    depositPaid: 0,
+    remainingBalance: totalPrice,
+    status: 'WAITING_RECONCILIATION',
+    bookingStatus: 'PENDING_DEPOSIT',
+    paymentMethod: 'VietQR',
+    transferContent: transferCode,
+    notes: notes,
+    createdAt: new Date().toISOString()
   };
-  localStorage.setItem('kle_latest_booking', JSON.stringify(bookingData));
-  var allBookings = JSON.parse(localStorage.getItem('kle_all_bookings') || '[]');
-  allBookings.push(bookingData);
-  localStorage.setItem('kle_all_bookings', JSON.stringify(allBookings));
 
-  // Dispatch real email via FormSubmit API asynchronously
-  fetch('https://formsubmit.co/ajax/' + encodeURIComponent(email), {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({
-      _subject: '[Kim Long EcoStay] Xác Nhận Đặt Phòng & Mã PIN SmartLock: ' + currentPin,
-      'Mã Đơn Đặt': orderCode,
-      'Mã PIN SmartLock (6 số)': currentPin,
-      'Buồng Phòng': roomName,
-      'Khách Hàng': name,
-      'Số Điện Thoại': phone,
-      'Ngày Nhận Phòng': checkIn,
-      'Ngày Trả Phòng': checkOut,
-      'Tiền Cọc 50%': deposit.toLocaleString('vi-VN') + ' VNĐ',
-      'Hướng Dẫn Nhận Phòng': 'Khi đến homestay tại Kim Long, quý khách chỉ cần nhập mã PIN 6 số trên bàn phím SmartLock tại cửa phòng để vào nhận phòng tự động.'
-    })
-  }).then(function(res) {
-    console.log('Real email dispatched successfully to:', email);
-  }).catch(function(err) {
-    console.log('Email dispatch notice:', err);
+  allBookings.unshift(currentBookingData);
+  saveAllBookings(allBookings);
+
+  // Tạo URL VietQR chuẩn
+  var vietQrUrl = 'https://api.vietqr.io/image/970422-0905123456-compact2.png?amount=' + depositAmount + '&addInfo=' + encodeURIComponent(transferCode) + '&accountName=KIM%20LONG%20ECOSTAY';
+
+  // EMAIL 1: Tiếp nhận yêu cầu đặt phòng (Pending cọc 50%)
+  dispatchAutomatedEmail(1, currentBookingData);
+
+  // Cập nhật DOM Bước 2 (Màn hình thanh toán VietQR)
+  document.getElementById('payOrderCode').textContent = currentBookingOrderCode;
+  document.getElementById('payDepositAmount').textContent = depositAmount.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('payTransferContent').textContent = transferCode;
+  document.getElementById('paymentVietQrImg').src = vietQrUrl;
+
+  // Chuyển màn hình từ Step 1 sang Step 2
+  document.getElementById('bookingModalBody').classList.add('d-none');
+  document.getElementById('bookingPaymentBody').classList.remove('d-none');
+};
+
+window.copyTransferContent = function() {
+  var content = document.getElementById('payTransferContent').textContent.trim();
+  navigator.clipboard.writeText(content).then(function() {
+    alert('Đã sao chép nội dung chuyển khoản: ' + content);
+  }).catch(function() {
+    alert('Nội dung chuyển khoản: ' + content);
+  });
+};
+
+window.triggerManualReconciliationCheck = function() {
+  alert('Đang kiểm tra đối soát giao dịch thời gian thực từ Ngân hàng MB...\nNếu quý khách vừa chuyển khoản, vui lòng chờ trong giây lát hoặc nhấn nút mô phỏng bên dưới để thử nghiệm.');
+};
+
+// Mô phỏng đối soát thành công (Webhook hoặc Quản trị viên duyệt)
+window.simulateSuccessfulReconciliation = function() {
+  if (!currentBookingData) {
+    var all = getAllBookings();
+    currentBookingData = all[0];
+  }
+  adminReconcileDeposit(currentBookingData.orderCode);
+};
+
+window.adminReconcileDeposit = function(orderCode) {
+  var allBookings = getAllBookings();
+  var booking = allBookings.find(function(b) { return b.orderCode === orderCode; });
+  if (!booking) return;
+
+  if (booking.bookingStatus === 'CONFIRMED' || booking.bookingStatus === 'CHECKED_IN' || booking.bookingStatus === 'COMPLETED') {
+    alert('Đơn đặt phòng ' + orderCode + ' đã được xác nhận cọc trước đó.');
+    return;
+  }
+
+  // Cập nhật trạng thái
+  booking.depositPaid = booking.depositRequired;
+  booking.remainingBalance = booking.totalPrice - booking.depositPaid;
+  booking.bookingStatus = 'CONFIRMED';
+  booking.status = 'CONFIRMED';
+  booking.reconciledAt = new Date().toISOString();
+  saveAllBookings(allBookings);
+
+  // Ghi nhận giao dịch cọc 50%
+  recordPaymentTransaction({
+    transactionCode: 'TXN-DEP-' + Math.floor(100000 + Math.random() * 900000),
+    orderCode: booking.orderCode,
+    type: 'DEPOSIT_50',
+    amount: booking.depositPaid,
+    status: 'SUCCESS',
+    channel: 'VIETQR_BANK',
+    createdAt: new Date().toISOString(),
+    notes: 'Đối soát cọc 50% tự động qua VietQR'
   });
 
-  // Setup Success Screen UI
-  document.getElementById('successPinCode').textContent = currentPin;
-  document.getElementById('successGuestEmail').textContent = email;
-  document.getElementById('successOrderCode').textContent = orderCode;
-  document.getElementById('successRoomName').textContent = roomName;
-  document.getElementById('successStayDates').textContent = checkIn + ' ➔ ' + checkOut;
-  document.getElementById('successTotalPrice').textContent = roomPrice.toLocaleString('vi-VN') + ' đ';
-  document.getElementById('successDepositPrice').textContent = deposit.toLocaleString('vi-VN') + ' đ';
+  // EMAIL 2: Xác nhận nhận cọc 50% thành công & Cấp PIN SmartLock 10s
+  dispatchAutomatedEmail(2, booking);
 
-  // Direct mailto link
-  var mailSubject = encodeURIComponent('[Kim Long EcoStay] Mã PIN SmartLock: ' + currentPin);
-  var mailBody = encodeURIComponent('Kính chào ' + name + ',\n\n' +
-    'Cảm ơn quý khách đã đặt phòng tại Kim Long EcoStay.\n' +
-    'Mã đơn đặt: ' + orderCode + '\n' +
-    'Phòng: ' + roomName + '\n' +
-    'MÃ PIN MỞ CỬA SMARTLOCK: ' + currentPin + '\n\n' +
-    'Chúc quý khách kỳ nghỉ tuyệt vời tại Cố đô Huế!');
-  document.getElementById('btnOpenMailClient').href = 'mailto:' + email + '?subject=' + mailSubject + '&body=' + mailBody;
+  // Hiển thị Step 3 (Màn hình thành công)
+  document.getElementById('successPinCode').textContent = booking.pin;
+  document.getElementById('successGuestEmail').textContent = booking.email;
+  document.getElementById('successOrderCode').textContent = booking.orderCode;
+  document.getElementById('successRoomName').textContent = booking.roomName;
+  document.getElementById('successStayDates').textContent = booking.checkIn + ' ➔ ' + booking.checkOut;
+  document.getElementById('successTotalPrice').textContent = booking.totalPrice.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('successDepositPrice').textContent = booking.depositPaid.toLocaleString('vi-VN') + ' đ';
+  document.getElementById('successRemainingPrice').textContent = booking.remainingBalance.toLocaleString('vi-VN') + ' đ';
 
-  // VietQR Code image generator
-  var vietQrUrl = 'https://api.vietqr.io/image/970422-0905123456-compact2.png?amount=' + deposit + '&addInfo=' + encodeURIComponent(orderCode) + '&accountName=KIM%20LONG%20ECOSTAY';
-  document.getElementById('successVietQrImg').src = vietQrUrl;
+  var mailSubject = encodeURIComponent('[Kim Long EcoStay] Xác Nhận Cọc 50% & Mã PIN: ' + booking.pin);
+  var mailBody = encodeURIComponent('Kính gửi ' + booking.name + ',\n\nThanh toán tiền cọc thành công! Đặt phòng ' + booking.orderCode + ' đã được xác nhận.\nMã PIN SmartLock: ' + booking.pin + '\nSố tiền còn lại sẽ được thanh toán khi nhận phòng.');
+  document.getElementById('btnOpenMailClient').href = 'mailto:' + booking.email + '?subject=' + mailSubject + '&body=' + mailBody;
 
-  // Switch view
-  document.getElementById('bookingModalBody').classList.add('d-none');
+  document.getElementById('bookingPaymentBody').classList.add('d-none');
   document.getElementById('bookingSuccessBody').classList.remove('d-none');
+
+  renderAdminReconciliationList();
+};
+
+// Check-in (Đã Nhận Phòng) -> Tự động kích hoạt Email 3 (Idempotent)
+window.adminCheckInBooking = function(orderCode) {
+  var allBookings = getAllBookings();
+  var booking = allBookings.find(function(b) { return b.orderCode === orderCode; });
+  if (!booking) return;
+
+  if (booking.bookingStatus === 'CHECKED_IN') {
+    alert('Đơn phòng ' + orderCode + ' đã ở trạng thái Đã Nhận Phòng (CHECKED_IN).');
+    return;
+  }
+
+  booking.bookingStatus = 'CHECKED_IN';
+  booking.status = 'CHECKED_IN';
+  booking.checkedInAt = new Date().toISOString();
+  saveAllBookings(allBookings);
+
+  // EMAIL 3: Yêu cầu thanh toán phần tiền còn lại (Idempotent check)
+  var dispatchedKey = 'kle_dispatched_balance_email_' + orderCode;
+  if (!localStorage.getItem(dispatchedKey) && booking.remainingBalance > 0) {
+    dispatchAutomatedEmail(3, booking);
+    localStorage.setItem(dispatchedKey, 'true');
+    alert('Đã nhận phòng thành công!\nHệ thống tự động kích hoạt Email 3 (Thông báo thanh toán phần tiền còn lại: ' + booking.remainingBalance.toLocaleString('vi-VN') + ' đ) gửi đến ' + booking.email + '.');
+  } else {
+    alert('Đã cập nhật trạng thái nhận phòng thành công.');
+  }
+
+  renderAdminReconciliationList();
+};
+
+// Thu đủ 50% còn lại -> Tất toán 100%, số dư về 0 -> Kích hoạt Email 4
+window.adminPayRemainingBalance = function(orderCode) {
+  var allBookings = getAllBookings();
+  var booking = allBookings.find(function(b) { return b.orderCode === orderCode; });
+  if (!booking) return;
+
+  if (booking.remainingBalance <= 0) {
+    alert('Đơn phòng ' + orderCode + ' đã thanh toán đủ 100% trước đó (Số dư còn lại = 0 đ).');
+    return;
+  }
+
+  var remainingPaid = booking.remainingBalance;
+  booking.remainingBalance = 0;
+  booking.bookingStatus = 'COMPLETED';
+  booking.status = 'COMPLETED';
+  booking.completedAt = new Date().toISOString();
+  saveAllBookings(allBookings);
+
+  // Ghi nhận giao dịch thanh toán phần còn lại
+  recordPaymentTransaction({
+    transactionCode: 'TXN-BAL-' + Math.floor(100000 + Math.random() * 900000),
+    orderCode: booking.orderCode,
+    type: 'REMAINING_BALANCE',
+    amount: remainingPaid,
+    status: 'SUCCESS',
+    channel: 'DIRECT_CASH_OR_QR',
+    createdAt: new Date().toISOString(),
+    notes: 'Thanh toán hoàn tất 100% phần còn lại khi nhận phòng'
+  });
+
+  // EMAIL 4: Xác nhận thanh toán phần còn lại & tất toán 100%
+  dispatchAutomatedEmail(4, booking);
+
+  alert('Thanh toán phần còn lại thành công!\nSố dư phải trả đã được cập nhật về: 0 đ.\nHệ thống đã gửi Email 4 (Biên nhận điện tử & Xác nhận tất toán 100%) đến ' + booking.email + '.');
+  renderAdminReconciliationList();
+};
+
+function recordPaymentTransaction(txn) {
+  var txns = JSON.parse(localStorage.getItem('kle_transactions') || '[]');
+  txns.unshift(txn);
+  localStorage.setItem('kle_transactions', JSON.stringify(txns));
+}
+
+// =========================================================================
+// MỤC 4: TỰ ĐỘNG GỬI 4 MẪU EMAIL THEO TỪNG TRẠNG THÁI (IDEMPOTENT & AUDIT)
+// =========================================================================
+function dispatchAutomatedEmail(templateType, booking) {
+  var logId = 'LOG-' + Math.floor(100000 + Math.random() * 900000);
+  var subject = '';
+  var htmlContent = '';
+  var typeKey = '';
+
+  if (templateType === 1) {
+    typeKey = 'BOOKING_RECEIVED';
+    subject = '[Kim Long EcoStay] Tiếp Nhận Yêu Cầu Đặt Phòng: ' + booking.orderCode + ' (Chờ Thanh Toán Cọc 50%)';
+    htmlContent = generateEmailTemplate1(booking);
+  } else if (templateType === 2) {
+    typeKey = 'DEPOSIT_CONFIRMED';
+    subject = '[Kim Long EcoStay] Xác Nhận Nhận Cọc 50% & Cấp Mã PIN SmartLock: ' + booking.pin;
+    htmlContent = generateEmailTemplate2(booking);
+  } else if (templateType === 3) {
+    typeKey = 'REMAINING_REQUEST';
+    subject = '[Kim Long EcoStay] Thông Báo Nhận Phòng & Yêu Cầu Thanh Toán Tiền Còn Lại (' + booking.remainingBalance.toLocaleString('vi-VN') + ' đ)';
+    htmlContent = generateEmailTemplate3(booking);
+  } else if (templateType === 4) {
+    typeKey = 'FINAL_PAID';
+    subject = '[Kim Long EcoStay] Biên Nhận Thanh Toán Tất Toán 100% Cho Đơn Phòng: ' + booking.orderCode;
+    htmlContent = generateEmailTemplate4(booking);
+  }
+
+  // Ghi nhật ký Email
+  logEmailDispatch(typeKey, booking.orderCode, booking.email, subject, htmlContent, 'DELIVERED', logId);
+
+  // Đồng bộ gửi thật ngầm qua FormSubmit API nếu có kết nối mạng
+  try {
+    fetch('https://formsubmit.co/ajax/' + encodeURIComponent(booking.email), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: subject,
+        _replyto: 'kimlongecostay.hue@gmail.com',
+        'Mã Đơn Đặt': booking.orderCode,
+        'Buồng Phòng': booking.roomName,
+        'Khách Hàng': booking.name,
+        'Mã PIN SmartLock': booking.pin || 'Chưa cấp',
+        'Tổng Tiền': booking.totalPrice.toLocaleString('vi-VN') + ' VNĐ',
+        'Tiền Cọc 50%': booking.depositPaid ? (booking.depositPaid.toLocaleString('vi-VN') + ' VNĐ') : 'Chờ cọc',
+        'Còn Lại': booking.remainingBalance ? (booking.remainingBalance.toLocaleString('vi-VN') + ' VNĐ') : '0 VNĐ'
+      })
+    }).then(function() {
+      console.log('[EmailService] Dispatched email ' + typeKey + ' to ' + booking.email);
+    }).catch(function(e) {
+      console.warn('[EmailService] Fallback dispatch log preserved:', e);
+    });
+  } catch(e) {}
+}
+
+function logEmailDispatch(templateType, orderCode, recipient, subject, htmlBody, status, logId) {
+  var logs = getEmailLogs();
+  logs.unshift({
+    logId: logId || ('LOG-' + Math.floor(100000 + Math.random() * 900000)),
+    templateType: templateType,
+    orderCode: orderCode,
+    recipient: recipient,
+    subject: subject,
+    body: htmlBody,
+    status: status || 'DELIVERED',
+    retryCount: 0,
+    timestamp: new Date().toISOString()
+  });
+  saveEmailLogs(logs);
+}
+
+// 4 HTML EMAIL BUILDERS
+function generateEmailTemplate1(b) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; background: #FFF;">
+      <div style="background: #0A3D2C; color: #FFF; padding: 24px; text-align: center;">
+        <h2 style="color: #D4AF37; margin: 0 0 6px 0;">KIM LONG ECOSTAY</h2>
+        <h3 style="margin: 0; font-weight: normal; font-size: 18px;">Tiếp Nhận Yêu Cầu Đặt Phòng & Hướng Dẫn Thanh Toán Cọc 50%</h3>
+      </div>
+      <div style="padding: 24px; color: #334155;">
+        <p>Kính chào <strong>${b.name}</strong>,</p>
+        <p>Cảm ơn quý khách đã tin chọn trải nghiệm không gian sinh thái nhà vườn tại Kim Long EcoStay.</p>
+        <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+          <strong style="color: #B45309;">Trạng thái đặt phòng: ĐANG CHỜ THANH TOÁN CỌC (PENDING_DEPOSIT)</strong><br>
+          <small>Hệ thống sẽ chính thức xác nhận đặt phòng và cấp mã PIN mở cửa SmartLock ngay sau khi nhận được tiền cọc 50%.</small>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Mã đặt phòng:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.orderCode}</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Buồng phòng:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.roomName}</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Thời gian lưu trú:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.checkIn} (14:00) ➔ ${b.checkOut} (12:00)</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Tổng tiền phòng dự kiến:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.totalPrice.toLocaleString('vi-VN')} VNĐ</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #B91C1C; font-weight: bold;">TIỀN CỌC CẦN THANH TOÁN (50%):</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; color: #B91C1C; font-size: 17px; text-align: right;">${b.depositRequired.toLocaleString('vi-VN')} VNĐ</td></tr>
+        </table>
+        <div style="background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <h4 style="margin: 0 0 10px 0; color: #0F172A;">Thông Tin Chuyển Khoản Ngân Hàng</h4>
+          <p style="margin: 4px 0;">• Ngân hàng: <strong>MB Bank (Quân Đội)</strong></p>
+          <p style="margin: 4px 0;">• Số tài khoản: <strong>0905123456</strong></p>
+          <p style="margin: 4px 0;">• Chủ tài khoản: <strong>KIM LONG ECOSTAY</strong></p>
+          <p style="margin: 4px 0;">• Nội dung chuyển khoản bắt buộc: <strong style="color: #2563EB;">${b.transferContent}</strong></p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function generateEmailTemplate2(b) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; background: #FFF;">
+      <div style="background: linear-gradient(135deg, #0A3D2C, #15803D); color: #FFF; padding: 24px; text-align: center;">
+        <h2 style="color: #D4AF37; margin: 0 0 6px 0;">KIM LONG ECOSTAY</h2>
+        <h3 style="margin: 0; font-size: 20px;">XÁC NHẬN THANH TOÁN CỌC 50% THÀNH CÔNG</h3>
+        <p style="margin: 6px 0 0 0; color: #E2E8F0; font-size: 13px;">Đặt phòng của bạn đã được xác nhận. Số tiền còn lại sẽ được thanh toán khi nhận phòng.</p>
+      </div>
+      <div style="padding: 24px; color: #334155;">
+        <div style="background: #F0FDF4; border: 2px solid #86EFAC; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+          <span style="font-size: 12px; color: #166534; font-weight: bold; text-transform: uppercase;">MÃ PIN MỞ CỬA SMARTLOCK IOT TỰ ĐỘNG CỦA BẠN:</span>
+          <div style="font-size: 36px; font-weight: bold; letter-spacing: 4px; color: #15803D; margin: 10px 0; font-family: monospace;">${b.pin}</div>
+          <small style="color: #15803D;">Hiệu lực từ 14:00 ngày ${b.checkIn} đến 12:00 ngày ${b.checkOut}. Quý khách chỉ cần bấm 6 số này tại cửa phòng để vào nhận phòng tự động 24/7!</small>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Mã đặt phòng:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.orderCode}</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Buồng phòng:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.roomName}</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Tổng tiền phòng:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.totalPrice.toLocaleString('vi-VN')} VNĐ</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #166534; font-weight: bold;">Số tiền cọc đã nhận (50%):</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; color: #166534; text-align: right;">${b.depositPaid.toLocaleString('vi-VN')} VNĐ</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #B91C1C; font-weight: bold;">Số tiền còn lại khi Check-in:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; color: #B91C1C; text-align: right;">${b.remainingBalance.toLocaleString('vi-VN')} VNĐ</td></tr>
+        </table>
+        <p>Homestay Kim Long: <strong>Kinh thành Huế, Đường Kim Long, TP. Huế</strong><br>Hotline hỗ trợ 24/7: <strong>0905.123.456</strong></p>
+      </div>
+    </div>
+  `;
+}
+
+function generateEmailTemplate3(b) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; background: #FFF;">
+      <div style="background: #1E293B; color: #FFF; padding: 24px; text-align: center;">
+        <h2 style="color: #D4AF37; margin: 0 0 6px 0;">KIM LONG ECOSTAY</h2>
+        <h3 style="margin: 0; font-size: 19px;">CHÀO MỪNG QUÝ KHÁCH & YÊU CẦU THANH TOÁN TIỀN PHÒNG CÒN LẠI</h3>
+      </div>
+      <div style="padding: 24px; color: #334155;">
+        <p>Kính chào <strong>${b.name}</strong>,</p>
+        <p>Hệ thống ghi nhận quý khách đã hoàn tất thủ tục nhận phòng (Check-in) tại <strong>${b.roomName}</strong>.</p>
+        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 16px; margin: 20px 0;">
+          <h4 style="margin: 0 0 8px 0; color: #1E40AF;">Thông Báo Khoản Tiền Còn Lại (Theo Chính Sách Cọc 50%)</h4>
+          <p style="margin: 0 0 8px 0; font-size: 13.5px; color: #475569;">
+            Đây là khoản tiền còn lại thuộc tổng tiền phòng đã xác nhận ban đầu, không phải khoản tiền mới phát sinh.
+          </p>
+          <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; color: #1E3A8A; border-top: 1px solid #DBEAFE; padding-top: 8px;">
+            <span>SỐ TIỀN CÒN PHẢI THANH TOÁN:</span>
+            <span style="color: #B91C1C; font-size: 19px;">${b.remainingBalance.toLocaleString('vi-VN')} VNĐ</span>
+          </div>
+        </div>
+        <p>Quý khách có thể thanh toán trực tiếp tại Lễ tân hoặc chuyển khoản qua VietQR:</p>
+        <p>• MB Bank: <strong>0905123456</strong> - Chủ TK: <strong>KIM LONG ECOSTAY</strong><br>• Nội dung: <strong>KLE ${b.orderCode.replace(/-/g, '')} THANHTOANDU</strong></p>
+      </div>
+    </div>
+  `;
+}
+
+function generateEmailTemplate4(b) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; background: #FFF;">
+      <div style="background: #064E3B; color: #FFF; padding: 24px; text-align: center;">
+        <h2 style="color: #FCD34D; margin: 0 0 6px 0;">KIM LONG ECOSTAY</h2>
+        <h3 style="margin: 0; font-size: 20px;">BIÊN NHẬN TẤT TOÁN 100% HOÀN TẤT ĐƠN PHÒNG</h3>
+        <p style="margin: 6px 0 0 0; color: #A7F3D0; font-size: 13px;">Cảm ơn quý khách đã tin tưởng và đồng hành cùng di sản Cố Đô Huế</p>
+      </div>
+      <div style="padding: 24px; color: #334155;">
+        <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 14px; text-align: center; margin-bottom: 20px;">
+          <strong style="color: #065F46; font-size: 16px;">ĐÃ THANH TOÁN ĐẦY ĐỦ 100% • SỐ DƯ PHẢI TRẢ: 0 VNĐ</strong>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Mã đặt phòng:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.orderCode}</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Buồng phòng:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.roomName}</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Tổng tiền phòng:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">${b.totalPrice.toLocaleString('vi-VN')} VNĐ</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Tổng tiền thực nhận:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; color: #047857; text-align: right;">${b.totalPrice.toLocaleString('vi-VN')} VNĐ</td></tr>
+          <tr><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; color: #64748B;">Số dư còn lại:</td><td style="padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-weight: bold; text-align: right;">0 VNĐ</td></tr>
+        </table>
+        <p>Chúc quý khách có những kỷ niệm đẹp đẽ bên dòng sông Hương và làng cổ Kim Long!</p>
+      </div>
+    </div>
+  `;
+}
+
+// =========================================================================
+// MỤC 5: TRANG QUẢN LÝ DÀNH CHO QUẢN TRỊ VIÊN (ADMIN PORTAL RENDERING)
+// =========================================================================
+window.renderAdminReconciliationList = function() {
+  var tbody = document.getElementById('adminReconciliationTableBody');
+  if (!tbody) return;
+
+  var allBookings = getAllBookings();
+  var filterVal = document.getElementById('adminReconcileFilterSelect') ? document.getElementById('adminReconcileFilterSelect').value : 'ALL';
+
+  var filtered = allBookings.filter(function(b) {
+    if (filterVal === 'ALL') return true;
+    if (filterVal === 'WAITING') return b.status === 'WAITING_RECONCILIATION';
+    if (filterVal === 'CONFIRMED') return b.status === 'CONFIRMED';
+    if (filterVal === 'CHECKED_IN') return b.status === 'CHECKED_IN';
+    if (filterVal === 'COMPLETED') return b.status === 'COMPLETED';
+    return true;
+  });
+
+  // Cập nhật thống kê header
+  var pendingCount = allBookings.filter(function(b) { return b.status === 'WAITING_RECONCILIATION'; }).length;
+  var pendingAmount = allBookings.filter(function(b) { return b.status === 'WAITING_RECONCILIATION'; }).reduce(function(a, b) { return a + (b.depositRequired || 0); }, 0);
+  var confirmedDeposit = allBookings.reduce(function(a, b) { return a + (b.depositPaid || 0); }, 0);
+  var remainingBalance = allBookings.reduce(function(a, b) { return a + (b.remainingBalance || 0); }, 0);
+  var totalValue = allBookings.reduce(function(a, b) { return a + (b.totalPrice || 0); }, 0);
+
+  if (document.getElementById('statPendingReconcileCount')) document.getElementById('statPendingReconcileCount').textContent = pendingCount + ' Đơn';
+  if (document.getElementById('statPendingReconcileAmount')) document.getElementById('statPendingReconcileAmount').textContent = pendingAmount.toLocaleString('vi-VN') + ' đ';
+  if (document.getElementById('statConfirmedDepositAmount')) document.getElementById('statConfirmedDepositAmount').textContent = confirmedDeposit.toLocaleString('vi-VN') + ' đ';
+  if (document.getElementById('statRemainingBalanceAmount')) document.getElementById('statRemainingBalanceAmount').textContent = remainingBalance.toLocaleString('vi-VN') + ' đ';
+  if (document.getElementById('statTotalBookingsCount')) document.getElementById('statTotalBookingsCount').textContent = allBookings.length + ' Lượt';
+  if (document.getElementById('statTotalBookingValue')) document.getElementById('statTotalBookingValue').textContent = totalValue.toLocaleString('vi-VN') + ' đ';
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted">Không có đơn đặt phòng nào trong bộ lọc này.</td></tr>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(b) {
+    var statusBadge = '';
+    var actionBtns = '';
+
+    if (b.status === 'WAITING_RECONCILIATION') {
+      statusBadge = '<span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i>Chờ Duyệt Cọc</span>';
+      actionBtns = `
+        <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="adminReconcileDeposit('${b.orderCode}')" title="Xác minh tiền cọc đã về tài khoản ngân hàng">
+          <i class="bi bi-check2-circle me-1"></i>Duyệt Cọc 50%
+        </button>
+      `;
+    } else if (b.status === 'CONFIRMED') {
+      statusBadge = '<span class="badge bg-success"><i class="bi bi-shield-check me-1"></i>Đã Cọc (CONFIRMED)</span>';
+      actionBtns = `
+        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="adminCheckInBooking('${b.orderCode}')" title="Khách đến homestay nhận phòng">
+          <i class="bi bi-box-arrow-in-right me-1"></i>Check-in
+        </button>
+      `;
+    } else if (b.status === 'CHECKED_IN') {
+      statusBadge = '<span class="badge bg-primary"><i class="bi bi-person-fill-check me-1"></i>Đang Ở (CHECKED_IN)</span>';
+      actionBtns = `
+        <button class="btn btn-sm btn-danger rounded-pill px-3 fw-bold" onclick="adminPayRemainingBalance('${b.orderCode}')" title="Thu đủ 50% còn lại khi nhận phòng">
+          <i class="bi bi-cash me-1"></i>Thu Đủ Còn Lại
+        </button>
+      `;
+    } else if (b.status === 'COMPLETED') {
+      statusBadge = '<span class="badge bg-secondary"><i class="bi bi-patch-check-fill me-1"></i>Hoàn Tất 100%</span>';
+      actionBtns = '<span class="text-success small fw-bold"><i class="bi bi-check-all fs-6"></i>Đã Tất Toán</span>';
+    }
+
+    html += `
+      <tr>
+        <td class="ps-4 font-monospace fw-bold text-primary">${b.orderCode}</td>
+        <td>
+          <strong>${b.name}</strong><br>
+          <small class="text-muted">${b.phone}</small>
+        </td>
+        <td><small class="fw-semibold text-dark">${b.roomName}</small></td>
+        <td><small class="text-muted font-monospace">${b.checkIn.slice(5)} ➔ ${b.checkOut.slice(5)}</small></td>
+        <td class="font-monospace fw-bold text-dark">${(b.totalPrice || 0).toLocaleString('vi-VN')} đ</td>
+        <td class="font-monospace fw-bold text-success">${(b.depositPaid || b.depositRequired || 0).toLocaleString('vi-VN')} đ</td>
+        <td class="font-monospace fw-bold ${b.remainingBalance > 0 ? 'text-danger' : 'text-muted'}">${(b.remainingBalance || 0).toLocaleString('vi-VN')} đ</td>
+        <td>${statusBadge}</td>
+        <td>
+          <span class="badge bg-light text-dark font-monospace border">${b.paymentMethod || 'VietQR'}</span>
+          ${b.pin ? ('<br><small class="text-success font-monospace fw-bold">PIN: ' + b.pin + '</small>') : ''}
+        </td>
+        <td class="text-end pe-4">
+          <div class="d-inline-flex gap-1 align-items-center">
+            ${actionBtns}
+            <button class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width: 28px; height: 28px;" onclick="previewEmailByOrder('${b.orderCode}')" title="Xem lịch sử email"><i class="bi bi-envelope"></i></button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+};
+
+window.saveAdminDepositRatio = function() {
+  var ratio = parseInt(document.getElementById('adminDepositRatioInput').value) || 50;
+  if (ratio < 10 || ratio > 100) {
+    alert('Tỷ lệ cọc phải từ 10% đến 100%.');
+    return;
+  }
+  localStorage.setItem('kle_deposit_ratio', ratio.toString());
+  alert('Đã cập nhật tỷ lệ đặt cọc hệ thống thành: ' + ratio + '%.\nChính sách tính cọc cho khách mới sẽ áp dụng tỷ lệ này.');
+  calculateBookingBreakdown();
+};
+
+window.renderAdminSpecialties = function() {
+  var tbody = document.getElementById('adminSpecialtiesTableBody');
+  if (!tbody) return;
+
+  var products = getProducts();
+  var html = '';
+  products.forEach(function(p) {
+    html += `
+      <tr>
+        <td class="ps-4 font-monospace fw-bold text-muted">${p.id}</td>
+        <td><img src="${p.img}" alt="${p.name}" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;" onerror="this.src='images/mon_banhuot.jpg'"></td>
+        <td><strong>${p.name}</strong></td>
+        <td><span class="badge bg-light text-dark border">${p.category}</span></td>
+        <td class="font-monospace fw-bold text-success">${p.price.toLocaleString('vi-VN')} đ</td>
+        <td>
+          <div class="input-group input-group-sm" style="width: 110px;">
+            <input type="number" id="stock_${p.id}" class="form-control text-center fw-bold" value="${p.stock}">
+            <button class="btn btn-outline-secondary" onclick="updateAdminProductStock('${p.id}')"><i class="bi bi-check"></i></button>
+          </div>
+        </td>
+        <td><small class="text-muted">${p.unit || 'suất'}</small></td>
+        <td>
+          <span class="badge ${p.isActive ? 'bg-success' : 'bg-secondary'}">
+            ${p.isActive ? 'Đang Bán' : 'Tạm Dừng'}
+          </span>
+        </td>
+        <td class="text-end pe-4">
+          <button class="btn btn-sm btn-outline-warning rounded-pill px-2 py-0 text-dark" onclick="toggleAdminProductStatus('${p.id}')">
+            ${p.isActive ? 'Tạm Dừng' : 'Mở Bán'}
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+
+  // Render orders
+  var ordersTbody = document.getElementById('adminSpecialtyOrdersTableBody');
+  var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+  if (document.getElementById('adminSpecialtyOrdersBadge')) document.getElementById('adminSpecialtyOrdersBadge').textContent = orders.length + ' Đơn';
+
+  if (!ordersTbody) return;
+  if (orders.length === 0) {
+    ordersTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Chưa có đơn hàng đặc sản nào được đặt.</td></tr>';
+    return;
+  }
+
+  var ordHtml = '';
+  orders.forEach(function(o) {
+    var itemsDesc = o.items.map(function(i) { return i.qty + 'x ' + i.name; }).join(', ');
+    ordHtml += `
+      <tr>
+        <td class="ps-4 font-monospace fw-bold text-primary">${o.orderCode}</td>
+        <td><strong>${o.customerName}</strong></td>
+        <td><small class="text-muted font-monospace">${o.phone}</small></td>
+        <td><small class="text-muted">${o.address}</small></td>
+        <td><small class="text-dark">${itemsDesc}</small></td>
+        <td class="font-monospace fw-bold text-success">${o.total.toLocaleString('vi-VN')} đ</td>
+        <td><span class="badge bg-warning text-dark">${o.status}</span></td>
+        <td class="text-end pe-4">
+          <button class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold" onclick="markSpecialtyOrderDelivered('${o.orderCode}')">
+            <i class="bi bi-check2"></i> Đã Giao
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+  ordersTbody.innerHTML = ordHtml;
+};
+
+window.updateAdminProductStock = function(id) {
+  var input = document.getElementById('stock_' + id);
+  var val = parseInt(input.value) || 0;
+  var products = getProducts();
+  var p = products.find(function(item) { return item.id === id; });
+  if (p) {
+    p.stock = val;
+    saveProducts(products);
+    alert('Đã cập nhật tồn kho của món "' + p.name + '" thành: ' + val + ' ' + (p.unit || 'suất') + '.');
+    renderSpecialties();
+    renderAdminSpecialties();
+  }
+};
+
+window.toggleAdminProductStatus = function(id) {
+  var products = getProducts();
+  var p = products.find(function(item) { return item.id === id; });
+  if (p) {
+    p.isActive = !p.isActive;
+    saveProducts(products);
+    renderSpecialties();
+    renderAdminSpecialties();
+  }
+};
+
+window.showAddProductPrompt = function() {
+  var name = prompt('Nhập tên món đặc sản mới:');
+  if (!name) return;
+  var price = parseInt(prompt('Nhập đơn giá (VNĐ):', '65000')) || 65000;
+  var category = prompt('Nhập danh mục (Ẩm Thực Huế / Đặc Sản Đóng Gói / Trà & Quà Tặng):', 'Ẩm Thực Huế') || 'Ẩm Thực Huế';
+  var stock = parseInt(prompt('Nhập số lượng tồn kho ban đầu:', '30')) || 30;
+
+  var products = getProducts();
+  var newId = 'SP' + (products.length + 1).toString().padStart(3, '0');
+  products.unshift({
+    id: newId,
+    name: name,
+    price: price,
+    category: category,
+    stock: stock,
+    unit: 'suất',
+    desc: 'Đặc sản Huế do Kim Long EcoStay chế biến thủ công hàng ngày.',
+    img: 'images/mon_banhuot.jpg',
+    isActive: true,
+    isSample: true
+  });
+  saveProducts(products);
+  alert('Đã thêm thành công sản phẩm: ' + name);
+  renderSpecialties();
+  renderAdminSpecialties();
+};
+
+window.markSpecialtyOrderDelivered = function(orderCode) {
+  var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+  var ord = orders.find(function(o) { return o.orderCode === orderCode; });
+  if (ord) {
+    ord.status = 'ĐÃ GIAO HÀNG';
+    localStorage.setItem('kle_specialty_orders', JSON.stringify(orders));
+    renderAdminSpecialties();
+  }
+};
+
+window.renderAdminTea = function() {
+  var tbody = document.getElementById('adminTeaServicesTableBody');
+  if (!tbody) return;
+
+  var services = getTeaServices();
+  var html = '';
+  services.forEach(function(s) {
+    html += `
+      <tr>
+        <td class="ps-4 font-monospace fw-bold text-success">${s.code}</td>
+        <td><strong>${s.name}</strong></td>
+        <td class="font-monospace fw-bold text-dark">${s.price.toLocaleString('vi-VN')} đ <small class="text-muted">/${s.priceType}</small></td>
+        <td><small class="text-muted">${s.duration}</small></td>
+        <td><span class="badge bg-light text-dark border">${s.maxCapacity} khách</span></td>
+        <td><small class="text-muted">${s.schedule}</small></td>
+        <td><span class="badge ${s.status === 'OPEN' ? 'bg-success' : 'bg-danger'}">${s.status === 'OPEN' ? 'Nhận Đặt' : 'Tạm Dừng'}</span></td>
+        <td class="text-end pe-4">
+          <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" onclick="toggleTeaStatus('${s.code}')">
+            ${s.status === 'OPEN' ? 'Đóng Đặt' : 'Mở Đặt'}
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+
+  // Render tea bookings
+  var bookingsTbody = document.getElementById('adminTeaBookingsTableBody');
+  var bookings = JSON.parse(localStorage.getItem('kle_tea_bookings') || '[]');
+  if (document.getElementById('adminTeaBookingsBadge')) document.getElementById('adminTeaBookingsBadge').textContent = bookings.length + ' Yêu cầu';
+
+  if (!bookingsTbody) return;
+  if (bookings.length === 0) {
+    bookingsTbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted">Chưa có yêu cầu đặt lịch trà Cung Đình nào.</td></tr>';
+    return;
+  }
+
+  var bHtml = '';
+  bookings.forEach(function(b) {
+    bHtml += `
+      <tr>
+        <td class="ps-4 font-monospace fw-bold text-success">${b.bookingCode}</td>
+        <td><strong>${b.customerName}</strong></td>
+        <td><small class="text-muted font-monospace">${b.phone}</small></td>
+        <td><small class="text-dark">${b.serviceName}</small></td>
+        <td><small class="text-muted font-monospace">${b.date}</small></td>
+        <td><span class="badge bg-light text-dark border">${b.timeSlot}</span></td>
+        <td class="text-center fw-bold">${b.guests}</td>
+        <td class="font-monospace fw-bold text-success">${b.total.toLocaleString('vi-VN')} đ</td>
+        <td><span class="badge ${b.status === 'ĐÃ XÁC NHẬN BÀN' ? 'bg-success' : 'bg-warning text-dark'}">${b.status}</span></td>
+        <td class="text-end pe-4">
+          <button class="btn btn-sm btn-outline-success rounded-pill px-2 py-0 fw-bold" onclick="confirmTeaBooking('${b.bookingCode}')">
+            Duyệt
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+  bookingsTbody.innerHTML = bHtml;
+};
+
+window.toggleTeaStatus = function(code) {
+  var services = getTeaServices();
+  var s = services.find(function(item) { return item.code === code; });
+  if (s) {
+    s.status = (s.status === 'OPEN' ? 'CLOSED' : 'OPEN');
+    saveTeaServices(services);
+    renderAdminTea();
+  }
+};
+
+window.confirmTeaBooking = function(code) {
+  var bookings = JSON.parse(localStorage.getItem('kle_tea_bookings') || '[]');
+  var b = bookings.find(function(item) { return item.bookingCode === code; });
+  if (b) {
+    b.status = 'ĐÃ XÁC NHẬN BÀN';
+    localStorage.setItem('kle_tea_bookings', JSON.stringify(bookings));
+    renderAdminTea();
+  }
+};
+
+window.renderAdminEmailLogs = function() {
+  var tbody = document.getElementById('adminEmailLogsTableBody');
+  if (!tbody) return;
+
+  var logs = getEmailLogs();
+  var filterVal = document.getElementById('adminEmailLogFilterSelect') ? document.getElementById('adminEmailLogFilterSelect').value : 'ALL';
+
+  var filtered = logs.filter(function(l) {
+    return (filterVal === 'ALL' || l.templateType === filterVal);
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">Không có lịch sử email nào phù hợp bộ lọc.</td></tr>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(l) {
+    var typeBadge = '';
+    if (l.templateType === 'BOOKING_RECEIVED') typeBadge = '<span class="badge bg-warning text-dark">Email 1 (Tiếp nhận)</span>';
+    else if (l.templateType === 'DEPOSIT_CONFIRMED') typeBadge = '<span class="badge bg-success">Email 2 (Cọc 50%)</span>';
+    else if (l.templateType === 'REMAINING_REQUEST') typeBadge = '<span class="badge bg-primary">Email 3 (Yêu cầu còn lại)</span>';
+    else if (l.templateType === 'FINAL_PAID') typeBadge = '<span class="badge bg-secondary">Email 4 (Tất toán 100%)</span>';
+    else typeBadge = '<span class="badge bg-light text-dark border">' + l.templateType + '</span>';
+
+    var statusBadge = (l.status === 'DELIVERED')
+      ? '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Thành Công</span>'
+      : '<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-exclamation-triangle-fill me-1"></i>Thất Bại</span>';
+
+    html += `
+      <tr>
+        <td class="ps-4 font-monospace small text-muted">${l.logId}</td>
+        <td><small class="text-muted font-monospace">${new Date(l.timestamp).toLocaleTimeString('vi-VN')} ${new Date(l.timestamp).toLocaleDateString('vi-VN')}</small></td>
+        <td>${typeBadge}</td>
+        <td class="font-monospace fw-bold text-dark small">${l.orderCode}</td>
+        <td><small class="text-dark fw-semibold">${l.recipient}</small></td>
+        <td><small class="text-muted text-truncate d-inline-block" style="max-width: 200px;">${l.subject}</small></td>
+        <td>${statusBadge}</td>
+        <td class="text-center"><small class="text-muted font-monospace">${l.retryCount || 0}/3</small></td>
+        <td class="text-end pe-4">
+          <div class="d-inline-flex gap-1">
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0" onclick="previewEmailHtml('${l.logId}')">
+              <i class="bi bi-eye"></i> Xem HTML
+            </button>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" onclick="retryEmail('${l.logId}')">
+              <i class="bi bi-arrow-repeat"></i> Gửi lại
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+};
+
+window.previewEmailHtml = function(logId) {
+  var logs = getEmailLogs();
+  var log = logs.find(function(l) { return l.logId === logId; });
+  if (!log) return;
+
+  document.getElementById('emailPreviewSubject').textContent = log.subject;
+  document.getElementById('emailPreviewRecipient').textContent = 'Người nhận: ' + log.recipient;
+
+  var iframe = document.getElementById('emailPreviewIframe');
+  var doc = iframe.contentWindow || iframe.contentDocument.document || iframe.contentDocument;
+  doc.document.open();
+  doc.document.write(log.body);
+  doc.document.close();
+
+  var modal = new bootstrap.Modal(document.getElementById('emailPreviewModal'));
+  modal.show();
+};
+
+window.previewEmailByOrder = function(orderCode) {
+  var logs = getEmailLogs();
+  var log = logs.find(function(l) { return l.orderCode === orderCode; });
+  if (log) {
+    previewEmailHtml(log.logId);
+  } else {
+    alert('Chưa có nhật ký email nào cho đơn đặt phòng: ' + orderCode);
+  }
+};
+
+window.retryEmail = function(logId) {
+  var logs = getEmailLogs();
+  var log = logs.find(function(l) { return l.logId === logId; });
+  if (!log) return;
+
+  log.retryCount = (log.retryCount || 0) + 1;
+  log.status = 'DELIVERED';
+  saveEmailLogs(logs);
+  alert('Đã kích hoạt cơ chế retry gửi email thành công tới: ' + log.recipient);
+  renderAdminEmailLogs();
+};
+
+window.openAdminReconciliationTab = function() {
+  var modalEl = document.getElementById('bookingModal');
+  var modalInst = bootstrap.Modal.getInstance(modalEl);
+  if (modalInst) modalInst.hide();
+
+  openAdminPortalModal('reconciliation');
 };
 
 // =========================================================================
@@ -3415,10 +5788,10 @@ window.navigateToRoute = function(route) {
 };
 
 window.openAdminPortalModal = function(subTab) {
-  subTab = normalizeRoute(subTab) || 'dashboard';
+  subTab = normalizeRoute(subTab) || 'reconciliation';
 
   // Security Check: Từ chối truy cập nếu chưa xác thực quyền Quản trị / Nhân viên
-  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin'].indexOf(subTab) !== -1) {
+  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'reconciliation', 'specialties-admin', 'tea-admin', 'emaillogs'].indexOf(subTab) !== -1) {
     if (!isStaffAuthorized()) {
       alert('Truy cập bị từ chối! Bạn cần đăng nhập với vai trò Quản trị viên hoặc Nhân viên để vào khu vực quản trị.');
       window.location.href = 'login?error=denied';
@@ -3429,12 +5802,22 @@ window.openAdminPortalModal = function(subTab) {
   var modalEl = document.getElementById('adminPortalModal');
   if (!modalEl) return;
 
-  var tabId = 'dashboard';
-  if (subTab === 'nhanvien') tabId = 'nhanvien';
+  var tabId = 'reconciliation';
+  if (subTab === 'reconciliation' || subTab === 'doisoat') tabId = 'reconciliation';
+  else if (subTab === 'specialties-admin' || subTab === 'dacsan') tabId = 'specialties-admin';
+  else if (subTab === 'tea-admin' || subTab === 'tracungdinh') tabId = 'tea-admin';
+  else if (subTab === 'emaillogs' || subTab === 'email') tabId = 'emaillogs';
+  else if (subTab === 'nhanvien') tabId = 'nhanvien';
   else if (subTab === 'luong') tabId = 'luong';
   else if (subTab === 'duan') tabId = 'duan';
   else if (subTab === 'login') tabId = 'login';
-  else if (subTab === 'admin' || subTab === 'dashboard') tabId = 'dashboard';
+  else if (subTab === 'dashboard') tabId = 'dashboard';
+
+  // Render tab data dynamically
+  if (tabId === 'reconciliation') renderAdminReconciliationList();
+  else if (tabId === 'specialties-admin') renderAdminSpecialties();
+  else if (tabId === 'tea-admin') renderAdminTea();
+  else if (tabId === 'emaillogs') renderAdminEmailLogs();
 
   // Activate tab button and pane
   var tabBtn = document.getElementById('tab-btn-' + tabId);
@@ -3452,6 +5835,11 @@ window.onAdminTabSwitch = function(tabName) {
   var basePath = getBaseUrl();
   var targetUrl = basePath + cleanTab;
   window.history.pushState({ route: cleanTab }, '', targetUrl);
+
+  if (cleanTab === 'reconciliation') renderAdminReconciliationList();
+  else if (cleanTab === 'specialties-admin') renderAdminSpecialties();
+  else if (cleanTab === 'tea-admin') renderAdminTea();
+  else if (cleanTab === 'emaillogs') renderAdminEmailLogs();
 };
 
 window.onCloseAdminModal = function() {
@@ -3479,8 +5867,8 @@ window.quickLoginAs = function(displayName, role) {
     badge.innerHTML = '<i class="bi bi-person-check-fill me-1"></i>' + displayName;
   }
   alert('Đăng nhập thành công với vai trò: ' + role + '!\nĐang kích hoạt quyền điều hành hệ thống.');
-  onAdminTabSwitch('dashboard');
-  var tabBtn = document.getElementById('tab-btn-dashboard');
+  onAdminTabSwitch('reconciliation');
+  var tabBtn = document.getElementById('tab-btn-reconciliation');
   if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
     new bootstrap.Tab(tabBtn).show();
   }
@@ -3511,7 +5899,7 @@ window.activateRoute = function(cleanRoute) {
     return;
   }
 
-  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login'].indexOf(cleanRoute) !== -1) {
+  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login', 'reconciliation', 'specialties-admin', 'tea-admin', 'emaillogs', 'doisoat'].indexOf(cleanRoute) !== -1) {
     openAdminPortalModal(cleanRoute);
     return;
   }
@@ -3521,8 +5909,8 @@ window.activateRoute = function(cleanRoute) {
     return;
   }
 
-  if (cleanRoute === 'cart') {
-    openCartModal();
+  if (cleanRoute === 'cart' || cleanRoute === 'gio-hang') {
+    openShoppingCartModal();
     return;
   }
 
@@ -3548,12 +5936,22 @@ window.activateRoute = function(cleanRoute) {
     return;
   }
 
+  if (['specialties', 'dac-san', 'am-thuc'].indexOf(cleanRoute) !== -1) {
+    scrollToSection('specialties');
+    return;
+  }
+
+  if (['royal-tea', 'tra-cung-dinh', 'thuong-tra'].indexOf(cleanRoute) !== -1) {
+    scrollToSection('royal-tea');
+    return;
+  }
+
   if (['heritage-map', 'map', 'ban-do', 'ban-do-di-san', 'lang-nghe'].indexOf(cleanRoute) !== -1) {
     scrollToSection('heritage-map');
     return;
   }
 
-  if (['rooms', 'room', 'products', 'product', 'search'].indexOf(cleanRoute) !== -1) {
+  if (['rooms', 'room'].indexOf(cleanRoute) !== -1) {
     scrollToSection('rooms');
     return;
   }
@@ -3593,13 +5991,17 @@ document.addEventListener('DOMContentLoaded', function() {
   syncNavbarSession();
   wireHeritageCardButtons();
 
+  // Khởi tạo hiển thị ẩm thực & giỏ hàng
+  renderSpecialties();
+  updateCartUi();
+
   var adminModalEl = document.getElementById('adminPortalModal');
   if (adminModalEl) {
     adminModalEl.addEventListener('hidden.bs.modal', function() {
       var path = window.location.pathname;
       var basePath = getBaseUrl();
       var clean = path.replace(basePath, '').replace(/^\/+/, '');
-      if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login'].indexOf(clean) !== -1) {
+      if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login', 'reconciliation', 'specialties-admin', 'tea-admin', 'emaillogs'].indexOf(clean) !== -1) {
         window.history.pushState({ route: '' }, '', basePath);
       }
     });

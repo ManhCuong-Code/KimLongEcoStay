@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KimLongEcoStay.ShoppingCart
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KimLongEcoStay.StateStore.DI", "Plugins\KimLongEcoStay.StateStore.DI\KimLongEcoStay.StateStore.DI.csproj", "{373F2238-CFA3-4C3F-A192-FA0EDB4B4D09}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KimLongEcoStay.Tests", "KimLongEcoStay.Tests\KimLongEcoStay.Tests.csproj", "{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,18 @@ Global
 		{373F2238-CFA3-4C3F-A192-FA0EDB4B4D09}.Release|x64.Build.0 = Release|Any CPU
 		{373F2238-CFA3-4C3F-A192-FA0EDB4B4D09}.Release|x86.ActiveCfg = Release|Any CPU
 		{373F2238-CFA3-4C3F-A192-FA0EDB4B4D09}.Release|x86.Build.0 = Release|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Debug|x64.Build.0 = Debug|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Debug|x86.Build.0 = Debug|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Release|x64.ActiveCfg = Release|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Release|x64.Build.0 = Release|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Release|x86.ActiveCfg = Release|Any CPU
+		{B70AA9D1-67DF-4794-A8F7-1D48A80E23DC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
