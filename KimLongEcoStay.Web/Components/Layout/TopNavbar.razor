@@ -54,24 +54,6 @@
                         <i class="bi bi-key-fill me-1"></i>Tra Cứu Khóa
                     </NavLink>
                 </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link kle-nav-item fw-bold text-emerald" href="ai-assistant">
-                        <i class="bi bi-robot text-success me-1"></i>Trợ Lý AI
-                    </NavLink>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle kle-nav-item fw-semibold text-light opacity-90" href="javascript:void(0)" id="subpagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-grid-fill me-1 text-gold"></i>Phân Hệ
-                    </a>
-                    <ul class="dropdown-menu shadow-lg border-0 rounded-3 p-2" aria-labelledby="subpagesDropdown" style="min-width: 220px;">
-                        <li><a class="dropdown-item rounded-2 py-2 fw-semibold" href="dashboard"><i class="bi bi-graph-up-arrow text-success me-2"></i>Dashboard Tài Chính</a></li>
-                        <li><a class="dropdown-item rounded-2 py-2 fw-semibold" href="nhanvien"><i class="bi bi-people-fill text-primary me-2"></i>Quản Lý Nhân Sự</a></li>
-                        <li><a class="dropdown-item rounded-2 py-2 fw-semibold" href="luong"><i class="bi bi-cash-stack text-warning me-2"></i>Quản Lý Tiền Lương</a></li>
-                        <li><a class="dropdown-item rounded-2 py-2 fw-semibold" href="duan"><i class="bi bi-kanban text-info me-2"></i>Quản Lý Buồng Phòng</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item rounded-2 py-2 fw-bold text-success" href="admin"><i class="bi bi-shield-lock-fill me-2"></i>Cổng Quản Trị (Admin)</a></li>
-                    </ul>
-                </li>
             </ul>
 
             <!-- Hotline & Phân Quyền Đăng Nhập -->
@@ -91,14 +73,14 @@
 
                 <AuthorizeView>
                     <Authorized>
-                        <li class="nav-item">
-                            <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="admin" title="Cổng điều hành & quản trị homestay">
-                                <i class="bi bi-shield-lock-fill me-1"></i>Quản Trị
-                            </a>
-                        </li>
                         @if (context.User.IsInRole("Admin") || context.User.IsInRole("Staff") || context.User.IsInRole("Administrator") || context.User.IsInRole("Manager") || context.User.IsInRole("HR") || context.User.IsInRole("Accountant"))
                         {
-                            <li class="nav-item text-light small d-none d-xxl-inline">
+                            <li class="nav-item">
+                                <a class="btn btn-outline-warning btn-sm rounded-pill px-3 py-1 fw-semibold shadow-sm" href="admin" title="Vào Bảng điều hành quản trị nội bộ">
+                                    <i class="bi bi-speedometer2 me-1"></i>Bảng Điều Hành
+                                </a>
+                            </li>
+                            <li class="nav-item text-light small d-none d-md-inline">
                                 <span class="badge bg-success border border-light"><i class="bi bi-person-badge me-1"></i>@context.User.Identity?.Name</span>
                             </li>
                         }
@@ -110,19 +92,14 @@
                         }
 
                         <li class="nav-item">
-                            <a class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1" href="logout">
+                            <a class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1" href="logout" title="Đăng xuất khỏi hệ thống">
                                 <i class="bi bi-box-arrow-right me-1"></i>Thoát
                             </a>
                         </li>
                     </Authorized>
                     <NotAuthorized>
                         <li class="nav-item">
-                            <a class="btn btn-warning btn-sm fw-bold text-dark px-3 py-1 rounded-pill shadow-sm" href="admin" title="Cổng điều hành & quản trị homestay">
-                                <i class="bi bi-shield-lock-fill me-1"></i>Quản Trị
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" href="login">
+                            <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" href="login" title="Đăng nhập tài khoản">
                                 <i class="bi bi-person me-1"></i>Đăng Nhập
                             </a>
                         </li>

@@ -259,8 +259,45 @@
             </div>
 
             <!-- Div hiển thị bản đồ Leaflet & Khung chứa HUD chỉ đường -->
-            <div class="position-relative">
+            <div class="position-relative map-container-box">
                 <div id="heritage-leaflet-map" style="min-height: 540px; width: 100%;"></div>
+
+                <!-- 1. Trạng thái Đang Tải (Loading Overlay) -->
+                @if (isMapLoading)
+                {
+                    <div class="map-status-overlay map-loading-overlay">
+                        <div class="spinner-border text-success mb-2" role="status" style="width: 2.5rem; height: 2.5rem;">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <div class="fw-bold text-dark fs-6 mb-1">Đang tải bản đồ số Kim Long EcoStay...</div>
+                        <div class="text-muted small">Khởi tạo hệ thống GIS di tích, làng nghề & ẩm thực Cố đô</div>
+                    </div>
+                }
+
+                <!-- 2. Trạng thái Lỗi / Mất kết nối (Error Overlay với nút Thử Tải Lại) -->
+                @if (hasMapError)
+                {
+                    <div class="map-status-overlay map-error-overlay">
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-1 mb-2"></i>
+                        <h5 class="fw-bold text-dark mb-1">Dịch vụ bản đồ gặp sự cố kết nối</h5>
+                        <p class="text-muted small mb-3" style="max-width: 480px;">
+                            @(mapErrorMessage ?? "Không thể kết nối đến máy chủ bản đồ hoặc mạng bị gián đoạn. Vui lòng bấm thử tải lại.")
+                        </p>
+                        <button class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-bold" @onclick="RetryInitMap">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Thử Tải Lại Bản Đồ
+                        </button>
+                    </div>
+                }
+
+                <!-- 3. Trạng thái rỗng khi không có dữ liệu địa điểm -->
+                @if (!allLocations.Any())
+                {
+                    <div class="map-status-overlay map-empty-overlay">
+                        <i class="bi bi-geo-alt-fill text-muted fs-1 mb-2"></i>
+                        <h5 class="fw-bold text-dark mb-1">Chưa có dữ liệu địa điểm du lịch</h5>
+                        <p class="text-muted small mb-0">Hệ thống đang đồng bộ danh mục di tích và ẩm thực từ Kim Long EcoStay.</p>
+                    </div>
+                }
                 
                 <!-- Bảng HUD Chỉ Đường Trực Tiếp (Hiển thị khi khách chọn một địa điểm) -->
                 <div id="guest-navigation-hud"></div>
@@ -476,6 +513,9 @@
     private string selectedNavLocationId = string.Empty;
     private string selectedNavMode = "bike"; // "bike", "walk", "motor"
     private bool mapInitialized = false;
+    private bool isMapLoading = true;
+    private bool hasMapError = false;
+    private string? mapErrorMessage;
 
     protected override void OnInitialized()
     {
@@ -492,20 +532,63 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !mapInitialized)
+        if (firstRender || !mapInitialized)
         {
-            mapInitialized = true;
-            // Delay nhẹ để DOM và Leaflet script đã sẵn sàng
-            await Task.Delay(350);
+            await InitializeMapWithRetryAsync();
+        }
+    }
+
+    private async Task InitializeMapWithRetryAsync()
+    {
+        if (allLocations == null || !allLocations.Any())
+        {
+            isMapLoading = false;
+            return;
+        }
+
+        isMapLoading = true;
+        hasMapError = false;
+        StateHasChanged();
+
+        for (int attempt = 1; attempt <= 3; attempt++)
+        {
             try
             {
-                await jsRuntime.InvokeVoidAsync("heritageMapController.initMap", "heritage-leaflet-map", allLocations);
+                // Delay nhẹ để DOM và Leaflet script đã sẵn sàng
+                await Task.Delay(attempt * 200);
+                var success = await jsRuntime.InvokeAsync<bool>("heritageMapController.initMap", "heritage-leaflet-map", allLocations);
+                if (success)
+                {
+                    mapInitialized = true;
+                    isMapLoading = false;
+                    hasMapError = false;
+                    StateHasChanged();
+                    return;
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Map init error: " + ex.Message);
+                Console.WriteLine($"[HeritageMap] Khởi tạo lần {attempt} gặp lỗi: {ex.Message}");
             }
         }
+
+        // Nếu sau 3 lần vẫn chưa thành công
+        isMapLoading = false;
+        hasMapError = !mapInitialized;
+        if (hasMapError)
+        {
+            mapErrorMessage = "Không thể khởi tạo bản đồ. Trình duyệt chưa tải kịp tài nguyên hoặc mạng bị chậm.";
+        }
+        StateHasChanged();
+    }
+
+    private async Task RetryInitMap()
+    {
+        mapInitialized = false;
+        hasMapError = false;
+        isMapLoading = true;
+        StateHasChanged();
+        await InitializeMapWithRetryAsync();
     }
 
     private async Task ChangeMapMode(string mode)

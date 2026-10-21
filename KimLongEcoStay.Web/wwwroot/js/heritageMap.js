@@ -17,6 +17,7 @@ window.heritageMapController = {
   streetLayer: null,
   esriStreetLayer: null,
   satelliteLayer: null,
+  osmStreetLayer: null,
   labelsLayer: null,
   currentMode: 'street',
   activeNavLocation: null,
@@ -27,13 +28,29 @@ window.heritageMapController = {
 
   initMap: function (elementId, locations) {
     var container = document.getElementById(elementId);
-    if (!container) return;
+    if (!container) {
+      console.warn("[HeritageMap] Container element #" + elementId + " chưa xuất hiện trong DOM.");
+      return false;
+    }
+
+    if (typeof L === 'undefined') {
+      console.error("[HeritageMap] Thư viện Leaflet L chưa sẵn sàng. Vui lòng kiểm tra leaflet.js.");
+      return false;
+    }
 
     this.locationsData = locations || [];
 
+    // Hủy triệt để instance cũ và xóa _leaflet_id trên DOM container để tránh lỗi 'Map container is already initialized'
     if (this.mapInstance) {
-      this.mapInstance.remove();
+      try {
+        this.mapInstance.remove();
+      } catch (e) {
+        console.warn("[HeritageMap] Lỗi khi remove instance cũ:", e);
+      }
       this.mapInstance = null;
+    }
+    if (container._leaflet_id) {
+      delete container._leaflet_id;
     }
     this.markersList = [];
 
@@ -50,23 +67,28 @@ window.heritageMapController = {
     this.mapInstance = map;
 
     // =========================================================================
-    // 1. CÁC LỚP BẢN ĐỒ SIÊU BỀN VỮNG (CHỐNG MÀN HÌNH XÁM & TỰ ĐỘNG DỰ PHÒNG)
+    // 1. CÁC LỚP BẢN ĐỒ SIÊU BỀN VỮNG (CHỐNG MÀN HÌNH TRẮNG & TỰ ĐỘNG DỰ PHÒNG)
     // =========================================================================
-    // Lớp Bản đồ đường bộ CartoDB Voyager: Tối ưu cho du lịch, hiển thị rõ sông Hương,
-    // các con đường Kim Long, Lê Lợi, cầu Phú Xuân, Trường Tiền và địa danh tiếng Việt
+    // Lớp 1: CartoDB Voyager - Tươi sáng, tối ưu du lịch, nổi bật sông Hương
     this.streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
       maxZoom: 19,
       subdomains: 'abcd',
       attribution: '&copy; OpenStreetMap &copy; CARTO | Kim Long EcoStay'
     });
 
-    // Lớp Bản đồ đường phố giao thông Esri World Street: Chi tiết từng số nhà, tên đường, ngõ xóm Huế
+    // Lớp 1B (Dự phòng chuẩn quốc tế): OpenStreetMap Standard Tile Layer
+    this.osmStreetLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors | Kim Long EcoStay'
+    });
+
+    // Lớp 2: Bản đồ giao thông Esri World Street - Chi tiết đường ngõ xóm Huế
     this.esriStreetLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       attribution: 'Tiles &copy; Esri World Street Map | Kim Long EcoStay'
     });
 
-    // Lớp Bản đồ vệ tinh độ nét cao Esri World Imagery
+    // Lớp 3: Ảnh vệ tinh thực tế độ nét cao Esri World Imagery
     this.satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       attribution: 'Tiles &copy; Esri World Imagery | Kim Long EcoStay'
@@ -77,17 +99,17 @@ window.heritageMapController = {
       maxZoom: 19
     });
 
-    // Tự động kích hoạt cơ chế dự phòng (Failover) nếu CartoDB gặp sự cố đường truyền
+    // Cơ chế tự động Failover sang OpenStreetMap nếu CartoDB gặp trục trặc đường truyền
     var self = this;
     var cartoFailed = false;
     this.streetLayer.on('tileerror', function () {
       if (!cartoFailed && self.currentMode === 'street') {
         cartoFailed = true;
-        console.warn("[HeritageMap] Kích hoạt cơ chế dự phòng sang Esri World Street Map.");
+        console.warn("[HeritageMap] CartoDB tile gặp sự cố. Kích hoạt cơ chế dự phòng sang OpenStreetMap.");
         if (self.mapInstance && self.mapInstance.hasLayer(self.streetLayer)) {
           self.mapInstance.removeLayer(self.streetLayer);
-          self.esriStreetLayer.addTo(self.mapInstance);
-          self.esriStreetLayer.bringToBack();
+          self.osmStreetLayer.addTo(self.mapInstance);
+          self.osmStreetLayer.bringToBack();
         }
       }
     });
@@ -110,7 +132,6 @@ window.heritageMapController = {
     // =========================================================================
     // 2. TẠO MARKER HÌNH ẢNH SỐNG ĐỘNG
     // =========================================================================
-    var self = this;
     locations.forEach(function (loc, index) {
       var markerIcon = self.createVisualPhotoIcon(loc);
 
@@ -121,7 +142,7 @@ window.heritageMapController = {
       }).addTo(map);
 
       // Tooltip tên địa điểm
-      marker.bindTooltip(`<strong>${loc.name}</strong><br><small style="color:#64748B;">${loc.category} • ${loc.travelEstimate.split('(')[0]}</small>`, {
+      marker.bindTooltip(`<strong>${loc.name}</strong><br><small style="color:#64748B;">${loc.category} • ${(loc.travelEstimate || '').split('(')[0]}</small>`, {
         direction: 'top',
         offset: [0, -26],
         className: 'custom-map-tooltip'
@@ -137,7 +158,7 @@ window.heritageMapController = {
           <div class="popup-body">
             <h4 class="popup-title">${loc.name}</h4>
             <div class="popup-addr"><i class="bi bi-geo-alt-fill text-danger"></i> <strong>Địa chỉ:</strong> ${loc.address}</div>
-            <div class="popup-dist"><i class="bi bi-bicycle text-success"></i> <strong>Cự ly:</strong> ${loc.travelEstimate}</div>
+            <div class="popup-dist"><i class="bi bi-bicycle text-success"></i> <strong>Cự ly:</strong> ${loc.travelEstimate || ''}</div>
             <div class="popup-time-info"><i class="bi bi-clock-history text-primary"></i> <strong>Giờ mở cửa:</strong> ${loc.openingHours}</div>
             <p class="popup-desc">${loc.summary}</p>
             
@@ -164,7 +185,7 @@ window.heritageMapController = {
       self.markersList.push(marker);
     });
 
-    // Tự động invalidateSize ở nhiều mốc thời gian để khử hoàn toàn màn hình xám
+    // InvalidateSize đa kỳ để khử hoàn toàn hiện tượng bản đồ trắng hoặc xám
     [30, 100, 250, 500, 1000, 2000].forEach(function (delay) {
       setTimeout(function () {
         if (self.mapInstance) {
@@ -194,6 +215,20 @@ window.heritageMapController = {
       });
       ro.observe(container);
     }
+
+    // Theo dõi khi bản đồ cuộn vào tầm nhìn người dùng bằng IntersectionObserver
+    if (window.IntersectionObserver && container) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting && self.mapInstance) {
+            self.mapInstance.invalidateSize();
+          }
+        });
+      }, { threshold: 0.1 });
+      io.observe(container);
+    }
+
+    return true;
   },
 
   createVisualPhotoIcon: function (loc) {
@@ -257,34 +292,31 @@ window.heritageMapController = {
     this.currentMode = mode;
 
     // Gỡ tất cả các lớp nền cũ
-    if (this.mapInstance.hasLayer(this.streetLayer)) {
-      this.mapInstance.removeLayer(this.streetLayer);
-    }
-    if (this.mapInstance.hasLayer(this.esriStreetLayer)) {
-      this.mapInstance.removeLayer(this.esriStreetLayer);
-    }
-    if (this.mapInstance.hasLayer(this.satelliteLayer)) {
-      this.mapInstance.removeLayer(this.satelliteLayer);
-    }
-    if (this.mapInstance.hasLayer(this.labelsLayer)) {
-      this.mapInstance.removeLayer(this.labelsLayer);
-    }
+    var allBaseLayers = [this.streetLayer, this.osmStreetLayer, this.esriStreetLayer, this.satelliteLayer, this.labelsLayer];
+    var self = this;
+    allBaseLayers.forEach(function (layer) {
+      if (layer && self.mapInstance.hasLayer(layer)) {
+        self.mapInstance.removeLayer(layer);
+      }
+    });
 
     if (mode === 'satellite') {
-      this.satelliteLayer.addTo(this.mapInstance);
-      this.labelsLayer.addTo(this.mapInstance);
-      this.satelliteLayer.bringToBack();
+      if (this.satelliteLayer) this.satelliteLayer.addTo(this.mapInstance);
+      if (this.labelsLayer) this.labelsLayer.addTo(this.mapInstance);
+      if (this.satelliteLayer) this.satelliteLayer.bringToBack();
     } else if (mode === 'esri_street') {
-      this.esriStreetLayer.addTo(this.mapInstance);
-      this.esriStreetLayer.bringToBack();
+      if (this.esriStreetLayer) this.esriStreetLayer.addTo(this.mapInstance);
+      if (this.esriStreetLayer) this.esriStreetLayer.bringToBack();
     } else {
-      // Mặc định 'street' (Carto Voyager du lịch)
-      this.streetLayer.addTo(this.mapInstance);
-      this.streetLayer.bringToBack();
+      // Mặc định 'street' (Carto Voyager du lịch hoặc OSM)
+      var targetLayer = this.streetLayer || this.osmStreetLayer;
+      if (targetLayer) {
+        targetLayer.addTo(this.mapInstance);
+        targetLayer.bringToBack();
+      }
     }
 
-    var self = this;
-    [20, 100, 300].forEach(function (d) {
+    [20, 100, 300, 600].forEach(function (d) {
       setTimeout(function () {
         if (self.mapInstance) {
           self.mapInstance.invalidateSize();
@@ -296,8 +328,14 @@ window.heritageMapController = {
   refreshMap: function () {
     if (!this.mapInstance) return;
     var self = this;
+    this.clearNavigationLayers();
     this.mapInstance.invalidateSize();
     this.mapInstance.flyTo(this.ecoStayCoords, 13, { duration: 1.0 });
+    setTimeout(function () {
+      if (self.mapInstance) {
+        self.mapInstance.invalidateSize();
+      }
+    }, 1100);
   },
 
   focusLocation: function (lat, lng, zoomLevel) {

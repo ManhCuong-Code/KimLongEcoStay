@@ -1298,10 +1298,67 @@ h1, h2, h3 {
   position: relative;
 }
 
+.map-container-box {
+  position: relative;
+  width: 100%;
+  background: #e8ede9;
+}
+
 #heritage-leaflet-map {
   width: 100%;
+  min-height: 540px;
   height: 540px;
+  background: #e8ede9;
   z-index: 1;
+}
+
+@media (max-width: 992px) {
+  #heritage-leaflet-map {
+    min-height: 440px;
+    height: 440px;
+  }
+}
+
+@media (max-width: 576px) {
+  #heritage-leaflet-map {
+    min-height: 380px;
+    height: 380px;
+  }
+}
+
+/* Map Status Overlays: Loading, Error, Empty */
+.map-status-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.3s ease;
+}
+
+.map-loading-overlay {
+  pointer-events: none;
+}
+
+.map-error-overlay {
+  background: rgba(254, 252, 232, 0.96);
+  border: 2px dashed #f59e0b;
+  margin: 16px;
+  border-radius: 16px;
+}
+
+.map-empty-overlay {
+  background: rgba(248, 250, 252, 0.95);
 }
 
 /* Visual Photo Pin Markers */
