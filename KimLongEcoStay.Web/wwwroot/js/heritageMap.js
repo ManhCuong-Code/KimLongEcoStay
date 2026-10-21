@@ -26,7 +26,118 @@ window.heritageMapController = {
   // Tọa độ chuẩn của Kim Long EcoStay
   ecoStayCoords: [16.4560, 107.5495],
 
+  // =========================================================================
+  // BỘ ĐỊNH NGHĨA CÁC NHÀ CUNG CẤP TILE BẢN ĐỒ (TILE PROVIDERS REGISTRY)
+  // Tuyệt đối không dùng endpoint yêu cầu API Key nếu chưa có cấu hình.
+  // =========================================================================
+  TILE_PROVIDERS: {
+    googleStreet: {
+      id: 'googleStreet',
+      name: 'Google Maps Du Lịch',
+      url: 'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+      options: {
+        maxZoom: 20,
+        subdomains: ['0', '1', '2', '3'],
+        attribution: '&copy; Google Maps &copy; Kim Long EcoStay'
+      }
+    },
+    esriStreet: {
+      id: 'esriStreet',
+      name: 'Esri World Street Map (Giao Thông)',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      options: {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri World Street Map | Kim Long EcoStay'
+      }
+    },
+    esriSatellite: {
+      id: 'esriSatellite',
+      name: 'Esri World Imagery (Vệ Tinh)',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      options: {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri World Imagery | Kim Long EcoStay'
+      }
+    },
+    esriLabels: {
+      id: 'esriLabels',
+      name: 'Esri World Boundaries & Places',
+      url: 'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+      options: {
+        maxZoom: 19
+      }
+    },
+    osmStandard: {
+      id: 'osmStandard',
+      name: 'OpenStreetMap Tiêu Chuẩn',
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      options: {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors | Kim Long EcoStay'
+      }
+    }
+  },
+
+  currentElementId: null,
+  activeBaseLayers: {},
+  failedProviders: {},
+
+  createSafeTileLayer: function(providerConfig, onFailover) {
+    var layer = L.tileLayer(providerConfig.url, providerConfig.options);
+    var failedCount = 0;
+    var hasHandled = false;
+
+    // 1. Bắt lỗi kết nối mạng / HTTP 4xx, 5xx
+    layer.on('tileerror', function() {
+      failedCount++;
+      if (failedCount >= 3 && !hasHandled) {
+        hasHandled = true;
+        console.warn("[HeritageMap] Tile provider '" + providerConfig.name + "' gặp lỗi tải tile liên tiếp (" + failedCount + " tiles). Bắt đầu chuyển dự phòng an toàn.");
+        if (typeof onFailover === 'function') {
+          onFailover(providerConfig);
+        }
+      }
+    });
+
+    // 2. Bắt lỗi ảnh rác, ảnh 1x1px hoặc ảnh watermark giả mạo HTTP 200
+    layer.on('tileload', function(e) {
+      if (e.tile && (e.tile.naturalWidth < 16 || e.tile.naturalHeight < 16)) {
+        failedCount++;
+        if (failedCount >= 3 && !hasHandled) {
+          hasHandled = true;
+          console.warn("[HeritageMap] Tile provider '" + providerConfig.name + "' trả về kích thước không hợp lệ. Bắt đầu chuyển dự phòng an toàn.");
+          if (typeof onFailover === 'function') {
+            onFailover(providerConfig);
+          }
+        }
+      }
+    });
+
+    return layer;
+  },
+
+  showFallbackNotice: function(msg) {
+    var container = document.getElementById(this.currentElementId || 'heritage-leaflet-map');
+    if (!container) return;
+    var existing = container.querySelector('.map-tile-fallback-notice');
+    if (existing) existing.remove();
+
+    var notice = document.createElement('div');
+    notice.className = 'map-tile-fallback-notice';
+    notice.style.cssText = 'position:absolute; bottom:16px; left:16px; right:16px; z-index:1000; background:rgba(15,23,42,0.88); color:#FEF08A; padding:10px 16px; border-radius:12px; font-size:13px; font-weight:600; text-align:center; backdrop-filter:blur(6px); border:1px solid rgba(254,240,138,0.3); pointer-events:none; box-shadow:0 4px 16px rgba(0,0,0,0.25);';
+    notice.innerHTML = '<i class="bi bi-info-circle-fill me-2 text-warning"></i>' + msg;
+    container.appendChild(notice);
+  },
+
+  clearFallbackNotice: function() {
+    var container = document.getElementById(this.currentElementId || 'heritage-leaflet-map');
+    if (!container) return;
+    var existing = container.querySelector('.map-tile-fallback-notice');
+    if (existing) existing.remove();
+  },
+
   initMap: function (elementId, locations) {
+    this.currentElementId = elementId;
     var container = document.getElementById(elementId);
     if (!container) {
       console.warn("[HeritageMap] Container element #" + elementId + " chưa xuất hiện trong DOM.");
@@ -53,6 +164,7 @@ window.heritageMapController = {
       delete container._leaflet_id;
     }
     this.markersList = [];
+    this.failedProviders = {};
 
     var centerLat = this.ecoStayCoords[0];
     var centerLng = this.ecoStayCoords[1];
@@ -69,47 +181,35 @@ window.heritageMapController = {
     // =========================================================================
     // 1. CÁC LỚP BẢN ĐỒ SIÊU BỀN VỮNG (CHỐNG MÀN HÌNH TRẮNG & TỰ ĐỘNG DỰ PHÒNG)
     // =========================================================================
-    // Lớp 1: Bản đồ đường phố du lịch Google Maps - Chi tiết sông Hương, di tích, tên đường tiếng Việt chuẩn xác
-    this.streetLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-      maxZoom: 20,
-      subdomains: ['0', '1', '2', '3'],
-      attribution: '&copy; Google Maps &copy; Kim Long EcoStay'
+    var self = this;
+
+    // Lớp 1: Bản đồ đường phố du lịch Google Maps (Mặc định)
+    this.streetLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.googleStreet, function() {
+      self.handleStreetFailover();
     });
 
-    // Lớp 2: Bản đồ giao thông Esri World Street Map - Chi tiết đường ngõ xóm Huế, miễn phí 100% không cần API key
-    this.esriStreetLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Tiles &copy; Esri World Street Map | Kim Long EcoStay'
+    // Lớp 2: Bản đồ giao thông Esri World Street Map (Miễn phí 100%, không API Key)
+    this.esriStreetLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.esriStreet, function() {
+      self.handleEsriFailover();
     });
 
     // Lớp 3: Ảnh vệ tinh thực tế độ nét cao Esri World Imagery
-    this.satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Tiles &copy; Esri World Imagery | Kim Long EcoStay'
+    this.satelliteLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.esriSatellite, function() {
+      console.warn("[HeritageMap] Vệ tinh Esri gặp lỗi đường truyền.");
     });
 
     // Lớp chú thích tên đường & địa danh trên nền vệ tinh
-    this.labelsLayer = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19
+    this.labelsLayer = L.tileLayer(this.TILE_PROVIDERS.esriLabels.url, this.TILE_PROVIDERS.esriLabels.options);
+
+    // Lớp dự phòng cấp 3: OpenStreetMap Standard
+    this.osmStreetLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.osmStandard, function() {
+      console.warn("[HeritageMap] Toàn bộ nguồn bản đồ nền đường phố đều gặp sự cố mạng.");
+      self.showFallbackNotice("Bản đồ nền tạm thời gián đoạn kết nối. Vị trí 43 danh thắng & dữ liệu du lịch Kim Long EcoStay vẫn hiển thị chính xác.");
     });
 
-    // Cơ chế tự động Failover sang Esri World Street nếu Google Maps gặp trục trặc đường truyền
-    var self = this;
-    var streetFailed = false;
-    this.streetLayer.on('tileerror', function () {
-      if (!streetFailed && self.currentMode === 'street') {
-        streetFailed = true;
-        console.warn("[HeritageMap] Google Maps tile gặp sự cố. Kích hoạt cơ chế dự phòng sang Esri World Street Map.");
-        if (self.mapInstance && self.mapInstance.hasLayer(self.streetLayer)) {
-          self.mapInstance.removeLayer(self.streetLayer);
-          self.esriStreetLayer.addTo(self.mapInstance);
-          self.esriStreetLayer.bringToBack();
-        }
-      }
-    });
-
-    // Mặc định nạp Street layer
+    // Mặc định nạp Street layer vào bản đồ
     this.streetLayer.addTo(map);
+    this.streetLayer.bringToBack();
 
     // Vòng tròn sinh thái bao quanh Kim Long EcoStay
     this.centerCircle = L.circle([centerLat, centerLng], {
@@ -281,12 +381,43 @@ window.heritageMapController = {
     }
   },
 
+  handleStreetFailover: function() {
+    if (this.currentMode !== 'street' || !this.mapInstance) return;
+    if (this.failedProviders['googleStreet']) return;
+    this.failedProviders['googleStreet'] = true;
+
+    console.warn("[HeritageMap] Tự động chuyển lớp bản đồ nền từ Google Maps sang Esri World Street Map.");
+    if (this.streetLayer && this.mapInstance.hasLayer(this.streetLayer)) {
+      this.mapInstance.removeLayer(this.streetLayer);
+    }
+    if (this.esriStreetLayer) {
+      this.esriStreetLayer.addTo(this.mapInstance);
+      this.esriStreetLayer.bringToBack();
+    }
+  },
+
+  handleEsriFailover: function() {
+    if (!this.mapInstance) return;
+    if (this.failedProviders['esriStreet']) return;
+    this.failedProviders['esriStreet'] = true;
+
+    console.warn("[HeritageMap] Esri Street gặp sự cố, thử chuyển sang OpenStreetMap Standard.");
+    if (this.esriStreetLayer && this.mapInstance.hasLayer(this.esriStreetLayer)) {
+      this.mapInstance.removeLayer(this.esriStreetLayer);
+    }
+    if (this.osmStreetLayer) {
+      this.osmStreetLayer.addTo(this.mapInstance);
+      this.osmStreetLayer.bringToBack();
+    }
+  },
+
   toggleMapMode: function (mode) {
     if (!this.mapInstance) return;
     this.currentMode = mode;
+    this.clearFallbackNotice();
 
     // Gỡ tất cả các lớp nền cũ
-    var allBaseLayers = [this.streetLayer, this.esriStreetLayer, this.satelliteLayer, this.labelsLayer];
+    var allBaseLayers = [this.streetLayer, this.esriStreetLayer, this.satelliteLayer, this.labelsLayer, this.osmStreetLayer];
     var self = this;
     allBaseLayers.forEach(function (layer) {
       if (layer && self.mapInstance.hasLayer(layer)) {
@@ -299,14 +430,20 @@ window.heritageMapController = {
       if (this.labelsLayer) this.labelsLayer.addTo(this.mapInstance);
       if (this.satelliteLayer) this.satelliteLayer.bringToBack();
     } else if (mode === 'esri_street') {
-      if (this.esriStreetLayer) this.esriStreetLayer.addTo(this.mapInstance);
-      if (this.esriStreetLayer) this.esriStreetLayer.bringToBack();
+      var esriTarget = (!this.failedProviders['esriStreet'] && this.esriStreetLayer) ? this.esriStreetLayer : (this.streetLayer || this.osmStreetLayer);
+      if (esriTarget) {
+        esriTarget.addTo(this.mapInstance);
+        esriTarget.bringToBack();
+      }
     } else {
-      // Mặc định 'street' (Google Maps du lịch hoặc Esri Street)
-      var targetLayer = this.streetLayer || this.esriStreetLayer;
+      // Mặc định 'street' (Google Maps du lịch -> Esri Street -> OSM)
+      var targetLayer = (!this.failedProviders['googleStreet'] && this.streetLayer) ? this.streetLayer :
+                        ((!this.failedProviders['esriStreet'] && this.esriStreetLayer) ? this.esriStreetLayer : this.osmStreetLayer);
       if (targetLayer) {
         targetLayer.addTo(this.mapInstance);
         targetLayer.bringToBack();
+      } else {
+        this.showFallbackNotice("Bản đồ nền tạm thời gián đoạn kết nối. Vị trí 43 danh thắng & dữ liệu du lịch Kim Long EcoStay vẫn hiển thị chính xác.");
       }
     }
 

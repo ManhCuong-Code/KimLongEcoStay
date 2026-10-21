@@ -65,9 +65,11 @@ jobs:
           # 2. Hop nhat cac tai nguyen tinh tu release/wwwroot (_framework, lib, CSS/JS compiled)
           if [ -d release/wwwroot ]; then
             cp -rn release/wwwroot/* dist_pages/ 2>/dev/null || cp -r release/wwwroot/* dist_pages/
-            # Bao dam index.html, 404.html va .nojekyll giu dung phien ban SPA Routing
+            # Bao dam index.html, 404.html, js/heritageMap.js va .nojekyll giu dung phien ban moi nhat
             cp -f index.html dist_pages/index.html
             cp -f 404.html dist_pages/404.html
+            [ -f js/heritageMap.js ] && cp -f js/heritageMap.js dist_pages/js/heritageMap.js || true
+            [ -f js/heritageLocationsData.js ] && cp -f js/heritageLocationsData.js dist_pages/js/heritageLocationsData.js || true
             touch dist_pages/.nojekyll
           fi
 

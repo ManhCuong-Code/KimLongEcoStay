@@ -2785,17 +2785,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize Map
   
-  // Initialize Full Heritage GIS Map with retry mechanism
-  function tryInitHeritageMap(attempts) {
+  // Initialize Full Heritage GIS Map with retry mechanism and duplicate prevention
+  var isHeritageMapInitialized = false;
+  window.tryInitHeritageMap = function(attempts) {
+    if (isHeritageMapInitialized && window.heritageMapController && window.heritageMapController.mapInstance) return;
     attempts = attempts || 0;
-    if (window.heritageMapController && typeof L !== 'undefined' && window.heritageLocations && document.getElementById('heritage-leaflet-map')) {
-      window.heritageMapController.initMap('heritage-leaflet-map', window.heritageLocations);
-      console.log('Heritage Map initialized successfully with ' + window.heritageLocations.length + ' locations.');
-    } else if (attempts < 25) {
-      setTimeout(function() { tryInitHeritageMap(attempts + 1); }, 150);
+    var container = document.getElementById('heritage-leaflet-map');
+    if (!container) return;
+
+    if (window.heritageMapController && typeof L !== 'undefined' && window.heritageLocations) {
+      isHeritageMapInitialized = true;
+      var ok = window.heritageMapController.initMap('heritage-leaflet-map', window.heritageLocations);
+      if (ok) {
+        console.log('[HeritageMap] Bản đồ di sản GIS đã khởi tạo thành công với ' + window.heritageLocations.length + ' địa điểm.');
+      } else {
+        isHeritageMapInitialized = false;
+      }
+    } else if (attempts < 30) {
+      setTimeout(function() { window.tryInitHeritageMap(attempts + 1); }, 100);
     }
-  }
-  tryInitHeritageMap();
+  };
+  window.tryInitHeritageMap();
+
+  window.reinitHeritageMapIfElementExists = function() {
+    isHeritageMapInitialized = false;
+    window.tryInitHeritageMap();
+  };
 
 
   // Floating AI button trigger
@@ -2899,14 +2914,12 @@ window.handleBookingSubmit = function(e) {
 
   // Direct mailto link
   var mailSubject = encodeURIComponent('[Kim Long EcoStay] Mã PIN SmartLock: ' + currentPin);
-  var mailBody = encodeURIComponent('Kính chào ' + name + ',
-
-Cảm ơn quý khách đã đặt phòng tại Kim Long EcoStay.
-Mã đơn đặt: ' + orderCode + '
-Phòng: ' + roomName + '
-MÃ PIN MỞ CỬA SMARTLOCK: ' + currentPin + '
-
-Chúc quý khách kỳ nghỉ tuyệt vời tại Cố đô Huế!');
+  var mailBody = encodeURIComponent('Kính chào ' + name + ',\n\n' +
+    'Cảm ơn quý khách đã đặt phòng tại Kim Long EcoStay.\n' +
+    'Mã đơn đặt: ' + orderCode + '\n' +
+    'Phòng: ' + roomName + '\n' +
+    'MÃ PIN MỞ CỬA SMARTLOCK: ' + currentPin + '\n\n' +
+    'Chúc quý khách kỳ nghỉ tuyệt vời tại Cố đô Huế!');
   document.getElementById('btnOpenMailClient').href = 'mailto:' + email + '?subject=' + mailSubject + '&body=' + mailBody;
 
   // VietQR Code image generator
