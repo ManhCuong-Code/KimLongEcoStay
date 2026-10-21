@@ -69,20 +69,14 @@ window.heritageMapController = {
     // =========================================================================
     // 1. CÁC LỚP BẢN ĐỒ SIÊU BỀN VỮNG (CHỐNG MÀN HÌNH TRẮNG & TỰ ĐỘNG DỰ PHÒNG)
     // =========================================================================
-    // Lớp 1: CartoDB Voyager - Tươi sáng, tối ưu du lịch, nổi bật sông Hương
-    this.streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-      attribution: '&copy; OpenStreetMap &copy; CARTO | Kim Long EcoStay'
+    // Lớp 1: Bản đồ đường phố du lịch Google Maps - Chi tiết sông Hương, di tích, tên đường tiếng Việt chuẩn xác
+    this.streetLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['0', '1', '2', '3'],
+      attribution: '&copy; Google Maps &copy; Kim Long EcoStay'
     });
 
-    // Lớp 1B (Dự phòng chuẩn quốc tế): OpenStreetMap Standard Tile Layer
-    this.osmStreetLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors | Kim Long EcoStay'
-    });
-
-    // Lớp 2: Bản đồ giao thông Esri World Street - Chi tiết đường ngõ xóm Huế
+    // Lớp 2: Bản đồ giao thông Esri World Street Map - Chi tiết đường ngõ xóm Huế, miễn phí 100% không cần API key
     this.esriStreetLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       attribution: 'Tiles &copy; Esri World Street Map | Kim Long EcoStay'
@@ -99,17 +93,17 @@ window.heritageMapController = {
       maxZoom: 19
     });
 
-    // Cơ chế tự động Failover sang OpenStreetMap nếu CartoDB gặp trục trặc đường truyền
+    // Cơ chế tự động Failover sang Esri World Street nếu Google Maps gặp trục trặc đường truyền
     var self = this;
-    var cartoFailed = false;
+    var streetFailed = false;
     this.streetLayer.on('tileerror', function () {
-      if (!cartoFailed && self.currentMode === 'street') {
-        cartoFailed = true;
-        console.warn("[HeritageMap] CartoDB tile gặp sự cố. Kích hoạt cơ chế dự phòng sang OpenStreetMap.");
+      if (!streetFailed && self.currentMode === 'street') {
+        streetFailed = true;
+        console.warn("[HeritageMap] Google Maps tile gặp sự cố. Kích hoạt cơ chế dự phòng sang Esri World Street Map.");
         if (self.mapInstance && self.mapInstance.hasLayer(self.streetLayer)) {
           self.mapInstance.removeLayer(self.streetLayer);
-          self.osmStreetLayer.addTo(self.mapInstance);
-          self.osmStreetLayer.bringToBack();
+          self.esriStreetLayer.addTo(self.mapInstance);
+          self.esriStreetLayer.bringToBack();
         }
       }
     });
@@ -292,7 +286,7 @@ window.heritageMapController = {
     this.currentMode = mode;
 
     // Gỡ tất cả các lớp nền cũ
-    var allBaseLayers = [this.streetLayer, this.osmStreetLayer, this.esriStreetLayer, this.satelliteLayer, this.labelsLayer];
+    var allBaseLayers = [this.streetLayer, this.esriStreetLayer, this.satelliteLayer, this.labelsLayer];
     var self = this;
     allBaseLayers.forEach(function (layer) {
       if (layer && self.mapInstance.hasLayer(layer)) {
@@ -308,8 +302,8 @@ window.heritageMapController = {
       if (this.esriStreetLayer) this.esriStreetLayer.addTo(this.mapInstance);
       if (this.esriStreetLayer) this.esriStreetLayer.bringToBack();
     } else {
-      // Mặc định 'street' (Carto Voyager du lịch hoặc OSM)
-      var targetLayer = this.streetLayer || this.osmStreetLayer;
+      // Mặc định 'street' (Google Maps du lịch hoặc Esri Street)
+      var targetLayer = this.streetLayer || this.esriStreetLayer;
       if (targetLayer) {
         targetLayer.addTo(this.mapInstance);
         targetLayer.bringToBack();
