@@ -50,7 +50,11 @@
     <script src="js/heritageLocationsData.js"></script>
     <script src="js/heritageMap.js"></script>
     
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <meta property="og:image" content="images/logo.jpg">
     <title>Kim Long EcoStay — Nghỉ Dưỡng Nhà Vườn Cố Đô & Khóa Thông Minh SmartLock IoT</title></head>
 
 <body>
@@ -60,7 +64,10 @@
                 <span class="brand-text-sub">Nhà Vườn Sinh Thái • Huế</span></div></a>
 
         
-        <div class="d-flex align-items-center d-xl-none ms-auto me-2"><a href="javascript:void(0)" onclick="openShoppingCartModal()" class="kle-cart-nav-btn text-decoration-none position-relative" title="Xem giỏ hàng"><div class="kle-cart-icon-box"><i class="bi bi-cart3 fs-6"></i></div><span class="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle rounded-pill" id="mobileCartBadge">0</span></a></div>
+        <div class="d-flex align-items-center d-xl-none ms-auto me-2">
+            <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2 py-1 me-1 text-warning border-warning" onclick="openOrderTrackingModal()" title="Theo dõi đơn giao phòng"><i class="bi bi-bell-fill"></i></button>
+            <a href="javascript:void(0)" onclick="openShoppingCartModal()" class="kle-cart-nav-btn text-decoration-none position-relative" title="Xem giỏ hàng"><div class="kle-cart-icon-box"><i class="bi bi-cart3 fs-6"></i></div><span class="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle rounded-pill" id="mobileCartBadge">0</span></a>
+        </div>
 
         
         <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -72,6 +79,7 @@
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map" onclick="scrollToSection('heritage-map'); return false;"><i class="bi bi-map-fill me-1" style="color: #FCD34D;"></i>Bản Đồ Nhà Vườn</a></li>
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#local-partners" onclick="scrollToSection('local-partners'); return false;"><i class="bi bi-diagram-3-fill me-1" style="color: #6EE7B7;"></i>Đối Tác Địa Phương</a></li>
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#royal-tea" onclick="scrollToSection('royal-tea'); return false;"><i class="bi bi-cup-hot-fill me-1 text-info"></i>Trà Cung Đình</a></li>
+                <li class="nav-item"><a href="javascript:void(0)" onclick="openOrderTrackingModal()" class="nav-link kle-nav-item fw-bold text-warning" title="Theo dõi tiến trình đơn giao tận phòng"><i class="bi bi-bell-fill me-1"></i>Giao Phòng</a></li>
                 <li class="nav-item"><a href="lookup" onclick="navigateToRoute('lookup'); return false;" class="nav-link kle-nav-item fw-bold text-warning"><i class="bi bi-key-fill me-1"></i>Tra Cứu Khóa</a></li>
             </ul>
 
@@ -588,37 +596,49 @@
       <div class="container">
         <div class="section-heading-wrap text-center mb-4">
           <span class="section-tag" style="background: rgba(184, 134, 11, 0.15); color: #B8860B; padding: 6px 18px; border-radius: 30px; font-weight: 700; font-size: 12px; letter-spacing: 1px;">
-            <i class="bi bi-basket2-fill me-1"></i>SẢN PHẨM NHÀ VƯỜN & ĐẶC SẢN BẢN ĐỊA
+            <i class="bi bi-basket2-fill me-1"></i>SẢN PHẨM NHÀ VƯỜN, ĐẶC SẢN & GIAO TẬN PHÒNG
           </span>
           <h2 class="section-main-title font-serif fw-bold text-dark mt-2 mb-2" style="font-size: 32px;">
-            Sản Phẩm & Đặc Sản Kim Long
+            Cửa Hàng Đặc Sản &amp; Ẩm Thực Phục Vụ Tận Phòng
           </h2>
           <p class="section-main-sub mx-auto text-muted" style="max-width: 860px; font-size: 15px; line-height: 1.7;">
-            Tuyển chọn các sản phẩm từ mạng lưới hộ nhà vườn và cơ sở truyền thống tại Kim Long: <strong>Đặc sản ẩm thực Huế</strong>, <strong>Nông sản nhà vườn</strong>, <strong>Trà và quà tặng</strong> cùng thực đơn <strong>Ẩm thực đặt món</strong> phục vụ tận phòng.
-            <span class="d-block small text-secondary mt-1"><i class="bi bi-info-circle me-1 text-warning"></i>Lưu ý: Danh mục sản phẩm, mức giá và cơ sở cung cấp dưới đây là dữ liệu mẫu minh họa mô hình kinh doanh liên kết sinh thái tại Kim Long.</span>
+            Bộ sưu tập 30 sản phẩm phong phú từ mạng lưới nhà vườn Kim Long: <strong>A. Đặc sản Huế</strong>, <strong>B. Sản phẩm nhà vườn</strong>, <strong>C. Đồ uống và trà</strong>, <strong>D. Ẩm thực Huế (giao tận phòng trong 15-30 phút)</strong> và <strong>E. Quà lưu niệm &amp; trải nghiệm</strong>.
+            <span class="d-block small text-secondary mt-1"><i class="bi bi-info-circle me-1 text-warning"></i>Dữ liệu mẫu liên kết minh họa mô hình kinh tế tuần hoàn và chuỗi cung ứng bản địa tại Kim Long EcoStay. Khách lưu trú có thể đặt món trực tiếp giao tận cửa buồng phòng!</span>
           </p>
 
-          <!-- Thanh tìm kiếm, lọc danh mục, lọc đối tác và sắp xếp theo giá -->
+          <!-- Thanh tìm kiếm, lọc danh mục, lọc đối tác, khoảng giá và sắp xếp -->
           <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border mt-4 text-start">
             <div class="row g-3 align-items-center">
-              <div class="col-lg-4 col-md-6">
-                <div class="input-group">
+              <div class="col-lg-3 col-md-6">
+                <div class="input-group input-group-sm">
                   <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                  <input type="text" id="specialtySearchInput" class="form-control bg-light border-start-0 py-2" placeholder="Tìm mứt gừng, bưởi Thanh Trà, trà cung đình, bánh ướt..." oninput="filterSpecialties()">
+                  <input type="text" id="specialtySearchInput" class="form-control bg-light border-start-0 py-2" placeholder="Tìm mứt gừng, bưởi, bún bò, trà sen..." oninput="filterSpecialties()">
                 </div>
               </div>
-              <div class="col-lg-4 col-md-6">
+              <div class="col-lg-3 col-md-6">
                 <div class="d-flex align-items-center gap-2">
-                  <label class="small text-muted fw-bold text-nowrap"><i class="bi bi-shop text-success me-1"></i>Nhà cung cấp:</label>
+                  <label class="small text-muted fw-bold text-nowrap"><i class="bi bi-shop text-success me-1"></i>Đối tác:</label>
                   <select id="specialtyPartnerSelect" class="form-select form-select-sm rounded-pill" onchange="filterSpecialties()">
                     <option value="ALL">Tất cả đối tác cung cấp</option>
                   </select>
                 </div>
               </div>
-              <div class="col-lg-4 col-md-12">
+              <div class="col-lg-3 col-md-6">
+                <div class="d-flex align-items-center gap-2">
+                  <label class="small text-muted fw-bold text-nowrap"><i class="bi bi-tag-fill text-warning me-1"></i>Mức giá:</label>
+                  <select id="specialtyPriceFilter" class="form-select form-select-sm rounded-pill" onchange="filterSpecialties()">
+                    <option value="ALL">Mọi mức giá</option>
+                    <option value="under50">Dưới 50.000 đ</option>
+                    <option value="50to100">50.000 đ - 100.000 đ</option>
+                    <option value="100to200">100.000 đ - 200.000 đ</option>
+                    <option value="above200">Trên 200.000 đ</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
                 <div class="d-flex align-items-center justify-content-lg-end gap-2">
                   <label class="small text-muted fw-bold text-nowrap"><i class="bi bi-sort-down me-1"></i>Sắp xếp:</label>
-                  <select id="specialtySortSelect" class="form-select form-select-sm rounded-pill" onchange="filterSpecialties()" style="max-width: 210px;">
+                  <select id="specialtySortSelect" class="form-select form-select-sm rounded-pill" onchange="filterSpecialties()">
                     <option value="featured">Nổi bật nhất</option>
                     <option value="price-asc">Giá bán: Thấp đến Cao</option>
                     <option value="price-desc">Giá bán: Cao đến Thấp</option>
@@ -630,22 +650,25 @@
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                   <div class="d-flex gap-2 flex-wrap" id="specialtyCatFilters">
                     <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold kle-spec-filter-btn active" onclick="setSpecialtyCategory('ALL', this)">
-                      <i class="bi bi-grid-fill me-1"></i>Tất Cả Danh Mục
+                      <i class="bi bi-grid-fill me-1"></i>Tất Cả (30)
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Đặc sản ẩm thực Huế', this)">
-                      🥮 A. Đặc sản ẩm thực Huế
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Đặc sản Huế', this)">
+                      🥮 A. Đặc sản Huế
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Nông sản nhà vườn', this)">
-                      🍊 B. Nông sản nhà vườn
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Sản phẩm nhà vườn', this)">
+                      🍊 B. Sản phẩm nhà vườn
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Trà và quà tặng', this)">
-                      🍵 C. Trà và quà tặng
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Đồ uống và trà', this)">
+                      🍵 C. Đồ uống và trà
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Ẩm thực đặt món', this)">
-                      🍜 D. Ẩm thực đặt món
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Ẩm thực Huế', this)">
+                      🍜 D. Ẩm thực Huế (Giao tận phòng)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="setSpecialtyCategory('Quà lưu niệm và trải nghiệm', this)">
+                      🎁 E. Quà lưu niệm &amp; trải nghiệm
                     </button>
                   </div>
-                  <span class="small text-muted fw-semibold" id="specialtyCountLabel">Hiển thị 16 sản phẩm</span>
+                  <span class="small text-muted fw-semibold" id="specialtyCountLabel">Hiển thị 30 sản phẩm</span>
                 </div>
               </div>
             </div>
@@ -2623,15 +2646,18 @@
               </div>
             </div>
 
-            <!-- Điều chỉnh số lượng & Nút thêm vào giỏ -->
+            <!-- Điều chỉnh số lượng & Nút thêm vào giỏ / Đặt ngay -->
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <div class="d-flex align-items-center border rounded-pill bg-white px-2 py-1 shadow-sm">
                 <button type="button" class="btn btn-sm btn-link text-dark p-1 text-decoration-none" onclick="adjustDetailQty(-1)"><i class="bi bi-dash fs-5"></i></button>
                 <input type="number" id="detailProductQty" class="form-control form-control-sm text-center border-0 fw-bold" value="1" min="1" max="50" style="width: 50px;">
                 <button type="button" class="btn btn-sm btn-link text-dark p-1 text-decoration-none" onclick="adjustDetailQty(1)"><i class="bi bi-plus fs-5"></i></button>
               </div>
-              <button type="button" id="detailAddToCartBtn" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm flex-grow-1" onclick="addProductFromDetailToCart()">
-                <i class="bi bi-cart-plus-fill me-1"></i>Đặt Mua / Thêm Vào Giỏ
+              <button type="button" id="detailAddToCartBtn" class="btn btn-outline-success rounded-pill px-3 py-2 fw-bold shadow-sm" onclick="addProductFromDetailToCart()">
+                <i class="bi bi-cart-plus-fill me-1"></i>Thêm Vào Giỏ
+              </button>
+              <button type="button" id="detailBuyNowBtn" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm flex-grow-1" onclick="buyNowFromDetailModal()">
+                <i class="bi bi-door-open-fill me-1"></i>Đặt Ngay Giao Phòng
               </button>
             </div>
           </div>
@@ -2726,7 +2752,7 @@
 </div>
 
 <!-- =========================================================================
-     MODAL: GIỎ HÀNG & XÁC NHẬN ĐƠN HÀNG ĐẶC SẢN / PHÒNG NGHỈ
+     MODAL: GIỎ HÀNG & XÁC NHẬN ĐƠN HÀNG GIAO TẬN PHÒNG HOMESTAY
      ========================================================================= -->
 <div class="modal fade" id="shoppingCartModal" tabindex="-1" aria-labelledby="shoppingCartModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
@@ -2735,8 +2761,8 @@
         <div class="d-flex align-items-center gap-2">
           <i class="bi bi-cart3 fs-4 text-warning"></i>
           <div>
-            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="shoppingCartModalLabel">Giỏ Hàng & Xác Nhận Đơn Hàng</h5>
-            <small class="text-white-50">Kim Long EcoStay • Giao nóng tận phòng hoặc nhận tại lễ tân</small>
+            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="shoppingCartModalLabel">Giỏ Hàng &amp; Đặt Món Giao Tận Phòng</h5>
+            <small class="text-white-50">Kim Long EcoStay • Phục vụ trực tiếp tại buồng phòng trong 15-30 phút</small>
           </div>
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
@@ -2748,57 +2774,246 @@
           <!-- Rendered dynamically -->
         </div>
 
-        <!-- Chi tiết thanh toán & phí giao hàng -->
+        <!-- Chi tiết thanh toán & thông tin giao nhận -->
         <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mt-3" id="cartSummaryCard">
-          <h6 class="fw-bold font-serif text-dark border-bottom pb-2 mb-3">Tóm Tắt Đơn Hàng & Vận Chuyển</h6>
+          <h6 class="fw-bold font-serif text-dark border-bottom pb-2 mb-3">Tóm Tắt Đơn Hàng &amp; Phương Thức Nhận</h6>
           <div class="d-flex justify-content-between py-1 small">
-            <span class="text-muted">Tổng tiền sản phẩm:</span>
+            <span class="text-muted">Tổng tiền món ăn &amp; đặc sản:</span>
             <span class="fw-bold text-dark" id="cartSubtotalText">0 đ</span>
           </div>
           <div class="d-flex justify-content-between py-1 small">
-            <span class="text-muted">Phí giao hàng:</span>
-            <span class="fw-bold text-success" id="cartShippingFeeText">0 đ (Miễn phí nội phường Kim Long)</span>
+            <span class="text-muted">Phí phục vụ giao hàng:</span>
+            <span class="fw-bold text-success" id="cartShippingFeeText">0 đ (Miễn phí giao tận phòng homestay)</span>
           </div>
           <div class="d-flex justify-content-between py-2 border-top mt-2">
             <span class="fw-bold fs-6 text-dark">Tổng thanh toán:</span>
             <span class="fw-bold fs-5 text-success font-monospace" id="cartTotalPaymentText">0 đ</span>
           </div>
 
-          <!-- Form thông tin giao nhận -->
+          <!-- LỰA CHỌN PHƯƠNG THỨC NHẬN HÀNG -->
           <div class="mt-3 pt-3 border-top">
-            <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-person-lines-fill text-success me-1"></i>Thông Tin Người Nhận & Địa Điểm</h6>
-            <div class="row g-2">
+            <label class="form-label small fw-bold text-dark mb-2">
+              <i class="bi bi-truck text-success me-1"></i>Chọn phương thức nhận hàng <span class="text-danger">*</span>:
+            </label>
+            <div class="row g-2 mb-3">
+              <div class="col-md-4">
+                <div class="form-check p-2 border rounded-3 bg-light h-100" style="cursor: pointer;">
+                  <input class="form-check-input ms-1 me-2" type="radio" name="cartDeliveryMethod" id="deliveryMethodRoom" value="ROOM_DELIVERY" checked onchange="toggleCartDeliveryMethod()">
+                  <label class="form-check-label fw-bold text-dark small" for="deliveryMethodRoom" style="cursor: pointer;">
+                    🚪 Giao tận phòng <span class="badge bg-warning text-dark" style="font-size:9.5px;">Khuyên Dùng</span>
+                    <small class="d-block text-muted fw-normal" style="font-size:11px;">Nhân viên giao lên tận buồng phòng</small>
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 border rounded-3 bg-light h-100" style="cursor: pointer;">
+                  <input class="form-check-input ms-1 me-2" type="radio" name="cartDeliveryMethod" id="deliveryMethodReception" value="RECEPTION" onchange="toggleCartDeliveryMethod()">
+                  <label class="form-check-label fw-bold text-dark small" for="deliveryMethodReception" style="cursor: pointer;">
+                    🛎️ Nhận tại quầy lễ tân
+                    <small class="d-block text-muted fw-normal" style="font-size:11px;">Nhận tại sảnh nhà rường chính</small>
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 border rounded-3 bg-light h-100" style="cursor: pointer;">
+                  <input class="form-check-input ms-1 me-2" type="radio" name="cartDeliveryMethod" id="deliveryMethodStore" value="PARTNER_STORE" onchange="toggleCartDeliveryMethod()">
+                  <label class="form-check-label fw-bold text-dark small" for="deliveryMethodStore" style="cursor: pointer;">
+                    🏪 Nhận tại điểm bán
+                    <small class="d-block text-muted fw-normal" style="font-size:11px;">Đến trực tiếp cơ sở đối tác</small>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- FORM GIAO TẬN PHÒNG -->
+            <div id="cartRoomDeliveryFields">
+              <div class="p-3 bg-success-subtle bg-opacity-25 border border-success-subtle rounded-3 mb-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <i class="bi bi-door-open-fill text-success fs-5"></i>
+                  <span class="fw-bold text-success small">Thông Tin Buồng Phòng Lưu Trú Tại Kim Long EcoStay</span>
+                </div>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="small fw-bold text-dark">Chọn số phòng của quý khách <span class="text-danger">*</span></label>
+                    <select id="cartRoomSelect" class="form-select form-select-sm rounded-3" onchange="onCartRoomChange()">
+                      <option value="KLE-R101">Eco-Nest Ban Mai (Phòng KLE-R101 • Tầng 1)</option>
+                      <option value="KLE-R102">Eco-Nest Hoàng Hôn (Phòng KLE-R102 • Tầng 1)</option>
+                      <option value="KLE-R201">Garden Suite Cố Đô (Phòng KLE-R201 • Tầng 2)</option>
+                      <option value="KLE-R202">Family Villa Kim Long (Phòng KLE-R202 • Biệt Thự)</option>
+                      <option value="KLE-R203">Heritage Studio Trầm Mặc (Phòng KLE-R203 • Tầng 2)</option>
+                      <option value="OTHER">Phòng khác (Nhập số phòng)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6" id="cartOtherRoomInputWrap" style="display:none;">
+                    <label class="small fw-bold text-dark">Số phòng khác</label>
+                    <input type="text" id="cartCustomRoomInput" class="form-control form-control-sm rounded-3" placeholder="Nhập tên / số phòng">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="small fw-bold text-dark">Mã đặt phòng (Nếu có)</label>
+                    <input type="text" id="cartBookingCode" class="form-control form-control-sm rounded-3" placeholder="VD: KLE-20261018-01">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- THÔNG TIN NGƯỜI NHẬN & HẸN GIỜ -->
+            <div class="row g-2 mb-2">
               <div class="col-md-6">
-                <input type="text" id="cartCustomerName" class="form-control form-control-sm rounded-3" placeholder="Họ và tên quý khách" required>
+                <label class="small fw-bold text-dark">Họ và tên khách nhận <span class="text-danger">*</span></label>
+                <input type="text" id="cartCustomerName" class="form-control form-control-sm rounded-3" placeholder="Nguyễn Văn An" required>
               </div>
               <div class="col-md-6">
-                <input type="tel" id="cartCustomerPhone" class="form-control form-control-sm rounded-3" placeholder="Số điện thoại / Zalo" required>
+                <label class="small fw-bold text-dark">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                <input type="tel" id="cartCustomerPhone" class="form-control form-control-sm rounded-3" placeholder="0905 123 456" required>
+              </div>
+              <div class="col-md-6">
+                <label class="small fw-bold text-dark">Thời gian nhận mong muốn <span class="text-danger">*</span></label>
+                <select id="cartDeliveryTimeSelect" class="form-select form-select-sm rounded-3">
+                  <option value="Giao ngay (15 - 30 phút)">⚡ Giao ngay (15 - 30 phút)</option>
+                  <option value="07:00 Sáng (Điểm tâm tại phòng)">🌅 07:00 Sáng (Điểm tâm tại phòng)</option>
+                  <option value="07:30 Sáng (Điểm tâm tại phòng)">🌅 07:30 Sáng (Điểm tâm tại phòng)</option>
+                  <option value="08:00 Sáng (Điểm tâm tại phòng)">🌅 08:00 Sáng (Điểm tâm tại phòng)</option>
+                  <option value="11:30 Trưa (Bữa trưa)">☀️ 11:30 Trưa (Bữa trưa)</option>
+                  <option value="12:00 Trưa (Bữa trưa)">☀️ 12:00 Trưa (Bữa trưa)</option>
+                  <option value="18:00 Chiều tối (Bữa tối)">🌙 18:00 Chiều tối (Bữa tối)</option>
+                  <option value="18:30 Chiều tối (Bữa tối)">🌙 18:30 Chiều tối (Bữa tối)</option>
+                  <option value="19:00 Tối (Bữa tối ấm cúng)">🌙 19:00 Tối (Bữa tối)</option>
+                  <option value="20:00 Tối (Trà khuya &amp; món nhẹ)">🍵 20:00 Tối (Trà khuya &amp; món nhẹ)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="small fw-bold text-dark">Email nhận hóa đơn (Tùy chọn)</label>
+                <input type="email" id="cartCustomerEmail" class="form-control form-control-sm rounded-3" placeholder="khachhang@example.com">
+              </div>
+              <div class="col-12" id="cartCustomAddressWrap" style="display:none;">
+                <label class="small fw-bold text-dark">Địa chỉ nhận hàng chi tiết</label>
+                <input type="text" id="cartDeliveryAddress" class="form-control form-control-sm rounded-3" placeholder="Nhập địa chỉ nhận cụ thể tại Kim Long / TP. Huế">
               </div>
               <div class="col-12">
-                <input type="email" id="cartCustomerEmail" class="form-control form-control-sm rounded-3" placeholder="Email nhận hóa đơn & biên nhận">
+                <label class="small fw-bold text-dark">Ghi chú phục vụ (Dặn dò đầu bếp &amp; phục vụ)</label>
+                <textarea id="cartServiceNotes" class="form-control form-control-sm rounded-3" rows="2" placeholder="Ví dụ: Không hành, cay vừa, thêm đá riêng, chuẩn bị 2 chén đĩa phụ, dị ứng đậu phộng, giao gõ cửa..."></textarea>
               </div>
               <div class="col-12">
-                <input type="text" id="cartDeliveryAddress" class="form-control form-control-sm rounded-3" placeholder="Địa chỉ: Số phòng homestay (VD: Phòng R101) hoặc địa chỉ tại Huế">
+                <label class="small fw-bold text-dark">Phương thức thanh toán <span class="text-danger">*</span></label>
+                <div class="d-flex gap-3 flex-wrap">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="cartPaymentMethod" id="payVietQr" value="VIETQR" checked>
+                    <label class="form-check-label small fw-semibold" for="payVietQr">
+                      <i class="bi bi-qr-code text-success me-1"></i>Quét mã VietQR chuyển khoản (Khuyên dùng)
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="cartPaymentMethod" id="payCash" value="CASH">
+                    <label class="form-check-label small fw-semibold" for="payCash">
+                      <i class="bi bi-cash-stack text-warning me-1"></i>Thanh toán tiền mặt khi nhận tại phòng
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Màn hình QR thanh toán cho đơn hàng đặc sản (Ẩn mặc định) -->
-        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mt-3 d-none text-center" id="cartOrderQrContainer">
-          <div class="badge bg-success px-3 py-1 rounded-pill mb-2">ĐÃ TẠO ĐƠN HÀNG THÀNH CÔNG</div>
-          <h5 class="fw-bold font-serif text-dark mb-1" id="cartSuccessOrderCode">KLE-SP-20261018</h5>
-          <p class="small text-muted mb-2">Quét mã VietQR chuyển khoản thanh toán đơn hàng đặc sản:</p>
-          <img id="cartOrderVietQrImg" src="" alt="VietQR" class="img-fluid rounded-3 border shadow-sm mx-auto mb-2" style="max-height: 220px;">
-          <div class="small text-muted font-monospace" id="cartOrderTransferNote">KLE SP20261018</div>
+        <!-- Màn hình thành công -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mt-3 d-none text-center" id="cartOrderQrContainer">
+          <div class="badge bg-success px-3 py-1.5 rounded-pill mb-2 fs-6">
+            <i class="bi bi-check-circle-fill me-1"></i>ĐÃ ĐẶT GIAO TẬN PHÒNG THÀNH CÔNG
+          </div>
+          <h4 class="fw-bold font-serif text-dark mb-1" id="cartSuccessOrderCode">KLE-DELIV-20261029-01</h4>
+          <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+            <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold" id="cartSuccessRoomBadge">Phòng: KLE-R101 Ban Mai</span>
+            <span class="badge bg-light text-secondary border px-3 py-1.5 rounded-pill" id="cartSuccessTimeBadge">Giao trong 15-30 phút</span>
+          </div>
+          <div id="cartOrderQrSection">
+            <p class="small text-muted mb-2">Quét mã VietQR chuyển khoản thanh toán hoặc thanh toán khi nhận tại phòng:</p>
+            <img id="cartOrderVietQrImg" src="" alt="VietQR" class="img-fluid rounded-3 border shadow-sm mx-auto mb-2" style="max-height: 220px;">
+            <div class="small text-muted font-monospace" id="cartOrderTransferNote">KLE DELIV20261029</div>
+          </div>
+          <div class="alert alert-info py-2 px-3 small rounded-3 my-3 text-start">
+            <i class="bi bi-info-circle-fill me-1 text-primary"></i>
+            Đơn hàng đã được chuyển tới bếp Kim Long EcoStay. Quý khách có thể theo dõi tiến trình làm món và di chuyển của nhân viên phục vụ thời gian thực.
+          </div>
+          <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <button type="button" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm" onclick="openOrderTrackingModalFromCart()">
+              <i class="bi bi-bell-fill me-1"></i>Theo Dõi Tiến Trình Đơn Hàng
+            </button>
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">
+              Đóng &amp; Tiếp Tục
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="modal-footer p-3 bg-white border-top d-flex justify-content-between">
         <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Tiếp Tục Chọn Món</button>
         <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" id="btnCheckoutCart" onclick="handleCartCheckout()">
-          <i class="bi bi-check2-circle me-1"></i>Xác Nhận & Đặt Hàng Ngay
+          <i class="bi bi-door-open-fill me-1"></i>Xác Nhận Đặt Giao Tận Phòng
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL: THEO DÕI TIẾN TRÌNH ĐƠN GIAO PHÒNG (ORDER TRACKING MODAL)
+     ========================================================================= -->
+<div class="modal fade" id="orderTrackingModal" tabindex="-1" aria-labelledby="orderTrackingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden">
+      <div class="modal-header text-white" style="background: #0A3D2C; border-bottom: 2px solid #D4AF37;">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-bell-fill fs-4 text-warning"></i>
+          <div>
+            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="orderTrackingModalLabel">Theo Dõi Đơn Giao Tận Phòng</h5>
+            <small class="text-white-50">Kim Long EcoStay • Cập nhật tiến trình phục vụ thời gian thực</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+
+      <div class="modal-body p-4 bg-light">
+        <!-- THANH TRA CỨU NHANH THEO MÃ ĐƠN HOẶC SỐ PHÒNG -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+              <label class="small fw-bold text-muted mb-1"><i class="bi bi-hash me-1"></i>Mã đơn hàng</label>
+              <input type="text" id="trackOrderCodeInput" class="form-control form-control-sm rounded-pill" placeholder="VD: KLE-DELIV-20261029-01">
+            </div>
+            <div class="col-md-4">
+              <label class="small fw-bold text-muted mb-1"><i class="bi bi-door-open me-1"></i>Hoặc chọn số phòng</label>
+              <select id="trackRoomSelect" class="form-select form-select-sm rounded-pill">
+                <option value="">-- Chọn phòng của bạn --</option>
+                <option value="KLE-R101">Phòng KLE-R101 (Ban Mai)</option>
+                <option value="KLE-R102">Phòng KLE-R102 (Hoàng Hôn)</option>
+                <option value="KLE-R201">Phòng KLE-R201 (Garden Suite)</option>
+                <option value="KLE-R202">Phòng KLE-R202 (Family Villa)</option>
+                <option value="KLE-R203">Phòng KLE-R203 (Heritage Studio)</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button type="button" class="btn btn-sm btn-success rounded-pill px-3 w-100 fw-bold" onclick="lookupOrderTracking()">
+                <i class="bi bi-search me-1"></i>Tra Cứu
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VÙNG HIỂN THỊ KẾT QUẢ THEO DÕI TIẾN TRÌNH -->
+        <div id="orderTrackingResultContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <div class="modal-footer p-3 bg-white border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <a href="tel:0905123456" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+            <i class="bi bi-telephone-fill me-1"></i>Hotline Lễ Tân: 0905.123.456
+          </a>
+          <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="openAiChatModal()">
+            <i class="bi bi-robot me-1"></i>Hỏi Trợ Lý AI
+          </button>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Đóng</button>
       </div>
     </div>
   </div>
@@ -3292,10 +3507,11 @@
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Danh mục <span class="text-danger">*</span></label>
                   <select id="adminProdCategoryInput" class="form-select form-select-sm">
-                    <option value="Đặc sản ẩm thực Huế">Đặc sản ẩm thực Huế</option>
-                    <option value="Nông sản nhà vườn">Nông sản nhà vườn</option>
-                    <option value="Trà và quà tặng">Trà và quà tặng</option>
-                    <option value="Ẩm thực đặt món">Ẩm thực đặt món</option>
+                    <option value="Đặc sản Huế">Đặc sản Huế</option>
+                    <option value="Sản phẩm nhà vườn">Sản phẩm nhà vườn</option>
+                    <option value="Đồ uống và trà">Đồ uống và trà</option>
+                    <option value="Ẩm thực Huế">Ẩm thực Huế (Phục vụ tại phòng)</option>
+                    <option value="Quà lưu niệm và trải nghiệm">Quà lưu niệm &amp; trải nghiệm</option>
                   </select>
                 </div>
                 <div class="col-md-3">
@@ -3354,11 +3570,12 @@
                 </div>
                 <div class="col-md-4">
                   <select id="adminProdCategoryFilter" class="form-select form-select-sm" onchange="renderAdminSpecialties()">
-                    <option value="ALL">-- Tất cả danh mục --</option>
-                    <option value="Đặc sản ẩm thực Huế">Đặc sản ẩm thực Huế</option>
-                    <option value="Nông sản nhà vườn">Nông sản nhà vườn</option>
-                    <option value="Trà và quà tặng">Trà và quà tặng</option>
-                    <option value="Ẩm thực đặt món">Ẩm thực đặt món</option>
+                    <option value="ALL">-- Tất cả danh mục (5 nhóm) --</option>
+                    <option value="Đặc sản Huế">Đặc sản Huế</option>
+                    <option value="Sản phẩm nhà vườn">Sản phẩm nhà vườn</option>
+                    <option value="Đồ uống và trà">Đồ uống và trà</option>
+                    <option value="Ẩm thực Huế">Ẩm thực Huế (Phục vụ tại phòng)</option>
+                    <option value="Quà lưu niệm và trải nghiệm">Quà lưu niệm &amp; trải nghiệm</option>
                   </select>
                 </div>
                 <div class="col-md-3">
@@ -3375,7 +3592,7 @@
             <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-4">
               <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
                 <strong class="text-dark"><i class="bi bi-grid-3x3-gap-fill text-warning me-2"></i>Danh Sách Sản Phẩm &amp; Đặc Sản Kim Long</strong>
-                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" id="adminProductsTotalBadge">16 sản phẩm</span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" id="adminProductsTotalBadge">30 sản phẩm</span>
               </div>
               <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
@@ -3399,24 +3616,85 @@
               </div>
             </div>
 
-            <!-- Đơn hàng đặc sản đặt từ giỏ hàng -->
-            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
-              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
-                <strong class="text-dark"><i class="bi bi-bag-check-fill text-success me-2"></i>Đơn Hàng Đặt Mua Sản Phẩm &amp; Ẩm Thực Trực Tuyến</strong>
-                <span class="badge bg-success rounded-pill" id="adminSpecialtyOrdersBadge">0 Đơn</span>
+            <!-- QUẢN LÝ ĐƠN HÀNG GIAO TẬN PHÒNG & ĐẶC SẢN -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-4">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <strong class="text-dark fs-6"><i class="bi bi-door-open-fill text-warning me-2"></i>Quản Lý Đơn Giao Tận Phòng &amp; Ẩm Thực Homestay</strong>
+                  <div class="small text-muted">Quy trình chuẩn: Tiếp nhận &rarr; Chuẩn bị món &rarr; Giao đến phòng &rarr; Khách nhận món</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold" id="adminSpecialtyOrdersBadge">0 Đơn</span>
+                </div>
               </div>
+
+              <!-- KPI THỐNG KÊ NHANH -->
+              <div class="p-3 bg-light border-bottom">
+                <div class="row g-2 text-center">
+                  <div class="col-md-3 col-6">
+                    <div class="bg-white p-2 rounded-3 border">
+                      <small class="text-muted d-block" style="font-size:11px;">Tổng Đơn Đặt</small>
+                      <strong class="fs-5 text-dark" id="adminOrdersKpiTotal">0</strong>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6">
+                    <div class="bg-white p-2 rounded-3 border">
+                      <small class="text-warning d-block fw-bold" style="font-size:11px;">Đơn Đang Xử Lý</small>
+                      <strong class="fs-5 text-warning" id="adminOrdersKpiInProgress">0</strong>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6">
+                    <div class="bg-white p-2 rounded-3 border">
+                      <small class="text-success d-block fw-bold" style="font-size:11px;">Đã Giao Thành Công</small>
+                      <strong class="fs-5 text-success" id="adminOrdersKpiDelivered">0</strong>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6">
+                    <div class="bg-white p-2 rounded-3 border">
+                      <small class="text-primary d-block fw-bold" style="font-size:11px;">Doanh Thu Giao Phòng</small>
+                      <strong class="fs-6 text-primary font-monospace" id="adminOrdersKpiRevenue">0 đ</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- BỘ LỌC TRẠNG THÁI ĐƠN HÀNG -->
+                <div class="d-flex gap-1 flex-wrap mt-2 pt-2 border-top">
+                  <button type="button" class="btn btn-sm btn-dark rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn active" onclick="filterAdminOrders('ALL', this)">
+                    Tất Cả
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2.5 py-0.5 fw-bold text-dark admin-order-filter-btn" onclick="filterAdminOrders('ROOM_DELIVERY', this)">
+                    🚪 Giao Tận Phòng
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('PENDING', this)">
+                    🕒 Chờ Tiếp Nhận
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('PREPARING', this)">
+                    🍳 Đang Chuẩn Bị
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('DELIVERING', this)">
+                    🚴 Đang Giao Phòng
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('DELIVERED', this)">
+                    ✅ Đã Hoàn Tất
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('CANCELLED', this)">
+                    ❌ Đã Hủy
+                  </button>
+                </div>
+              </div>
+
               <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
                   <thead class="table-light">
                     <tr>
-                      <th class="ps-4">Mã Đơn</th>
-                      <th>Khách Hàng</th>
-                      <th>Số Điện Thoại</th>
-                      <th>Địa Chỉ / Phòng</th>
-                      <th>Các Món Đã Đặt</th>
+                      <th class="ps-4">Mã Đơn / Giờ</th>
+                      <th>Khách Hàng / SĐT</th>
+                      <th>Buồng Phòng</th>
+                      <th>Giờ Hẹn &amp; Ghi Chú</th>
+                      <th>Món Ăn Đã Đặt</th>
                       <th>Tổng Tiền</th>
-                      <th>Trạng Thái Giao</th>
-                      <th class="text-end pe-4">Xử Lý</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-4">Thao Tác Nghiệp Vụ</th>
                     </tr>
                   </thead>
                   <tbody id="adminSpecialtyOrdersTableBody">
@@ -4332,11 +4610,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // DATA REPOSITORY INITIALIZATION & SEED STORES (LOCALSTORAGE SYNCHRONIZATION)
 // =========================================================================
 var DEFAULT_PRODUCTS = [
-  // A. Đặc sản ẩm thực Huế
+  // A. Đặc sản Huế (8 món)
   {
     id: 'SP001',
     name: 'Mứt Gừng Kim Long Cổ Truyền',
-    category: 'Đặc sản ẩm thực Huế',
+    category: 'Đặc sản Huế',
     price: 65000,
     stock: 45,
     unit: 'hộp 250g',
@@ -4350,12 +4628,12 @@ var DEFAULT_PRODUCTS = [
   },
   {
     id: 'SP002',
-    name: 'Trà Cung Đình Huế Bát Bảo Thảo Mộc',
-    category: 'Đặc sản ẩm thực Huế',
+    name: 'Trà Cung Đình Bát Bảo Thảo Mộc',
+    category: 'Đặc sản Huế',
     price: 95000,
     stock: 50,
     unit: 'gói 250g',
-    img: 'images/qua_trasen.jpg',
+    img: 'images/tra_cung_dinh.jpg',
     origin: 'Trà thất Kim Long, Phường Kim Long, TP. Huế',
     partnerId: 'PARTNER-TRA-CUNG-DINH',
     partnerName: 'Trà Thất & Đặc Sản Trà Cung Đình Kim Long',
@@ -4366,7 +4644,7 @@ var DEFAULT_PRODUCTS = [
   {
     id: 'SP003',
     name: 'Hộp Bánh Mè Xửng Giòn Kim Long',
-    category: 'Đặc sản ẩm thực Huế',
+    category: 'Đặc sản Huế',
     price: 55000,
     stock: 60,
     unit: 'hộp 300g',
@@ -4380,25 +4658,85 @@ var DEFAULT_PRODUCTS = [
   },
   {
     id: 'SP004',
-    name: 'Bánh Đậu Xanh Trái Cây & Kẹo Cau Xứ Huế',
-    category: 'Đặc sản ẩm thực Huế',
-    price: 75000,
-    stock: 30,
-    unit: 'hộp 250g',
-    img: 'images/qua_setquatang.jpg',
-    origin: 'Phường Kim Long, TP. Huế',
+    name: 'Tôm Chua Cố Đô Kim Long Thượng Hạng',
+    category: 'Đặc sản Huế',
+    price: 85000,
+    stock: 35,
+    unit: 'hũ 400g',
+    img: 'images/mon_tomchua.jpg',
+    origin: 'Cơ sở chế biến đặc sản Phường Kim Long, TP. Huế',
     partnerId: 'PARTNER-DAC-SAN-KIM-LONG',
     partnerName: 'Cơ Sở Đặc Sản & Mứt Gừng Kim Long O Lành',
-    desc: 'Bánh đậu xanh trái cây nặn thủ công từng quả nhỏ sắc màu tự nhiên từ rau củ, kết hợp kẹo cau truyền thống gợi nhớ ký ức tuổi thơ xứ Huế.',
+    desc: 'Tôm rằn sông tươi ủ mọng đậm đà cùng măng non, riềng, tỏi, ớt xiêm rừng; ăn kèm thịt ba chỉ luộc và rau thơm vườn Kim Long.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP005',
+    name: 'Mắm Ruốc Huế Truyền Thống Đậm Vị',
+    category: 'Đặc sản Huế',
+    price: 45000,
+    stock: 40,
+    unit: 'hũ 350g',
+    img: 'images/mon_mamruoc.jpg',
+    origin: 'Cơ sở chế biến nước mắm & mắm ruốc cổ truyền Kim Long',
+    partnerId: 'PARTNER-DAC-SAN-KIM-LONG',
+    partnerName: 'Cơ Sở Đặc Sản & Mứt Gừng Kim Long O Lành',
+    desc: 'Mắm ruốc Kim Long thơm dịu vị tép tươi lên men truyền thống, gia vị bí truyền cho món bún bò chuẩn vị và món thịt kho ruốc sả.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP006',
+    name: 'Nem Chua & Tré Kim Long Gia Truyền',
+    category: 'Đặc sản Huế',
+    price: 70000,
+    stock: 30,
+    unit: 'phần 10 chiếc',
+    img: 'images/mon_nemchua_tre.jpg',
+    origin: 'Gia đình nghệ nhân nem chả Kim Long, TP. Huế',
+    partnerId: 'PARTNER-DAC-SAN-KIM-LONG',
+    partnerName: 'Cơ Sở Đặc Sản & Mứt Gừng Kim Long O Lành',
+    desc: 'Tré bì heo giòn sần sật ủ thính riềng tỏi kết hợp nem chua lá ổi thơm nồng, gói lá chuối tiêu xanh, đặc sản nhắm rượu tao nhã.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP007',
+    name: 'Bánh Ép Huế Giòn Dai Vị Tôm Thịt',
+    category: 'Đặc sản Huế',
+    price: 40000,
+    stock: 45,
+    unit: 'bịch 5 cái',
+    img: 'images/mon_banhep.jpg',
+    origin: 'Cơ sở bánh ép truyền thống Kim Long, TP. Huế',
+    partnerId: 'FOOD-BANH-BEO',
+    partnerName: 'Quán Bánh Bèo - Nậm - Lọc Bà Đỏ',
+    desc: 'Bánh ép bột lọc tôm thịt hành hoa ép nhiệt giòn dai cuốn rau răm, dưa leo chua ngọt chấm mắm nêm hoặc nước mắm tỏi ớt cay nồng.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP008',
+    name: 'Bánh Bèo - Nậm - Lọc Khay Cố Đô',
+    category: 'Đặc sản Huế',
+    price: 85000,
+    stock: 35,
+    unit: 'mẹt 18 chiếc',
+    img: 'images/mon_banhbeonamloc.jpg',
+    origin: 'Quán bánh Huế đối tác phục vụ khách lưu trú Kim Long',
+    partnerId: 'FOOD-BANH-BEO',
+    partnerName: 'Quán Bánh Bèo - Nậm - Lọc Bà Đỏ',
+    desc: 'Mẹt bánh truyền thống gồm 10 chén bánh bèo tôm chấy da heo giòn, 4 bánh nậm lá dong nhân tôm thịt, 4 bánh bột lọc tôm thịt trong veo chấm mắm ớt xanh.',
     isActive: true,
     isSample: true
   },
 
-  // B. Nông sản nhà vườn
+  // B. Sản phẩm nhà vườn (6 món)
   {
-    id: 'SP005',
+    id: 'SP009',
     name: 'Bưởi Thanh Trà Kim Long Tuyển Chọn',
-    category: 'Nông sản nhà vườn',
+    category: 'Sản phẩm nhà vườn',
     price: 90000,
     stock: 35,
     unit: 'kg (quả ~1kg)',
@@ -4406,14 +4744,14 @@ var DEFAULT_PRODUCTS = [
     origin: 'Vườn cây ăn quả cổ thụ Phường Kim Long, TP. Huế',
     partnerId: 'PARTNER-NV-THANH-TRA',
     partnerName: 'Vườn Sinh Thái & Homestay Thanh Trà Cổ Thụ',
-    desc: 'Giống bưởi Thanh Trà tiến vua đặc hữu vùng phù sa sông Hương tại Kim Long: múi vàng óng, tép ráo giòn, vị ngọt thanh tao và hương thơm dịu.',
+    desc: 'Giống bưởi Thanh Trà tiến vua đặc hữu vùng phù sa sông Hương tại Kim Long: múi vàng óng, tép ráo giòn, vị ngọt thanh tao và hương thơm dịu mát.',
     isActive: true,
     isSample: true
   },
   {
-    id: 'SP006',
+    id: 'SP010',
     name: 'Giỏ Rau Xanh Hữu Cơ Nhà Vườn Theo Mùa',
-    category: 'Nông sản nhà vườn',
+    category: 'Sản phẩm nhà vườn',
     price: 45000,
     stock: 25,
     unit: 'giỏ 1kg',
@@ -4426,9 +4764,9 @@ var DEFAULT_PRODUCTS = [
     isSample: true
   },
   {
-    id: 'SP007',
-    name: 'Hạt Sen Tươi Hồ Tịnh Tâm - Kim Long',
-    category: 'Nông sản nhà vườn',
+    id: 'SP011',
+    name: 'Hạt Sen Tươi Hồ Tịnh Tâm Bóc Vỏ',
+    category: 'Sản phẩm nhà vườn',
     price: 135000,
     stock: 20,
     unit: 'gói 500g',
@@ -4441,26 +4779,56 @@ var DEFAULT_PRODUCTS = [
     isSample: true
   },
   {
-    id: 'SP008',
-    name: 'Chuối Ngự & Trái Cây Vườn Sinh Thái Theo Mùa',
-    category: 'Nông sản nhà vườn',
+    id: 'SP012',
+    name: 'Trái Cây Miệt Vườn Sinh Thái Kim Long Theo Mùa',
+    category: 'Sản phẩm nhà vườn',
     price: 50000,
     stock: 28,
     unit: 'phần 1.5kg',
-    img: 'images/nha_ruong_3.jpg',
+    img: 'images/nongsan_traicay.jpg',
     origin: 'Các hộ nhà vườn liên kết Phường Kim Long, TP. Huế',
     partnerId: 'PARTNER-HTX-NONG-SAN',
     partnerName: 'HTX Nông Sản Sạch & Thanh Trà Kim Long',
-    desc: 'Tập hợp trái cây chín cây tự nhiên từ các hộ nhà vườn Kim Long theo mùa vụ (chuối ngự, ổi sẻ, mít vườn, nhãn lồng hoặc măng cụt Huế).',
+    desc: 'Tập hợp trái cây chín cây tự nhiên từ các hộ nhà vườn Kim Long theo mùa vụ (chuối ngự, ổi sẻ, mít vườn, măng cụt, thanh trà hoặc nhãn lồng xứ Huế).',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP013',
+    name: 'Nấm Bào Ngư & Nông Sản Củ Quả Nhà Vườn',
+    category: 'Sản phẩm nhà vườn',
+    price: 45000,
+    stock: 30,
+    unit: 'phần 500g',
+    img: 'images/nongsan_cuqua.jpg',
+    origin: 'Vườn sinh thái Kim Long, TP. Huế',
+    partnerId: 'PARTNER-HTX-NONG-SAN',
+    partnerName: 'HTX Nông Sản Sạch & Thanh Trà Kim Long',
+    desc: 'Vả Huế tươi giòn, khoai mỡ tím, bí đỏ nhà vườn và nấm bào ngư tươi thu hoạch từ các hộ nông nghiệp sinh thái tuần hoàn tại Kim Long.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP014',
+    name: 'Giỏ Quà Nông Sản Sạch Sinh Thái Kim Long',
+    category: 'Sản phẩm nhà vườn',
+    price: 190000,
+    stock: 18,
+    unit: 'giỏ quà',
+    img: 'images/gio_nongsan_sach.jpg',
+    origin: 'HTX Nông sản sạch & Mạng lưới nhà vườn Kim Long',
+    partnerId: 'PARTNER-HTX-NONG-SAN',
+    partnerName: 'HTX Nông Sản Sạch & Thanh Trà Kim Long',
+    desc: 'Giỏ mây tre đan tinh tế gồm: 1 quả Thanh Trà Kim Long, 1 giỏ rau xanh hữu cơ, 500g củ quả sạch và bó thảo mộc thơm phòng tự nhiên.',
     isActive: true,
     isSample: true
   },
 
-  // C. Trà và quà tặng
+  // C. Đồ uống và trà (6 món)
   {
-    id: 'SP009',
-    name: 'Trà Sen Cung Đình Huế Thượng Hạng',
-    category: 'Trà và quà tặng',
+    id: 'SP015',
+    name: 'Trà Sen Búp Tươi Sương Mai Kim Long',
+    category: 'Đồ uống và trà',
     price: 180000,
     stock: 20,
     unit: 'hộp 10 bông',
@@ -4468,114 +4836,236 @@ var DEFAULT_PRODUCTS = [
     origin: 'Không gian Trà Cung Đình Kim Long, TP. Huế',
     partnerId: 'PARTNER-TRA-CUNG-DINH',
     partnerName: 'Trà Thất & Đặc Sản Trà Cung Đình Kim Long',
-    desc: 'Trà xanh thượng hạng ướp thủ công trong búp sen hồng vào buổi sớm mai, giữ trọn hương thơm thuần khiết và hậu vị ngọt sâu lắng.',
-    isActive: true,
-    isSample: true
-  },
-  {
-    id: 'SP010',
-    name: 'Bộ Quà Tặng Đặc Sản Huế "Kim Long Ngự Phẩm"',
-    category: 'Trà và quà tặng',
-    price: 320000,
-    stock: 15,
-    unit: 'bộ hộp quà',
-    img: 'images/qua_setquatang.jpg',
-    origin: 'Mạng lưới liên kết đặc sản Kim Long EcoStay, TP. Huế',
-    partnerId: 'PARTNER-DAC-SAN-KIM-LONG',
-    partnerName: 'Cơ Sở Đặc Sản & Mứt Gừng Kim Long O Lành',
-    desc: 'Hộp quà tre đan sang trọng gồm: 1 gói Trà Cung Đình 250g, 1 hộp Mứt gừng Kim Long, 1 hộp Mè xửng giòn và 1 hộp Bánh đậu xanh trái cây.',
-    isActive: true,
-    isSample: true
-  },
-  {
-    id: 'SP011',
-    name: 'Hộp Quà Kết Hợp Trà Sen & Mứt Gừng Kim Long',
-    category: 'Trà và quà tặng',
-    price: 245000,
-    stock: 18,
-    unit: 'hộp quà',
-    img: 'images/tra_cung_dinh.jpg',
-    origin: 'Trà Thất & Đặc Sản Kim Long, TP. Huế',
-    partnerId: 'PARTNER-TRA-CUNG-DINH',
-    partnerName: 'Trà Thất & Đặc Sản Trà Cung Đình Kim Long',
-    desc: 'Set quà tinh tế kết hợp 5 búp trà sen ướp sương mai và hộp mứt gừng sẻ Kim Long, món quà biếu đậm tình Cố đô dành tặng người thân.',
-    isActive: true,
-    isSample: true
-  },
-  {
-    id: 'SP012',
-    name: 'Tinh Dầu Tràm Gió & Nhang Trầm Thủy Xuân',
-    category: 'Trà và quà tặng',
-    price: 140000,
-    stock: 40,
-    unit: 'bộ sản phẩm',
-    img: 'images/qua_tinhdautram.jpg',
-    origin: 'Làng nghề truyền thống Thủy Xuân - Kim Long, TP. Huế',
-    partnerId: 'CRAFT-THUY-XUAN',
-    partnerName: 'Làng Hương Thủy Xuân (Hương Trầm & Nón Lá)',
-    desc: 'Chai tinh dầu tràm gió nguyên chất 100ml kết hợp hộp nhang trầm nụ tự nhiên làng Thủy Xuân giúp thư giãn tinh thần và ấm áp không gian.',
-    isActive: true,
-    isSample: true
-  },
-
-  // D. Ẩm thực đặt món
-  {
-    id: 'SP013',
-    name: 'Bánh Ướt Thịt Nướng Kim Long (Suất Đặt Nóng)',
-    category: 'Ẩm thực đặt món',
-    price: 65000,
-    stock: 40,
-    unit: 'suất',
-    img: 'images/mon_banhuot.jpg',
-    origin: 'Quán đối tác đường Kim Long, Phường Kim Long, TP. Huế',
-    partnerId: 'FOOD-BANH-UOT',
-    partnerName: 'Bánh Ướt Thịt Nướng Huyền Anh (Đệ Nhất Kim Long)',
-    desc: 'Đặc sản trứ danh Kim Long: Bánh ướt tráng mỏng mềm cuốn thịt ba chỉ nướng than hoa thơm lừng, rau sống nhà vườn và nước chấm tương mè.',
-    isActive: true,
-    isSample: true
-  },
-  {
-    id: 'SP014',
-    name: 'Mẹt Bánh Bèo - Nậm - Lọc Truyền Thống',
-    category: 'Ẩm thực đặt món',
-    price: 85000,
-    stock: 35,
-    unit: 'mẹt',
-    img: 'images/mon_banhbeonamloc.jpg',
-    origin: 'Quán bánh Huế đối tác phục vụ khách lưu trú',
-    partnerId: 'FOOD-BANH-BEO',
-    partnerName: 'Quán Bánh Bèo - Nậm - Lọc Bà Đỏ',
-    desc: 'Mẹt bánh truyền thống gồm 10 chén bánh bèo tôm chấy, 4 bánh nậm lá dong, 4 bánh bột lọc tôm thịt trong veo chấm nước mắm ớt xanh.',
-    isActive: true,
-    isSample: true
-  },
-  {
-    id: 'SP015',
-    name: 'Nem Lụi Nướng Than Hoa Cố Đô',
-    category: 'Ẩm thực đặt món',
-    price: 75000,
-    stock: 30,
-    unit: 'phần',
-    img: 'images/mon_nemlui.jpg',
-    origin: 'Quán đối tác đường Kim Long, TP. Huế',
-    partnerId: 'FOOD-BANH-UOT',
-    partnerName: 'Bánh Ướt Thịt Nướng Huyền Anh (Đệ Nhất Kim Long)',
-    desc: 'Nem lụi quấn sả tươi nướng than hồng, ăn kèm bánh tráng mỏng, vả Huế, rau sống vườn Kim Long và nước lèo đậu phụng sánh mịn béo ngậy.',
+    desc: 'Trà xanh thượng hạng ướp thủ công trong búp sen tươi vào buổi sớm mai, giữ trọn hương sen thuần khiết và hậu vị ngọt sâu lắng.',
     isActive: true,
     isSample: true
   },
   {
     id: 'SP016',
-    name: 'Mâm Cơm Nhà Vườn Huế & Cơm Hến Đặc Sản',
-    category: 'Ẩm thực đặt món',
+    name: 'Trà Thảo Mộc Hoa Cúc Atiso Cố Đô',
+    category: 'Đồ uống và trà',
+    price: 75000,
+    stock: 35,
+    unit: 'hộp 20 túi lọc',
+    img: 'images/tra_thaomoc.jpg',
+    origin: 'Trà Thất & Dược liệu Kim Long, TP. Huế',
+    partnerId: 'PARTNER-TRA-CUNG-DINH',
+    partnerName: 'Trà Thất & Đặc Sản Trà Cung Đình Kim Long',
+    desc: 'Búp cúc chi vàng sấy lạnh hòa quyện hoa atiso đỏ, cỏ ngọt và cam thảo, mang lại vị thanh tao, mát gan hạ hỏa, tốt cho giấc ngủ.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP017',
+    name: 'Trà Gừng Sẻ Mật Ong Rừng Ấm Nồng',
+    category: 'Đồ uống và trà',
+    price: 60000,
+    stock: 40,
+    unit: 'ấm 2 người',
+    img: 'images/tra_gung.jpg',
+    origin: 'Trà Thất & Nhà Vườn Kim Long, TP. Huế',
+    partnerId: 'PARTNER-TRA-CUNG-DINH',
+    partnerName: 'Trà Thất & Đặc Sản Trà Cung Đình Kim Long',
+    desc: 'Củ gừng sẻ Kim Long nướng thơm giã dập nấu cùng mật ong hoa tràm tự nhiên, ấm lòng ấm bụng trong những chiều mưa Cố Đô.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP018',
+    name: 'Nước Thảo Mộc Lá Sen & Lá Vối Thanh Mát',
+    category: 'Đồ uống và trà',
+    price: 25000,
+    stock: 50,
+    unit: 'chai 500ml',
+    img: 'images/nuoc_thaomoc.jpg',
+    origin: 'Nhà vườn Hương Sen Kim Long, TP. Huế',
+    partnerId: 'PARTNER-NV-HUONG-SEN',
+    partnerName: 'Nhà Vườn Sinh Thái Hương Sen Kim Long',
+    desc: 'Nước đun từ lá sen bánh tẻ hồ Kim Long và nụ vối tươi ủ sành, giải khát thanh nhiệt bù khoáng thiên nhiên cực tốt cho cơ thể.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP019',
+    name: 'Nước Ép Bưởi Thanh Trà Tươi Kim Long',
+    category: 'Đồ uống và trà',
+    price: 45000,
+    stock: 40,
+    unit: 'ly 350ml',
+    img: 'images/nuoc_thanhtra.jpg',
+    origin: 'Vườn Sinh Thái Thanh Trà Kim Long, TP. Huế',
+    partnerId: 'PARTNER-NV-THANH-TRA',
+    partnerName: 'Vườn Sinh Thái & Homestay Thanh Trà Cổ Thụ',
+    desc: 'Tép bưởi thanh trà mọng nước ép lạnh tươi nguyên chất, không đường phụ gia, giàu vitamin C và thoang thoảng hương tinh dầu hoa bưởi.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP020',
+    name: 'Bộ Ấm Trà Gốm & Danh Trà Cung Đình Quà Tặng',
+    category: 'Đồ uống và trà',
+    price: 320000,
+    stock: 15,
+    unit: 'bộ quà',
+    img: 'images/bo_amtra_quatang.jpg',
+    origin: 'Làng nghề gốm & Trà thất Kim Long, TP. Huế',
+    partnerId: 'PARTNER-TRA-CUNG-DINH',
+    partnerName: 'Trà Thất & Đặc Sản Trà Cung Đình Kim Long',
+    desc: 'Bộ ấm chén gốm mộc Kim Long nung củi tinh xảo kèm 2 lon trà sen búp sấy lạnh thượng hạng trong hộp quà lụa vàng hoàng gia trang nhã.',
+    isActive: true,
+    isSample: true
+  },
+
+  // D. Ẩm thực Huế và món ăn phục vụ tại homestay (7 món)
+  {
+    id: 'SP021',
+    name: 'Bánh Ướt Thịt Nướng Kim Long Trứ Danh',
+    category: 'Ẩm thực Huế',
+    price: 65000,
+    stock: 40,
+    unit: 'suất giao nóng',
+    img: 'images/mon_banhuot.jpg',
+    origin: 'Quán đối tác đường Kim Long, Phường Kim Long, TP. Huế',
+    partnerId: 'FOOD-BANH-UOT',
+    partnerName: 'Bánh Ướt Thịt Nướng Huyền Anh (Đệ Nhất Kim Long)',
+    desc: 'Đặc sản trứ danh Kim Long: Bánh ướt tráng mỏng mềm cuốn thịt ba chỉ nướng than hoa thơm lừng, rau sống nhà vườn và nước chấm tương mè béo bùi.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP022',
+    name: 'Bún Bò Giò Heo Cố Đô Kim Long',
+    category: 'Ẩm thực Huế',
+    price: 55000,
+    stock: 35,
+    unit: 'tô đặc biệt',
+    img: 'images/mon_bunbo.jpg',
+    origin: 'Quán bún bò truyền thống Kim Long, TP. Huế',
+    partnerId: 'FOOD-BUN-BO-HUE',
+    partnerName: 'Bún Bò Cố Đô Kim Long',
+    desc: 'Nước dùng ninh xương bò và sả tươi thơm lừng thoảng hương ruốc Huế, sợi bún to dai, giò heo giòn béo, chả cua quết mịn và hành hoa xanh mướt.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP023',
+    name: 'Cơm Hến & Bún Hến Hoa Chuối Kim Long',
+    category: 'Ẩm thực Huế',
+    price: 35000,
+    stock: 40,
+    unit: 'suất',
+    img: 'images/mon_comhen.jpg',
+    origin: 'Cơ sở ẩm thực dân dã Kim Long, TP. Huế',
+    partnerId: 'FOOD-COM-HEN-HOA-DONG',
+    partnerName: 'Cơm Hến Hoa Đông (Đặc Sản Kim Long)',
+    desc: 'Cơm nguội thơm lá dứa trộn thịt hến xào đậm đà, tóp mỡ giòn rụm, đậu phộng rang, hoa chuối thái mỏng, ớt bột cay xè và chén nước hến ngọt thanh.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP024',
+    name: 'Bánh Khoái Hoàng Gia Kim Long Giòn Tan',
+    category: 'Ẩm thực Huế',
+    price: 60000,
+    stock: 30,
+    unit: 'đĩa 2 chiếc',
+    img: 'images/mon_banhkhoai.jpg',
+    origin: 'Quán bánh Huế đối tác phục vụ khách lưu trú Kim Long',
+    partnerId: 'FOOD-BANH-BEO',
+    partnerName: 'Quán Bánh Bèo - Nậm - Lọc Bà Đỏ',
+    desc: 'Vỏ bánh chiên vàng rộm giòn tan nhân tôm đất bóc vỏ, thịt nạc, nấm rơm và giá đỗ tươi; chấm cùng nước lèo gan heo sánh mịn béo ngậy.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP025',
+    name: 'Nem Lụi Nướng Sả Than Hoa Kèm Rau Sống Vườn',
+    category: 'Ẩm thực Huế',
+    price: 75000,
+    stock: 30,
+    unit: 'phần 8 cây',
+    img: 'images/mon_nemlui.jpg',
+    origin: 'Quán đối tác đường Kim Long, TP. Huế',
+    partnerId: 'FOOD-BANH-UOT',
+    partnerName: 'Bánh Ướt Thịt Nướng Huyền Anh (Đệ Nhất Kim Long)',
+    desc: 'Nem lụi quấn sả tươi nướng than hồng, ăn kèm bánh tráng mỏng, vả Huế, rau sống vườn Kim Long và nước chấm tương đậu phộng sánh béo.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP026',
+    name: 'Mâm Cơm Gia Đình Huế 5 Món Phục Vụ Tại Phòng',
+    category: 'Ẩm thực Huế',
     price: 165000,
     stock: 20,
     unit: 'mâm (2 khách)',
-    img: 'images/mon_comhen.jpg',
+    img: 'images/mam_com_hue.jpg',
     origin: 'Bếp nhà vườn sinh thái Kim Long EcoStay',
     partnerId: 'PARTNER-NV-HUONG-SEN',
-    partnerName: 'Nhà Vườn Sinh Thái Hương Sen Kim Long',
-    desc: 'Suất ăn ấm cúng dành cho khách lưu trú gồm: Cơm hến hoặc cơm trắng lá dứa, thịt luộc chấm tôm chua, vả trộn tôm thịt và canh rau tập tàng.',
+    partnerName: 'Bếp Nhà Vườn Hương Sen Kim Long',
+    desc: 'Suất ăn ấm cúng phục vụ trực tiếp tại buồng phòng gồm: Cá kho tộ, thịt luộc chấm tôm chua, canh rau tập tàng nấu cua đồng, vả trộn tôm thịt và dưa giá Cố đô.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP027',
+    name: 'Set Điểm Tâm Sáng Cố Đô Phục Vụ Tận Phòng',
+    category: 'Ẩm thực Huế',
+    price: 85000,
+    stock: 30,
+    unit: 'combo 1 khách',
+    img: 'images/set_diem_tam.jpg',
+    origin: 'Bếp Sinh Thái Kim Long EcoStay',
+    partnerId: 'KLE-CENTER',
+    partnerName: 'Bếp Sinh Thái Kim Long EcoStay',
+    desc: 'Tự chọn Bún bò giò heo hoặc Bánh ướt thịt nướng + 1 ly Nước ép bưởi Thanh Trà tươi hoặc Cà phê pha phin + 1 búp hoa sen thơm ngát dọn tận phòng.',
+    isActive: true,
+    isSample: true
+  },
+
+  // E. Quà lưu niệm và trải nghiệm (3 món)
+  {
+    id: 'SP028',
+    name: 'Hộp Bánh Đậu Xanh Trái Cây Cung Đình & Kẹo Cau',
+    category: 'Quà lưu niệm và trải nghiệm',
+    price: 75000,
+    stock: 30,
+    unit: 'hộp 250g',
+    img: 'images/qua_setquatang.jpg',
+    origin: 'Phường Kim Long, TP. Huế',
+    partnerId: 'PARTNER-DAC-SAN-KIM-LONG',
+    partnerName: 'Cơ Sở Đặc Sản & Mứt Gừng Kim Long O Lành',
+    desc: 'Bánh đậu xanh trái cây nặn thủ công từng quả nhỏ sắc màu tự nhiên từ củ dền, gấc, lá dứa; kết hợp kẹo cau truyền thống thơm ngọt làm quà biếu.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP029',
+    name: 'Combo Quà Tặng "Kim Long Tinh Hoa Ngự Phẩm"',
+    category: 'Quà lưu niệm và trải nghiệm',
+    price: 350000,
+    stock: 15,
+    unit: 'hộp quà gỗ',
+    img: 'images/qua_combokimlong.jpg',
+    origin: 'Mạng lưới liên kết đặc sản Kim Long EcoStay, TP. Huế',
+    partnerId: 'PARTNER-DAC-SAN-KIM-LONG',
+    partnerName: 'Mạng Lưới Liên Kết Đặc Sản Kim Long',
+    desc: 'Hộp quà gỗ thông sinh thái sang trọng gồm: 1 gói Trà Cung Đình Bát Bảo, 1 hộp Mứt gừng sẻ Kim Long, 1 hộp Kẹo mè xửng giòn và 1 chai Tinh dầu tràm gió Thủy Xuân.',
+    isActive: true,
+    isSample: true
+  },
+  {
+    id: 'SP030',
+    name: 'Gói Trải Nghiệm Văn Hóa Làm Bánh Ướt & Khám Phá Nhà Vườn',
+    category: 'Quà lưu niệm và trải nghiệm',
+    price: 250000,
+    stock: 12,
+    unit: 'vé/khách',
+    img: 'images/trainghiem_nhavuon.jpg',
+    origin: 'Nông trại sinh thái & Nhà vườn Kim Long, TP. Huế',
+    partnerId: 'EXP-KLE-FARM',
+    partnerName: 'Nông Trại Trải Nghiệm Sinh Thái Kim Long',
+    desc: 'Trải nghiệm 2 giờ thú vị: Tham quan vườn thanh trà cổ thụ, tự tay tráng bánh ướt Kim Long trên lò than củi, nếm thử mứt gừng ấm nóng và thưởng trà cùng nghệ nhân.',
     isActive: true,
     isSample: true
   }
@@ -4667,11 +5157,104 @@ var DEFAULT_INITIAL_BOOKINGS = [
   }
 ];
 
+var DEFAULT_INITIAL_SPECIALTY_ORDERS = [
+  {
+    orderCode: 'KLE-DELIV-20261029-01',
+    deliveryMethod: 'ROOM_DELIVERY',
+    roomNumber: 'KLE-R101',
+    roomName: 'Eco-Nest Ban Mai (Phòng KLE-R101 • Tầng 1)',
+    bookingCode: 'KLE-20261018-01',
+    customerName: 'Nguyễn Văn An',
+    phone: '0905123456',
+    email: 'khachhang@example.com',
+    deliveryTime: 'Giao ngay (15 - 30 phút)',
+    serviceNotes: 'Giao 2 đôi đũa phụ, không ớt trong nước chấm, gõ cửa trước khi giao',
+    paymentMethod: 'VIETQR',
+    paymentStatus: 'PAID',
+    items: [
+      { id: 'SP021', name: 'Bánh Ướt Thịt Nướng Kim Long Trứ Danh', price: 65000, qty: 2, unit: 'suất giao nóng', img: 'images/mon_banhuot.jpg', category: 'Ẩm thực Huế' },
+      { id: 'SP019', name: 'Nước Ép Bưởi Thanh Trà Tươi Kim Long', price: 45000, qty: 2, unit: 'ly 350ml', img: 'images/nuoc_thanhtra.jpg', category: 'Đồ uống và trà' }
+    ],
+    subtotal: 220000,
+    shippingFee: 0,
+    total: 220000,
+    status: 'DELIVERING',
+    statusHistory: [
+      { status: 'PENDING', time: new Date(Date.now() - 35 * 60000).toISOString(), note: 'Đơn hàng được tạo thành công bởi khách lưu trú.' },
+      { status: 'CONFIRMED', time: new Date(Date.now() - 30 * 60000).toISOString(), note: 'Lễ tân đã tiếp nhận và chuyển bếp chế biến.' },
+      { status: 'PREPARING', time: new Date(Date.now() - 20 * 60000).toISOString(), note: 'Bếp đã hoàn tất món nướng nóng hổi và đóng gói.' },
+      { status: 'DELIVERING', time: new Date(Date.now() - 5 * 60000).toISOString(), note: 'Nhân viên phục vụ đang mang món lên cửa phòng R101.' }
+    ],
+    createdAt: new Date(Date.now() - 35 * 60000).toISOString(),
+    updatedAt: new Date(Date.now() - 5 * 60000).toISOString()
+  },
+  {
+    orderCode: 'KLE-DELIV-20261029-02',
+    deliveryMethod: 'ROOM_DELIVERY',
+    roomNumber: 'KLE-R201',
+    roomName: 'Garden Suite Cố Đô (Phòng KLE-R201 • Tầng 2)',
+    bookingCode: 'KLE-20261014-42',
+    customerName: 'Đặng Thanh Nga',
+    phone: '0988776655',
+    email: 'nga.dang@example.com',
+    deliveryTime: '11:30 Trưa (Bữa trưa)',
+    serviceNotes: 'Chuẩn bị mâm cơm trước 11h30, dọn thêm chén bát cho 2 người lớn, 1 bé',
+    paymentMethod: 'CASH',
+    paymentStatus: 'UNPAID',
+    items: [
+      { id: 'SP026', name: 'Mâm Cơm Gia Đình Huế 5 Món Phục Vụ Tại Phòng', price: 165000, qty: 1, unit: 'mâm (2 khách)', img: 'images/mam_com_hue.jpg', category: 'Ẩm thực Huế' },
+      { id: 'SP016', name: 'Trà Thảo Mộc Hoa Cúc Atiso Cố Đô', price: 75000, qty: 1, unit: 'hộp 20 túi lọc', img: 'images/tra_thaomoc.jpg', category: 'Đồ uống và trà' }
+    ],
+    subtotal: 240000,
+    shippingFee: 0,
+    total: 240000,
+    status: 'PREPARING',
+    statusHistory: [
+      { status: 'PENDING', time: new Date(Date.now() - 25 * 60000).toISOString(), note: 'Đơn hàng được đặt thành công.' },
+      { status: 'CONFIRMED', time: new Date(Date.now() - 20 * 60000).toISOString(), note: 'Lễ tân đã xác nhận lịch hẹn 11:30.' },
+      { status: 'PREPARING', time: new Date(Date.now() - 10 * 60000).toISOString(), note: 'Bếp nhà vườn đang nấu mâm cơm 5 món.' }
+    ],
+    createdAt: new Date(Date.now() - 25 * 60000).toISOString(),
+    updatedAt: new Date(Date.now() - 10 * 60000).toISOString()
+  },
+  {
+    orderCode: 'KLE-DELIV-20261029-03',
+    deliveryMethod: 'ROOM_DELIVERY',
+    roomNumber: 'KLE-R102',
+    roomName: 'Eco-Nest Hoàng Hôn (Phòng KLE-R102 • Tầng 1)',
+    bookingCode: 'KLE-20261015-88',
+    customerName: 'Hoàng Minh Tuấn',
+    phone: '0912334455',
+    email: 'tuan.hoang@example.com',
+    deliveryTime: '07:30 Sáng (Điểm tâm tại phòng)',
+    serviceNotes: 'Bún bò nhiều hành lá giò heo mềm thơm, mang thêm chanh ớt tươi',
+    paymentMethod: 'VIETQR',
+    paymentStatus: 'PAID',
+    items: [
+      { id: 'SP022', name: 'Bún Bò Giò Heo Cố Đô Kim Long', price: 55000, qty: 2, unit: 'tô đặc biệt', img: 'images/mon_bunbo.jpg', category: 'Ẩm thực Huế' },
+      { id: 'SP018', name: 'Nước Thảo Mộc Lá Sen & Lá Vối Thanh Mát', price: 25000, qty: 2, unit: 'chai 500ml', img: 'images/nuoc_thaomoc.jpg', category: 'Đồ uống và trà' }
+    ],
+    subtotal: 160000,
+    shippingFee: 0,
+    total: 160000,
+    status: 'DELIVERED',
+    statusHistory: [
+      { status: 'PENDING', time: new Date(Date.now() - 120 * 60000).toISOString(), note: 'Đơn hàng được tạo thành công.' },
+      { status: 'CONFIRMED', time: new Date(Date.now() - 110 * 60000).toISOString(), note: 'Tiếp nhận đơn điểm tâm sáng.' },
+      { status: 'PREPARING', time: new Date(Date.now() - 90 * 60000).toISOString(), note: 'Đầu bếp múc bún bò nóng hổi.' },
+      { status: 'DELIVERING', time: new Date(Date.now() - 75 * 60000).toISOString(), note: 'Nhân viên giao món lên phòng R102.' },
+      { status: 'DELIVERED', time: new Date(Date.now() - 65 * 60000).toISOString(), note: 'Khách hàng đã nhận món tại phòng, chúc ngon miệng.' }
+    ],
+    createdAt: new Date(Date.now() - 120 * 60000).toISOString(),
+    updatedAt: new Date(Date.now() - 65 * 60000).toISOString()
+  }
+];
+
 function initKleStorage() {
   var currentProdVer = localStorage.getItem('kle_products_version');
-  if (!localStorage.getItem('kle_products') || currentProdVer !== 'v2_16items') {
+  if (!localStorage.getItem('kle_products') || currentProdVer !== 'v3_30items') {
     localStorage.setItem('kle_products', JSON.stringify(DEFAULT_PRODUCTS));
-    localStorage.setItem('kle_products_version', 'v2_16items');
+    localStorage.setItem('kle_products_version', 'v3_30items');
   }
   if (!localStorage.getItem('kle_tea_services')) {
     localStorage.setItem('kle_tea_services', JSON.stringify(DEFAULT_TEA_SERVICES));
@@ -4688,8 +5271,10 @@ function initKleStorage() {
   if (!localStorage.getItem('kle_email_logs')) {
     localStorage.setItem('kle_email_logs', JSON.stringify([]));
   }
-  if (!localStorage.getItem('kle_specialty_orders')) {
-    localStorage.setItem('kle_specialty_orders', JSON.stringify([]));
+  var currentOrdersVer = localStorage.getItem('kle_orders_version');
+  if (!localStorage.getItem('kle_specialty_orders') || currentOrdersVer !== 'v3_room_orders') {
+    localStorage.setItem('kle_specialty_orders', JSON.stringify(DEFAULT_INITIAL_SPECIALTY_ORDERS));
+    localStorage.setItem('kle_orders_version', 'v3_room_orders');
   }
   if (!localStorage.getItem('kle_tea_bookings')) {
     localStorage.setItem('kle_tea_bookings', JSON.stringify([]));
@@ -4788,9 +5373,11 @@ function matchesProductCategory(prodCategory, selectedCat) {
   if (!selectedCat || selectedCat.toUpperCase() === 'ALL') return true;
   var pCat = (prodCategory || '').trim();
   if (pCat === selectedCat) return true;
-  if (selectedCat === 'Đặc sản ẩm thực Huế' && (pCat === 'Đặc Sản Đóng Gói' || pCat === 'Đặc sản ẩm thực Huế')) return true;
-  if (selectedCat === 'Trà và quà tặng' && (pCat === 'Trà & Quà Tặng' || pCat === 'Trà và quà tặng')) return true;
-  if (selectedCat === 'Ẩm thực đặt món' && (pCat === 'Ẩm Thực Huế' || pCat === 'Ẩm thực đặt món')) return true;
+  if (selectedCat === 'Đặc sản Huế' && (pCat === 'Đặc Sản Đóng Gói' || pCat === 'Đặc sản ẩm thực Huế' || pCat === 'Đặc sản Huế')) return true;
+  if (selectedCat === 'Sản phẩm nhà vườn' && (pCat === 'Nông sản nhà vườn' || pCat === 'Sản phẩm nhà vườn')) return true;
+  if (selectedCat === 'Đồ uống và trà' && (pCat === 'Trà và quà tặng' || pCat === 'Trà & Quà Tặng' || pCat === 'Đồ uống và trà' || pCat === 'Trà & Đồ Uống')) return true;
+  if (selectedCat === 'Ẩm thực Huế' && (pCat === 'Ẩm thực đặt món' || pCat === 'Ẩm Thực Huế' || pCat === 'Ẩm thực Huế')) return true;
+  if (selectedCat === 'Quà lưu niệm và trải nghiệm' && (pCat === 'Quà lưu niệm & trải nghiệm' || pCat === 'Quà lưu niệm và trải nghiệm' || pCat === 'Trải nghiệm')) return true;
   return false;
 }
 
@@ -4805,6 +5392,7 @@ window.renderSpecialties = function() {
   var searchTerm = (document.getElementById('specialtySearchInput') ? document.getElementById('specialtySearchInput').value : '').toLowerCase().trim();
   var sortVal = document.getElementById('specialtySortSelect') ? document.getElementById('specialtySortSelect').value : 'featured';
   var partnerVal = document.getElementById('specialtyPartnerSelect') ? document.getElementById('specialtyPartnerSelect').value : 'ALL';
+  var priceFilter = document.getElementById('specialtyPriceFilter') ? document.getElementById('specialtyPriceFilter').value : 'ALL';
 
   var filtered = products.filter(function(p) {
     if (p.isActive === false) return false;
@@ -4814,6 +5402,12 @@ window.renderSpecialties = function() {
     }
     var matchCat = matchesProductCategory(p.category, currentSpecialtyCategory);
     var matchPartner = (!partnerVal || partnerVal === 'ALL' || p.partnerId === partnerVal);
+    var matchPrice = true;
+    if (priceFilter === 'under50') matchPrice = (Number(p.price) < 50000);
+    else if (priceFilter === '50to100') matchPrice = (Number(p.price) >= 50000 && Number(p.price) <= 100000);
+    else if (priceFilter === '100to200') matchPrice = (Number(p.price) > 100000 && Number(p.price) <= 200000);
+    else if (priceFilter === 'above200') matchPrice = (Number(p.price) > 200000);
+
     var partnerObj = getPartnerById(p.partnerId, true);
     var partnerDisplay = (partnerObj ? partnerObj.name : (p.partnerName || '')).toLowerCase();
     var originDisplay = (p.origin || '').toLowerCase();
@@ -4823,7 +5417,7 @@ window.renderSpecialties = function() {
       (p.category || '').toLowerCase().includes(searchTerm) ||
       partnerDisplay.includes(searchTerm) ||
       originDisplay.includes(searchTerm));
-    return matchCat && matchPartner && matchSearch;
+    return matchCat && matchPartner && matchPrice && matchSearch;
   });
 
   if (sortVal === 'price-asc' || sortVal === 'price_asc') {
@@ -4834,12 +5428,12 @@ window.renderSpecialties = function() {
     filtered.sort(function(a, b) { return (a.name || '').localeCompare(b.name || '', 'vi'); });
   }
 
-  var countLabel = document.getElementById('specialtyResultCountLabel');
+  var countLabel = document.getElementById('specialtyCountLabel') || document.getElementById('specialtyResultCountLabel');
   if (countLabel) {
-    countLabel.innerHTML = 'Đang hiển thị <strong>' + filtered.length + '</strong> sản phẩm &amp; đặc sản địa phương';
+    countLabel.innerHTML = 'Hiển thị <strong>' + filtered.length + ' / ' + products.length + '</strong> sản phẩm &amp; món ăn';
   }
 
-  var paginationWrap = document.getElementById('specialtyPagination');
+  var paginationWrap = document.getElementById('specialtyPaginationWrap') || document.getElementById('specialtyPagination');
   var totalPages = Math.max(1, Math.ceil(filtered.length / SPECIALTIES_PER_PAGE));
   if (currentSpecialtyPage > totalPages) currentSpecialtyPage = 1;
 
@@ -4848,10 +5442,10 @@ window.renderSpecialties = function() {
       <div class="col-12 text-center py-5 bg-white rounded-4 border shadow-sm">
         <i class="bi bi-basket2 fs-1 d-block mb-2 text-warning"></i>
         <h6 class="fw-bold text-dark mb-1">Không tìm thấy sản phẩm phù hợp với bộ lọc hiện tại</h6>
-        <p class="small text-muted mb-3">Quý khách có thể đặt lại bộ lọc hoặc quản trị viên có thể bổ sung sản phẩm mới.</p>
+        <p class="small text-muted mb-3">Quý khách có thể đặt lại bộ lọc hoặc liên hệ quầy lễ tân để đặt món theo yêu cầu riêng.</p>
         <div class="d-flex justify-content-center gap-2">
           <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="resetSpecialtyFilters()">
-            <i class="bi bi-arrow-counterclockwise me-1"></i>Xem Tất Cả Sản Phẩm
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Xem Tất Cả 30 Sản Phẩm
           </button>
           <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="openAdminModalTab('specialties-admin')">
             <i class="bi bi-plus-circle me-1"></i>Quản trị viên thêm sản phẩm
@@ -4867,10 +5461,11 @@ window.renderSpecialties = function() {
   var pageItems = filtered.slice(startIdx, startIdx + SPECIALTIES_PER_PAGE);
 
   var catBadgeColors = {
-    'Đặc sản ẩm thực Huế': 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;',
-    'Nông sản nhà vườn': 'background:#DCFCE7; color:#166534; border:1px solid #BBF7D0;',
-    'Trà và quà tặng': 'background:#EDE9FE; color:#5B21B6; border:1px solid #DDD6FE;',
-    'Ẩm thực đặt món': 'background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;'
+    'Đặc sản Huế': 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;',
+    'Sản phẩm nhà vườn': 'background:#DCFCE7; color:#166534; border:1px solid #BBF7D0;',
+    'Đồ uống và trà': 'background:#EDE9FE; color:#5B21B6; border:1px solid #DDD6FE;',
+    'Ẩm thực Huế': 'background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;',
+    'Quà lưu niệm và trải nghiệm': 'background:#FDF4FF; color:#86198F; border:1px solid #F5D0FE;'
   };
 
   var html = '';
@@ -4878,8 +5473,8 @@ window.renderSpecialties = function() {
     var partnerObj = getPartnerById(p.partnerId, true);
     var partnerTitle = partnerObj ? partnerObj.name : (p.partnerName || 'Đối tác liên kết Kim Long');
     var stockBadge = p.stock > 0
-      ? '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size:11px;"><i class="bi bi-check2-circle me-1"></i>Còn hàng (' + p.stock + ' ' + (p.unit || 'phần') + ')</span>'
-      : '<span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1" style="font-size:11px;"><i class="bi bi-x-circle me-1"></i>Tạm hết hàng</span>';
+      ? '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5" style="font-size:11px;"><i class="bi bi-check2-circle me-1"></i>Còn hàng (' + p.stock + ' ' + (p.unit || 'phần') + ')</span>'
+      : '<span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-0.5" style="font-size:11px;"><i class="bi bi-x-circle me-1"></i>Tạm hết hàng</span>';
     var catStyle = catBadgeColors[p.category] || 'background:#FEF3C7; color:#92400E;';
 
     html += `
@@ -4891,7 +5486,7 @@ window.renderSpecialties = function() {
               ${p.category}
             </span>
             <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1" style="font-size: 10px;">
-              Đơn vị: ${p.unit || 'phần'}
+              ${p.unit || 'phần'}
             </span>
           </div>
           <div class="card-body p-3 d-flex flex-column">
@@ -4915,12 +5510,15 @@ window.renderSpecialties = function() {
                 <span class="text-muted small">/ ${p.unit || 'phần'}</span>
               </div>
             </div>
-            <div class="d-flex gap-2">
-              <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2 flex-fill fw-semibold" onclick="openProductDetailModal('${p.id}')">
-                <i class="bi bi-eye me-1"></i>Xem chi tiết
+            <div class="d-flex gap-1.5 flex-wrap">
+              <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2 flex-fill fw-semibold" onclick="openProductDetailModal('${p.id}')" title="Xem chi tiết">
+                <i class="bi bi-eye me-1"></i>Chi tiết
               </button>
-              <button type="button" class="btn btn-sm btn-success rounded-pill px-2 fw-bold flex-fill shadow-sm" ${p.stock <= 0 ? 'disabled' : ''} onclick="quickAddToCart('${p.id}')">
-                <i class="bi bi-cart-plus-fill me-1"></i>${p.stock > 0 ? 'Đặt mua' : 'Hết hàng'}
+              <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2 flex-fill fw-semibold" ${p.stock <= 0 ? 'disabled' : ''} onclick="quickAddToCart('${p.id}')" title="Thêm vào giỏ">
+                <i class="bi bi-cart-plus me-1"></i>Thêm giỏ
+              </button>
+              <button type="button" class="btn btn-sm btn-success rounded-pill px-2.5 fw-bold flex-fill shadow-sm" ${p.stock <= 0 ? 'disabled' : ''} onclick="buyNowSpecialty('${p.id}')" title="Đặt giao ngay lên phòng">
+                <i class="bi bi-door-open-fill me-1"></i>Đặt ngay
               </button>
             </div>
           </div>
@@ -5111,6 +5709,42 @@ window.quickAddToCart = function(id) {
   addSpecialtyToCart(id, 1);
 };
 
+window.buyNowSpecialty = function(id) {
+  var p = getProducts().find(function(item) { return item.id === id; });
+  if (!p) return;
+  if (p.stock <= 0) {
+    alert('Sản phẩm "' + p.name + '" hiện đang tạm hết hàng trong ngày.');
+    return;
+  }
+  var cart = getCart();
+  var existing = cart.find(function(item) { return item.id === id; });
+  if (!existing) {
+    cart.push({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      unit: p.unit || 'phần',
+      img: p.img,
+      category: p.category,
+      qty: 1
+    });
+    saveCart(cart);
+  }
+  openShoppingCartModal();
+};
+
+window.buyNowFromDetailModal = function() {
+  if (!currentSelectedProductId) return;
+  var qty = parseInt(document.getElementById('detailProductQty').value) || 1;
+  addSpecialtyToCart(currentSelectedProductId, qty);
+  var modalEl = document.getElementById('productDetailModal');
+  if (modalEl && typeof bootstrap !== 'undefined') {
+    var modalInst = bootstrap.Modal.getInstance(modalEl);
+    if (modalInst) modalInst.hide();
+  }
+  openShoppingCartModal();
+};
+
 function addSpecialtyToCart(id, qty) {
   var product = getProducts().find(function(p) { return p.id === id; });
   if (!product) return;
@@ -5158,6 +5792,27 @@ window.updateCartUi = function() {
   if (summaryText) summaryText.textContent = totalItems > 0 ? (totalItems + ' món đã chọn') : 'Chưa có món nào';
 };
 
+window.toggleCartDeliveryMethod = function() {
+  var methodEl = document.querySelector('input[name="cartDeliveryMethod"]:checked');
+  var method = methodEl ? methodEl.value : 'ROOM_DELIVERY';
+  var roomWrap = document.getElementById('cartRoomDeliveryFields');
+  var customAddrWrap = document.getElementById('cartCustomAddressWrap');
+  if (roomWrap) {
+    roomWrap.style.display = (method === 'ROOM_DELIVERY') ? 'block' : 'none';
+  }
+  if (customAddrWrap) {
+    customAddrWrap.style.display = (method === 'PARTNER_STORE') ? 'block' : 'none';
+  }
+};
+
+window.onCartRoomChange = function() {
+  var sel = document.getElementById('cartRoomSelect');
+  var wrap = document.getElementById('cartOtherRoomInputWrap');
+  if (sel && wrap) {
+    wrap.style.display = (sel.value === 'OTHER') ? 'block' : 'none';
+  }
+};
+
 window.openShoppingCartModal = function() {
   var cart = getCart();
   var container = document.getElementById('cartItemsListContainer');
@@ -5174,9 +5829,9 @@ window.openShoppingCartModal = function() {
       <div class="text-center py-5 text-muted">
         <i class="bi bi-cart-x fs-1 d-block mb-2 text-warning"></i>
         <h6 class="fw-bold text-dark">Giỏ hàng của quý khách đang trống</h6>
-        <p class="small text-muted mb-3">Hãy chọn thêm các món bánh Huế, đặc sản và trà sen Kim Long để thưởng thức nhé!</p>
+        <p class="small text-muted mb-3">Hãy chọn thêm các món ẩm thực nóng, đặc sản và trà sen Kim Long để thưởng thức nhé!</p>
         <button type="button" class="btn btn-sm btn-success rounded-pill px-4" data-bs-dismiss="modal" onclick="scrollToSection('specialties')">
-          <i class="bi bi-basket2-fill me-1"></i>Xem Menu Đặc Sản Kim Long
+          <i class="bi bi-basket2-fill me-1"></i>Xem Menu 30 Món &amp; Đặc Sản Kim Long
         </button>
       </div>
     `;
@@ -5186,7 +5841,7 @@ window.openShoppingCartModal = function() {
     if (btnCheckout) btnCheckout.disabled = true;
   } else {
     var subtotal = 0;
-    var html = '<div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Món Đặc Sản</th><th>Đơn Giá</th><th class="text-center">Số Lượng</th><th>Thành Tiền</th><th></th></tr></thead><tbody>';
+    var html = '<div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Món Đặc Sản / Ẩm Thực</th><th>Đơn Giá</th><th class="text-center">Số Lượng</th><th>Thành Tiền</th><th></th></tr></thead><tbody>';
 
     cart.forEach(function(item) {
       var itemTotal = item.price * item.qty;
@@ -5195,7 +5850,7 @@ window.openShoppingCartModal = function() {
         <tr>
           <td>
             <div class="d-flex align-items-center gap-2">
-              <img src="${item.img}" alt="${item.name}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
+              <img src="${item.img}" alt="${item.name}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;" onerror="this.src='images/mon_banhuot.jpg'">
               <div>
                 <strong class="text-dark small d-block">${item.name}</strong>
                 <span class="badge bg-light text-muted font-monospace" style="font-size: 10px;">${item.category}</span>
@@ -5220,22 +5875,19 @@ window.openShoppingCartModal = function() {
     html += '</tbody></table></div>';
     container.innerHTML = html;
 
-    // Phí giao hàng: Miễn phí nội phường Kim Long hoặc đơn từ 150.000 đ
     var shippingFee = 0;
-    var shippingText = '0 đ (Miễn phí nội homestay & phường Kim Long)';
-    if (subtotal < 100000) {
-      shippingFee = 15000;
-      shippingText = '15,000 đ (Đơn dưới 100.000 đ)';
-    }
-
+    var shippingText = '0 đ (Miễn phí phục vụ tận phòng homestay Kim Long)';
     var totalPayment = subtotal + shippingFee;
+
     document.getElementById('cartSubtotalText').textContent = subtotal.toLocaleString('vi-VN') + ' đ';
     document.getElementById('cartShippingFeeText').textContent = shippingText;
     document.getElementById('cartTotalPaymentText').textContent = totalPayment.toLocaleString('vi-VN') + ' đ';
     if (btnCheckout) btnCheckout.disabled = false;
   }
 
-  var modal = new bootstrap.Modal(document.getElementById('shoppingCartModal'));
+  toggleCartDeliveryMethod();
+  var modalEl = document.getElementById('shoppingCartModal');
+  var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
   modal.show();
 };
 
@@ -5269,20 +5921,60 @@ window.handleCartCheckout = function() {
   var cart = getCart();
   if (!cart || cart.length === 0) return;
 
+  var methodEl = document.querySelector('input[name="cartDeliveryMethod"]:checked');
+  var deliveryMethod = methodEl ? methodEl.value : 'ROOM_DELIVERY';
+
+  var roomNumber = '';
+  var roomName = '';
+  var bookingCode = '';
+
+  var roomMap = {
+    'KLE-R101': 'Eco-Nest Ban Mai (Phòng KLE-R101 • Tầng 1)',
+    'KLE-R102': 'Eco-Nest Hoàng Hôn (Phòng KLE-R102 • Tầng 1)',
+    'KLE-R201': 'Garden Suite Cố Đô (Phòng KLE-R201 • Tầng 2)',
+    'KLE-R202': 'Family Villa Kim Long (Phòng KLE-R202 • Biệt Thự)',
+    'KLE-R203': 'Heritage Studio Trầm Mặc (Phòng KLE-R203 • Tầng 2)'
+  };
+
+  if (deliveryMethod === 'ROOM_DELIVERY') {
+    var sel = document.getElementById('cartRoomSelect');
+    var rawRoom = sel ? sel.value : 'KLE-R101';
+    if (rawRoom === 'OTHER') {
+      var customRoom = (document.getElementById('cartCustomRoomInput') ? document.getElementById('cartCustomRoomInput').value.trim() : '');
+      roomNumber = customRoom || 'Phòng Khác';
+      roomName = 'Phòng ' + roomNumber + ' (Kim Long EcoStay)';
+    } else {
+      roomNumber = rawRoom;
+      roomName = roomMap[rawRoom] || rawRoom;
+    }
+    bookingCode = document.getElementById('cartBookingCode') ? document.getElementById('cartBookingCode').value.trim() : '';
+  } else if (deliveryMethod === 'RECEPTION') {
+    roomNumber = 'LỄ TÂN';
+    roomName = 'Quầy Lễ Tân (Sảnh chính nhà rường Kim Long)';
+  } else {
+    roomNumber = 'ĐIỂM BÁN';
+    roomName = (document.getElementById('cartDeliveryAddress') ? document.getElementById('cartDeliveryAddress').value.trim() : 'Nhận tại điểm bán liên kết');
+  }
+
   var name = document.getElementById('cartCustomerName').value.trim();
   var phone = document.getElementById('cartCustomerPhone').value.trim();
-  var email = document.getElementById('cartCustomerEmail').value.trim() || 'khach@example.com';
-  var address = document.getElementById('cartDeliveryAddress').value.trim() || 'Nhận tại hiên phòng homestay Kim Long';
+  var email = document.getElementById('cartCustomerEmail') ? document.getElementById('cartCustomerEmail').value.trim() : 'khachhang@example.com';
+  var deliveryTime = document.getElementById('cartDeliveryTimeSelect') ? document.getElementById('cartDeliveryTimeSelect').value : 'Giao ngay (15 - 30 phút)';
+  var serviceNotes = document.getElementById('cartServiceNotes') ? document.getElementById('cartServiceNotes').value.trim() : '';
+  var payMethodEl = document.querySelector('input[name="cartPaymentMethod"]:checked');
+  var paymentMethod = payMethodEl ? payMethodEl.value : 'VIETQR';
 
   if (!name || !phone) {
-    alert('Vui lòng nhập Họ tên và Số điện thoại nhận hàng.');
+    alert('Vui lòng nhập đầy đủ Họ tên và Số điện thoại nhận hàng.');
     return;
   }
 
   var subtotal = cart.reduce(function(acc, i) { return acc + (i.price * i.qty); }, 0);
-  var shippingFee = (subtotal < 100000) ? 15000 : 0;
+  var shippingFee = 0; // Luôn miễn phí phục vụ tận phòng cho khách lưu trú
   var total = subtotal + shippingFee;
-  var orderCode = 'KLE-SP-' + Math.floor(100000 + Math.random() * 900000);
+
+  var orderCode = 'KLE-DELIV-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(100 + Math.random() * 900);
+  var nowIso = new Date().toISOString();
 
   // Trừ tồn kho sản phẩm thực tế
   var products = getProducts();
@@ -5294,45 +5986,277 @@ window.handleCartCheckout = function() {
   });
   saveProducts(products);
 
-  // Lưu đơn đặc sản
-  var specialtyOrders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
-  specialtyOrders.unshift({
+  // Tạo đối tượng đơn hàng chuẩn quy trình
+  var newOrder = {
     orderCode: orderCode,
+    deliveryMethod: deliveryMethod,
+    roomNumber: roomNumber,
+    roomName: roomName,
+    bookingCode: bookingCode,
     customerName: name,
     phone: phone,
-    email: email,
-    address: address,
-    items: cart,
+    email: email || 'khachhang@example.com',
+    deliveryTime: deliveryTime,
+    serviceNotes: serviceNotes,
+    items: cart.slice(),
     subtotal: subtotal,
     shippingFee: shippingFee,
     total: total,
-    status: 'CHỜ GIAO HÀNG',
-    createdAt: new Date().toISOString()
-  });
+    paymentMethod: paymentMethod,
+    paymentStatus: (paymentMethod === 'VIETQR' ? 'PAID' : 'UNPAID'),
+    status: 'PENDING',
+    statusHistory: [
+      {
+        status: 'PENDING',
+        time: nowIso,
+        note: 'Đơn hàng giao tận phòng được gửi thành công tới bộ phận bếp Kim Long EcoStay.'
+      }
+    ],
+    createdAt: nowIso,
+    updatedAt: nowIso
+  };
+
+  var specialtyOrders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+  specialtyOrders.unshift(newOrder);
   localStorage.setItem('kle_specialty_orders', JSON.stringify(specialtyOrders));
 
-  // Ghi nhận nhật ký email
-  logEmailDispatch('SPECIALTY_ORDER', orderCode, email, '[Kim Long EcoStay] Xác Nhận Đơn Hàng Đặc Sản ' + orderCode, `
-    <h3>Xác nhận đơn hàng đặc sản Kim Long</h3>
-    <p>Chào ${name}, cảm ơn bạn đã đặt món. Tổng thanh toán: ${total.toLocaleString('vi-VN')} đ.</p>
-    <p>Địa chỉ giao: ${address}. Đơn sẽ được chuẩn bị và giao trong 20-30 phút.</p>
+  // Ghi nhật ký email
+  logEmailDispatch('SPECIALTY_ROOM_DELIVERY', orderCode, email || 'khachhang@example.com', '[Kim Long EcoStay] Tiếp Nhận Đơn Giao Tận Phòng ' + orderCode, `
+    <h3>Tiếp Nhận Đơn Hàng Giao Tận Phòng Homestay</h3>
+    <p>Chào <strong>${name}</strong>, Kim Long EcoStay đã nhận được đơn đặt món của quý khách.</p>
+    <p><strong>Địa điểm giao:</strong> ${roomName} ${roomNumber ? ('(' + roomNumber + ')') : ''}</p>
+    <p><strong>Thời gian nhận mong muốn:</strong> ${deliveryTime}</p>
+    <p><strong>Ghi chú phục vụ:</strong> ${serviceNotes || 'Không có'}</p>
+    <p><strong>Tổng thanh toán:</strong> ${total.toLocaleString('vi-VN')} đ (${paymentMethod === 'VIETQR' ? 'Chuyển khoản VietQR' : 'Tiền mặt khi nhận phòng'})</p>
+    <p>Bếp đang chuẩn bị món nóng hổi và sẽ mang lên phòng cho quý khách.</p>
   `, 'DELIVERED');
 
-  // VietQR URL cho đơn đặc sản
-  var vietQrUrl = 'https://api.vietqr.io/image/970422-0905123456-compact2.png?amount=' + total + '&addInfo=' + encodeURIComponent('KLE ' + orderCode.replace(/-/g, '')) + '&accountName=KIM%20LONG%20ECOSTAY';
-
-  // Hiển thị mã QR thành công ngay trên modal giỏ hàng
+  // Cập nhật DOM màn hình thành công trong giỏ hàng
   document.getElementById('cartSummaryCard').classList.add('d-none');
   document.getElementById('btnCheckoutCart').classList.add('d-none');
-  var qrCard = document.getElementById('cartOrderQrContainer');
-  qrCard.classList.remove('d-none');
-  document.getElementById('cartSuccessOrderCode').textContent = orderCode;
-  document.getElementById('cartOrderVietQrImg').src = vietQrUrl;
-  document.getElementById('cartOrderTransferNote').textContent = 'Nội dung CK: KLE ' + orderCode.replace(/-/g, '');
+
+  var qrContainer = document.getElementById('cartOrderQrContainer');
+  if (qrContainer) qrContainer.classList.remove('d-none');
+
+  if (document.getElementById('cartSuccessOrderCode')) document.getElementById('cartSuccessOrderCode').textContent = orderCode;
+  if (document.getElementById('cartSuccessRoomBadge')) {
+    document.getElementById('cartSuccessRoomBadge').textContent = (deliveryMethod === 'ROOM_DELIVERY') ? ('Phòng: ' + roomNumber) : roomName;
+  }
+  if (document.getElementById('cartSuccessTimeBadge')) {
+    document.getElementById('cartSuccessTimeBadge').textContent = deliveryTime;
+  }
+
+  // VietQR section
+  var vietQrSection = document.getElementById('cartOrderQrSection');
+  if (vietQrSection) {
+    if (paymentMethod === 'VIETQR') {
+      vietQrSection.style.display = 'block';
+      var vietQrUrl = 'https://api.vietqr.io/image/970422-0905123456-compact2.png?amount=' + total + '&addInfo=' + encodeURIComponent('KLE ' + orderCode.replace(/-/g, '')) + '&accountName=KIM%20LONG%20ECOSTAY';
+      document.getElementById('cartOrderVietQrImg').src = vietQrUrl;
+      document.getElementById('cartOrderTransferNote').textContent = 'Nội dung CK: KLE ' + orderCode.replace(/-/g, '');
+    } else {
+      vietQrSection.style.display = 'none';
+    }
+  }
 
   // Xóa giỏ hàng
   saveCart([]);
   renderSpecialties();
+  if (typeof renderAdminOrdersTable === 'function') renderAdminOrdersTable();
+};
+
+window.openOrderTrackingModalFromCart = function() {
+  var code = document.getElementById('cartSuccessOrderCode') ? document.getElementById('cartSuccessOrderCode').textContent.trim() : '';
+  var cartModalEl = document.getElementById('shoppingCartModal');
+  if (cartModalEl && typeof bootstrap !== 'undefined') {
+    var inst = bootstrap.Modal.getInstance(cartModalEl);
+    if (inst) inst.hide();
+  }
+  openOrderTrackingModal(code);
+};
+
+window.openOrderTrackingModal = function(prefillCode) {
+  var trackModalEl = document.getElementById('orderTrackingModal');
+  if (!trackModalEl) return;
+  var modal = bootstrap.Modal.getOrCreateInstance(trackModalEl);
+  modal.show();
+
+  if (prefillCode) {
+    document.getElementById('trackOrderCodeInput').value = prefillCode;
+    lookupOrderTracking();
+  } else {
+    var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+    if (orders.length > 0) {
+      document.getElementById('trackOrderCodeInput').value = orders[0].orderCode;
+      lookupOrderTracking();
+    } else {
+      lookupOrderTracking();
+    }
+  }
+};
+
+window.lookupOrderTracking = function() {
+  var inputCode = (document.getElementById('trackOrderCodeInput') ? document.getElementById('trackOrderCodeInput').value.trim() : '').toUpperCase();
+  var selRoom = document.getElementById('trackRoomSelect') ? document.getElementById('trackRoomSelect').value : '';
+  var container = document.getElementById('orderTrackingResultContainer');
+  if (!container) return;
+
+  var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+
+  var order = null;
+  if (inputCode) {
+    order = orders.find(function(o) { return o.orderCode && o.orderCode.toUpperCase() === inputCode; });
+  }
+  if (!order && selRoom) {
+    order = orders.find(function(o) { return o.roomNumber === selRoom; });
+  }
+  if (!order && orders.length > 0 && !inputCode && !selRoom) {
+    order = orders[0];
+  }
+
+  if (!order) {
+    container.innerHTML = `
+      <div class="text-center py-5 bg-white rounded-4 border shadow-sm">
+        <i class="bi bi-search fs-1 text-warning d-block mb-2"></i>
+        <h6 class="fw-bold text-dark mb-1">Không tìm thấy đơn giao phòng phù hợp</h6>
+        <p class="small text-muted mb-3">Vui lòng kiểm tra lại mã đơn hàng hoặc chọn đúng số phòng lưu trú tại Kim Long EcoStay.</p>
+        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="openShoppingCartModal()">
+          <i class="bi bi-cart3 me-1"></i>Đặt món giao phòng ngay
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  var steps = [
+    { key: 'PENDING', title: 'Chờ Tiếp Nhận', icon: 'bi-hourglass-split', sub: 'Đơn hàng đã gửi tới quầy lễ tân' },
+    { key: 'CONFIRMED', title: 'Đã Tiếp Nhận', icon: 'bi-check2-circle', sub: 'Lễ tân đã xác nhận & chuyển bếp' },
+    { key: 'PREPARING', title: 'Đang Chuẩn Bị', icon: 'bi-fire', sub: 'Đầu bếp đang nấu món tươi nóng' },
+    { key: 'DELIVERING', title: 'Đang Giao Đến Phòng', icon: 'bi-bicycle', sub: 'Nhân viên đang mang lên cửa phòng' },
+    { key: 'DELIVERED', title: 'Đã Giao Thành Công', icon: 'bi-door-open-fill', sub: 'Chúc quý khách ngon miệng!' }
+  ];
+
+  var stepOrder = ['PENDING', 'CONFIRMED', 'PREPARING', 'DELIVERING', 'DELIVERED'];
+  var currentIdx = stepOrder.indexOf(order.status);
+  if (currentIdx === -1 && order.status !== 'CANCELLED') currentIdx = 0;
+
+  var stepperHtml = '<div class="kle-stepper-wrap p-3 bg-white rounded-4 border shadow-sm mb-3">';
+  if (order.status === 'CANCELLED') {
+    stepperHtml += `
+      <div class="alert alert-danger py-2 px-3 small rounded-3 mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-x-circle-fill fs-5"></i>
+        <div>
+          <strong>Đơn hàng đã được hủy.</strong>
+          <span class="d-block text-muted">Lý do: ${order.cancelReason || 'Theo yêu cầu của khách hoặc bộ phận vận hành'}. Vui lòng liên hệ lễ tân để được hỗ trợ lại.</span>
+        </div>
+      </div>
+    `;
+  } else {
+    stepperHtml += '<div class="d-flex justify-content-between align-items-center position-relative my-2">';
+    steps.forEach(function(st, idx) {
+      var isCompleted = idx < currentIdx;
+      var isCurrent = idx === currentIdx;
+      var circleBg = isCurrent ? 'background:#0A3D2C; color:#FCD34D; border:3px solid #D4AF37; box-shadow:0 0 12px rgba(212,175,55,0.6);' : (isCompleted ? 'background:#15803D; color:#fff;' : 'background:#E2E8F0; color:#64748B;');
+      stepperHtml += `
+        <div class="text-center flex-fill position-relative" style="z-index: 2;">
+          <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold mb-1" style="width: 44px; height: 44px; ${circleBg} font-size: 16px;">
+            <i class="bi ${isCompleted ? 'bi-check-lg' : st.icon}"></i>
+          </div>
+          <div class="fw-bold ${isCurrent ? 'text-success' : (isCompleted ? 'text-dark' : 'text-muted')}" style="font-size: 11.5px; line-height: 1.2;">
+            ${st.title}
+          </div>
+          <small class="d-none d-md-block text-muted" style="font-size: 10px;">${st.sub}</small>
+        </div>
+      `;
+    });
+    stepperHtml += '</div>';
+  }
+  stepperHtml += '</div>';
+
+  var itemsTableHtml = '<div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead class="table-light"><tr><th>Món Ăn / Đặc Sản</th><th class="text-center">Số Lượng</th><th class="text-end">Đơn Giá</th><th class="text-end">Thành Tiền</th></tr></thead><tbody>';
+  (order.items || []).forEach(function(it) {
+    itemsTableHtml += `
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <img src="${it.img}" alt="${it.name}" class="rounded-2" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='images/mon_banhuot.jpg'">
+            <div>
+              <strong class="text-dark small d-block">${it.name}</strong>
+              <small class="text-muted" style="font-size: 10.5px;">${it.category}</small>
+            </div>
+          </div>
+        </td>
+        <td class="text-center font-monospace fw-bold">${it.qty}</td>
+        <td class="text-end font-monospace small">${Number(it.price).toLocaleString('vi-VN')} đ</td>
+        <td class="text-end font-monospace fw-bold text-success">${Number(it.price * it.qty).toLocaleString('vi-VN')} đ</td>
+      </tr>
+    `;
+  });
+  itemsTableHtml += '</tbody></table></div>';
+
+  var roomBadgeText = (order.deliveryMethod === 'ROOM_DELIVERY' || order.roomNumber)
+    ? ('<span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold fs-6"><i class="bi bi-door-open-fill me-1"></i>PHÒNG: ' + (order.roomNumber || 'R101') + '</span>')
+    : ('<span class="badge bg-info text-white px-3 py-1.5 rounded-pill fw-bold">' + (order.roomName || 'Quầy lễ tân') + '</span>');
+
+  var orderTimeText = order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : 'Vừa xong';
+
+  container.innerHTML = `
+    <!-- THẺ TIẾN TRÌNH STEPPER -->
+    ${stepperHtml}
+
+    <!-- THÔNG TIN CHI TIẾT ĐƠN HÀNG -->
+    <div class="card border-0 rounded-4 shadow-sm p-3 bg-white mb-3">
+      <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2 flex-wrap gap-2">
+        <div>
+          <span class="small text-muted d-block">Mã đơn giao phòng</span>
+          <strong class="fs-5 font-serif text-dark font-monospace">${order.orderCode}</strong>
+        </div>
+        <div class="text-end">
+          ${roomBadgeText}
+        </div>
+      </div>
+
+      <div class="row g-2 small mb-3">
+        <div class="col-md-6">
+          <div class="text-muted">Khách nhận: <strong class="text-dark">${order.customerName}</strong></div>
+          <div class="text-muted">Số điện thoại: <strong class="text-dark font-monospace">${order.phone}</strong></div>
+          <div class="text-muted">Giờ đặt món: <span>${orderTimeText}</span></div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-muted">Lịch hẹn giao: <strong class="text-success">${order.deliveryTime || 'Giao ngay (15 - 30 phút)'}</strong></div>
+          <div class="text-muted">Thanh toán: <span class="badge ${order.paymentMethod === 'VIETQR' ? 'bg-success-subtle text-success border' : 'bg-warning-subtle text-dark border'}">${order.paymentMethod === 'VIETQR' ? 'VietQR Đã Chuyển Khoản' : 'Tiền mặt khi nhận tại phòng'}</span></div>
+          ${order.bookingCode ? ('<div class="text-muted">Mã đặt phòng: <strong class="font-monospace text-primary">' + order.bookingCode + '</strong></div>') : ''}
+        </div>
+      </div>
+
+      ${order.serviceNotes ? `
+        <div class="alert alert-warning py-2 px-3 small rounded-3 mb-3">
+          <i class="bi bi-chat-quote-fill me-1 text-danger"></i>
+          <strong>Ghi chú phục vụ của quý khách:</strong> "${order.serviceNotes}"
+        </div>
+      ` : ''}
+
+      <!-- DANH SÁCH MÓN ĐÃ ĐẶT -->
+      <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-bag-check-fill text-success me-1"></i>Chi Tiết Món Ăn Trong Đơn:</h6>
+      ${itemsTableHtml}
+
+      <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+        <span class="fw-bold text-dark">Tổng tiền thanh toán:</span>
+        <span class="fw-bold fs-5 text-success font-monospace">${Number(order.total || 0).toLocaleString('vi-VN')} đ</span>
+      </div>
+    </div>
+
+    <!-- THÔNG BÁO BẢO MẬT & QUY ĐỊNH GIAO PHÒNG -->
+    <div class="alert alert-light border rounded-3 p-3 small text-muted">
+      <div class="d-flex align-items-start gap-2">
+        <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+        <div>
+          <strong class="text-dark">Quy định giao nhận buồng phòng Kim Long EcoStay:</strong>
+          <span>Khách hàng vui lòng chờ tại buồng phòng. Nhân viên phục vụ sẽ gõ cửa, đối chiếu tên phòng và bàn giao món ăn tận nơi. Vì lý do an toàn, trạng thái giao món chỉ được cập nhật hoàn tất bởi nhân viên hệ thống.</span>
+        </div>
+      </div>
+    </div>
+  `;
 };
 
 // =========================================================================
@@ -6116,37 +7040,243 @@ window.renderAdminSpecialties = function() {
   }
 
   // Render orders
-  var ordersTbody = document.getElementById('adminSpecialtyOrdersTableBody');
-  var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
-  if (document.getElementById('adminSpecialtyOrdersBadge')) document.getElementById('adminSpecialtyOrdersBadge').textContent = orders.length + ' Đơn';
+  renderAdminOrdersTable();
+};
 
+var currentAdminOrderFilter = 'ALL';
+
+window.filterAdminOrders = function(filterVal, btnEl) {
+  currentAdminOrderFilter = filterVal;
+  var btns = document.querySelectorAll('.admin-order-filter-btn');
+  btns.forEach(function(b) {
+    b.classList.remove('active', 'btn-dark', 'btn-warning');
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes('ROOM_DELIVERY')) {
+      b.classList.add('btn-outline-warning');
+    } else {
+      b.classList.add('btn-outline-secondary');
+    }
+  });
+  if (btnEl) {
+    btnEl.classList.remove('btn-outline-secondary', 'btn-outline-warning');
+    if (filterVal === 'ROOM_DELIVERY') {
+      btnEl.classList.add('active', 'btn-warning', 'text-dark');
+    } else {
+      btnEl.classList.add('active', 'btn-dark', 'text-white');
+    }
+  }
+  renderAdminOrdersTable();
+};
+
+window.renderAdminOrdersTable = function() {
+  var ordersTbody = document.getElementById('adminSpecialtyOrdersTableBody');
   if (!ordersTbody) return;
-  if (orders.length === 0) {
-    ordersTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Chưa có đơn hàng đặc sản nào được đặt.</td></tr>';
+
+  var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+  
+  // KPI Updates
+  var totalCount = orders.length;
+  var inProgressCount = orders.filter(function(o) {
+    return ['PENDING', 'CONFIRMED', 'PREPARING', 'DELIVERING'].includes(o.status);
+  }).length;
+  var deliveredCount = orders.filter(function(o) { return o.status === 'DELIVERED'; }).length;
+  var roomRevenue = orders.filter(function(o) { return o.status === 'DELIVERED' && (o.deliveryMethod === 'ROOM' || o.roomNumber); })
+                          .reduce(function(acc, cur) { return acc + Number(cur.total || 0); }, 0);
+
+  if (document.getElementById('adminSpecialtyOrdersBadge')) {
+    document.getElementById('adminSpecialtyOrdersBadge').textContent = totalCount + ' Đơn';
+  }
+  if (document.getElementById('adminOrdersKpiTotal')) {
+    document.getElementById('adminOrdersKpiTotal').textContent = totalCount;
+  }
+  if (document.getElementById('adminOrdersKpiInProgress')) {
+    document.getElementById('adminOrdersKpiInProgress').textContent = inProgressCount;
+  }
+  if (document.getElementById('adminOrdersKpiDelivered')) {
+    document.getElementById('adminOrdersKpiDelivered').textContent = deliveredCount;
+  }
+  if (document.getElementById('adminOrdersKpiRevenue')) {
+    document.getElementById('adminOrdersKpiRevenue').textContent = roomRevenue.toLocaleString('vi-VN') + ' đ';
+  }
+
+  // Filter orders
+  var filtered = orders.filter(function(o) {
+    if (currentAdminOrderFilter === 'ALL') return true;
+    if (currentAdminOrderFilter === 'ROOM_DELIVERY') return o.deliveryMethod === 'ROOM' || !!o.roomNumber;
+    return o.status === currentAdminOrderFilter;
+  });
+
+  if (filtered.length === 0) {
+    ordersTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-4 d-block mb-1"></i>Không có đơn hàng nào theo bộ lọc hiện tại.</td></tr>';
     return;
   }
 
   var ordHtml = '';
-  orders.forEach(function(o) {
-    var itemsDesc = (o.items || []).map(function(i) { return i.qty + 'x ' + i.name; }).join(', ');
+  filtered.forEach(function(o) {
+    var itemsDesc = (o.items || []).map(function(i) {
+      return '<div class="text-nowrap small mb-1"><span class="badge bg-light text-dark border me-1">' + i.qty + 'x</span><strong>' + i.name + '</strong></div>';
+    }).join('');
+
+    var roomHtml = '';
+    if (o.roomNumber) {
+      roomHtml = '<span class="badge bg-warning text-dark px-2.5 py-1.5 fw-bold font-monospace"><i class="bi bi-door-open-fill me-1"></i>PHÒNG: ' + o.roomNumber + '</span>';
+      if (o.bookingCode) {
+        roomHtml += '<div class="small text-muted font-monospace mt-1" style="font-size:11px;">Mã: ' + o.bookingCode + '</div>';
+      }
+    } else {
+      var dMethodLabel = (o.deliveryMethod === 'RECEPTION') ? 'Tại Lễ Tân' : ((o.deliveryMethod === 'PARTNER') ? 'Tại Điểm Bán' : 'Tự Lấy');
+      roomHtml = '<span class="badge bg-light text-dark border px-2 py-1"><i class="bi bi-geo-alt me-1"></i>' + dMethodLabel + '</span>';
+    }
+
+    var timeLabel = (o.deliveryTime === 'ASAP' || !o.deliveryTime) ? '⚡ Giao ngay (15-30p)' : o.deliveryTime;
+    var payBadge = (o.paymentMethod === 'VIETQR')
+      ? '<span class="badge bg-primary text-white py-0.5 px-2" style="font-size:10px;"><i class="bi bi-qr-code me-1"></i>VietQR</span>'
+      : '<span class="badge bg-secondary text-white py-0.5 px-2" style="font-size:10px;"><i class="bi bi-cash me-1"></i>Tiền mặt tại phòng</span>';
+
+    var statusBadge = '';
+    var actionBtns = '';
+
+    switch(o.status) {
+      case 'PENDING':
+        statusBadge = '<span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Chờ Tiếp Nhận</span>';
+        actionBtns = '<button class="btn btn-sm btn-info text-white rounded-pill px-2.5 py-1 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'CONFIRMED\')" title="Lễ tân xác nhận đơn"><i class="bi bi-check2 me-1"></i>Tiếp Nhận</button>';
+        break;
+      case 'CONFIRMED':
+        statusBadge = '<span class="badge bg-info text-dark"><i class="bi bi-check-circle me-1"></i>Đã Tiếp Nhận</span>';
+        actionBtns = '<button class="btn btn-sm btn-primary rounded-pill px-2.5 py-1 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'PREPARING\')" title="Báo bếp/đối tác chế biến"><i class="bi bi-fire me-1"></i>Chuẩn Bị</button>';
+        break;
+      case 'PREPARING':
+        statusBadge = '<span class="badge bg-primary text-white"><i class="bi bi-fire me-1"></i>Đang Chuẩn Bị</span>';
+        actionBtns = '<button class="btn btn-sm btn-warning text-dark rounded-pill px-2.5 py-1 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'DELIVERING\')" title="Nhân viên nhận món mang lên phòng"><i class="bi bi-bicycle me-1"></i>Giao Phòng</button>';
+        break;
+      case 'DELIVERING':
+        statusBadge = '<span class="badge bg-warning text-dark"><i class="bi bi-bicycle me-1"></i>Đang Giao Phòng</span>';
+        actionBtns = '<button class="btn btn-sm btn-success rounded-pill px-2.5 py-1 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'DELIVERED\')" title="Khách đã nhận món đầy đủ"><i class="bi bi-check-all me-1"></i>Đã Nhận Món</button>';
+        break;
+      case 'DELIVERED':
+        statusBadge = '<span class="badge bg-success text-white"><i class="bi bi-check-all me-1"></i>Đã Hoàn Tất</span>';
+        actionBtns = '<span class="text-success small fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Hoàn Tất</span>';
+        break;
+      case 'CANCELLED':
+        statusBadge = '<span class="badge bg-danger text-white"><i class="bi bi-x-circle me-1"></i>Đã Hủy</span>';
+        actionBtns = '<span class="text-muted small">Đã hủy đơn</span>';
+        break;
+      default:
+        statusBadge = '<span class="badge bg-secondary text-white">' + o.status + '</span>';
+        actionBtns = '<button class="btn btn-sm btn-success rounded-pill px-2.5 py-1 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'DELIVERED\')">Đã Giao</button>';
+    }
+
+    if (o.status !== 'DELIVERED' && o.status !== 'CANCELLED') {
+      actionBtns += '<button class="btn btn-sm btn-outline-danger rounded-circle p-1 ms-1.5" style="width:26px; height:26px; line-height:1;" onclick="cancelAdminSpecialtyOrder(\'' + o.orderCode + '\')" title="Hủy đơn hàng này"><i class="bi bi-x-lg" style="font-size:11px;"></i></button>';
+    }
+
+    var timeStr = 'Vừa đặt';
+    if (o.createdAt) {
+      try {
+        var d = new Date(o.createdAt);
+        timeStr = d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) + ' ' + d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
+      } catch(e) {}
+    }
+
     ordHtml += `
       <tr>
-        <td class="ps-4 font-monospace fw-bold text-primary">${o.orderCode}</td>
-        <td><strong>${o.customerName}</strong></td>
-        <td><small class="text-muted font-monospace">${o.phone}</small></td>
-        <td><small class="text-muted">${o.address}</small></td>
-        <td><small class="text-dark">${itemsDesc}</small></td>
+        <td class="ps-4">
+          <span class="font-monospace fw-bold text-primary">${o.orderCode}</span>
+          <div class="small text-muted font-monospace" style="font-size:11px;">${timeStr}</div>
+        </td>
+        <td>
+          <strong class="text-dark">${o.customerName || 'Khách lưu trú'}</strong>
+          <div class="small text-muted font-monospace"><i class="bi bi-telephone me-1"></i>${o.phone || 'Chưa cung cấp'}</div>
+        </td>
+        <td>${roomHtml}</td>
+        <td>
+          <div class="mb-1"><span class="badge bg-light text-dark border font-monospace" style="font-size:11px;"><i class="bi bi-clock me-1"></i>${timeLabel}</span></div>
+          ${o.notes ? '<div class="small text-muted fst-italic text-truncate" style="max-width:180px; font-size:11px;" title="' + o.notes + '">📝 ' + o.notes + '</div>' : ''}
+          <div class="mt-1">${payBadge}</div>
+        </td>
+        <td>${itemsDesc}</td>
         <td class="font-monospace fw-bold text-success">${Number(o.total || 0).toLocaleString('vi-VN')} đ</td>
-        <td><span class="badge bg-warning text-dark">${o.status}</span></td>
+        <td>${statusBadge}</td>
         <td class="text-end pe-4">
-          <button class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold" onclick="markSpecialtyOrderDelivered('${o.orderCode}')">
-            <i class="bi bi-check2"></i> Đã Giao
-          </button>
+          <div class="d-inline-flex align-items-center">
+            ${actionBtns}
+          </div>
         </td>
       </tr>
     `;
   });
+
   ordersTbody.innerHTML = ordHtml;
+};
+
+window.advanceOrderStatus = function(orderCode, targetStatus) {
+  var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+  var ord = orders.find(function(o) { return o.orderCode === orderCode; });
+  if (!ord) return;
+
+  ord.status = targetStatus;
+  if (!ord.statusHistory) ord.statusHistory = [];
+  
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) + ', ' + now.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
+  var note = '';
+  if (targetStatus === 'CONFIRMED') note = 'Bộ phận lễ tân đã tiếp nhận và xác thực đơn đặt';
+  else if (targetStatus === 'PREPARING') note = 'Bếp/đối tác địa phương đang chế biến và đóng gói';
+  else if (targetStatus === 'DELIVERING') note = 'Nhân viên giao nhận đang mang món ăn trực tiếp lên buồng phòng';
+  else if (targetStatus === 'DELIVERED') {
+    note = 'Khách lưu trú đã nhận món ăn tận phòng, dịch vụ hoàn tất';
+    ord.deliveredAt = now.toISOString();
+  }
+
+  ord.statusHistory.push({
+    status: targetStatus,
+    time: timeStr,
+    note: note
+  });
+
+  localStorage.setItem('kle_specialty_orders', JSON.stringify(orders));
+  renderAdminOrdersTable();
+  if (typeof renderAdminSpecialties === 'function') {
+    var b = document.getElementById('adminSpecialtyOrdersBadge');
+    if (b) b.textContent = orders.length + ' Đơn';
+  }
+};
+
+window.cancelAdminSpecialtyOrder = function(orderCode) {
+  var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+  var ord = orders.find(function(o) { return o.orderCode === orderCode; });
+  if (!ord) return;
+
+  var reason = prompt('Nhập lý do hủy đơn hàng giao phòng ' + orderCode + ':', 'Khách báo hủy đột xuất');
+  if (reason === null) return;
+  reason = reason.trim() || 'Hủy theo yêu cầu của khách/lễ tân';
+
+  ord.status = 'CANCELLED';
+  if (!ord.statusHistory) ord.statusHistory = [];
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) + ', ' + now.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
+  ord.statusHistory.push({
+    status: 'CANCELLED',
+    time: timeStr,
+    note: 'Đã hủy đơn: ' + reason
+  });
+
+  // Hoàn trả tồn kho
+  var products = getProducts();
+  if (Array.isArray(ord.items)) {
+    ord.items.forEach(function(item) {
+      var p = products.find(function(prod) { return prod.id === item.id; });
+      if (p) {
+        p.stock = (Number(p.stock) || 0) + Number(item.qty || 1);
+      }
+    });
+    saveProducts(products);
+  }
+
+  localStorage.setItem('kle_specialty_orders', JSON.stringify(orders));
+  renderAdminOrdersTable();
+  renderAdminSpecialties();
+  renderSpecialties();
+  alert('Đã hủy đơn ' + orderCode + ' và hoàn trả tồn kho vào danh mục sản phẩm!');
 };
 
 window.openAdminProductForm = function(editId) {
@@ -6300,12 +7430,15 @@ window.deleteAdminProduct = function(id) {
 };
 
 window.resetDefaultProductsStore = function() {
-  if (!confirm('Khôi phục danh mục 16 sản phẩm & đặc sản mẫu ban đầu?')) return;
+  if (!confirm('Khôi phục danh mục 30 sản phẩm & đơn hàng giao phòng mẫu ban đầu?')) return;
   localStorage.setItem('kle_products', JSON.stringify(DEFAULT_PRODUCTS));
-  localStorage.setItem('kle_products_version', 'v2_16items');
+  localStorage.setItem('kle_products_version', 'v3_30items');
+  localStorage.setItem('kle_specialty_orders', JSON.stringify(DEFAULT_INITIAL_SPECIALTY_ORDERS));
+  localStorage.setItem('kle_orders_version', 'v3_room_orders');
   renderSpecialties();
   renderAdminSpecialties();
   if (typeof renderPartnerDirectory === 'function') renderPartnerDirectory();
+  alert('Đã khôi phục thành công danh mục 30 sản phẩm và dữ liệu đơn giao phòng mẫu!');
 };
 
 window.updateAdminProductStock = function(id) {
@@ -6344,12 +7477,16 @@ window.showAddProductPrompt = function() {
 };
 
 window.markSpecialtyOrderDelivered = function(orderCode) {
-  var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
-  var ord = orders.find(function(o) { return o.orderCode === orderCode; });
-  if (ord) {
-    ord.status = 'ĐÃ GIAO HÀNG';
-    localStorage.setItem('kle_specialty_orders', JSON.stringify(orders));
-    renderAdminSpecialties();
+  if (typeof advanceOrderStatus === 'function') {
+    advanceOrderStatus(orderCode, 'DELIVERED');
+  } else {
+    var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+    var ord = orders.find(function(o) { return o.orderCode === orderCode; });
+    if (ord) {
+      ord.status = 'DELIVERED';
+      localStorage.setItem('kle_specialty_orders', JSON.stringify(orders));
+      renderAdminSpecialties();
+    }
   }
 };
 
