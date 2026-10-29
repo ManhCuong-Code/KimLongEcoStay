@@ -388,6 +388,24 @@ app.MapGet("/api/specialties", (IProductRepository productRepo) =>
     return Results.Ok(products);
 });
 
+// 1B. Mạng lưới đối tác địa phương & điểm bản đồ Kim Long
+app.MapGet("/api/partners", () =>
+{
+    var samplePartners = new[]
+    {
+        new { Id = "KLE-CENTER", Name = "Kim Long EcoStay (Tâm Điểm Xuất Phát)", Category = "Nhà vườn và homestay", PartnerGroup = "Nhà vườn và homestay", Latitude = 16.4560, Longitude = 107.5495, Address = "Khu vực Nhà vườn Kim Long, Ven Sông Hương, Phường Kim Long, TP. Huế", DistanceKm = 0.0, Phone = "0905 123 456", OpenHours = "Mở cửa 24/7 (Smart Check-in không chạm)", ImageUrl = "images/nha_ruong_1.jpg", IsActive = true, IsSample = false },
+        new { Id = "PARTNER-NV-HUONG-SEN", Name = "Nhà Vườn Sinh Thái Hương Sen Kim Long", Category = "Nhà vườn và homestay", PartnerGroup = "Nhà vườn và homestay", Latitude = 16.4572, Longitude = 107.5482, Address = "Kiệt 82 Kim Long, Phường Kim Long, TP. Huế", DistanceKm = 0.18, Phone = "0914 234 567", OpenHours = "06:30 - 21:00 hàng ngày", ImageUrl = "images/nha_ruong_1.jpg", IsActive = true, IsSample = true },
+        new { Id = "PARTNER-NV-THANH-TRA", Name = "Vườn Sinh Thái & Homestay Thanh Trà Cổ Thụ", Category = "Nhà vườn và homestay", PartnerGroup = "Nhà vườn và homestay", Latitude = 16.4585, Longitude = 107.5465, Address = "Đường Nguyễn Hoàng, Phường Kim Long, TP. Huế", DistanceKm = 0.35, Phone = "0935 345 678", OpenHours = "07:00 - 18:30 hàng ngày", ImageUrl = "images/nha_ruong_3.jpg", IsActive = true, IsSample = true },
+        new { Id = "HERITAGE-AN-HIEN", Name = "Nhà Vườn An Hiên (Đệ Nhất Nhà Vườn Xứ Huế)", Category = "Nhà vườn và homestay", PartnerGroup = "Nhà vườn và homestay", Latitude = 16.4542, Longitude = 107.5471, Address = "58 Phú Mộng, Phường Kim Long, TP. Huế", DistanceKm = 0.45, Phone = "0234 3523 456", OpenHours = "07:30 - 17:30 hàng ngày", ImageUrl = "images/nha_ruong_2.jpg", IsActive = true, IsSample = false },
+        new { Id = "FOOD-BANH-UOT", Name = "Bánh Ướt Thịt Nướng Huyền Anh (Đệ Nhất Kim Long)", Category = "Quán ăn và ẩm thực", PartnerGroup = "Quán ăn và ẩm thực", Latitude = 16.4568, Longitude = 107.5475, Address = "50/5 Kim Long, Phường Kim Long, TP. Huế", DistanceKm = 0.25, Phone = "0234 3525 655", OpenHours = "08:30 - 21:00 hàng ngày", ImageUrl = "images/mon_banhuot.jpg", IsActive = true, IsSample = false },
+        new { Id = "PARTNER-DAC-SAN-KIM-LONG", Name = "Cơ Sở Đặc Sản & Mứt Gừng Kim Long O Lành", Category = "Đặc sản và sản phẩm địa phương", PartnerGroup = "Đặc sản và sản phẩm địa phương", Latitude = 16.4578, Longitude = 107.5512, Address = "Đường Kim Long, Phường Kim Long, TP. Huế", DistanceKm = 0.28, Phone = "0905 456 789", OpenHours = "07:00 - 20:30 hàng ngày", ImageUrl = "images/qua_mutgung.jpg", IsActive = true, IsSample = true },
+        new { Id = "PARTNER-TRA-CUNG-DINH", Name = "Trà Thất & Đặc Sản Trà Cung Đình Kim Long", Category = "Đặc sản và sản phẩm địa phương", PartnerGroup = "Đặc sản và sản phẩm địa phương", Latitude = 16.4552, Longitude = 107.5525, Address = "Đường Kim Long, Phường Kim Long, TP. Huế", DistanceKm = 0.4, Phone = "0983 567 890", OpenHours = "07:30 - 21:30 hàng ngày", ImageUrl = "images/tra_cung_dinh.jpg", IsActive = true, IsSample = true },
+        new { Id = "PARTNER-HTX-NONG-SAN", Name = "HTX Nông Sản Sạch & Thanh Trà Kim Long", Category = "Đặc sản và sản phẩm địa phương", PartnerGroup = "Đặc sản và sản phẩm địa phương", Latitude = 16.4595, Longitude = 107.5450, Address = "Khu nông nghiệp bãi bồi ven sông, Kim Long, TP. Huế", DistanceKm = 0.5, Phone = "0912 678 901", OpenHours = "06:00 - 18:00 hàng ngày", ImageUrl = "images/nongsan_thanhtra.jpg", IsActive = true, IsSample = true },
+        new { Id = "EXP-ECO-BIKE-KIM-LONG", Name = "Trạm Xe Đạp Sinh Thái Eco-Bike & Bến Thuyền Kim Long", Category = "Điểm trải nghiệm", PartnerGroup = "Điểm trải nghiệm", Latitude = 16.4555, Longitude = 107.5505, Address = "Bến thuyền Kim Long ven sông Hương, TP. Huế", DistanceKm = 0.15, Phone = "0905 123 456", OpenHours = "06:00 - 21:00 hàng ngày", ImageUrl = "images/hero_ecostay.jpg", IsActive = true, IsSample = true }
+    };
+    return Results.Ok(samplePartners);
+});
+
 // 2. Danh sách dịch vụ trà Cung Đình Huế
 app.MapGet("/api/tea-services", () =>
 {

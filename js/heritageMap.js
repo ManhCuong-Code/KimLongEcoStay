@@ -1,6 +1,6 @@
 /**
- * HERITAGE & CULINARY MAP CONTROLLER - KIM LONG ECOSTAY
- * Bản đồ số GIS & Dẫn đường du khách: Di tích Cố đô, Làng nghề & Ẩm thực Huế
+ * HERITAGE & PARTNER NETWORK MAP CONTROLLER - KIM LONG ECOSTAY
+ * Bản đồ số GIS Nhà vườn, Mạng lưới Đối tác Địa phương, Ẩm thực, Đặc sản & Điểm trải nghiệm
  */
 
 window.heritageMapController = {
@@ -12,6 +12,8 @@ window.heritageMapController = {
   navMarkerStart: null,
   navMarkerEnd: null,
   navBikeMarker: null,
+  userLocationMarker: null,
+  userLocationCircle: null,
   bikeAnimInterval: null,
   centerCircle: null,
   streetLayer: null,
@@ -22,6 +24,9 @@ window.heritageMapController = {
   currentMode: 'street',
   activeNavLocation: null,
   activeTravelMode: 'bike', // 'bike' | 'walk' | 'motor'
+  activeCategoryFilter: 'Tất Cả Địa Điểm',
+  activeSearchQuery: '',
+  activeServiceFilter: 'ALL',
 
   // Tọa độ chuẩn của Kim Long EcoStay
   ecoStayCoords: [16.4560, 107.5495],
@@ -31,6 +36,15 @@ window.heritageMapController = {
   // Tuyệt đối không dùng endpoint yêu cầu API Key nếu chưa có cấu hình.
   // =========================================================================
   TILE_PROVIDERS: {
+    osmStandard: {
+      id: 'osmStandard',
+      name: 'OpenStreetMap Tiêu Chuẩn',
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      options: {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors | Kim Long EcoStay'
+      }
+    },
     googleStreet: {
       id: 'googleStreet',
       name: 'Google Maps Du Lịch',
@@ -38,7 +52,7 @@ window.heritageMapController = {
       options: {
         maxZoom: 20,
         subdomains: ['0', '1', '2', '3'],
-        attribution: '&copy; Google Maps &copy; Kim Long EcoStay'
+        attribution: '&copy; OpenStreetMap & Google Maps | Kim Long EcoStay'
       }
     },
     esriStreet: {
@@ -66,15 +80,6 @@ window.heritageMapController = {
       options: {
         maxZoom: 19
       }
-    },
-    osmStandard: {
-      id: 'osmStandard',
-      name: 'OpenStreetMap Tiêu Chuẩn',
-      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      options: {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors | Kim Long EcoStay'
-      }
     }
   },
 
@@ -87,25 +92,23 @@ window.heritageMapController = {
     var failedCount = 0;
     var hasHandled = false;
 
-    // 1. Bắt lỗi kết nối mạng / HTTP 4xx, 5xx
     layer.on('tileerror', function() {
       failedCount++;
       if (failedCount >= 3 && !hasHandled) {
         hasHandled = true;
-        console.warn("[HeritageMap] Tile provider '" + providerConfig.name + "' gặp lỗi tải tile liên tiếp (" + failedCount + " tiles). Bắt đầu chuyển dự phòng an toàn.");
+        console.warn("[HeritageMap] Tile provider '" + providerConfig.name + "' gặp lỗi tải tile liên tiếp (" + failedCount + " tiles). Chuyển sang nguồn dự phòng.");
         if (typeof onFailover === 'function') {
           onFailover(providerConfig);
         }
       }
     });
 
-    // 2. Bắt lỗi ảnh rác, ảnh 1x1px hoặc ảnh watermark giả mạo HTTP 200
     layer.on('tileload', function(e) {
       if (e.tile && (e.tile.naturalWidth < 16 || e.tile.naturalHeight < 16)) {
         failedCount++;
         if (failedCount >= 3 && !hasHandled) {
           hasHandled = true;
-          console.warn("[HeritageMap] Tile provider '" + providerConfig.name + "' trả về kích thước không hợp lệ. Bắt đầu chuyển dự phòng an toàn.");
+          console.warn("[HeritageMap] Tile provider '" + providerConfig.name + "' trả về kích thước không hợp lệ. Chuyển sang nguồn dự phòng.");
           if (typeof onFailover === 'function') {
             onFailover(providerConfig);
           }
@@ -116,7 +119,7 @@ window.heritageMapController = {
     return layer;
   },
 
-  showFallbackNotice: function(msg) {
+  showFallbackNotice: function(msg, isSuccess) {
     var container = document.getElementById(this.currentElementId || 'heritage-leaflet-map');
     if (!container) return;
     var existing = container.querySelector('.map-tile-fallback-notice');
@@ -124,8 +127,11 @@ window.heritageMapController = {
 
     var notice = document.createElement('div');
     notice.className = 'map-tile-fallback-notice';
-    notice.style.cssText = 'position:absolute; bottom:16px; left:16px; right:16px; z-index:1000; background:rgba(15,23,42,0.88); color:#FEF08A; padding:10px 16px; border-radius:12px; font-size:13px; font-weight:600; text-align:center; backdrop-filter:blur(6px); border:1px solid rgba(254,240,138,0.3); pointer-events:none; box-shadow:0 4px 16px rgba(0,0,0,0.25);';
-    notice.innerHTML = '<i class="bi bi-info-circle-fill me-2 text-warning"></i>' + msg;
+    var borderColor = isSuccess ? 'rgba(34,197,94,0.45)' : 'rgba(254,240,138,0.35)';
+    var textColor = isSuccess ? '#BBF7D0' : '#FEF08A';
+    var icon = isSuccess ? 'bi-check-circle-fill text-success' : 'bi-info-circle-fill text-warning';
+    notice.style.cssText = 'position:absolute; bottom:16px; left:16px; right:16px; z-index:1000; background:rgba(15,23,42,0.9); color:' + textColor + '; padding:10px 16px; border-radius:12px; font-size:13px; font-weight:600; text-align:center; backdrop-filter:blur(6px); border:1px solid ' + borderColor + '; pointer-events:none; box-shadow:0 4px 16px rgba(0,0,0,0.25);';
+    notice.innerHTML = '<i class="bi ' + icon + ' me-2"></i>' + msg;
     container.appendChild(notice);
   },
 
@@ -146,12 +152,15 @@ window.heritageMapController = {
 
     if (typeof L === 'undefined') {
       console.error("[HeritageMap] Thư viện Leaflet L chưa sẵn sàng. Vui lòng kiểm tra leaflet.js.");
+      this.showFallbackNotice("Không thể tải thư viện bản đồ Leaflet. Vui lòng kiểm tra kết nối mạng hoặc xem danh sách đối tác bên cạnh.");
       return false;
     }
 
-    this.locationsData = locations || [];
+    var activeLocations = (locations || (window.getKlePartners ? window.getKlePartners(false) : window.heritageLocations) || []).filter(function (loc) {
+      return loc && loc.isActive !== false;
+    });
+    this.locationsData = activeLocations;
 
-    // Hủy triệt để instance cũ và xóa _leaflet_id trên DOM container để tránh lỗi 'Map container is already initialized'
     if (this.mapInstance) {
       try {
         this.mapInstance.remove();
@@ -171,43 +180,38 @@ window.heritageMapController = {
 
     var map = L.map(elementId, {
       center: [centerLat, centerLng],
-      zoom: 13,
+      zoom: 14,
       scrollWheelZoom: true,
       zoomControl: true,
       fadeAnimation: true
     });
     this.mapInstance = map;
 
-    // =========================================================================
-    // 1. CÁC LỚP BẢN ĐỒ SIÊU BỀN VỮNG (CHỐNG MÀN HÌNH TRẮNG & TỰ ĐỘNG DỰ PHÒNG)
-    // =========================================================================
     var self = this;
 
-    // Lớp 1: Bản đồ đường phố du lịch Google Maps (Mặc định)
+    // Lớp 1: Google Street / OpenStreetMap Hybrid
     this.streetLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.googleStreet, function() {
       self.handleStreetFailover();
     });
 
-    // Lớp 2: Bản đồ giao thông Esri World Street Map (Miễn phí 100%, không API Key)
+    // Lớp 2: OpenStreetMap Standard
+    this.osmStreetLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.osmStandard, function() {
+      self.handleOsmFailover();
+    });
+
+    // Lớp 3: Esri World Street Map
     this.esriStreetLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.esriStreet, function() {
       self.handleEsriFailover();
     });
 
-    // Lớp 3: Ảnh vệ tinh thực tế độ nét cao Esri World Imagery
+    // Lớp 4: Esri World Imagery Satellite
     this.satelliteLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.esriSatellite, function() {
       console.warn("[HeritageMap] Vệ tinh Esri gặp lỗi đường truyền.");
     });
 
-    // Lớp chú thích tên đường & địa danh trên nền vệ tinh
     this.labelsLayer = L.tileLayer(this.TILE_PROVIDERS.esriLabels.url, this.TILE_PROVIDERS.esriLabels.options);
 
-    // Lớp dự phòng cấp 3: OpenStreetMap Standard
-    this.osmStreetLayer = this.createSafeTileLayer(this.TILE_PROVIDERS.osmStandard, function() {
-      console.warn("[HeritageMap] Toàn bộ nguồn bản đồ nền đường phố đều gặp sự cố mạng.");
-      self.showFallbackNotice("Bản đồ nền tạm thời gián đoạn kết nối. Vị trí 43 danh thắng & dữ liệu du lịch Kim Long EcoStay vẫn hiển thị chính xác.");
-    });
-
-    // Mặc định nạp Street layer vào bản đồ
+    // Mặc định nạp Street layer
     this.streetLayer.addTo(map);
     this.streetLayer.bringToBack();
 
@@ -215,71 +219,16 @@ window.heritageMapController = {
     this.centerCircle = L.circle([centerLat, centerLng], {
       color: '#166534',
       fillColor: '#22c55e',
-      fillOpacity: 0.12,
-      radius: 1200
+      fillOpacity: 0.10,
+      radius: 1000
     }).addTo(map);
-    this.centerCircle.bindTooltip("Vùng đệm nhà vườn Kim Long ven sông Hương (1.2km)", {
+    this.centerCircle.bindTooltip("Vùng lõi liên kết Nhà vườn & Đối tác Kim Long (Bán kính 1km)", {
       permanent: false,
       direction: 'top'
     });
 
-    // =========================================================================
-    // 2. TẠO MARKER HÌNH ẢNH SỐNG ĐỘNG
-    // =========================================================================
-    locations.forEach(function (loc, index) {
-      var markerIcon = self.createVisualPhotoIcon(loc);
+    this.renderMarkersOnMap(activeLocations);
 
-      var marker = L.marker([loc.latitude, loc.longitude], {
-        icon: markerIcon,
-        title: loc.name,
-        zIndexOffset: loc.isEcoStayCenter ? 1000 : 100
-      }).addTo(map);
-
-      // Tooltip tên địa điểm
-      marker.bindTooltip(`<strong>${loc.name}</strong><br><small style="color:#64748B;">${loc.category} • ${(loc.travelEstimate || '').split('(')[0]}</small>`, {
-        direction: 'top',
-        offset: [0, -26],
-        className: 'custom-map-tooltip'
-      });
-
-      // Popup chi tiết kèm nút DẪN ĐƯỜNG TRỰC TIẾP
-      var popupContent = `
-        <div class="map-popup-card">
-          <div class="popup-img-wrap">
-            <img src="${loc.imageUrl || '/images/hero_ecostay.jpg'}" alt="${loc.name}" class="popup-img" onerror="this.src='/images/hero_ecostay.jpg'">
-            <span class="popup-badge" style="background: ${self.getCategoryColor(loc.category)};">${loc.category}</span>
-          </div>
-          <div class="popup-body">
-            <h4 class="popup-title">${loc.name}</h4>
-            <div class="popup-addr"><i class="bi bi-geo-alt-fill text-danger"></i> <strong>Địa chỉ:</strong> ${loc.address}</div>
-            <div class="popup-dist"><i class="bi bi-bicycle text-success"></i> <strong>Cự ly:</strong> ${loc.travelEstimate || ''}</div>
-            <div class="popup-time-info"><i class="bi bi-clock-history text-primary"></i> <strong>Giờ mở cửa:</strong> ${loc.openingHours}</div>
-            <p class="popup-desc">${loc.summary}</p>
-            
-            <div class="popup-nav-highlight">
-              <button class="btn-popup-nav" onclick="window.heritageMapController.navigateFromHomestayTo('${loc.id}', 'bike')">
-                <i class="bi bi-signpost-2-fill text-warning"></i> Chỉ đường từ Homestay
-              </button>
-            </div>
-
-            <div class="popup-actions mt-2">
-              <a href="${loc.googleMapsDirectionUrl || loc.googleMapsQueryUrl}" target="_blank" class="btn-popup-maps" title="Bật điều hướng GPS Google Maps">
-                <i class="bi bi-google"></i> Google Maps
-              </a>
-              <button class="btn-popup-select" onclick="window.heritageMapController.focusLocation(${loc.latitude}, ${loc.longitude}, 16)">
-                <i class="bi bi-zoom-in"></i> Xem gần
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-
-      marker.bindPopup(popupContent, { maxWidth: 330, className: 'custom-leaflet-popup' });
-      marker.locData = loc;
-      self.markersList.push(marker);
-    });
-
-    // InvalidateSize đa kỳ để khử hoàn toàn hiện tượng bản đồ trắng hoặc xám
     [30, 100, 250, 500, 1000, 2000].forEach(function (delay) {
       setTimeout(function () {
         if (self.mapInstance) {
@@ -288,7 +237,6 @@ window.heritageMapController = {
       }, delay);
     });
 
-    // Lắng nghe resize cửa sổ & focus tab
     window.addEventListener('resize', function () {
       if (self.mapInstance) {
         self.mapInstance.invalidateSize();
@@ -300,7 +248,6 @@ window.heritageMapController = {
       }
     });
 
-    // Theo dõi kích thước container bằng ResizeObserver
     if (window.ResizeObserver && container) {
       var ro = new ResizeObserver(function () {
         if (self.mapInstance) {
@@ -310,7 +257,6 @@ window.heritageMapController = {
       ro.observe(container);
     }
 
-    // Theo dõi khi bản đồ cuộn vào tầm nhìn người dùng bằng IntersectionObserver
     if (window.IntersectionObserver && container) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
@@ -325,16 +271,138 @@ window.heritageMapController = {
     return true;
   },
 
+  renderMarkersOnMap: function (locations) {
+    if (!this.mapInstance) return;
+    var self = this;
+
+    // Xóa marker cũ
+    this.markersList.forEach(function (m) {
+      if (self.mapInstance.hasLayer(m)) {
+        self.mapInstance.removeLayer(m);
+      }
+    });
+    this.markersList = [];
+
+    (locations || []).forEach(function (loc) {
+      if (!loc || loc.isActive === false) return;
+      var lat = parseFloat(loc.latitude);
+      var lng = parseFloat(loc.longitude);
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      var markerIcon = self.createVisualPhotoIcon(loc);
+      var marker = L.marker([lat, lng], {
+        icon: markerIcon,
+        title: loc.name,
+        zIndexOffset: loc.isEcoStayCenter ? 1000 : (loc.isPartner ? 400 : 100)
+      }).addTo(self.mapInstance);
+
+      var groupLabel = loc.partnerGroup || (window.inferPartnerGroup ? window.inferPartnerGroup(loc) : loc.category);
+      marker.bindTooltip('<strong>' + loc.name + '</strong><br><small style="color:#64748B;">' + groupLabel + ' • ' + ((loc.travelEstimate || '').split('(')[0]) + '</small>', {
+        direction: 'top',
+        offset: [0, -26],
+        className: 'custom-map-tooltip'
+      });
+
+      var popupContent = self.buildPopupHtml(loc);
+      marker.bindPopup(popupContent, { maxWidth: 345, className: 'custom-leaflet-popup' });
+      marker.locData = loc;
+      self.markersList.push(marker);
+    });
+  },
+
+  reloadMarkers: function (locations) {
+    var activeLocations = (locations || (window.getKlePartners ? window.getKlePartners(false) : window.heritageLocations) || []).filter(function (loc) {
+      return loc && loc.isActive !== false;
+    });
+    this.locationsData = activeLocations;
+    if (!this.mapInstance) return;
+    this.renderMarkersOnMap(activeLocations);
+    this.filterMarkers(this.activeCategoryFilter, this.activeSearchQuery, this.activeServiceFilter);
+  },
+
+  buildPopupHtml: function (loc) {
+    var groupLabel = loc.partnerGroup || (window.inferPartnerGroup ? window.inferPartnerGroup(loc) : loc.category);
+    var badgeColor = this.getCategoryColor(loc.category, groupLabel);
+    var servicesList = Array.isArray(loc.services) && loc.services.length ? loc.services : [loc.category];
+    var servicesBadges = servicesList.slice(0, 4).map(function (srv) {
+      return '<span class="badge bg-light text-dark border me-1 mb-1" style="font-size:10px;font-weight:600;">' + srv + '</span>';
+    }).join('');
+
+    var linkedCount = 0;
+    if (typeof window.getProductsByPartnerId === 'function') {
+      linkedCount = window.getProductsByPartnerId(loc.id).length;
+    }
+
+    var hasProductsBtn = (linkedCount > 0 || groupLabel === 'Nhà vườn và homestay' || groupLabel === 'Quán ăn và ẩm thực' || groupLabel === 'Đặc sản và sản phẩm địa phương');
+    var googleDirUrl = loc.googleMapsDirectionUrl || ('https://www.google.com/maps/dir/?api=1&origin=' + this.ecoStayCoords[0] + ',' + this.ecoStayCoords[1] + '&destination=' + loc.latitude + ',' + loc.longitude + '&travelmode=bicycling');
+    var osmUrl = 'https://www.openstreetmap.org/?mlat=' + loc.latitude + '&mlon=' + loc.longitude + '#map=17/' + loc.latitude + '/' + loc.longitude;
+    var sampleBadge = loc.isSample ? '<span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1" style="font-size:9px;">Mô hình liên kết</span>' : '';
+
+    return `
+      <div class="map-popup-card">
+        <div class="popup-img-wrap">
+          <img src="${loc.imageUrl || 'images/hero_ecostay.jpg'}" alt="${loc.name}" class="popup-img" onerror="this.src='images/hero_ecostay.jpg'">
+          <span class="popup-badge" style="background: ${badgeColor};">${groupLabel}</span>
+        </div>
+        <div class="popup-body">
+          <h4 class="popup-title mb-1">${loc.name} ${sampleBadge}</h4>
+          <p class="popup-desc mb-2">${loc.summary || loc.description || ''}</p>
+          <div class="popup-addr"><i class="bi bi-geo-alt-fill text-danger"></i> <strong>Địa chỉ:</strong> ${loc.address}</div>
+          <div class="popup-dist"><i class="bi bi-bicycle text-success"></i> <strong>Cự ly:</strong> ${loc.travelEstimate || (loc.distanceFromEcoStayKm + ' km')}</div>
+          <div class="popup-time-info"><i class="bi bi-clock-history text-primary"></i> <strong>Giờ mở cửa:</strong> ${loc.openingHours || '07:00 - 20:00'}</div>
+          ${loc.phone ? `<div class="popup-time-info"><i class="bi bi-telephone-fill text-success"></i> <strong>Liên hệ:</strong> ${loc.phone}</div>` : ''}
+          <div class="mt-2 mb-2">${servicesBadges}</div>
+
+          <div class="d-grid gap-1 mt-2">
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-outline-success fw-bold flex-grow-1" style="font-size:11.5px;border-radius:8px;" onclick="if(window.openPartnerDetailModal){window.openPartnerDetailModal('${loc.id}');}">
+                <i class="bi bi-info-circle-fill me-1"></i>Xem chi tiết
+              </button>
+              <button class="btn btn-sm btn-success fw-bold flex-grow-1" style="font-size:11.5px;border-radius:8px;" onclick="window.heritageMapController.navigateFromHomestayTo('${loc.id}', 'bike')">
+                <i class="bi bi-signpost-2-fill me-1"></i>Chỉ đường
+              </button>
+            </div>
+            ${hasProductsBtn ? `
+            <button class="btn btn-sm btn-warning fw-bold text-dark w-100 mt-1" style="font-size:11.5px;border-radius:8px;" onclick="if(window.viewPartnerProducts){window.viewPartnerProducts('${loc.id}');}">
+              <i class="bi bi-basket2-fill me-1"></i>Xem sản phẩm & dịch vụ ${linkedCount > 0 ? '(' + linkedCount + ')' : ''}
+            </button>
+            ` : ''}
+          </div>
+
+          <div class="popup-actions mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+            <a href="${googleDirUrl}" target="_blank" rel="noopener" class="btn-popup-maps" title="Chỉ đường bằng Google Maps">
+              <i class="bi bi-google"></i> Google Maps
+            </a>
+            <a href="${osmUrl}" target="_blank" rel="noopener" class="btn-popup-select text-decoration-none" title="Xem trên OpenStreetMap">
+              <i class="bi bi-globe2"></i> OpenStreetMap
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  getGroupIconClass: function (category, partnerGroup) {
+    var g = (partnerGroup || '').toLowerCase();
+    var c = (category || '').toLowerCase();
+    if (g.indexOf('nhà vườn') >= 0 || c.indexOf('nhà vườn') >= 0 || c.indexOf('homestay') >= 0) return 'bi-house-heart-fill';
+    if (g.indexOf('quán ăn') >= 0 || g.indexOf('ẩm thực') >= 0 || c.indexOf('ẩm thực') >= 0) return 'bi-cup-hot-fill';
+    if (g.indexOf('đặc sản') >= 0 || g.indexOf('sản phẩm') >= 0 || c.indexOf('làng nghề') >= 0) return 'bi-basket2-fill';
+    if (c.indexOf('chùa') >= 0 || c.indexOf('tâm linh') >= 0) return 'bi-yin-yang';
+    return 'bi-compass-fill';
+  },
+
   createVisualPhotoIcon: function (loc) {
-    var borderColor = this.getCategoryColor(loc.category);
-    var iconClass = loc.iconClass || "bi-geo-alt-fill";
+    var groupLabel = loc.partnerGroup || (window.inferPartnerGroup ? window.inferPartnerGroup(loc) : loc.category);
+    var borderColor = this.getCategoryColor(loc.category, groupLabel);
+    var iconClass = loc.iconClass || this.getGroupIconClass(loc.category, groupLabel);
 
     if (loc.isEcoStayCenter) {
       var homestayHtml = `
         <div class="visual-photo-pin pin-center-homestay">
           <div class="pin-pulse-ring"></div>
           <div class="pin-avatar-frame" style="border-color: #FEF08A;">
-            <img src="${loc.imageUrl}" alt="${loc.name}" class="pin-avatar-img" onerror="this.src='/images/logo.jpg'" />
+            <img src="${loc.imageUrl || 'images/nha_ruong_1.jpg'}" alt="${loc.name}" class="pin-avatar-img" onerror="this.src='images/logo.jpg'" />
           </div>
           <span class="pin-corner-badge" style="background: #15803D;"><i class="bi bi-house-heart-fill"></i></span>
         </div>
@@ -351,7 +419,7 @@ window.heritageMapController = {
     var markerHtml = `
       <div class="visual-photo-pin">
         <div class="pin-avatar-frame" style="border-color: ${borderColor};">
-          <img src="${loc.imageUrl}" alt="${loc.name}" class="pin-avatar-img" onerror="this.src='/images/hero_ecostay.jpg'" />
+          <img src="${loc.imageUrl || 'images/hero_ecostay.jpg'}" alt="${loc.name}" class="pin-avatar-img" onerror="this.src='images/hero_ecostay.jpg'" />
         </div>
         <span class="pin-corner-badge" style="background: ${borderColor};">
           <i class="bi ${iconClass}"></i>
@@ -369,14 +437,24 @@ window.heritageMapController = {
     });
   },
 
-  getCategoryColor: function (category) {
+  getCategoryColor: function (category, partnerGroup) {
+    var g = (partnerGroup || '').toLowerCase();
+    if (g === 'nhà vườn và homestay') return '#15803D'; // Xanh lá sinh thái
+    if (g === 'quán ăn và ẩm thực') return '#DC2626'; // Đỏ ẩm thực
+    if (g === 'đặc sản và sản phẩm địa phương') return '#D97706'; // Cam vàng đặc sản
+    if (g === 'điểm trải nghiệm') return '#2563EB'; // Xanh dương trải nghiệm
+
     switch (category) {
-      case "Ẩm Thực Xứ Huế": return "#DC2626"; // Đỏ tươi ẩm thực
-      case "Làng Nghề Truyền Thống": return "#EA580C"; // Đỏ cam làng nghề
-      case "Quần Thể Di Tích Cố Đô": return "#D97706"; // Vàng hoàng gia
-      case "Chùa Cổ & Tâm Linh": return "#7C3AED"; // Tím Huế
-      case "Nhà Vườn Di Sản": return "#059669"; // Xanh ngọc
-      case "Trụ Sở Homestay": return "#15803D"; // Xanh lá
+      case "Ẩm Thực Xứ Huế":
+      case "Quán Ăn & Ẩm Thực": return "#DC2626";
+      case "Làng Nghề Truyền Thống":
+      case "Đặc Sản & Sản Phẩm Địa Phương": return "#D97706";
+      case "Quần Thể Di Tích Cố Đô":
+      case "Điểm Trải Nghiệm": return "#2563EB";
+      case "Chùa Cổ & Tâm Linh": return "#7C3AED";
+      case "Nhà Vườn Di Sản":
+      case "Nhà Vườn & Homestay":
+      case "Trụ Sở Homestay": return "#15803D";
       default: return "#0A3D2C";
     }
   },
@@ -386,9 +464,24 @@ window.heritageMapController = {
     if (this.failedProviders['googleStreet']) return;
     this.failedProviders['googleStreet'] = true;
 
-    console.warn("[HeritageMap] Tự động chuyển lớp bản đồ nền từ Google Maps sang Esri World Street Map.");
+    console.warn("[HeritageMap] Tự động chuyển lớp bản đồ nền sang OpenStreetMap Standard.");
     if (this.streetLayer && this.mapInstance.hasLayer(this.streetLayer)) {
       this.mapInstance.removeLayer(this.streetLayer);
+    }
+    if (this.osmStreetLayer) {
+      this.osmStreetLayer.addTo(this.mapInstance);
+      this.osmStreetLayer.bringToBack();
+    }
+  },
+
+  handleOsmFailover: function() {
+    if (!this.mapInstance) return;
+    if (this.failedProviders['osmStandard']) return;
+    this.failedProviders['osmStandard'] = true;
+
+    console.warn("[HeritageMap] OpenStreetMap gặp sự cố, chuyển sang Esri World Street Map.");
+    if (this.osmStreetLayer && this.mapInstance.hasLayer(this.osmStreetLayer)) {
+      this.mapInstance.removeLayer(this.osmStreetLayer);
     }
     if (this.esriStreetLayer) {
       this.esriStreetLayer.addTo(this.mapInstance);
@@ -401,14 +494,7 @@ window.heritageMapController = {
     if (this.failedProviders['esriStreet']) return;
     this.failedProviders['esriStreet'] = true;
 
-    console.warn("[HeritageMap] Esri Street gặp sự cố, thử chuyển sang OpenStreetMap Standard.");
-    if (this.esriStreetLayer && this.mapInstance.hasLayer(this.esriStreetLayer)) {
-      this.mapInstance.removeLayer(this.esriStreetLayer);
-    }
-    if (this.osmStreetLayer) {
-      this.osmStreetLayer.addTo(this.mapInstance);
-      this.osmStreetLayer.bringToBack();
-    }
+    this.showFallbackNotice("Dịch vụ bản đồ nền đang chuyển chế độ dự phòng ngoại tuyến. Danh sách địa điểm và tọa độ đối tác Kim Long vẫn hoạt động đầy đủ.");
   },
 
   toggleMapMode: function (mode) {
@@ -416,7 +502,6 @@ window.heritageMapController = {
     this.currentMode = mode;
     this.clearFallbackNotice();
 
-    // Gỡ tất cả các lớp nền cũ
     var allBaseLayers = [this.streetLayer, this.esriStreetLayer, this.satelliteLayer, this.labelsLayer, this.osmStreetLayer];
     var self = this;
     allBaseLayers.forEach(function (layer) {
@@ -429,21 +514,25 @@ window.heritageMapController = {
       if (this.satelliteLayer) this.satelliteLayer.addTo(this.mapInstance);
       if (this.labelsLayer) this.labelsLayer.addTo(this.mapInstance);
       if (this.satelliteLayer) this.satelliteLayer.bringToBack();
+    } else if (mode === 'osm') {
+      if (this.osmStreetLayer) {
+        this.osmStreetLayer.addTo(this.mapInstance);
+        this.osmStreetLayer.bringToBack();
+      }
     } else if (mode === 'esri_street') {
-      var esriTarget = (!this.failedProviders['esriStreet'] && this.esriStreetLayer) ? this.esriStreetLayer : (this.streetLayer || this.osmStreetLayer);
+      var esriTarget = (!this.failedProviders['esriStreet'] && this.esriStreetLayer) ? this.esriStreetLayer : (this.osmStreetLayer || this.streetLayer);
       if (esriTarget) {
         esriTarget.addTo(this.mapInstance);
         esriTarget.bringToBack();
       }
     } else {
-      // Mặc định 'street' (Google Maps du lịch -> Esri Street -> OSM)
       var targetLayer = (!this.failedProviders['googleStreet'] && this.streetLayer) ? this.streetLayer :
-                        ((!this.failedProviders['esriStreet'] && this.esriStreetLayer) ? this.esriStreetLayer : this.osmStreetLayer);
+                        ((!this.failedProviders['osmStandard'] && this.osmStreetLayer) ? this.osmStreetLayer : this.esriStreetLayer);
       if (targetLayer) {
         targetLayer.addTo(this.mapInstance);
         targetLayer.bringToBack();
       } else {
-        this.showFallbackNotice("Bản đồ nền tạm thời gián đoạn kết nối. Vị trí 43 danh thắng & dữ liệu du lịch Kim Long EcoStay vẫn hiển thị chính xác.");
+        this.showFallbackNotice("Bản đồ nền tạm thời gián đoạn kết nối. Vị trí các đối tác & nhà vườn Kim Long EcoStay vẫn hiển thị chính xác.");
       }
     }
 
@@ -461,7 +550,7 @@ window.heritageMapController = {
     var self = this;
     this.clearNavigationLayers();
     this.mapInstance.invalidateSize();
-    this.mapInstance.flyTo(this.ecoStayCoords, 13, { duration: 1.0 });
+    this.mapInstance.flyTo(this.ecoStayCoords, 14, { duration: 1.0 });
     setTimeout(function () {
       if (self.mapInstance) {
         self.mapInstance.invalidateSize();
@@ -469,11 +558,74 @@ window.heritageMapController = {
     }, 1100);
   },
 
+  // =========================================================================
+  // ĐỊNH VỊ NGƯỜI DÙNG (GEOLOCATION API)
+  // =========================================================================
+  locateUser: function () {
+    var self = this;
+    if (!this.mapInstance) return;
+
+    if (!navigator.geolocation) {
+      this.showFallbackNotice("Trình duyệt của bạn không hỗ trợ định vị GPS. Bản đồ đang hiển thị tâm điểm tại Kim Long EcoStay.");
+      this.focusLocation(this.ecoStayCoords[0], this.ecoStayCoords[1], 15);
+      return;
+    }
+
+    this.showFallbackNotice("Đang xác định vị trí GPS của bạn...", true);
+
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        self.clearFallbackNotice();
+        var uLat = pos.coords.latitude;
+        var uLng = pos.coords.longitude;
+
+        if (self.userLocationMarker && self.mapInstance.hasLayer(self.userLocationMarker)) {
+          self.mapInstance.removeLayer(self.userLocationMarker);
+        }
+        if (self.userLocationCircle && self.mapInstance.hasLayer(self.userLocationCircle)) {
+          self.mapInstance.removeLayer(self.userLocationCircle);
+        }
+
+        var userIcon = L.divIcon({
+          html: '<div style="width:22px;height:22px;border-radius:50%;background:#2563EB;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,0.28);"></div>',
+          className: 'user-gps-marker',
+          iconSize: [22, 22],
+          iconAnchor: [11, 11]
+        });
+
+        var distToEcoStay = window.calculateDistanceFromCenterKm
+          ? window.calculateDistanceFromCenterKm(uLat, uLng)
+          : 0;
+
+        self.userLocationMarker = L.marker([uLat, uLng], { icon: userIcon, zIndexOffset: 2500 }).addTo(self.mapInstance);
+        self.userLocationMarker.bindPopup(
+          '<div class="p-2 text-center">' +
+          '<strong class="text-primary"><i class="bi bi-crosshair me-1"></i>Vị trí hiện tại của bạn</strong>' +
+          '<div class="small text-muted mt-1">Cách Kim Long EcoStay khoảng <strong>' + distToEcoStay + ' km</strong></div>' +
+          '<a href="https://www.google.com/maps/dir/?api=1&origin=' + uLat + ',' + uLng + '&destination=' + self.ecoStayCoords[0] + ',' + self.ecoStayCoords[1] + '" target="_blank" class="btn btn-sm btn-primary mt-2 w-100 text-white">Chỉ đường tới Kim Long EcoStay</a>' +
+          '</div>'
+        ).openPopup();
+
+        self.mapInstance.flyTo([uLat, uLng], 15, { duration: 1.2 });
+      },
+      function (err) {
+        var reason = "Không thể truy cập vị trí của bạn (Chưa cấp quyền GPS). Đã đưa bản đồ về trung tâm Kim Long EcoStay.";
+        if (err && err.code === 1) {
+          reason = "Bạn đã từ chối quyền truy cập vị trí GPS. Đã định vị về trung tâm Kim Long EcoStay.";
+        }
+        self.showFallbackNotice(reason);
+        self.focusLocation(self.ecoStayCoords[0], self.ecoStayCoords[1], 15);
+        setTimeout(function () { self.clearFallbackNotice(); }, 5000);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+  },
+
   focusLocation: function (lat, lng, zoomLevel) {
     if (!this.mapInstance) return;
     zoomLevel = zoomLevel || 16;
     this.mapInstance.flyTo([lat, lng], zoomLevel, {
-      duration: 1.2,
+      duration: 1.1,
       easeLinearity: 0.25
     });
 
@@ -485,33 +637,67 @@ window.heritageMapController = {
     if (target) {
       setTimeout(function () {
         target.openPopup();
-      }, 700);
+      }, 650);
     }
   },
 
-  filterMarkers: function (category, query) {
+  focusPartnerById: function (partnerId) {
+    var loc = (this.locationsData || []).find(function (l) { return l.id === partnerId; });
+    if (!loc && window.getKlePartners) {
+      loc = window.getKlePartners(false).find(function (l) { return l.id === partnerId; });
+    }
+    if (!loc) return false;
+    this.focusLocation(loc.latitude, loc.longitude, 17);
+    return true;
+  },
+
+  filterMarkers: function (category, query, service) {
     if (!this.mapInstance) return;
-    category = category || "Tất Cả Địa Điểm";
-    query = (query || "").toLowerCase().trim();
+    this.activeCategoryFilter = category || "Tất Cả Địa Điểm";
+    this.activeSearchQuery = (query || "").toLowerCase().trim();
+    this.activeServiceFilter = service || "ALL";
+
+    var cat = this.activeCategoryFilter;
+    var q = this.activeSearchQuery;
+    var srv = this.activeServiceFilter.toLowerCase();
 
     var self = this;
     var visibleBounds = [];
 
     this.markersList.forEach(function (marker) {
       var d = marker.locData;
-      var matchCat = (category === "Tất Cả Địa Điểm") ||
-                     (category === "Gần Homestay (< 3km)" && d.distanceFromEcoStayKm <= 3.0) ||
-                     (d.category === category);
-
-      var matchQuery = true;
-      if (query.length > 0) {
-        matchQuery = d.name.toLowerCase().includes(query) ||
-                     d.address.toLowerCase().includes(query) ||
-                     d.category.toLowerCase().includes(query) ||
-                     d.summary.toLowerCase().includes(query);
+      if (!d || d.isActive === false) {
+        if (self.mapInstance.hasLayer(marker)) self.mapInstance.removeLayer(marker);
+        return;
       }
 
-      if (matchCat && matchQuery) {
+      var groupLabel = d.partnerGroup || (window.inferPartnerGroup ? window.inferPartnerGroup(d) : d.category);
+      var matchCat = (cat === "Tất Cả Địa Điểm" || cat === "ALL") ||
+                     (cat === "Gần Homestay (< 3km)" && d.distanceFromEcoStayKm <= 3.0) ||
+                     (cat === "Đối Tác Liên Kết" && d.isPartner) ||
+                     (d.category === cat) ||
+                     (groupLabel === cat);
+
+      var matchQuery = true;
+      if (q.length > 0) {
+        var servicesText = Array.isArray(d.services) ? d.services.join(' ').toLowerCase() : '';
+        matchQuery = (d.name || '').toLowerCase().includes(q) ||
+                     (d.address || '').toLowerCase().includes(q) ||
+                     (d.category || '').toLowerCase().includes(q) ||
+                     (groupLabel || '').toLowerCase().includes(q) ||
+                     (d.summary || '').toLowerCase().includes(q) ||
+                     servicesText.includes(q);
+      }
+
+      var matchService = true;
+      if (srv && srv !== 'all' && srv !== 'tất cả dịch vụ') {
+        var sList = Array.isArray(d.services) ? d.services.map(function (x) { return x.toLowerCase(); }) : [];
+        matchService = sList.some(function (item) { return item.includes(srv); }) ||
+                       (d.summary || '').toLowerCase().includes(srv) ||
+                       (d.category || '').toLowerCase().includes(srv);
+      }
+
+      if (matchCat && matchQuery && matchService) {
         if (!self.mapInstance.hasLayer(marker)) {
           marker.addTo(self.mapInstance);
         }
@@ -523,9 +709,9 @@ window.heritageMapController = {
       }
     });
 
-    if (visibleBounds.length > 0 && category !== "Tất Cả Địa Điểm") {
+    if (visibleBounds.length > 0 && cat !== "Tất Cả Địa Điểm" && cat !== "ALL") {
       var bounds = L.latLngBounds(visibleBounds);
-      this.mapInstance.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+      this.mapInstance.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
     }
   },
 
@@ -536,18 +722,18 @@ window.heritageMapController = {
     if (!this.mapInstance) return;
 
     var loc = this.locationsData.find(function (l) { return l.id === locationId; });
+    if (!loc && window.getKlePartners) {
+      loc = window.getKlePartners(false).find(function (l) { return l.id === locationId; });
+    }
     if (!loc) return;
 
     this.activeNavLocation = loc;
     this.activeTravelMode = travelMode || 'bike';
 
-    // Xóa tuyến đường chỉ dẫn cũ nếu có
     this.clearNavigationLayers();
 
-    // Tạo các mốc tọa độ tuyến đường thực tế dựa trên mạng lưới đường phố Huế
     var waypoints = this.calculateHueRoadWaypoints(this.ecoStayCoords, [loc.latitude, loc.longitude], loc);
 
-    // 1. Lớp phủ phát sáng (Outer Glow)
     this.routeGlowPolyline = L.polyline(waypoints, {
       color: '#22c55e',
       weight: 12,
@@ -556,8 +742,7 @@ window.heritageMapController = {
       lineJoin: 'round'
     }).addTo(this.mapInstance);
 
-    // 2. Lớp đường nét đứt di chuyển chính (Inner Route Line)
-    var routeColor = (loc.category === "Ẩm Thực Xứ Huế") ? '#DC2626' : '#15803D';
+    var routeColor = (loc.partnerGroup === "Quán ăn và ẩm thực" || loc.category === "Ẩm Thực Xứ Huế") ? '#DC2626' : '#15803D';
     this.routePolyline = L.polyline(waypoints, {
       color: routeColor,
       weight: 5,
@@ -567,7 +752,6 @@ window.heritageMapController = {
       lineJoin: 'round'
     }).addTo(this.mapInstance);
 
-    // 3. Ghim điểm khởi hành đặc biệt (Start Pin: Kim Long EcoStay)
     var startIcon = L.divIcon({
       html: `
         <div class="nav-endpoint-pin nav-start-pin">
@@ -581,7 +765,6 @@ window.heritageMapController = {
     });
     this.navMarkerStart = L.marker(waypoints[0], { icon: startIcon, zIndexOffset: 2000 }).addTo(this.mapInstance);
 
-    // 4. Ghim điểm đến đặc biệt (End Pin: Tên địa điểm)
     var endIcon = L.divIcon({
       html: `
         <div class="nav-endpoint-pin nav-end-pin">
@@ -595,82 +778,61 @@ window.heritageMapController = {
     });
     this.navMarkerEnd = L.marker(waypoints[waypoints.length - 1], { icon: endIcon, zIndexOffset: 2000 }).addTo(this.mapInstance);
 
-    // 5. Căn chỉnh khung nhìn hiển thị trọn vẹn tuyến đường
     var bounds = L.latLngBounds(waypoints);
     this.mapInstance.fitBounds(bounds, {
       padding: [70, 70],
       maxZoom: 16
     });
 
-    // 6. Cập nhật Bảng Dẫn Đường Du Khách (Navigation HUD Panel)
     this.updateNavigationHUD(loc, travelMode);
-
-    // 7. Bắt đầu mô phỏng xe đạp di chuyển
     this.animateBikeOnRoute(waypoints);
   },
 
   calculateHueRoadWaypoints: function (start, end, loc) {
-    // start: [16.4560, 107.5495] (Kim Long EcoStay - Ven bờ bắc sông Hương)
     var sLat = start[0], sLng = start[1];
     var eLat = end[0], eLng = end[1];
 
     var pts = [start];
-
-    // Cung đường Kim Long ven sông Hương
     var ptKimLongStreet = [16.4552, 107.5510];
     pts.push(ptKimLongStreet);
 
-    // Trường hợp 1: Về phía Tây (Chùa Thiên Mụ, Văn Miếu, Huyền Không)
     if (eLng < sLng - 0.003) {
-      pts.push([16.4542, 107.5460]); // Ngã ba Thiên Mụ
+      pts.push([16.4542, 107.5460]);
       if (loc.id === "HERITAGE-THIEN-MU") {
         pts.push([16.4533, 107.5451]);
       } else if (loc.id === "HERITAGE-VAN-MIEU") {
         pts.push([16.4530, 107.5420]);
         pts.push([16.4518, 107.5388]);
       }
-    }
-    // Trường hợp 2: Qua bờ Nam sông Hương (Thủy Xuân, Phường Đúc, Cà phê muối, Chè Hẻm)
-    else if (eLat < 16.4600 && eLng > 107.5600) {
-      pts.push([16.4550, 107.5610]); // Đầu cầu Dã Viên bờ Bắc
-      pts.push([16.4535, 107.5665]); // Cầu Dã Viên vượt sông Hương
-      pts.push([16.4515, 107.5700]); // Đầu cầu Dã Viên bờ Nam (Bùi Thị Xuân)
-      
-      // Nếu đi Thủy Xuân / Lăng Tự Đức (Tây Nam bờ Nam)
+    } else if (eLat < 16.4600 && eLng > 107.5600) {
+      pts.push([16.4550, 107.5610]);
+      pts.push([16.4535, 107.5665]);
+      pts.push([16.4515, 107.5700]);
       if (eLat < 16.4450) {
-        pts.push([16.4440, 107.5710]); // Đường Điện Biên Phủ
-        pts.push([16.4380, 107.5690]); // Huyền Trân Công Chúa
+        pts.push([16.4440, 107.5710]);
+        pts.push([16.4380, 107.5690]);
       } else {
-        // Đi vào trung tâm bờ Nam (Lê Lợi, Hùng Vương, Nguyễn Lương Bằng)
-        pts.push([16.4550, 107.5780]); // Đường Lê Lợi
-        pts.push([16.4600, 107.5850]); // Ngã 6 Hùng Vương
+        pts.push([16.4550, 107.5780]);
+        pts.push([16.4600, 107.5850]);
       }
-    }
-    // Trường hợp 3: Đi vào Đại Nội / Hoàng Thành (Bờ Bắc phía Đông)
-    else if (eLat > 16.4630 && eLng > 107.5650 && eLng < 107.5900) {
-      pts.push([16.4570, 107.5620]); // Đường Kim Long nối Lê Duẩn
-      pts.push([16.4640, 107.5710]); // Đường Lê Duẩn (Công viên bờ sông)
-      pts.push([16.4680, 107.5760]); // Cửa Quảng Đức / Ngọ Môn
-    }
-    // Trường hợp 4: Đi Cồn Hến (Hoa Đông)
-    else if (loc.id === "FOOD-COM-HEN") {
+    } else if (eLat > 16.4630 && eLng > 107.5650 && eLng < 107.5900) {
+      pts.push([16.4570, 107.5620]);
+      pts.push([16.4640, 107.5710]);
+      pts.push([16.4680, 107.5760]);
+    } else if (loc.id === "FOOD-COM-HEN") {
       pts.push([16.4570, 107.5620]);
       pts.push([16.4650, 107.5750]);
-      pts.push([16.4720, 107.5900]); // Trần Hưng Đạo
-      pts.push([16.4780, 107.6000]); // Cầu Ưng Bình
-      pts.push([16.4820, 107.6045]); // Cồn Hến
-    }
-    // Trường hợp 5: Các điểm rất gần homestay (Bánh ướt Huyền Anh, Nhà vườn An Hiên, Bến thuyền)
-    else if (loc.distanceFromEcoStayKm <= 0.6) {
+      pts.push([16.4720, 107.5900]);
+      pts.push([16.4780, 107.6000]);
+      pts.push([16.4820, 107.6045]);
+    } else if (loc.distanceFromEcoStayKm <= 0.6) {
       pts.push([16.4555, 107.5505]);
     } else {
-      // Interpolate trung gian tự nhiên
       var midLat = (sLat + eLat) / 2 + 0.001;
       var midLng = (sLng + eLng) / 2;
       pts.push([midLat, midLng]);
     }
 
-    // Điểm đến cuối cùng
     pts.push(end);
     return pts;
   },
@@ -702,12 +864,11 @@ window.heritageMapController = {
 
     var curStep = 0;
     var totalSteps = waypoints.length;
-    var self = this;
 
     this.bikeAnimInterval = setInterval(function () {
       curStep++;
       if (curStep >= totalSteps) {
-        curStep = 0; // lặp lại chu trình mô phỏng
+        curStep = 0;
       }
       marker.setLatLng(waypoints[curStep]);
     }, 1800);
@@ -720,7 +881,6 @@ window.heritageMapController = {
     travelMode = travelMode || 'bike';
     var dist = loc.distanceFromEcoStayKm || 0.3;
 
-    // Tính toán thời gian theo phương tiện
     var timeEstimate = "";
     var modeIcon = "bi-bicycle";
     var modeName = "Xe đạp trợ lực Eco-Bike";
@@ -743,20 +903,21 @@ window.heritageMapController = {
     }
 
     var googleMapsDir = `https://www.google.com/maps/dir/?api=1&origin=${this.ecoStayCoords[0]},${this.ecoStayCoords[1]}&destination=${loc.latitude},${loc.longitude}&travelmode=${travelMode === 'walk' ? 'walking' : 'bicycling'}`;
+    var osmDirUrl = `https://www.openstreetmap.org/directions?engine=fossgis_osrm_bike&route=${this.ecoStayCoords[0]}%2C${this.ecoStayCoords[1]}%3B${loc.latitude}%2C${loc.longitude}`;
 
     hud.innerHTML = `
       <div class="nav-hud-card shadow-lg">
         <div class="nav-hud-header">
           <div class="d-flex align-items-center gap-2">
             <span class="nav-hud-live-dot"></span>
-            <span class="fw-bold text-success text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Đang Chỉ Đường Cho Khách</span>
+            <span class="fw-bold text-success text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Đang Chỉ Đường Từ Kim Long EcoStay</span>
           </div>
           <button type="button" class="btn-close btn-sm" onclick="window.heritageMapController.clearNavigationLayers()" title="Đóng chỉ đường"></button>
         </div>
 
         <div class="nav-hud-body">
           <div class="d-flex align-items-start gap-3">
-            <img src="${loc.imageUrl || '/images/hero_ecostay.jpg'}" alt="${loc.name}" class="nav-hud-thumb" onerror="this.src='/images/hero_ecostay.jpg'">
+            <img src="${loc.imageUrl || 'images/hero_ecostay.jpg'}" alt="${loc.name}" class="nav-hud-thumb" onerror="this.src='images/hero_ecostay.jpg'">
             <div class="flex-grow-1">
               <h5 class="nav-hud-title">${loc.name}</h5>
               <div class="nav-hud-sub text-muted small"><i class="bi bi-geo-alt-fill text-danger me-1"></i>${loc.address}</div>
@@ -775,7 +936,6 @@ window.heritageMapController = {
             </div>
           </div>
 
-          <!-- Bộ chuyển đổi phương tiện nhanh -->
           <div class="nav-mode-selector mt-3">
             <span class="small text-muted me-2">Phương tiện:</span>
             <button class="nav-mode-btn ${travelMode === 'bike' ? 'active' : ''}" onclick="window.heritageMapController.navigateFromHomestayTo('${loc.id}', 'bike')">
@@ -789,11 +949,14 @@ window.heritageMapController = {
             </button>
           </div>
 
-          <!-- Nút hành động mở Google Maps -->
-          <div class="d-flex gap-2 mt-3">
-            <a href="${googleMapsDir}" target="_blank" class="btn btn-success flex-grow-1 btn-sm fw-bold py-2 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2">
-              <i class="bi bi-signpost-2-fill fs-6"></i>
-              <span>Bật Giọng Nói Dẫn Đường GPS (Google Maps)</span>
+          <div class="d-flex gap-2 mt-3 flex-wrap">
+            <a href="${googleMapsDir}" target="_blank" rel="noopener" class="btn btn-success flex-grow-1 btn-sm fw-bold py-2 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-google"></i>
+              <span>Chỉ đường Google Maps</span>
+            </a>
+            <a href="${osmDirUrl}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm fw-bold py-2 px-3 rounded-pill d-flex align-items-center gap-1">
+              <i class="bi bi-globe2"></i>
+              <span>OpenStreetMap</span>
             </a>
             <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="window.heritageMapController.focusLocation(${loc.latitude}, ${loc.longitude}, 16)" title="Phóng to điểm đến">
               <i class="bi bi-geo-alt"></i>

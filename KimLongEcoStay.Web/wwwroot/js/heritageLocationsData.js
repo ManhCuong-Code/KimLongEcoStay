@@ -1,50 +1,238 @@
-window.heritageLocations = [
+window.DEFAULT_HERITAGE_LOCATIONS = [
   {
     "id": "KLE-CENTER",
-    "name": "Kim Long EcoStay (Tâm Điểm Xuất Phát)",
-    "category": "Trụ Sở Homestay",
+    "name": "Kim Long EcoStay (Tâm Điểm Lưu Trú & Nhà Vườn Trung Tâm)",
+    "category": "Nhà Vườn & Homestay",
+    "partnerGroup": "Nhà vườn và homestay",
     "address": "Khu vực Nhà vườn Kim Long, Ven Sông Hương, Phường Kim Long, TP. Huế",
     "latitude": 16.456,
     "longitude": 107.5495,
+    "phone": "0934 789 123",
     "distanceFromEcoStayKm": 0.0,
     "travelEstimate": "Điểm khởi hành tour xe đạp & nhận phòng SmartLock",
     "imageUrl": "images/nha_ruong_1.jpg",
-    "summary": "Mô hình Homestay Sinh Thái Nhà Vườn & Du Lịch Di Sản Thông Minh ven sông Hương.",
+    "summary": "Mô hình Homestay Sinh Thái Nhà Vườn & Du Lịch Di Sản Thông Minh ven sông Hương kết nối mạng lưới nhà vườn, ẩm thực và đặc sản Kim Long.",
+    "description": "Trung tâm lưu trú sinh thái nhà rường cổ truyền kết hợp công nghệ SmartLock IoT không chạm, không gian thưởng trà cung đình, vườn cây ăn quả và trạm khởi hành xe đạp Eco-Bike.",
     "openingHours": "Mở cửa 24/7 (Smart Check-in không chạm)",
-    "isEcoStayCenter": true
+    "services": ["Lưu trú sinh thái", "Nhà vườn truyền thống", "Trà cung đình", "Đạp xe sinh thái", "SmartLock 24/7"],
+    "isEcoStayCenter": true,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": false
+  },
+  {
+    "id": "PARTNER-NV-HUONG-SEN",
+    "name": "Nhà Vườn Sinh Thái Hương Sen Kim Long (Hộ Liên Kết)",
+    "category": "Nhà Vườn & Homestay",
+    "partnerGroup": "Nhà vườn và homestay",
+    "address": "Kiệt 104 Kim Long, Phường Kim Long, TP. Huế",
+    "latitude": 16.4572,
+    "longitude": 107.5478,
+    "phone": "0905 246 810 (Dữ liệu mẫu)",
+    "distanceFromEcoStayKm": 0.35,
+    "travelEstimate": "350m (~2 phút đi bộ hoặc đạp xe)",
+    "imageUrl": "images/ho_sen_hue.jpg",
+    "summary": "Không gian nhà vườn truyền thống có hồ sen tự nhiên, cung cấp phòng nghỉ dưỡng sinh thái và nguyên liệu sen tươi mùa hạ.",
+    "description": "Mô hình hộ nhà vườn liên kết tại Kim Long sở hữu hồ sen cổ và kiến trúc nhà rường gỗ mít, đón khách lưu trú vệ tinh và cung cấp hạt sen tươi, trà ướp sen cho du khách (Dữ liệu mẫu minh họa mô hình liên kết).",
+    "openingHours": "07:00 - 21:00 hàng ngày",
+    "services": ["Lưu trú sinh thái", "Nhà vườn truyền thống", "Hồ sen & Trà sen", "Nông sản nhà vườn"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
+  },
+  {
+    "id": "PARTNER-NV-THANH-TRA",
+    "name": "Nhà Vườn & Vườn Bưởi Thanh Trà Cổ Thụ Kim Long",
+    "category": "Nhà Vườn & Homestay",
+    "partnerGroup": "Nhà vườn và homestay",
+    "address": "Kiệt 82 Kim Long, Phường Kim Long, TP. Huế",
+    "latitude": 16.4548,
+    "longitude": 107.5462,
+    "phone": "0914 369 258 (Dữ liệu mẫu)",
+    "distanceFromEcoStayKm": 0.4,
+    "travelEstimate": "400m (~2 phút đi bộ từ khu lưu trú)",
+    "imageUrl": "images/kien_truc_vuon_hue.jpg",
+    "summary": "Khu vườn cây ăn quả hơn 40 năm tuổi chuyên canh bưởi Thanh Trà tiến vua, kết hợp homestay nhà vườn và trải nghiệm hái quả.",
+    "description": "Điểm lưu trú và nhà vườn sinh thái tiêu biểu tại Kim Long với vườn bưởi Thanh Trà rợp bóng mát, cung cấp nông sản sạch tại vườn và không gian nghỉ dưỡng yên bình (Dữ liệu mẫu minh họa mô hình liên kết).",
+    "openingHours": "06:30 - 20:00 hàng ngày",
+    "services": ["Lưu trú sinh thái", "Vườn cây ăn quả", "Bưởi Thanh Trà", "Trải nghiệm nông nghiệp"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
+  },
+  {
+    "id": "HERITAGE-AN-HIEN",
+    "name": "Nhà Vườn An Hiên (Đệ Nhất Nhà Vườn Xứ Huế)",
+    "category": "Nhà Vườn Di Sản",
+    "partnerGroup": "Nhà vườn và homestay",
+    "address": "58 Nguyễn Phúc Nguyên, Phường Kim Long, TP. Huế",
+    "latitude": 16.4552,
+    "longitude": 107.5495,
+    "phone": "0234 352 2243 (Tham khảo)",
+    "distanceFromEcoStayKm": 0.45,
+    "travelEstimate": "450m (~2 phút đi bộ từ Kim Long EcoStay)",
+    "imageUrl": "images/nha_ruong_1.jpg",
+    "summary": "Tuyệt tác nhà vườn mẫu mực tiêu biểu nhất của Cố đô với cổng vòm cổ kính và ngôi nhà rường lim 3 gian 2 chái.",
+    "description": "Khuôn viên rộng hơn 4.600m2 chuẩn phong thủy bình phong - hồ sen - nhà rường cổ 130 năm tuổi, quy tụ hàng chục giống cây ăn quả quý hiếm tiến vua.",
+    "openingHours": "07:30 - 18:00 hàng ngày",
+    "services": ["Nhà vườn truyền thống", "Khám phá văn hóa", "Vườn cây ăn quả", "Thưởng trà"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
+  },
+  {
+    "id": "PARTNER-DAC-SAN-KIM-LONG",
+    "name": "Cơ Sở Mứt Gừng & Bánh Đặc Sản Gia Truyền Kim Long",
+    "category": "Đặc Sản & Sản Phẩm Địa Phương",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
+    "address": "68 Kim Long, Phường Kim Long, TP. Huế",
+    "latitude": 16.4568,
+    "longitude": 107.5528,
+    "phone": "0935 112 334 (Dữ liệu mẫu)",
+    "distanceFromEcoStayKm": 0.35,
+    "travelEstimate": "350m (~2 phút đi bộ / đạp xe)",
+    "imageUrl": "images/nha_ruong_3.jpg",
+    "summary": "Lò chế biến mứt gừng Huế sên củi truyền thống, bánh mè xửng giòn, bánh đậu xanh trái cây và kẹo cau Cố đô.",
+    "description": "Cơ sở sản xuất thủ công tại vùng đất Kim Long chuyên cung cấp mứt gừng cay ấm từ gừng sẻ Tuần, bánh đậu xanh trái cây nặn tay và các thức quà đặc sản Huế có nguồn gốc rõ ràng (Dữ liệu mẫu minh họa mô hình liên kết).",
+    "openingHours": "07:00 - 20:30 hàng ngày",
+    "services": ["Mứt gừng Huế", "Bánh đặc sản Huế", "Quà tặng đóng gói", "Giao hàng tận phòng"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
+  },
+  {
+    "id": "PARTNER-TRA-CUNG-DINH",
+    "name": "Không Gian Trà Cung Đình & Thảo Mộc Hoàng Gia Kim Long",
+    "category": "Đặc Sản & Sản Phẩm Địa Phương",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
+    "address": "42 Nguyễn Phúc Nguyên, Phường Kim Long, TP. Huế",
+    "latitude": 16.4545,
+    "longitude": 107.5472,
+    "phone": "0982 445 667 (Dữ liệu mẫu)",
+    "distanceFromEcoStayKm": 0.3,
+    "travelEstimate": "300m (~1 phút đạp xe ven sông Hương)",
+    "imageUrl": "images/ho_sen_hue.jpg",
+    "summary": "Nghệ nhân sao tẩm trà cung đình 16 vị thảo mộc, trà ướp bông sen Bạch Diệp và hộp quà tặng đặc sản Huế cao cấp.",
+    "description": "Điểm trưng bày, thưởng trà và cung cấp các dòng Trà Cung Đình Huế, Trà Sen Thượng Hạng và Bộ Quà Tặng Đặc Sản Huế dành cho du khách lưu trú tại Kim Long EcoStay (Dữ liệu mẫu minh họa mô hình liên kết).",
+    "openingHours": "07:30 - 21:00 hàng ngày",
+    "services": ["Trà cung đình", "Trà sen Huế", "Bộ quà tặng đặc sản", "Trải nghiệm thưởng trà"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
+  },
+  {
+    "id": "PARTNER-HTX-NONG-SAN",
+    "name": "Tổ Hợp Tác Nông Sản Sạch Nhà Vườn Kim Long",
+    "category": "Đặc Sản & Sản Phẩm Địa Phương",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
+    "address": "Kiệt 120 Nguyễn Phúc Nguyên, Phường Kim Long, TP. Huế",
+    "latitude": 16.4539,
+    "longitude": 107.5435,
+    "phone": "0913 558 990 (Dữ liệu mẫu)",
+    "distanceFromEcoStayKm": 0.65,
+    "travelEstimate": "650m (~3 phút đạp xe Eco-Bike)",
+    "imageUrl": "images/hero_ecostay.jpg",
+    "summary": "Đầu mối thu hoạch nông sản hữu cơ từ các hộ nhà vườn Kim Long: bưởi Thanh Trà, rau xanh theo mùa, chuối ngự và hạt sen.",
+    "description": "Mô hình liên kết tiêu thụ nông sản xanh trực tiếp từ vườn nhà dân Kim Long - Hương Hồ đến bàn ăn và giỏ quà của du khách, canh tác tự nhiên không hóa chất (Dữ liệu mẫu minh họa mô hình liên kết).",
+    "openingHours": "06:00 - 18:30 hàng ngày",
+    "services": ["Bưởi Thanh Trà", "Rau xanh theo mùa", "Nông sản nhà vườn", "Giao tận homestay"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
+  },
+  {
+    "id": "EXP-ECO-BIKE-KIM-LONG",
+    "name": "Trạm Xe Đạp Sinh Thái Eco-Bike & Bến Thuyền Kim Long",
+    "category": "Điểm Trải Nghiệm",
+    "partnerGroup": "Điểm trải nghiệm",
+    "address": "Bến sông Hương - Nguyễn Phúc Nguyên, Phường Kim Long, TP. Huế",
+    "latitude": 16.4550,
+    "longitude": 107.5502,
+    "phone": "0934 789 124 (Dữ liệu mẫu)",
+    "distanceFromEcoStayKm": 0.15,
+    "travelEstimate": "150m (~1 phút đi bộ ra bến sông)",
+    "imageUrl": "images/tour_xedap.jpg",
+    "summary": "Điểm xuất phát hành trình đạp xe xuyên các kiệt nhà vườn rợp bóng cây và bến thuyền rồng ngắm hoàng hôn sông Hương.",
+    "description": "Cung cấp xe đạp tre/xe đạp thể thao, bản đồ số khám phá tuyến đường di sản Kim Long - Thiên Mụ - Văn Thánh và dịch vụ thuyền Sup / thuyền rồng trên sông Hương.",
+    "openingHours": "05:30 - 21:00 hàng ngày",
+    "services": ["Đạp xe sinh thái", "Thuyền rồng sông Hương", "Ngắm hoàng hôn", "Khám phá văn hóa"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
+  },
+  {
+    "id": "EXP-VUON-NONG-NGHIEP",
+    "name": "Vườn Trải Nghiệm Nông Nghiệp Xanh & Làm Bánh Huế Kim Long",
+    "category": "Điểm Trải Nghiệm",
+    "partnerGroup": "Điểm trải nghiệm",
+    "address": "Kiệt 136 Kim Long, Phường Kim Long, TP. Huế",
+    "latitude": 16.4575,
+    "longitude": 107.5440,
+    "phone": "0977 889 221 (Dữ liệu mẫu)",
+    "distanceFromEcoStayKm": 0.6,
+    "travelEstimate": "600m (~3 phút đạp xe Eco-Bike)",
+    "imageUrl": "images/smart_tour.jpg",
+    "summary": "Không gian trải nghiệm một ngày làm cư dân nhà vườn: chăm sóc vườn cây, thu hoạch rau hữu cơ, sên mứt gừng và đổ bánh Huế.",
+    "description": "Hoạt động du lịch trải nghiệm cộng đồng giúp du khách và gia đình trực tiếp tham gia làm vườn, hái trái cây theo mùa và học chế biến món bánh truyền thống cùng nghệ nhân bản địa.",
+    "openingHours": "08:00 - 17:30 hàng ngày",
+    "services": ["Trải nghiệm nông nghiệp", "Vườn cây ăn quả", "Học làm bánh & mứt", "Đạp xe sinh thái"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-THUY-XUAN",
     "name": "Làng Hương Thủy Xuân (Hương Trầm & Nón Lá)",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Đường Huyền Trân Công Chúa, Phường Thủy Xuân, TP. Huế (Dưới chân đồi Vọng Cảnh)",
     "latitude": 16.4358,
     "longitude": 107.5681,
+    "phone": "0905 881 234 (Dữ liệu mẫu)",
     "distanceFromEcoStayKm": 4.2,
     "travelEstimate": "4.2 km (~12 phút đạp xe Eco-Bike)",
     "imageUrl": "images/song_huong_hoanghon.jpg",
-    "summary": "Làng nghề làm hương trầm và nón lá hơn 700 năm tuổi với những đóa chông hương rực rỡ sắc màu.",
+    "summary": "Làng nghề làm hương trầm, tinh dầu tràm và nón lá hơn 700 năm tuổi với những đóa chân hương rực rỡ sắc màu.",
     "openingHours": "07:00 - 18:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Sản phẩm thủ công", "Tinh dầu tràm", "Nhang trầm", "Trải nghiệm làng nghề"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-KIM-LONG",
     "name": "Làng Bưởi Thanh Trà & Bánh Ướt Thịt Nướng Kim Long",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Tuyến đường Kim Long & Kiệt 82 Kim Long, Phường Kim Long, TP. Huế",
     "latitude": 16.4565,
     "longitude": 107.5512,
+    "phone": "0934 789 125 (Dữ liệu mẫu)",
     "distanceFromEcoStayKm": 0.3,
     "travelEstimate": "300m (~1 phút đi bộ từ phòng ngủ)",
     "imageUrl": "images/nha_ruong_3.jpg",
     "summary": "Thủ phủ đệ nhất bưởi tiến vua Thanh Trà và làng ẩm thực bánh ướt thịt nướng gia truyền 300 năm.",
     "openingHours": "06:30 - 21:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Bưởi Thanh Trà", "Bánh ướt thịt nướng", "Đặc sản địa phương", "Khám phá văn hóa"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-LANG-SINH",
     "name": "Làng Tranh Dân Gian Làng Sình",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Làng Lại Ân (Làng Sình), Xã Phú Mậu, TP. Huế (Ven ngã ba Sình)",
     "latitude": 16.5036,
     "longitude": 107.5992,
@@ -53,12 +241,16 @@ window.heritageLocations = [
     "imageUrl": "images/thuyen_rong_hue.jpg",
     "summary": "Dòng tranh mộc bản cổ xưa hơn 400 năm in trên giấy điệp phục vụ đời sống tín ngưỡng và tâm linh dân gian.",
     "openingHours": "08:00 - 17:30",
-    "isEcoStayCenter": false
+    "services": ["Sản phẩm thủ công", "Tranh dân gian", "Khám phá văn hóa"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-THANH-TIEN",
     "name": "Làng Hoa Giấy Thanh Tiên",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Thôn Thanh Tiên, Xã Phú Mậu, Thành phố Huế (Liền kề Làng Sình)",
     "latitude": 16.5019,
     "longitude": 107.6033,
@@ -67,12 +259,16 @@ window.heritageLocations = [
     "imageUrl": "images/ho_sen_hue.jpg",
     "summary": "Nghệ thuật làm hoa sen và hoa cúng bằng giấy thủ công hơn 300 năm tuổi nức tiếng xứ Huế.",
     "openingHours": "07:30 - 18:00",
-    "isEcoStayCenter": false
+    "services": ["Sản phẩm thủ công", "Hoa sen giấy", "Trải nghiệm làng nghề"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-PHUONG-DUC",
     "name": "Làng Đúc Đồng Phường Đúc",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Đường Bùi Thị Xuân, Phường Đúc, TP. Huế (Bờ nam sông Hương)",
     "latitude": 16.4522,
     "longitude": 107.5667,
@@ -81,12 +277,16 @@ window.heritageLocations = [
     "imageUrl": "images/kien_truc_vuon_hue.jpg",
     "summary": "Nơi các nghệ nhân đúc đồng tài ba tạo tác Cửu Đỉnh, Đại Hồng Chung và 9 khẩu Thần Công uy nghiêm thời Nguyễn.",
     "openingHours": "08:00 - 17:00",
-    "isEcoStayCenter": false
+    "services": ["Sản phẩm thủ công", "Đồ đồng mỹ nghệ", "Khám phá văn hóa"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-TAY-HO",
     "name": "Làng Nón Lá Tây Hồ (Nón Bài Thơ Huế)",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Thôn Tây Hồ, Xã Phú Hồ, Huyện Phú Vang, Thừa Thiên Huế (Ven dòng sông Như Ý)",
     "latitude": 16.4392,
     "longitude": 107.6631,
@@ -95,12 +295,16 @@ window.heritageLocations = [
     "imageUrl": "images/room_hoanghon.jpg",
     "summary": "Cái nôi khai sinh ra chiếc nón bài thơ trứ danh — biểu tượng duyên dáng của người con gái Huế.",
     "openingHours": "07:00 - 18:00",
-    "isEcoStayCenter": false
+    "services": ["Sản phẩm thủ công", "Nón bài thơ", "Quà tặng đặc sản"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-PHUOC-TICH",
     "name": "Làng Cổ & Gốm Đất Nung Phước Tích",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Làng cổ Phước Tích, Xã Phong Hòa, Huyện Phong Điền, Tỉnh Thừa Thiên Huế (Bên sông Ô Lâu)",
     "latitude": 16.6853,
     "longitude": 107.3197,
@@ -109,12 +313,16 @@ window.heritageLocations = [
     "imageUrl": "images/nha_ruong_1.jpg",
     "summary": "Ngôi làng cổ thứ hai của Việt Nam sau Đường Lâm với nghề làm gốm đất nung tiến vua hơn 500 năm tuổi.",
     "openingHours": "07:30 - 17:30",
-    "isEcoStayCenter": false
+    "services": ["Gốm cổ Phước Tích", "Nhà vườn truyền thống", "Khám phá văn hóa"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-BAO-LA",
     "name": "Làng Mây Tre Đan Bao La",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Thôn Bao La, Xã Quảng Phú, Huyện Quảng Điền, Thừa Thiên Huế (Ven bờ sông Bồ)",
     "latitude": 16.5583,
     "longitude": 107.4917,
@@ -123,12 +331,16 @@ window.heritageLocations = [
     "imageUrl": "images/kien_truc_vuon_hue.jpg",
     "summary": "Làng nghề đan lát mây tre hơn 600 năm tuổi với các sản phẩm thủ công mỹ nghệ sinh thái xuất khẩu quốc tế.",
     "openingHours": "07:30 - 17:00",
-    "isEcoStayCenter": false
+    "services": ["Sản phẩm thủ công", "Đan lát mây tre", "Quà tặng sinh thái"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "HERITAGE-DAI-NOI",
     "name": "Đại Nội Huế (Hoàng Thành & Tử Cấm Thành)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Đường 23 Tháng 8, Phường Thuận Hòa, Thành phố Huế",
     "latitude": 16.4697,
     "longitude": 107.5779,
@@ -137,12 +349,16 @@ window.heritageLocations = [
     "imageUrl": "images/kien_truc_vuon_hue.jpg",
     "summary": "Trung tâm quyền lực tối cao của 13 vị hoàng đế triều Nguyễn (1802 - 1945), Di sản Văn hóa Thế giới UNESCO.",
     "openingHours": "07:30 - 17:30 (Mở cửa ban đêm vào các dịp lễ hội)",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Di sản UNESCO", "Đạp xe sinh thái"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-THIEN-MU",
     "name": "Chùa Thiên Mụ (Linh Mụ Tự)",
     "category": "Chùa Cổ & Tâm Linh",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Đồi Hà Khê, Đường Nguyễn Phúc Nguyên, Phường Kim Long, TP. Huế",
     "latitude": 16.4533,
     "longitude": 107.5451,
@@ -151,12 +367,16 @@ window.heritageLocations = [
     "imageUrl": "images/chua_thien_mu.jpg",
     "summary": "Đệ nhất cổ tự xứ Đàng Trong (1601), biểu tượng tâm linh bất diệt của Cố đô Huế bên dòng sông Hương.",
     "openingHours": "06:30 - 18:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Đạp xe sinh thái", "Ngắm hoàng hôn"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-TU-DUC",
     "name": "Lăng Tự Đức (Khiêm Lăng)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Thôn Thượng Ba, Phường Thủy Xuân, TP. Huế (Cạnh Làng Hương)",
     "latitude": 16.4331,
     "longitude": 107.5658,
@@ -165,12 +385,16 @@ window.heritageLocations = [
     "imageUrl": "images/ho_sen_hue.jpg",
     "summary": "Tuyệt tác lăng tẩm mang phong cách thi ca sơn thủy hữu tình bậc nhất của vương triều nhà Nguyễn.",
     "openingHours": "07:30 - 17:30",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Di sản UNESCO", "Đạp xe sinh thái"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-KHAI-DINH",
     "name": "Lăng Khải Định (Ứng Lăng)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Sườn núi Châu Chữ, Xã Thủy Bằng, Thành phố Huế",
     "latitude": 16.3986,
     "longitude": 107.5904,
@@ -179,12 +403,16 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Đỉnh cao nghệ thuật ghép sành sứ và thủy tinh tinh xảo bậc nhất thời Nguyễn, giao thoa Đông - Tây.",
     "openingHours": "07:30 - 17:30",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Di sản UNESCO"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-MINH-MANG",
     "name": "Lăng Minh Mạng (Hiếu Lăng)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Núi Cẩm Kê, Xã Hương Thọ, TP. Huế (Gần ngã ba Tuần)",
     "latitude": 16.3889,
     "longitude": 107.5706,
@@ -193,26 +421,16 @@ window.heritageLocations = [
     "imageUrl": "images/kien_truc_vuon_hue.jpg",
     "summary": "Quần thể lăng tẩm uy nghiêm với bố cục đăng đối tuyệt đối, chuẩn mực phong thủy Nho giáo.",
     "openingHours": "07:30 - 17:30",
-    "isEcoStayCenter": false
-  },
-  {
-    "id": "HERITAGE-AN-HIEN",
-    "name": "Nhà Vườn An Hiên (Đệ Nhất Nhà Vườn Xứ Huế)",
-    "category": "Nhà Vườn Di Sản",
-    "address": "58 Nguyễn Phúc Nguyên, Phường Kim Long, TP. Huế",
-    "latitude": 16.4552,
-    "longitude": 107.5495,
-    "distanceFromEcoStayKm": 0.45,
-    "travelEstimate": "450m (~2 phút đi bộ từ Kim Long EcoStay)",
-    "imageUrl": "images/nha_ruong_1.jpg",
-    "summary": "Tuyệt tác nhà vườn mẫu mực tiêu biểu nhất của Cố đô với cổng vòm cổ kính và ngôi nhà rường lim 3 gian 2 chái.",
-    "openingHours": "07:30 - 18:00",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Di sản UNESCO"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-VAN-MIEU",
     "name": "Văn Miếu Huế (Văn Thánh)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Đường Văn Thánh, Phường Hương Hồ, TP. Huế (Bờ sông Hương cạnh Kim Long)",
     "latitude": 16.4518,
     "longitude": 107.5388,
@@ -221,12 +439,16 @@ window.heritageLocations = [
     "imageUrl": "images/nha_ruong_2.jpg",
     "summary": "Thánh đường Nho học triều Nguyễn với 32 tấm bia tiến sĩ khắc tên 293 vị đại khoa hiền tài của đất nước.",
     "openingHours": "07:30 - 17:30",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Đạp xe sinh thái"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-CUNG-AN-DINH",
     "name": "Cung An Định (Viên Ngọc Tân Cổ Điển)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "179 Phan Đình Phùng, Phường Phú Nhuận, Thành phố Huế (Ven sông An Cựu)",
     "latitude": 16.4578,
     "longitude": 107.5936,
@@ -235,12 +457,16 @@ window.heritageLocations = [
     "imageUrl": "images/room_hoanghon.jpg",
     "summary": "Lâu đài mùa hè phong cách tân cổ điển châu Âu của vua Khải Định và nơi gắn bó với Hoàng hậu Nam Phương.",
     "openingHours": "07:30 - 17:30",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Kiến trúc di sản"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-HON-CHEN",
     "name": "Điện Hòn Chén (Huệ Nam Điện)",
     "category": "Chùa Cổ & Tâm Linh",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Núi Ngọc Trản, Thôn Hải Cát, Xã Hương Thọ, TP. Huế (Bên bờ sông Hương)",
     "latitude": 16.4258,
     "longitude": 107.5417,
@@ -249,12 +475,16 @@ window.heritageLocations = [
     "imageUrl": "images/thuyen_rong_hue.jpg",
     "summary": "Quần thể di tích tâm linh thờ Mẫu Thiên Y A Na trên vách núi Ngọc Trản soi bóng khúc sông Hương hùng vĩ.",
     "openingHours": "07:30 - 17:30",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Thuyền rồng sông Hương"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-HO-QUYEN",
     "name": "Đấu Trường Hổ Quyền & Điện Voi Ré",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Kiệt 168 Bùi Thị Xuân, Phường Thủy Biều, TP. Huế (Bờ nam đối diện Kim Long)",
     "latitude": 16.4442,
     "longitude": 107.5531,
@@ -263,12 +493,16 @@ window.heritageLocations = [
     "imageUrl": "images/kien_truc_vuon_hue.jpg",
     "summary": "Đấu trường sinh tử giữa voi và hổ thời nhà Nguyễn — chứng tích đấu trường lộ thiên duy nhất ở châu Á.",
     "openingHours": "07:30 - 17:30",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Đạp xe sinh thái"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-TU-HIEU",
     "name": "Chùa Từ Hiếu (Ngôi Chùa Thái Giám & Rừng Thông)",
     "category": "Chùa Cổ & Tâm Linh",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Thôn Dương Xuân Thượng, Phường Thủy Xuân, TP. Huế (Gần Làng Hương)",
     "latitude": 16.4385,
     "longitude": 107.5742,
@@ -277,82 +511,116 @@ window.heritageLocations = [
     "imageUrl": "images/ho_sen_hue.jpg",
     "summary": "Ngôi cổ tự thanh tịnh nép mình giữa rừng thông bạt ngàn, nơi lưu giữ nghĩa trang thái giám triều Nguyễn và gắn liền với Thiền sư Thích Nhất Hạnh.",
     "openingHours": "06:00 - 18:00",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Thiền & Tâm linh", "Đạp xe sinh thái"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "FOOD-BANH-UOT",
     "name": "Bánh Ướt Thịt Nướng Huyền Anh (Đệ Nhất Kim Long)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "50 Kim Long, Phường Kim Long, TP. Huế (Cách Homestay 250m)",
     "latitude": 16.4565,
     "longitude": 107.5512,
+    "phone": "0234 353 8121 (Dữ liệu mẫu)",
     "distanceFromEcoStayKm": 0.25,
     "travelEstimate": "250m (~1 phút đi bộ • Giao nóng tận phòng 15 phút)",
     "imageUrl": "images/mon_banhuot.jpg",
     "summary": "Quán bánh ướt thịt nướng gia truyền lừng danh nhất xứ Huế, thơm nức hương sả mè than hoa.",
+    "description": "Điểm ẩm thực đặc trưng tại phường Kim Long chuyên phục vụ bánh ướt cuốn thịt nướng than hoa, bún thịt nướng và nem lụi cho du khách lưu trú (Dữ liệu mẫu minh họa mô hình liên kết).",
     "openingHours": "08:30 - 21:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Bánh ướt thịt nướng", "Món Huế", "Giao bữa ăn tận phòng", "Phục vụ tại quán"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-BUN-BO",
     "name": "Bún Bò Huế Mụ Rơi (Cổ Truyền Cố Đô)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "38 Trần Cao Vân, Phường Phú Hội, TP. Huế",
     "latitude": 16.4632,
     "longitude": 107.5956,
+    "phone": "0905 312 456 (Dữ liệu mẫu)",
     "distanceFromEcoStayKm": 4.8,
     "travelEstimate": "4.8 km (~14 phút xe đạp Eco-Bike / taxi)",
     "imageUrl": "images/mon_banhuot.jpg",
     "summary": "Quán bún bò Huế gia truyền với nước dùng xương hầm thanh ngọt và hương sả ruốc quyến rũ.",
     "openingHours": "06:00 - 10:30 (Thường hết sớm)",
-    "isEcoStayCenter": false
+    "services": ["Món Huế", "Bún bò Huế", "Điểm ăn sáng"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-BANH-BEO",
     "name": "Quán Bánh Bèo - Nậm - Lọc Bà Đỏ",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "08 Nguyễn Bỉnh Khiêm, Phường Phú Cát, TP. Huế",
     "latitude": 16.4746,
     "longitude": 107.5901,
+    "phone": "0234 352 7206 (Dữ liệu mẫu)",
     "distanceFromEcoStayKm": 4.2,
     "travelEstimate": "4.2 km (~12 phút đạp xe)",
     "imageUrl": "images/mon_banhuot.jpg",
     "summary": "Địa chỉ thưởng thức trọn vẹn tinh hoa khay bánh bèo chén, bánh nậm tôm thịt và bánh bột lọc Huế.",
     "openingHours": "08:00 - 21:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Bánh Huế", "Món Huế", "Giao bữa ăn tận phòng", "Phục vụ tại quán"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-COM-HEN",
     "name": "Cơm Hến & Bún Hến Hoa Đông (Đặc Sản Cồn Hến)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "64 Kiệt 7 Ưng Bình, Thôn Cồn Hến, Phường Vỹ Dạ, TP. Huế",
     "latitude": 16.4715,
     "longitude": 107.6085,
+    "phone": "0234 384 9532 (Dữ liệu mẫu)",
     "distanceFromEcoStayKm": 5.8,
     "travelEstimate": "5.8 km (~18 phút đạp xe qua cầu Đập Đá & Cồn Hến)",
     "imageUrl": "images/mon_banhuot.jpg",
     "summary": "Thủ phủ Cơm hến xứ Cố đô bên dòng sông Hương với vị cay nồng xé lưỡi và nước hến ngọt lịm.",
     "openingHours": "06:30 - 20:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Cơm hến", "Món Huế", "Giao bữa ăn tận phòng"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-CHE-HEM",
     "name": "Chè Hẻm Cố Đô (Chè Bột Lọc Heo Quay & Sen Nhãn)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "Số 1 Kiệt 29 Hùng Vương, Phường Phú Hội, TP. Huế",
     "latitude": 16.4651,
     "longitude": 107.5928,
+    "phone": "0935 678 910 (Dữ liệu mẫu)",
     "distanceFromEcoStayKm": 4.5,
     "travelEstimate": "4.5 km (~13 phút đạp xe)",
     "imageUrl": "images/ho_sen_hue.jpg",
     "summary": "Quán chè cổ xưa nức tiếng với món chè bột lọc bọc heo quay mặn ngọt độc nhất vô nhị xứ Huế.",
     "openingHours": "10:30 - 22:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Chè Huế", "Món Huế", "Phục vụ tại quán"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-CA-PHE-MUOI",
     "name": "Quán Cà Phê Muối Xứ Huế (Số 10 Nguyễn Lương Bằng)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "10 Nguyễn Lương Bằng, Phường Phú Nhuận, TP. Huế",
     "latitude": 16.4558,
     "longitude": 107.5886,
@@ -361,12 +629,16 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Nơi khởi nguồn sáng tạo món Cà phê muối lừng danh khắp cả nước của đôi vợ chồng cố đô năm 2010.",
     "openingHours": "06:30 - 22:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Cà phê muối", "Thức uống bản địa"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-BANH-CANH",
     "name": "Bánh Canh Nam Phổ Thúy (Làng Cổ Nam Phổ)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "16 Phạm Hồng Thái, Phường Vĩnh Ninh, TP. Huế",
     "latitude": 16.4612,
     "longitude": 107.5895,
@@ -375,12 +647,16 @@ window.heritageLocations = [
     "imageUrl": "images/mon_banhuot.jpg",
     "summary": "Món quà chiều dân dã với nước súp sánh sệt màu đỏ gạch tôm cua độc đáo của làng cổ Nam Phổ.",
     "openingHours": "12:30 - 18:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Món Huế", "Bánh canh Nam Phổ"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-COM-CHAY",
     "name": "Cơm Chay Thanh Liễu (Ẩm Thực Chay Thiền Môn)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "50 Nguyễn Công Trứ, Phường Phú Hội, TP. Huế",
     "latitude": 16.4628,
     "longitude": 107.5982,
@@ -389,12 +665,16 @@ window.heritageLocations = [
     "imageUrl": "images/ho_sen_hue.jpg",
     "summary": "Ẩm thực chay thanh tịnh, tinh hoa văn hóa ẩm thực Phật giáo xứ Huế với hơn 50 món ăn bổ dưỡng.",
     "openingHours": "07:00 - 20:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Ẩm thực chay", "Món Huế", "Suất ăn khách lưu trú"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "HERITAGE-DOI-VONG-CANH",
     "name": "Đồi Vọng Cảnh (Điểm Ngắm Khúc Quanh Sông Hương Đẹp Nhất)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Đường Huyền Trân Công Chúa, Phường Thủy Biều, TP. Huế",
     "latitude": 16.4258,
     "longitude": 107.562,
@@ -403,12 +683,16 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Điểm ngắm hoàng hôn triệu đô ôm trọn khúc cua đẹp nhất của dòng sông Hương và rặng thông xanh biếc.",
     "openingHours": "Mở cửa tự do 24/7 (Đẹp nhất từ 16:30 - 18:00)",
-    "isEcoStayCenter": false
+    "services": ["Ngắm hoàng hôn", "Đạp xe sinh thái", "Khám phá văn hóa"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-CAU-TRUONG-TIEN",
     "name": "Cầu Trường Tiền (Biểu Tượng 127 Năm Sông Hương)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Bắc qua sông Hương nối đường Lê Lợi và đường Trần Hưng Đạo, TP. Huế",
     "latitude": 16.4682,
     "longitude": 107.5878,
@@ -417,12 +701,16 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Cây cầu thép huyền thoại sáu vài mười hai nhịp bắc qua sông Hương — chứng nhân lịch sử hơn một thế kỷ của Cố đô.",
     "openingHours": "Mở cửa 24/7 (Phố đi bộ cuối tuần cấm xe cơ giới)",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Đạp xe sinh thái"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-CHO-DONG-BA",
     "name": "Chợ Đông Ba (Khu Chợ Truyền Thống 125 Năm Tuổi)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Số 02 Trần Hưng Đạo, Phường Phú Hòa, TP. Huế (Bờ Bắc sông Hương)",
     "latitude": 16.4718,
     "longitude": 107.5872,
@@ -431,12 +719,16 @@ window.heritageLocations = [
     "imageUrl": "images/nha_ruong_2.jpg",
     "summary": "Khu chợ sầm uất bậc nhất Cố đô — thiên đường mua sắm đặc sản mắm Huế, nón bài thơ và ẩm thực dân dã.",
     "openingHours": "05:00 - 19:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Đặc sản Huế", "Quà tặng đặc sản", "Món Huế"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-QUOC-HOC",
     "name": "Trường Quốc Học Huế (Ngôi Trường Cổ Kính 1896 Ven Sông Hương)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "12 Lê Lợi, Phường Vĩnh Ninh, TP. Huế (Đối diện Đài Tưởng Niệm)",
     "latitude": 16.463,
     "longitude": 107.5835,
@@ -445,12 +737,16 @@ window.heritageLocations = [
     "imageUrl": "images/kien_truc_vuon_hue.jpg",
     "summary": "Ngôi trường trung học đầu tiên tại Huế xây dựng năm 1896 mang sắc đỏ mận cổ kính và kiến trúc giao thoa Pháp - Việt.",
     "openingHours": "Tham quan ngoài giờ học & cuối tuần (07:00 - 17:30)",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Kiến trúc di sản"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-LANG-GIA-LONG",
     "name": "Lăng Vua Gia Long (Thiên Thọ Lăng Giữa 36 Ngọn Núi)",
     "category": "Quần Thể Di Tích Cố Đô",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Xã Hương Thọ, TP. Huế (Nằm trên ngọn đồi Thiên Thọ ven sông Tả Trạch)",
     "latitude": 16.398,
     "longitude": 107.595,
@@ -459,12 +755,16 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Nơi an nghỉ của vị hoàng đế sáng lập triều Nguyễn giữa bức tranh thiên nhiên sơn thủy hoang sơ hùng vĩ nhất.",
     "openingHours": "07:30 - 17:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Di sản UNESCO"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "FOOD-BANH-EP",
     "name": "Bánh Ép Huế Chị Huệ (Đặc Sản Đường Phố Nóng Hổi)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "116 Lê Ngô Cát, Phường Thủy Xuân, TP. Huế (Gần Làng Hương)",
     "latitude": 16.441,
     "longitude": 107.567,
@@ -473,12 +773,16 @@ window.heritageLocations = [
     "imageUrl": "images/mon_banhuot.jpg",
     "summary": "Món ăn vặt số 1 của giới trẻ Cố đô với miếng bánh ép dẻo dai nóng hổi kẹp pate, trứng và thịt băm.",
     "openingHours": "13:30 - 21:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Món Huế", "Bánh ép Huế"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-BANH-KHOAI",
     "name": "Bánh Khoái Hoàng Gia Lạc Thiện (Cửa Thượng Tứ)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "06 Đinh Tiên Hoàng, Phường Đông Ba, TP. Huế (Cửa Thượng Tứ Đại Nội)",
     "latitude": 16.4715,
     "longitude": 107.5835,
@@ -487,12 +791,17 @@ window.heritageLocations = [
     "imageUrl": "images/mon_banhuot.jpg",
     "summary": "Thương hiệu bánh khoái cung đình hơn 60 năm với vỏ bánh giòn rụm và chén nước lèo đậu phụng gan heo bí truyền.",
     "openingHours": "09:00 - 21:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Món Huế", "Bánh khoái", "Nem lụi"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-CHE-MO-TON-DICH",
     "name": "Chè Mợ Tôn Đích (Chè Heo Quay Cửa Thượng Tứ)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "20 Đinh Tiên Hoàng, Phường Đông Ba, TP. Huế (Trước Cửa Thượng Tứ)",
     "latitude": 16.4725,
     "longitude": 107.5828,
@@ -501,12 +810,16 @@ window.heritageLocations = [
     "imageUrl": "images/ho_sen_hue.jpg",
     "summary": "Quán chè đêm sầm uất nhất Cố đô trước cổng thành với hơn 20 nồi chè cung đình nghi ngút khói.",
     "openingHours": "16:00 - 23:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Chè Huế", "Món Huế"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-BANH-MI-TRUONG-TIEN",
     "name": "Bánh Mì Đêm Cầu Trường Tiền (Bánh Mì O Tho)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "14 Trần Hưng Đạo, Phường Phú Hòa, TP. Huế (Đầu cầu Trường Tiền bờ Bắc)",
     "latitude": 16.4695,
     "longitude": 107.5865,
@@ -515,12 +828,16 @@ window.heritageLocations = [
     "imageUrl": "images/mon_banhuot.jpg",
     "summary": "Xe bánh mì đêm huyền thoại bên chân cầu Trường Tiền nướng than hoa giòn rụm với nước sốt đậm đà cay nồng.",
     "openingHours": "17:30 - 02:00 sáng hôm sau",
-    "isEcoStayCenter": false
+    "services": ["Món Huế", "Ẩm thực đêm"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-CA-PHE-RUNG-THONG",
     "name": "Cà Phê Rừng Thông Sunset (View Đồi Vọng Cảnh)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "Khu vực Đồi Vọng Cảnh, Đường Huyền Trân Công Chúa, Phường Thủy Biều, TP. Huế",
     "latitude": 16.427,
     "longitude": 107.5615,
@@ -529,26 +846,36 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Quán cà phê gỗ mộc giữa đồi thông thơ mộng ngắm hoàng hôn buông xuống dòng sông Hương.",
     "openingHours": "06:30 - 22:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Cà phê & Trà", "Ngắm hoàng hôn"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "FOOD-NHA-HANG-Y-THAO",
     "name": "Nhà Hàng Ẩm Thực Cung Đình Y Thảo Garden (Nhà Vườn Vỹ Dạ)",
     "category": "Ẩm Thực Xứ Huế",
+    "partnerGroup": "Quán ăn và ẩm thực",
     "address": "03 Thạch Hãn, Phường Thuận Hòa, TP. Huế (Trong Kinh Thành)",
     "latitude": 16.471,
     "longitude": 107.575,
+    "phone": "0234 352 3018 (Dữ liệu mẫu)",
     "distanceFromEcoStayKm": 3.2,
     "travelEstimate": "3.2 km (~9 phút xe đạp Eco-Bike)",
     "imageUrl": "images/nha_ruong_1.jpg",
-    "summary": "Không gian nhà rường cổ kính phục vụ đại tiệc ẩm thực Cung đình triều Nguyễn được chạm khắc công phu.",
+    "summary": "Không gian nhà rường cổ kính phục vụ đại tiệc ẩm thực Cung đình triều Nguyễn và mâm cơm nhà vườn xứ Huế.",
     "openingHours": "10:30 - 21:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Món Huế", "Suất ăn khách lưu trú", "Ẩm thực cung đình", "Giao bữa ăn tận phòng"],
+    "isEcoStayCenter": false,
+    "isPartner": true,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "HERITAGE-CHUA-DIEU-DE",
     "name": "Chùa Diệu Đế (Đệ Tam Quốc Tự & Bích Họa Long Vân Khế Hội)",
     "category": "Chùa Cổ & Tâm Linh",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "110 Bạch Đằng, Phường Phú Cát, TP. Huế (Bờ sông Đông Ba)",
     "latitude": 16.476,
     "longitude": 107.588,
@@ -557,12 +884,16 @@ window.heritageLocations = [
     "imageUrl": "images/ho_sen_hue.jpg",
     "summary": "Ngôi Quốc tự thứ ba của triều Nguyễn với bức tranh trần 'Cửu Long Ẩn Hiện' lớn và độc đáo nhất Việt Nam.",
     "openingHours": "06:00 - 18:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Tâm linh"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "HERITAGE-CHUA-BAO-QUOC",
     "name": "Chùa Báo Quốc & Giếng Hàm Long (Cổ Tự 350 Năm)",
     "category": "Chùa Cổ & Tâm Linh",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Đường Báo Quốc, Phường Phường Đúc, TP. Huế (Trên đồi Hàm Long)",
     "latitude": 16.452,
     "longitude": 107.576,
@@ -571,12 +902,16 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Một trong những ngôi tổ đình cổ kính bậc nhất Huế với giếng nước ngọc Hàm Long mát lành từng dâng tiến chúa Nguyễn.",
     "openingHours": "05:30 - 18:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Tâm linh"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": false
   },
   {
     "id": "CRAFT-NON-TAY-HO",
     "name": "Làng Nón Lá Tây Hồ (Cái Nôi Nón Bài Thơ Xứ Huế)",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Đặc sản và sản phẩm địa phương",
     "address": "Xã Phú Hồ, Huyện Phú Vang, Tỉnh Thừa Thiên Huế (Ven sông Như Ý)",
     "latitude": 16.442,
     "longitude": 107.625,
@@ -585,12 +920,16 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Làng nghề thủ công hàng trăm năm tuổi sáng tạo nên chiếc Nón Bài Thơ mỏng manh e ấp của người con gái Huế.",
     "openingHours": "07:30 - 17:30 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Sản phẩm thủ công", "Nón bài thơ", "Trải nghiệm làng nghề"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   },
   {
     "id": "CRAFT-LANG-CHUON",
     "name": "Làng Rượu Chuồn & Chợ Nổi Đầm Chuồn (Đầm Phá Tam Giang)",
     "category": "Làng Nghề Truyền Thống",
+    "partnerGroup": "Điểm trải nghiệm",
     "address": "Xã Phú An, Huyện Phú Vang, Tỉnh Thừa Thiên Huế (Hệ đầm phá Tam Giang)",
     "latitude": 16.488,
     "longitude": 107.658,
@@ -599,6 +938,133 @@ window.heritageLocations = [
     "imageUrl": "images/song_huong_hoanghon.jpg",
     "summary": "Làng nấu rượu gạo nếp tiến vua nức tiếng và chợ nổi ẩm thực thủy hải sản giữa đầm phá Tam Giang mênh mông.",
     "openingHours": "06:00 - 20:00 hàng ngày",
-    "isEcoStayCenter": false
+    "services": ["Khám phá văn hóa", "Ẩm thực đầm phá", "Đặc sản địa phương"],
+    "isEcoStayCenter": false,
+    "isActive": true,
+    "isSample": true
   }
 ];
+
+window.PARTNER_STORAGE_KEY = 'kle_partners_v2';
+
+window.inferPartnerGroup = function (loc) {
+  if (loc && loc.partnerGroup) return loc.partnerGroup;
+  var cat = ((loc && loc.category) || '').toLowerCase();
+  if (cat.indexOf('nhà vườn') >= 0 || cat.indexOf('homestay') >= 0 || cat.indexOf('lưu trú') >= 0) {
+    return 'Nhà vườn và homestay';
+  }
+  if (cat.indexOf('ẩm thực') >= 0 || cat.indexOf('quán ăn') >= 0 || cat.indexOf('nhà hàng') >= 0) {
+    return 'Quán ăn và ẩm thực';
+  }
+  if (cat.indexOf('đặc sản') >= 0 || cat.indexOf('làng nghề') >= 0 || cat.indexOf('nông sản') >= 0 || cat.indexOf('sản phẩm') >= 0) {
+    return 'Đặc sản và sản phẩm địa phương';
+  }
+  return 'Điểm trải nghiệm';
+};
+
+window.calculateDistanceFromCenterKm = function (lat, lng) {
+  var cLat = 16.456;
+  var cLng = 107.5495;
+  if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) return 1.0;
+  var R = 6371;
+  var dLat = (lat - cLat) * Math.PI / 180;
+  var dLng = (lng - cLng) * Math.PI / 180;
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(cLat * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 100) / 100;
+};
+
+window.normalizePartnerRecord = function (loc) {
+  if (!loc) return null;
+  var lat = parseFloat(loc.latitude);
+  var lng = parseFloat(loc.longitude);
+  if (isNaN(lat)) lat = 16.456;
+  if (isNaN(lng)) lng = 107.5495;
+  var dist = (typeof loc.distanceFromEcoStayKm === 'number' && !isNaN(loc.distanceFromEcoStayKm))
+    ? loc.distanceFromEcoStayKm
+    : window.calculateDistanceFromCenterKm(lat, lng);
+  var group = window.inferPartnerGroup(loc);
+  var services = Array.isArray(loc.services)
+    ? loc.services
+    : (typeof loc.services === 'string' && loc.services.trim()
+        ? loc.services.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
+        : [group]);
+  return {
+    id: loc.id || ('PARTNER-' + Date.now()),
+    name: loc.name || 'Địa điểm Đối tác Kim Long',
+    category: loc.category || group,
+    partnerGroup: group,
+    address: loc.address || 'Phường Kim Long, TP. Huế',
+    latitude: lat,
+    longitude: lng,
+    phone: loc.phone || '0234 382 6868 (Liên hệ lễ tân EcoStay)',
+    openingHours: loc.openingHours || '07:00 - 20:00 hàng ngày',
+    imageUrl: loc.imageUrl || 'images/nha_ruong_1.jpg',
+    summary: loc.summary || loc.description || 'Địa điểm trong mạng lưới liên kết sinh thái Kim Long EcoStay.',
+    description: loc.description || loc.summary || 'Địa điểm trong mạng lưới liên kết sinh thái Kim Long EcoStay.',
+    services: services,
+    distanceFromEcoStayKm: dist,
+    travelEstimate: loc.travelEstimate || (dist <= 0.05 ? 'Tâm điểm xuất phát' : (dist + ' km (~' + Math.max(2, Math.round(dist * 3.2)) + ' phút đạp xe Eco-Bike)')),
+    isEcoStayCenter: !!loc.isEcoStayCenter,
+    isPartner: loc.isPartner !== undefined ? !!loc.isPartner : true,
+    isActive: loc.isActive !== false,
+    isSample: loc.isSample !== undefined ? !!loc.isSample : true
+  };
+};
+
+window.getKlePartners = function (includeHidden) {
+  var list = [];
+  try {
+    var raw = localStorage.getItem(window.PARTNER_STORAGE_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        list = parsed.map(window.normalizePartnerRecord).filter(Boolean);
+      }
+    }
+  } catch (e) {
+    console.warn('Cannot read kle_partners_v2 from localStorage:', e);
+  }
+  if (!list.length) {
+    list = (window.DEFAULT_HERITAGE_LOCATIONS || []).map(window.normalizePartnerRecord).filter(Boolean);
+    try {
+      localStorage.setItem(window.PARTNER_STORAGE_KEY, JSON.stringify(list));
+    } catch (e) {}
+  } else {
+    // Ensure any newly added default locations exist
+    var existingIds = {};
+    list.forEach(function (item) { existingIds[item.id] = true; });
+    var added = false;
+    (window.DEFAULT_HERITAGE_LOCATIONS || []).forEach(function (def) {
+      if (!existingIds[def.id]) {
+        list.push(window.normalizePartnerRecord(def));
+        added = true;
+      }
+    });
+    if (added) {
+      try {
+        localStorage.setItem(window.PARTNER_STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {}
+    }
+  }
+  window.allHeritageLocations = list;
+  window.heritageLocations = list.filter(function (item) { return item.isActive !== false; });
+  return includeHidden ? list : window.heritageLocations;
+};
+
+window.saveKlePartners = function (list) {
+  var normalized = (list || []).map(window.normalizePartnerRecord).filter(Boolean);
+  try {
+    localStorage.setItem(window.PARTNER_STORAGE_KEY, JSON.stringify(normalized));
+  } catch (e) {
+    console.warn('Cannot save kle_partners_v2 to localStorage:', e);
+  }
+  window.allHeritageLocations = normalized;
+  window.heritageLocations = normalized.filter(function (item) { return item.isActive !== false; });
+  return normalized;
+};
+
+// Initialize window.heritageLocations immediately
+window.getKlePartners(false);

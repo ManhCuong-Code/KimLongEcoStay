@@ -22,5 +22,8 @@ namespace KimLongEcoStay.CoreBusiness.Models
         public bool IsActive { get; set; } = true;
         public bool IsFeatured { get; set; } = false;
         public bool IsSample { get; set; } = false; // Nhãn mẫu demo nếu chưa có dữ liệu thật
+        public string PartnerId { get; set; } = string.Empty;
+        public string PartnerName { get; set; } = string.Empty;
+        public string Origin { get; set; } = string.Empty;
     }
 }
