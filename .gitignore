@@ -374,4 +374,13 @@ FodyWeavers.xsd
 *.zip
 *.log
 sync_bangchamcong/
-_temp*/
+_temp*/
+
+# Environment & Secret files (Never commit API keys, tokens, or SQL passwords)
+.env
+.env.*
+!.env.example
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/*.secret.json
+

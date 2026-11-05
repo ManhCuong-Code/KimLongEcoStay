@@ -32,6 +32,11 @@ using KimLongEcoStay.CoreBusiness.Services.Interfaces;
 using KimLongEcoStay.UseCases.AdminPortal.HRManagementScreen;
 using KimLongEcoStay.UseCases.AdminPortal.PayrollManagementScreen;
 using KimLongEcoStay.UseCases.AdminPortal.FinancialManagementScreen;
+using KimLongEcoStay.Web.Services;
+using System.Text.Json;
+
+// 0. NẠP BIẾN MÔI TRƯỜNG TỪ FILE .env (BẢO MẬT TUYỆT ĐỐI API KEY & SQL CONNECTION)
+EnvConfigurationLoader.LoadDotEnv();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,9 +47,10 @@ if (!string.IsNullOrWhiteSpace(cloudPort))
     builder.WebHost.UseUrls($"http://+:{cloudPort}");
 }
 
-// 1. ADD BLAZOR INTERACTIVE SERVER
+// 1. ADD BLAZOR INTERACTIVE SERVER & SIGNALR REAL-TIME HUB
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddSignalR();
 
 // 2. COOKIE AUTHENTICATION & AUTHORIZATION (PART 4)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -131,6 +137,11 @@ builder.Services.AddTransient<ISmartLockUseCase, SmartLockUseCase>();
 builder.Services.AddTransient<IHRManagementUseCase, HRManagementUseCase>();
 builder.Services.AddTransient<IPayrollManagementUseCase, PayrollManagementUseCase>();
 builder.Services.AddTransient<IFinancialManagementUseCase, FinancialManagementUseCase>();
+
+// 4B. TWO-WAY SQL SYNCHRONIZATION ENGINE, SIGNALR CHANGE TRACKING & AI GATEWAY
+builder.Services.AddSingleton<TwoWaySqlSyncService>();
+builder.Services.AddSingleton<AiAssistantGatewayService>();
+builder.Services.AddHostedService<SqlChangeTrackingHostedService>();
 
 var app = builder.Build();
 
@@ -437,7 +448,7 @@ app.MapGet("/api/rbac/me", (HttpContext context) =>
     string roleClaim = user.FindFirst("UserRole")?.Value ?? user.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
     string[] allowedModules = roleClaim.ToUpperInvariant() switch
     {
-        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan" },
+        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan", "sql-sync" },
         "STAFF" or "LETAN" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
         "ACCOUNTANT" or "CFO" => new[] { "dashboard", "reconciliation", "luong", "emaillogs" },
         "HR" or "COO" or "MANAGER" => new[] { "nhanvien", "duan", "partners-admin" },
@@ -456,6 +467,346 @@ app.MapGet("/api/rbac/me", (HttpContext context) =>
         allowedModules
     });
 });
+
+// =========================================================================
+// 6A. ENDPOINTS TRỢ LÝ AI THÔNG MINH (OPENAI API + SQL DATA CONTEXT + RBAC)
+// =========================================================================
+app.MapGet("/api/ai/status", (AiAssistantGatewayService aiGateway) =>
+{
+    return Results.Ok(aiGateway.GetStatus());
+});
+
+app.MapPost("/api/ai/chat", async (HttpContext context, AiAssistantGatewayService aiGateway) =>
+{
+    try
+    {
+        var req = await context.Request.ReadFromJsonAsync<AiChatRequestDto>();
+        if (req == null)
+            return Results.BadRequest(new { success = false, error = "Dữ liệu yêu cầu không hợp lệ." });
+
+        // Lấy vai trò từ Cookie nếu chưa truyền hoặc bổ sung xác thực
+        if (context.User?.Identity?.IsAuthenticated == true)
+        {
+            req.Role = context.User.FindFirst("UserRole")?.Value ?? context.User.FindFirst(ClaimTypes.Role)?.Value ?? req.Role;
+            req.UserName = context.User.Identity.Name ?? req.UserName;
+        }
+
+        string clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "local";
+        var result = await aiGateway.ProcessChatAsync(req, clientIp);
+        return Results.Ok(result);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { success = false, error = $"Lỗi xử lý AI: {ex.Message}" }, statusCode: 500);
+    }
+}).DisableAntiforgery();
+
+// =========================================================================
+// 6B. ENDPOINTS ĐỒNG BỘ SQL HAI CHIỀU (WEBSITE ↔ SQL SERVER + SIGNALR)
+// =========================================================================
+app.MapGet("/api/sync/diagnostics", async (TwoWaySqlSyncService syncService) =>
+{
+    var diag = await syncService.TestConnectionAndGetDiagnosticsAsync();
+    return Results.Ok(diag);
+});
+
+app.MapPost("/api/sync/test-connection", async (TwoWaySqlSyncService syncService) =>
+{
+    var diag = await syncService.TestConnectionAndGetDiagnosticsAsync();
+    return Results.Ok(diag);
+}).DisableAntiforgery();
+
+app.MapGet("/api/sync/state", async (TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        var state = await syncService.GetFullSyncStateAsync();
+        return Results.Ok(state);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { success = false, isSqlConnected = false, error = ex.Message }, statusCode: 503);
+    }
+});
+
+app.MapGet("/api/sync/slice/{entityType}", async (string entityType, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        var slice = await syncService.GetEntitySliceAsync(entityType);
+        return Results.Ok(slice);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { success = false, error = ex.Message }, statusCode: 503);
+    }
+});
+
+app.MapPost("/api/sync/resync", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        string actor = context.User?.Identity?.Name ?? "Admin";
+        var state = await syncService.GetFullSyncStateAsync();
+        await syncService.BroadcastEntityChangeAsync("ALL", "FULL_RESYNC", "RESYNC", $"Đồng bộ lại toàn bộ dữ liệu từ SQL Server bởi {actor}", actor);
+        return Results.Ok(state);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { success = false, error = ex.Message }, statusCode: 500);
+    }
+}).DisableAntiforgery();
+
+app.MapPost("/api/sync/force-resync", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        string actor = context.User?.Identity?.Name ?? "Admin";
+        var state = await syncService.GetFullSyncStateAsync();
+        await syncService.BroadcastEntityChangeAsync("ALL", "FULL_RESYNC", "RESYNC", $"Đồng bộ lại toàn bộ dữ liệu từ SQL Server bởi {actor}", actor);
+        return Results.Ok(state);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { success = false, error = ex.Message }, statusCode: 500);
+    }
+}).DisableAntiforgery();
+
+// CRUD Sản phẩm Đặc sản (Website → SQL Transaction + Optimistic Concurrency)
+app.MapPost("/api/sync/products", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Admin";
+        var res = await syncService.UpsertProductAsync(doc.RootElement, actor);
+        return Results.Ok(res);
+    }
+    catch (ConcurrencyConflictException cex)
+    {
+        return Results.Json(new
+        {
+            success = false,
+            conflict = true,
+            error = cex.Message,
+            currentServerVersion = cex.CurrentServerVersion,
+            serverRecord = cex.ServerRecord
+        }, statusCode: 409);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+app.MapDelete("/api/sync/products/{code}", async (string code, HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        string actor = context.User?.Identity?.Name ?? context.Request.Query["actor"].FirstOrDefault() ?? "Admin";
+        var res = await syncService.DeleteProductAsync(code, actor);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+app.MapPost("/api/sync/products/{code}/stock", async (string code, HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        int delta = doc.RootElement.TryGetProperty("delta", out var dp) && dp.TryGetInt32(out var dv) ? dv : 0;
+        int? abs = doc.RootElement.TryGetProperty("stock", out var sp) && sp.ValueKind == JsonValueKind.Number && sp.TryGetInt32(out var sv) ? sv : null;
+        int? expectedVer = null;
+        if (doc.RootElement.TryGetProperty("expectedSyncVersion", out var evp) && evp.ValueKind == JsonValueKind.Number && evp.TryGetInt32(out var evv))
+            expectedVer = evv;
+        else if (doc.RootElement.TryGetProperty("syncVersion", out var svp) && svp.ValueKind == JsonValueKind.Number && svp.TryGetInt32(out var svv))
+            expectedVer = svv;
+
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Staff";
+        var res = await syncService.UpdateProductStockAsync(code, delta, abs, actor, expectedVer);
+        return Results.Ok(res);
+    }
+    catch (ConcurrencyConflictException cex)
+    {
+        return Results.Json(new
+        {
+            success = false,
+            conflict = true,
+            conflictDetected = true,
+            message = cex.Message,
+            error = cex.Message,
+            currentServerVersion = cex.CurrentServerVersion,
+            serverRecord = cex.ServerRecord
+        }, statusCode: 409);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// Cập nhật trạng thái 8 bước của Buồng phòng trong SQL Transaction
+app.MapPost("/api/sync/rooms/{roomNumber}/status", async (string roomNumber, HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string status = doc.RootElement.TryGetProperty("status", out var sp) ? (sp.GetString() ?? "AVAILABLE") : "AVAILABLE";
+        string? guestName = doc.RootElement.TryGetProperty("guestName", out var gp) ? gp.GetString() : null;
+        string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bp) ? bp.GetString() : null;
+        int? expectedVer = doc.RootElement.TryGetProperty("syncVersion", out var vp) && vp.ValueKind == JsonValueKind.Number && vp.TryGetInt32(out var vv) ? vv : null;
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Lễ Tân";
+
+        var res = await syncService.UpdateRoomStatusAsync(roomNumber, status, guestName, bookingCode, expectedVer, actor);
+        return Results.Ok(res);
+    }
+    catch (ConcurrencyConflictException cex)
+    {
+        return Results.Json(new { success = false, conflict = true, error = cex.Message, currentServerVersion = cex.CurrentServerVersion }, statusCode: 409);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// Đặt phòng & Đối soát cọc 50% trong SQL Transaction
+app.MapPost("/api/sync/bookings", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Khách Đặt Trực Tuyến";
+        var res = await syncService.UpsertBookingAsync(doc.RootElement, actor);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+app.MapPost("/api/sync/bookings/{orderCode}/reconcile", async (string orderCode, HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string status = doc.RootElement.TryGetProperty("status", out var sp) ? (sp.GetString() ?? "CONFIRMED") : "CONFIRMED";
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Kế Toán / Lễ Tân";
+        var res = await syncService.ReconcileBookingAsync(orderCode, status, actor);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// Đơn Giao Tận Phòng (Trừ tồn kho + Đổi trạng thái phòng trong 1 SQL Transaction)
+app.MapPost("/api/sync/deliveries", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Lễ Tân Điều Phối";
+        var res = await syncService.UpsertRoomDeliveryAsync(doc.RootElement, actor);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// Cấp lại mã khóa SmartLock bảo mật (Hash SHA-256 + Ghi Audit Log trong SQL Transaction)
+app.MapPost("/api/sync/smartlock/reissue", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string roomNumber = doc.RootElement.TryGetProperty("roomNumber", out var rp) ? (rp.GetString() ?? "KLE-R101")
+            : (doc.RootElement.TryGetProperty("roomCode", out var rcp) ? (rcp.GetString() ?? "KLE-R101") : "KLE-R101");
+        string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bp) ? bp.GetString() : null;
+        string reason = doc.RootElement.TryGetProperty("reason", out var rsp) ? (rsp.GetString() ?? "")
+            : (doc.RootElement.TryGetProperty("note", out var np) ? (np.GetString() ?? "") : "");
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Lễ Tân";
+        string role = context.User?.FindFirst("UserRole")?.Value
+            ?? (doc.RootElement.TryGetProperty("role", out var rlp) ? rlp.GetString() : null)
+            ?? "RECEPTIONIST";
+
+        var res = await syncService.ReissueSmartLockPinAsync(roomNumber, bookingCode, reason, actor, role);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+app.MapPost("/api/sync/pins/action", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string roomNumber = doc.RootElement.TryGetProperty("roomCode", out var rcp) ? (rcp.GetString() ?? "KLE-R101")
+            : (doc.RootElement.TryGetProperty("roomNumber", out var rp) ? (rp.GetString() ?? "KLE-R101") : "KLE-R101");
+        string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bp) ? bp.GetString() : null;
+        string reason = doc.RootElement.TryGetProperty("note", out var np) ? (np.GetString() ?? "")
+            : (doc.RootElement.TryGetProperty("reason", out var rsp) ? (rsp.GetString() ?? "") : "");
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Lễ Tân";
+        string role = context.User?.FindFirst("UserRole")?.Value
+            ?? (doc.RootElement.TryGetProperty("role", out var rlp) ? rlp.GetString() : null)
+            ?? "RECEPTIONIST";
+
+        var res = await syncService.ReissueSmartLockPinAsync(roomNumber, bookingCode, reason, actor, role);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// Cập nhật đối tác địa phương trên Bản đồ số
+app.MapPost("/api/sync/partners", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string actor = context.User?.Identity?.Name
+            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
+            ?? "Admin";
+        var res = await syncService.UpsertPartnerAsync(doc.RootElement, actor);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// Map SignalR Hub cho đồng bộ 2 chiều thời gian thực
+app.MapHub<EcoStaySyncHub>("/hubs/ecostay-sync");
 
 // 3. Nhật ký Email giao dịch & audit (Yêu cầu xác thực nội bộ)
 app.MapGet("/api/email-logs", (IEmailService emailService) =>

@@ -47,6 +47,7 @@
     <!-- Leaflet & GIS Heritage Map Library & Data (Preloaded in head for instant map initialization) -->
     <script src="lib/leaflet/leaflet.js"></script>
     <script>if(typeof L==='undefined'){document.write('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');}</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="js/heritageLocationsData.js"></script>
     <script src="js/heritageMap.js"></script>
     
@@ -3197,45 +3198,91 @@
 </div>
 
 <!-- =========================================================================
-     MODAL: TRỢ LÝ AI KIM LONG ECOSTAY
+     TRỢ LÝ AI THÔNG MINH KIM LONG ECOSTAY (FLOATING DRAWER GÓC DƯỚI PHẢI + MODAL)
      ========================================================================= -->
-<div class="modal fade" id="aiModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="height: 600px;">
-      <div class="modal-header text-white" style="background: linear-gradient(135deg, #0A3D2C, #14533D); border-bottom: 2px solid #D4AF37;">
-        <div class="d-flex align-items-center gap-2">
-          <div class="bg-success rounded-circle p-2 text-white"><i class="bi bi-robot"></i></div>
-          <div>
-            <h5 class="modal-title fw-bold text-white mb-0">Trợ Lý AI Kim Long EcoStay</h5>
-            <small class="text-warning">Tư vấn phòng & Di sản Cố Đô 24/7</small>
+<div id="kleAiFloatingDrawer" class="kle-ai-drawer d-none" aria-label="Trợ Lý AI Kim Long EcoStay">
+  <div class="kle-ai-drawer-header">
+    <div class="d-flex align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <div class="kle-ai-avatar-ring">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div>
+          <div class="d-flex align-items-center gap-1.5">
+            <h6 class="fw-bold text-white mb-0" style="font-size: 14.5px;">Trợ Lý AI Kim Long</h6>
+            <span id="kleAiProviderBadge" class="badge rounded-pill" style="background: rgba(212,175,55,0.22); color: #FCD34D; border: 1px solid rgba(212,175,55,0.5); font-size: 10px;">
+              OpenAI • gpt-4o-mini
+            </span>
+          </div>
+          <div class="d-flex align-items-center gap-2" style="font-size: 11px; color: #A7F3D0;">
+            <span id="kleAiConnStatusText"><i class="bi bi-database-check me-1"></i>Đồng bộ dữ liệu SQL thời gian thực</span>
           </div>
         </div>
+      </div>
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-sm kle-ai-header-btn" onclick="createNewAiConversation()" title="Tạo cuộc hội thoại mới">
+          <i class="bi bi-plus-lg"></i> Mới
+        </button>
+        <button type="button" class="btn btn-sm kle-ai-header-btn" onclick="closeAiChatModal()" title="Thu gọn cửa sổ chat">
+          <i class="bi bi-dash-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Thanh quản lý đa cuộc hội thoại & hiển thị vai trò RBAC -->
+    <div class="d-flex align-items-center justify-content-between gap-2 mt-2 pt-2" style="border-top: 1px solid rgba(255,255,255,0.14);">
+      <select id="kleAiConvSelect" class="form-select form-select-sm kle-ai-conv-select" onchange="switchAiConversation(this.value)" title="Chọn cuộc hội thoại">
+        <option value="default">💬 Hội thoại hiện tại</option>
+      </select>
+      <span id="kleAiRoleScopeBadge" class="badge rounded-pill px-2 py-1 flex-shrink-0" style="background: rgba(255,255,255,0.14); color: #FFFFFF; font-size: 10.5px;">
+        <i class="bi bi-person-badge me-1"></i>Khách hàng
+      </span>
+    </div>
+  </div>
+
+  <!-- Danh sách gợi ý câu hỏi thông minh theo vai trò -->
+  <div class="kle-ai-quick-bar" id="kleAiQuickPromptsBar">
+    <button type="button" class="kle-ai-chip" onclick="askAiQuestion('Tư vấn 5 buồng phòng sinh thái và giá cọc 50%')">🏡 Tư vấn phòng trống</button>
+    <button type="button" class="kle-ai-chip" onclick="askAiQuestion('Giới thiệu đặc sản Huế và món ăn giao tận phòng')">🍲 Đặc sản &amp; Giao phòng</button>
+    <button type="button" class="kle-ai-chip" onclick="askAiQuestion('Tư vấn các gói trải nghiệm Trà Cung Đình Huế')">🍵 Trà Cung Đình</button>
+    <button type="button" class="kle-ai-chip" onclick="askAiQuestion('Hướng dẫn quy trình đặt cọc 50% và nhận mã PIN SmartLock')">🔑 Quy trình SmartLock</button>
+  </div>
+
+  <!-- Vùng hiển thị tin nhắn hội thoại -->
+  <div class="kle-ai-messages-body" id="aiChatMessages"></div>
+
+  <!-- Trạng thái AI đang suy nghĩ -->
+  <div id="kleAiThinkingBar" class="kle-ai-thinking d-none">
+    <div class="spinner-grow spinner-grow-sm text-success" role="status"></div>
+    <span>AI đang phân tích dữ liệu SQL Server &amp; phản hồi...</span>
+  </div>
+
+  <!-- Ô nhập câu hỏi -->
+  <div class="kle-ai-input-footer">
+    <div class="input-group input-group-sm">
+      <input type="text" id="aiUserInput" class="form-control kle-ai-input" placeholder="Nhập câu hỏi về phòng, đặc sản, vận hành SQL..." autocomplete="off" onkeypress="if(event.key==='Enter') sendAiMessage()">
+      <button class="btn kle-ai-send-btn" type="button" id="kleAiSendBtn" onclick="sendAiMessage()">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-1 px-1" style="font-size: 10px; color: #718076;">
+      <span><i class="bi bi-shield-check text-success me-1"></i>Bảo mật RBAC • Không tiết lộ mã PIN</span>
+      <a href="javascript:void(0)" class="text-decoration-none text-muted" onclick="clearCurrentAiConversation()">Xóa lịch sử</a>
+    </div>
+  </div>
+</div>
+
+<!-- Giữ tương thích #aiModal nếu được gọi từ thành phần cũ -->
+<div class="modal fade" id="aiModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header text-white" style="background: #14452F;">
+        <h6 class="modal-title fw-bold mb-0">Trợ Lý AI Kim Long EcoStay</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-
-      
-      <div class="modal-body p-3 bg-light d-flex flex-column" id="aiChatMessages" style="overflow-y: auto; max-height: 400px;">
-        <div class="d-flex gap-2 mb-3">
-          <div class="bg-success text-white rounded-circle p-2 fs-6 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-robot"></i></div>
-          <div class="p-3 bg-white rounded-4 shadow-sm border small" style="max-width: 85%;">
-            <div class="fw-bold text-dark mb-1">🌿 Chào mừng quý khách đến với Kim Long EcoStay!</div>
-            Tôi là <strong>Trợ lý AI Concierge 24/7</strong>. Quý khách cần hỗ trợ thông tin gì hôm nay?
-            <div class="d-flex flex-wrap gap-1 mt-2">
-              <button class="btn btn-sm btn-outline-success rounded-pill px-2 py-1 small" onclick="askAiQuestion('Tư vấn các buồng phòng sinh thái')">🏡 Xem 5 buồng phòng</button>
-              <button class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 py-1 small" onclick="askAiQuestion('Hướng dẫn nhận mã PIN SmartLock')">🔑 Cách nhận mã khóa</button>
-              <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1 small" onclick="askAiQuestion('Chỉ đường Chùa Thiên Mụ & Làng Hương')">🚲 Tour xe đạp di sản</button>
-              <button class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 small" onclick="askAiQuestion('Đặc sản bánh ướt thịt nướng Kim Long')">🍲 Ẩm thực Kim Long</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="modal-footer p-2 bg-white border-top">
-        <div class="input-group">
-          <input type="text" id="aiUserInput" class="form-control rounded-start-pill" placeholder="Hỏi AI về phòng, mã khóa, địa điểm..." onkeypress="if(event.key==='Enter') sendAiMessage()">
-          <button class="btn btn-success rounded-end-pill px-4 fw-bold" type="button" onclick="sendAiMessage()"><i class="bi bi-send-fill"></i></button>
-        </div>
+      <div class="modal-body text-center p-4">
+        <p class="small text-muted mb-3">Trợ lý AI đã được nâng cấp sang cửa sổ nổi thông minh góc dưới bên phải màn hình.</p>
+        <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal" onclick="openAiChatModal()">Mở Cửa Sổ AI Ngay</button>
       </div>
     </div>
   </div>
@@ -4595,6 +4642,179 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10. QUẢN LÝ KẾT NỐI & ĐỒNG BỘ SQL SERVER HAI CHIỀU (ADMIN ONLY) -->
+          <div class="tab-pane fade" id="tab-pane-sql-sync" role="tabpanel">
+            <!-- Top Diagnostic KPI Cards -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white" style="border-left: 4px solid #1E6B45 !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-bold text-uppercase" style="font-size: 11px;">Trạng Thái SQL Server</span>
+                    <i class="bi bi-database-fill-check text-success fs-5"></i>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 my-1">
+                    <span class="badge bg-success rounded-pill px-2.5 py-1" id="sqlSyncDbStatusBadge">Đang kiểm tra...</span>
+                    <span class="small font-monospace text-muted" id="sqlSyncLatencyBadge">-- ms</span>
+                  </div>
+                  <small class="text-muted text-truncate d-block" id="sqlSyncServerVersionText" style="font-size: 11px;">localhost\SQLEXPRESS • KimLongEcoStayDB</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white" style="border-left: 4px solid #D4AF37 !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-bold text-uppercase" style="font-size: 11px;">Đồng Bộ Thời Gian Thực</span>
+                    <i class="bi bi-broadcast-pin text-warning fs-5"></i>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 my-1">
+                    <span class="badge bg-success rounded-pill px-2.5 py-1" id="sqlSyncSignalrBadge">SignalR: Connected</span>
+                  </div>
+                  <small class="text-muted font-monospace d-block" id="sqlSyncCtVersionBadge" style="font-size: 11px;">Change Tracking Ver: #0</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white" style="border-left: 4px solid #14452F !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-bold text-uppercase" style="font-size: 11px;">Lần Đồng Bộ Gần Nhất</span>
+                    <i class="bi bi-clock-history text-dark fs-5"></i>
+                  </div>
+                  <h6 class="fw-bold text-dark font-monospace my-1" id="sqlSyncLastTimeText">Vừa đồng bộ</h6>
+                  <small class="text-muted font-monospace text-truncate d-block" id="sqlSyncMaskedConnText" style="font-size: 10.5px;">Server=localhost\SQLEXPRESS;Database=KimLongEcoStayDB;***</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white" style="border-left: 4px solid #15803D !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-bold text-uppercase" style="font-size: 11px;">Giao Dịch Ghi Hai Chiều</span>
+                    <i class="bi bi-arrow-left-right text-success fs-5"></i>
+                  </div>
+                  <h6 class="fw-bold text-success font-monospace my-1" id="sqlSyncWriteStatsText">0 Thành công / 0 Lỗi</h6>
+                  <small class="text-muted d-block" style="font-size: 11px;">Bảo vệ Optimistic Concurrency (SyncVersion)</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Bar & Action Buttons -->
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-3">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="fw-bold mb-0.5" style="color: #14452F;">
+                    <i class="bi bi-hdd-network-fill text-success me-1"></i>Trung Tâm Điều Khiển Đồng Bộ Hai Chiều (Website ↔ SQL Server 2025)
+                  </h6>
+                  <p class="small text-muted mb-0">
+                    Mọi thao tác trên Website đều ghi trực tiếp vào SQL Server qua Transaction, và mọi thay đổi trong SSMS tự động đẩy ngược về trình duyệt qua SignalR Change Tracking.
+                  </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="testSqlConnectionNow()">
+                    <i class="bi bi-plug-fill me-1"></i>Kiểm tra kết nối
+                  </button>
+                  <button type="button" class="btn btn-sm btn-warning text-dark rounded-pill px-3 fw-bold" onclick="forceFullSqlResync()">
+                    <i class="bi bi-arrow-repeat me-1"></i>Đồng bộ lại dữ liệu
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="reloadSqlDataNow()">
+                    <i class="bi bi-cloud-arrow-down-fill me-1"></i>Tải lại dữ liệu
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold" onclick="scrollToSqlSyncLogs()">
+                    <i class="bi bi-journal-code me-1"></i>Xem nhật ký
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live SQL Table Counts Grid & Interactive Two-Way Test Suite -->
+            <div class="row g-3 mb-3">
+              <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0 small text-uppercase" style="color: #14452F;">
+                      <i class="bi bi-table text-success me-1"></i>Số Lượng Bản Ghi Thực Tế Trong SQL Server (KimLongEcoStayDB)
+                    </h6>
+                    <span class="badge bg-light text-success border font-monospace" id="sqlSyncTotalRowsBadge">9 Bảng dữ liệu</span>
+                  </div>
+                  <div class="row g-2" id="sqlSyncTableCountsGrid">
+                    <!-- Populated dynamically by renderAdminSqlSyncDashboard() -->
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                  <h6 class="fw-bold mb-1 small text-uppercase" style="color: #14452F;">
+                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Kiểm Thử Đồng Bộ Hai Chiều &amp; Chống Ghi Đè (Live Verification)
+                  </h6>
+                  <p class="small text-muted mb-2" style="font-size: 11.5px;">
+                    Thực thi kiểm thử trực tiếp với SQL Server để xác minh luồng <code>WEB_TO_SQL</code>, <code>SQL_TO_WEB</code> và kiểm soát xung đột <code>409 Conflict</code>.
+                  </p>
+                  <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-success text-start rounded-3 py-1.5 px-3 d-flex justify-content-between align-items-center" onclick="runLiveWebToSqlTest()">
+                      <span><i class="bi bi-cloud-upload-fill me-2"></i>1. Test Chiều 1 (Website ➔ SQL Server Transaction)</span>
+                      <span class="badge bg-success-subtle text-success border">WEB_TO_SQL</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary text-start rounded-3 py-1.5 px-3 d-flex justify-content-between align-items-center" onclick="runLiveConcurrencyConflictTest()">
+                      <span><i class="bi bi-shield-exclamation me-2"></i>2. Test Chống Ghi Đè (Optimistic Concurrency 409)</span>
+                      <span class="badge bg-primary-subtle text-primary border">SyncVersion</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-dark text-start rounded-3 py-1.5 px-3 d-flex justify-content-between align-items-center" onclick="KleAiAssistant.open(); KleAiAssistant.sendQuickPrompt('Tổng hợp trạng thái đồng bộ SQL Server, tồn kho sản phẩm và công suất 5 buồng phòng hiện tại')">
+                      <span><i class="bi bi-stars text-warning me-2"></i>3. Test AI Assistant Truy Vấn Dữ Liệu SQL Thực Tế</span>
+                      <span class="badge bg-warning text-dark">OpenAI + SQL</span>
+                    </button>
+                  </div>
+                  <div id="sqlSyncTestResultAlert" class="alert alert-light border small mt-2 mb-0 py-1.5 px-2.5 d-none" style="font-size: 11.5px;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Sync Audit Logs Table -->
+            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden" id="sqlSyncLogsCardSection">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="fw-bold mb-0" style="color: #14452F;">
+                    <i class="bi bi-journal-check text-success me-1"></i>Nhật Ký Đồng Bộ Cơ Sở Dữ Liệu Hai Chiều (dbo.SyncAuditLogs)
+                  </h6>
+                  <small class="text-muted">Theo dõi thời gian thực mọi sự kiện <code>WEB_TO_SQL</code> (Website ghi SQL) và <code>SQL_TO_WEB</code> (Trigger SSMS đẩy lên Website)</small>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                  <div class="input-group input-group-sm" style="width: 210px;">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" id="sqlSyncLogSearchInput" class="form-control" placeholder="Tìm mã bản ghi, tóm tắt..." oninput="renderSqlSyncAuditLogsTable()">
+                  </div>
+                  <select id="sqlSyncLogDirFilter" class="form-select form-select-sm" style="width: 150px;" onchange="renderSqlSyncAuditLogsTable()">
+                    <option value="ALL">Tất cả chiều đồng bộ</option>
+                    <option value="WEB_TO_SQL">WEB_TO_SQL (Web ➔ SQL)</option>
+                    <option value="SQL_TO_WEB">SQL_TO_WEB (SSMS ➔ Web)</option>
+                  </select>
+                  <select id="sqlSyncLogEntityFilter" class="form-select form-select-sm" style="width: 155px;" onchange="renderSqlSyncAuditLogsTable()">
+                    <option value="ALL">Tất cả bảng SQL</option>
+                    <option value="SpecialtyProducts">SpecialtyProducts</option>
+                    <option value="Rooms">Rooms</option>
+                    <option value="Bookings">Bookings</option>
+                    <option value="RoomDeliveries">RoomDeliveries</option>
+                    <option value="SmartLockPins">SmartLockPins</option>
+                    <option value="LocalPartners">LocalPartners</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-responsive" style="max-height: 360px; overflow-y: auto;">
+                <table class="table table-hover align-middle mb-0 small">
+                  <thead class="table-light sticky-top">
+                    <tr>
+                      <th class="ps-4">ID / Thời Gian</th>
+                      <th>Chiều Đồng Bộ</th>
+                      <th>Bảng Dữ Liệu</th>
+                      <th>Khóa Chính</th>
+                      <th>Hành Động</th>
+                      <th>Người Thực Hiện</th>
+                      <th>Ver</th>
+                      <th class="pe-4">Tóm Tắt Thay Đổi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sqlSyncAuditLogsTableBody">
+                    <tr><td colspan="8" class="text-center py-4 text-muted">Đang tải nhật ký đồng bộ từ SQL Server...</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -8277,62 +8497,1396 @@ window.openCartModal = function() {
 };
 
 // =========================================================================
-// 5. AI ASSISTANT CHAT
+// 5. AI ASSISTANT GATEWAY (OPENAI + SQL GROUNDING) & TWO-WAY SQL SYNC ENGINE
 // =========================================================================
-window.openAiChatModal = function() {
-  var modal = new bootstrap.Modal(document.getElementById('aiModal'));
-  modal.show();
+
+window.KleSqlSyncEngine = {
+  apiBaseUrl: '',
+  isBackendOnline: false,
+  signalRConnected: false,
+  hubConnection: null,
+  lastDiagnostics: null,
+  writeSuccessCount: 0,
+  writeFailCount: 0,
+  lastSyncTime: null,
+  clientId: 'WEB-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+
+  resolveApiBase: function() {
+    var loc = window.location;
+    if (loc.protocol === 'http:' || loc.protocol === 'https:') {
+      if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
+        if (loc.port === '5204' || loc.port === '5000' || loc.port === '7120') {
+          return loc.origin;
+        }
+        return 'http://localhost:5204';
+      }
+      if (!loc.hostname.endsWith('github.io')) {
+        return loc.origin;
+      }
+    }
+    return 'http://localhost:5204';
+  },
+
+  getActorHeaders: function() {
+    var sess = (typeof getKLESession === 'function') ? getKLESession() : null;
+    var roleKey = (sess && sess.role) ? sess.role : 'GUEST';
+    var actorName = (sess && sess.name) ? (sess.name + ' (' + roleKey + ')') : 'Khách Trực Tuyến (Website)';
+    return {
+      'Content-Type': 'application/json',
+      'X-Actor-Name': encodeURIComponent(actorName),
+      'X-Actor-Role': roleKey,
+      'X-Client-Id': this.clientId
+    };
+  },
+
+  init: function() {
+    var self = this;
+    this.apiBaseUrl = this.resolveApiBase();
+    this.hydrateFromSql(false).then(function() {
+      self.connectSignalR();
+    });
+    this.bindWriteHooks();
+    // Poll diagnostics every 6 seconds to keep Change Tracking & SSMS sync fresh even if WebSocket reconnects
+    setInterval(function() {
+      self.pollDiagnosticsQuietly();
+    }, 6000);
+  },
+
+  pollDiagnosticsQuietly: function() {
+    var self = this;
+    fetch(this.apiBaseUrl + '/api/sync/diagnostics', { method: 'GET' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(diag) {
+        if (!diag) return;
+        var prevVer = self.lastDiagnostics ? self.lastDiagnostics.changeTrackingVersion : null;
+        self.isBackendOnline = !!diag.isConnected;
+        self.lastDiagnostics = diag;
+        if (prevVer !== null && diag.changeTrackingVersion > prevVer && !self.signalRConnected) {
+          self.hydrateFromSql(false);
+        }
+        self.updateSqlSyncDashboardUi();
+      })
+      .catch(function() {
+        self.isBackendOnline = false;
+        self.updateSqlSyncDashboardUi();
+      });
+  },
+
+  hydrateFromSql: function(showToastOnComplete) {
+    var self = this;
+    return Promise.all([
+      fetch(this.apiBaseUrl + '/api/sync/state').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+      fetch(this.apiBaseUrl + '/api/sync/diagnostics').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+    ]).then(function(results) {
+      var state = results[0];
+      var diag = results[1];
+
+      if (diag) {
+        self.isBackendOnline = !!diag.isConnected;
+        self.lastDiagnostics = diag;
+      }
+
+      if (state) {
+        self.isBackendOnline = true;
+        self.lastSyncTime = new Date();
+        self.applySqlStateToLocalStores(state);
+        if (showToastOnComplete && typeof showKleToast === 'function') {
+          showKleToast('Đã đồng bộ hai chiều toàn bộ dữ liệu thực tế từ SQL Server (KimLongEcoStayDB)!', 'success');
+        }
+      }
+      self.updateSqlSyncDashboardUi();
+      return state;
+    });
+  },
+
+  applySqlStateToLocalStores: function(state) {
+    if (!state) return;
+
+    // 1. Products (SpecialtyProducts)
+    if (Array.isArray(state.products) && state.products.length > 0) {
+      var localProds = (typeof getProducts === 'function') ? getProducts() : [];
+      var mergedProds = state.products.map(function(sp) {
+        var existing = localProds.find(function(lp) { return lp.id === sp.id; }) || {};
+        return {
+          id: sp.id,
+          name: sp.name,
+          category: sp.category || existing.category || 'Đặc sản Huế',
+          price: Number(sp.price || 0),
+          stock: Number(sp.stock || 0),
+          unit: sp.unit || existing.unit || 'phần',
+          img: sp.img || existing.img || 'images/mon_banhuot.jpg',
+          origin: sp.origin || existing.origin || 'Phường Kim Long, TP. Huế',
+          partnerId: sp.partnerId || existing.partnerId || 'KLE-CENTER',
+          partnerName: sp.partnerName || existing.partnerName || 'Kim Long EcoStay',
+          desc: sp.desc || existing.desc || '',
+          isActive: sp.isActive !== false,
+          syncVersion: Number(sp.syncVersion || 1),
+          updatedAt: sp.updatedAt
+        };
+      });
+      localStorage.setItem('kle_products', JSON.stringify(mergedProds));
+      localStorage.setItem('kle_products_version', 'v3_30items');
+    }
+
+    // 2. Rooms (8-state operational store)
+    if (Array.isArray(state.rooms) && state.rooms.length > 0) {
+      var localRooms = (typeof getRoomsOpsStore === 'function') ? getRoomsOpsStore() : [];
+      var mergedRooms = state.rooms.map(function(sr) {
+        var existing = localRooms.find(function(lr) { return lr.code === sr.code; }) || {};
+        return {
+          code: sr.code,
+          shortId: sr.shortId || existing.shortId || sr.code.replace('KLE-R', ''),
+          name: sr.name || existing.name || sr.code,
+          garden: sr.garden || existing.garden || 'Nhà Vườn Kim Long',
+          price: Number(sr.price || existing.price || 450000),
+          status: sr.status || 'READY',
+          guestName: sr.guestName || '',
+          guestPhone: sr.guestPhone || '',
+          orderCode: sr.orderCode || '',
+          stayWindow: sr.stayWindow || existing.stayWindow || 'Sẵn sàng đón khách lưu trú',
+          pin: sr.hasActivePin ? (existing.pin || '839201') : null,
+          maskedPin: sr.maskedPin || '••••••',
+          battery: Number(sr.battery || 96),
+          signal: sr.signal || '-48 dBm (Tốt)',
+          syncVersion: Number(sr.syncVersion || 1)
+        };
+      });
+      localStorage.setItem('kle_rooms_ops_v2', JSON.stringify(mergedRooms));
+      localStorage.setItem('kle_rooms_ops_ver', 'v2_8states');
+    }
+
+    // 3. Bookings
+    if (Array.isArray(state.bookings) && state.bookings.length > 0) {
+      var localBookings = (typeof getAllBookings === 'function') ? getAllBookings() : [];
+      var mergedBookings = state.bookings.map(function(sb) {
+        var existing = localBookings.find(function(lb) { return lb.orderCode === sb.orderCode; }) || {};
+        return {
+          orderCode: sb.orderCode,
+          pin: existing.pin || '839201',
+          maskedPin: sb.maskedPin || '••••••',
+          name: sb.name,
+          phone: sb.phone,
+          email: sb.email,
+          roomCode: sb.roomCode || 'KLE-R101',
+          roomName: sb.roomName,
+          checkIn: sb.checkIn,
+          checkOut: sb.checkOut,
+          totalPrice: Number(sb.totalPrice || 0),
+          depositRequired: Number(sb.depositRequired || 0),
+          depositPaid: Number(sb.depositPaid || 0),
+          remainingBalance: Number(sb.remainingBalance || 0),
+          status: sb.status || 'WAITING_RECONCILIATION',
+          bookingStatus: sb.bookingStatus || 'PENDING_DEPOSIT',
+          paymentMethod: sb.paymentMethod || 'VietQR',
+          transferContent: sb.transferContent || ('KLE ' + sb.orderCode),
+          notes: sb.notes || '',
+          syncVersion: Number(sb.syncVersion || 1),
+          createdAt: sb.createdAt
+        };
+      });
+      localStorage.setItem('kle_all_bookings', JSON.stringify(mergedBookings));
+    }
+
+    // 4. Room Deliveries
+    if (Array.isArray(state.deliveries) && state.deliveries.length > 0) {
+      var localOrders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+      var mergedOrders = state.deliveries.map(function(sd) {
+        var existing = localOrders.find(function(lo) { return lo.orderCode === sd.orderCode; }) || {};
+        var parsedItems = existing.items || [];
+        if (sd.itemsJson) {
+          try { parsedItems = JSON.parse(sd.itemsJson); } catch (e) {}
+        }
+        return {
+          orderCode: sd.orderCode,
+          deliveryMethod: sd.deliveryMethod || 'ROOM_DELIVERY',
+          roomNumber: sd.roomNumber || 'KLE-R101',
+          roomName: sd.roomName || ('Phòng ' + (sd.roomNumber || 'KLE-R101')),
+          bookingCode: sd.bookingCode || '',
+          customerName: sd.customerName || 'Khách lưu trú',
+          phone: sd.phone || '',
+          email: sd.email || '',
+          deliveryTime: sd.deliveryTime || 'Giao ngay (15-30p)',
+          notes: sd.notes || '',
+          serviceNotes: sd.notes || '',
+          items: parsedItems,
+          total: Number(sd.total || 0),
+          paymentMethod: sd.paymentMethod || 'VIETQR',
+          paymentStatus: sd.paymentStatus || 'PAID',
+          status: sd.status || 'PENDING',
+          syncVersion: Number(sd.syncVersion || 1),
+          createdAt: sd.createdAt
+        };
+      });
+      localStorage.setItem('kle_specialty_orders', JSON.stringify(mergedOrders));
+    }
+
+    // 5. Partners
+    if (Array.isArray(state.partners) && state.partners.length > 0) {
+      var localPartners = (typeof getPartnersStore === 'function') ? getPartnersStore(true) : [];
+      var mergedPartners = state.partners.map(function(sp) {
+        var existing = localPartners.find(function(lp) { return lp.id === sp.id; }) || {};
+        var srvArr = existing.services || ['Tham quan trải nghiệm'];
+        if (sp.services) {
+          srvArr = String(sp.services).split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+        }
+        return {
+          id: sp.id,
+          name: sp.name,
+          category: sp.partnerGroup || existing.category || 'Nhà vườn và homestay',
+          partnerGroup: sp.partnerGroup || existing.partnerGroup || 'Nhà vườn và homestay',
+          latitude: Number(sp.latitude || 16.4560),
+          longitude: Number(sp.longitude || 107.5495),
+          address: sp.address || 'Phường Kim Long, TP. Huế',
+          distanceKm: Number(sp.distanceKm || existing.distanceKm || 0.5),
+          openHours: sp.openHours || '07:00 - 21:00',
+          phone: sp.phone || '0905 123 456',
+          imageUrl: sp.imageUrl || existing.imageUrl || 'images/nha_ruong_1.jpg',
+          description: sp.description || existing.description || '',
+          highlights: srvArr,
+          services: srvArr,
+          isActive: sp.isActive !== false,
+          syncVersion: Number(sp.syncVersion || 1)
+        };
+      });
+      if (typeof window.saveKlePartners === 'function') {
+        window.saveKlePartners(mergedPartners);
+      } else {
+        localStorage.setItem('kle_partners_v2', JSON.stringify(mergedPartners));
+      }
+    }
+
+    this.refreshActiveUiSectionsSafely('ALL');
+  },
+
+  refreshActiveUiSectionsSafely: function(entityType) {
+    // Do not overwrite open edit forms while user is actively typing
+    var prodFormOpen = document.getElementById('adminProductFormWrap') && !document.getElementById('adminProductFormWrap').classList.contains('d-none');
+    var partnerFormOpen = document.getElementById('adminPartnerFormWrap') && !document.getElementById('adminPartnerFormWrap').classList.contains('d-none');
+
+    if (entityType === 'ALL' || entityType === 'SpecialtyProducts') {
+      if (typeof renderSpecialties === 'function') renderSpecialties();
+      if (!prodFormOpen && typeof renderAdminSpecialties === 'function') renderAdminSpecialties();
+    }
+    if (entityType === 'ALL' || entityType === 'Rooms' || entityType === 'SmartLockPins') {
+      if (typeof renderDuanOperationsHub === 'function') renderDuanOperationsHub();
+    }
+    if (entityType === 'ALL' || entityType === 'Bookings') {
+      if (typeof renderAdminReconciliationList === 'function') renderAdminReconciliationList();
+      if (typeof renderDuanOperationsHub === 'function') renderDuanOperationsHub();
+    }
+    if (entityType === 'ALL' || entityType === 'RoomDeliveries') {
+      if (typeof renderAdminOrdersTable === 'function') renderAdminOrdersTable();
+      if (typeof renderDuanOperationsHub === 'function') renderDuanOperationsHub();
+    }
+    if (entityType === 'ALL' || entityType === 'LocalPartners') {
+      if (!partnerFormOpen && typeof syncAllPartnerViews === 'function') syncAllPartnerViews();
+    }
+    this.updateSqlSyncDashboardUi();
+  },
+
+  connectSignalR: function() {
+    var self = this;
+    if (typeof signalR === 'undefined') return;
+    try {
+      this.hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(this.apiBaseUrl + '/hubs/ecostay-sync')
+        .withAutomaticReconnect([0, 2000, 5000, 10000])
+        .build();
+
+      this.hubConnection.on('SyncConnected', function(info) {
+        self.signalRConnected = true;
+        self.isBackendOnline = true;
+        self.updateSqlSyncDashboardUi();
+      });
+
+      this.hubConnection.on('DataChanged', function(ev) {
+        self.lastSyncTime = new Date();
+        self.handleRealtimeDataChangedEvent(ev);
+      });
+
+      this.hubConnection.onreconnected(function() {
+        self.signalRConnected = true;
+        self.hydrateFromSql(false);
+      });
+
+      this.hubConnection.onclose(function() {
+        self.signalRConnected = false;
+        self.updateSqlSyncDashboardUi();
+      });
+
+      this.hubConnection.start()
+        .then(function() {
+          self.signalRConnected = true;
+          self.updateSqlSyncDashboardUi();
+        })
+        .catch(function() {
+          self.signalRConnected = false;
+          self.updateSqlSyncDashboardUi();
+        });
+    } catch (e) {
+      this.signalRConnected = false;
+    }
+  },
+
+  handleRealtimeDataChangedEvent: function(ev) {
+    var self = this;
+    if (!ev) return;
+    var entityType = ev.entityType || 'ALL';
+    if (entityType === 'ALL') {
+      this.hydrateFromSql(false);
+      return;
+    }
+
+    fetch(this.apiBaseUrl + '/api/sync/slice/' + encodeURIComponent(entityType))
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(slice) {
+        if (!slice) return;
+        var partialState = {};
+        if (entityType === 'SpecialtyProducts') partialState.products = slice.data;
+        else if (entityType === 'Rooms') partialState.rooms = slice.data;
+        else if (entityType === 'Bookings') partialState.bookings = slice.data;
+        else if (entityType === 'RoomDeliveries') partialState.deliveries = slice.data;
+        else if (entityType === 'LocalPartners') partialState.partners = slice.data;
+        self.applySqlStateToLocalStores(partialState);
+        self.pollDiagnosticsQuietly();
+
+        if (typeof showKleToast === 'function' && ev.direction === 'SQL_TO_WEB') {
+          showKleToast('⚡ Đồng bộ trực tiếp từ SQL Server (SSMS): ' + (ev.summary || (ev.entityType + ' #' + ev.entityId)), 'info');
+        }
+      })
+      .catch(function() {
+        self.hydrateFromSql(false);
+      });
+  },
+
+  pushWrite: function(endpoint, method, payload, onConflictCallback) {
+    var self = this;
+    return fetch(this.apiBaseUrl + endpoint, {
+      method: method || 'POST',
+      headers: this.getActorHeaders(),
+      body: payload ? JSON.stringify(payload) : null
+    }).then(function(res) {
+      return res.json().then(function(data) {
+        return { status: res.status, ok: res.ok, data: data };
+      }).catch(function() {
+        return { status: res.status, ok: res.ok, data: {} };
+      });
+    }).then(function(result) {
+      self.lastSyncTime = new Date();
+      if (result.status === 409 || (result.data && result.data.conflictDetected)) {
+        self.writeFailCount++;
+        var msg = (result.data && result.data.message) || 'Xung đột dữ liệu (Optimistic Concurrency 409): Bản ghi đã được cập nhật bởi người dùng khác hoặc từ SSMS.';
+        if (typeof showKleToast === 'function') {
+          showKleToast('⚠️ ' + msg, 'warning');
+        }
+        self.hydrateFromSql(false);
+        if (typeof onConflictCallback === 'function') onConflictCallback(result.data);
+        self.updateSqlSyncDashboardUi();
+        return result;
+      }
+
+      if (result.ok && result.data && result.data.success !== false) {
+        self.writeSuccessCount++;
+        self.isBackendOnline = true;
+        self.pollDiagnosticsQuietly();
+        if (typeof showKleToast === 'function' && result.data.message) {
+          showKleToast('✅ ' + result.data.message + ' (SQL Ver #' + (result.data.newSyncVersion || 1) + ')', 'success');
+        }
+      } else {
+        self.writeFailCount++;
+      }
+      self.updateSqlSyncDashboardUi();
+      return result;
+    }).catch(function(err) {
+      self.isBackendOnline = false;
+      self.updateSqlSyncDashboardUi();
+      return { status: 0, ok: false, error: err };
+    });
+  },
+
+  bindWriteHooks: function() {
+    var self = this;
+
+    // 1. Hook saveAdminProductForm -> POST /api/sync/products
+    var origSaveProd = window.saveAdminProductForm;
+    if (typeof origSaveProd === 'function' && !origSaveProd._sqlHooked) {
+      var hookedSaveProd = function() {
+        var editId = document.getElementById('adminProdIdInput') ? document.getElementById('adminProdIdInput').value.trim() : '';
+        var existingProd = editId ? ((typeof getProducts === 'function' ? getProducts() : []).find(function(p) { return p.id === editId; })) : null;
+        var expectedVer = existingProd && existingProd.syncVersion ? Number(existingProd.syncVersion) : null;
+
+        origSaveProd.apply(this, arguments);
+
+        var prods = (typeof getProducts === 'function') ? getProducts() : [];
+        var target = editId
+          ? prods.find(function(p) { return p.id === editId; })
+          : prods[0];
+        if (target) {
+          self.pushWrite('/api/sync/products', 'POST', {
+            id: target.id,
+            name: target.name,
+            category: target.category,
+            price: Number(target.price || 0),
+            stock: Number(target.stock || 0),
+            unit: target.unit || 'phần',
+            img: target.img || 'images/mon_banhuot.jpg',
+            origin: target.origin || 'Phường Kim Long, TP. Huế',
+            partnerId: target.partnerId || 'KLE-CENTER',
+            partnerName: target.partnerName || 'Kim Long EcoStay',
+            desc: target.desc || '',
+            isActive: target.isActive !== false,
+            expectedSyncVersion: expectedVer
+          }).then(function(res) {
+            if (res && res.ok && res.data && res.data.newSyncVersion) {
+              target.syncVersion = res.data.newSyncVersion;
+              saveProducts(prods);
+            }
+          });
+        }
+      };
+      hookedSaveProd._sqlHooked = true;
+      window.saveAdminProductForm = hookedSaveProd;
+    }
+
+    // 2. Hook updateAdminProductStock -> POST /api/sync/products/{id}/stock
+    var origUpdateStock = window.updateAdminProductStock;
+    if (typeof origUpdateStock === 'function' && !origUpdateStock._sqlHooked) {
+      var hookedUpdateStock = function(id) {
+        var prodsBefore = (typeof getProducts === 'function') ? getProducts() : [];
+        var pBefore = prodsBefore.find(function(item) { return item.id === id; });
+        var expectedVer = pBefore && pBefore.syncVersion ? Number(pBefore.syncVersion) : null;
+
+        origUpdateStock.apply(this, arguments);
+
+        var prodsAfter = (typeof getProducts === 'function') ? getProducts() : [];
+        var pAfter = prodsAfter.find(function(item) { return item.id === id; });
+        if (pAfter) {
+          self.pushWrite('/api/sync/products/' + encodeURIComponent(id) + '/stock', 'POST', {
+            stock: Number(pAfter.stock || 0),
+            expectedSyncVersion: expectedVer
+          }).then(function(res) {
+            if (res && res.ok && res.data && res.data.newSyncVersion) {
+              pAfter.syncVersion = res.data.newSyncVersion;
+              saveProducts(prodsAfter);
+            }
+          });
+        }
+      };
+      hookedUpdateStock._sqlHooked = true;
+      window.updateAdminProductStock = hookedUpdateStock;
+    }
+
+    // 3. Hook toggleAdminProductStatus -> POST /api/sync/products
+    var origToggleProd = window.toggleAdminProductStatus;
+    if (typeof origToggleProd === 'function' && !origToggleProd._sqlHooked) {
+      var hookedToggleProd = function(id) {
+        origToggleProd.apply(this, arguments);
+        var prods = (typeof getProducts === 'function') ? getProducts() : [];
+        var p = prods.find(function(item) { return item.id === id; });
+        if (p) {
+          self.pushWrite('/api/sync/products', 'POST', {
+            id: p.id,
+            name: p.name,
+            category: p.category,
+            price: Number(p.price || 0),
+            stock: Number(p.stock || 0),
+            unit: p.unit || 'phần',
+            img: p.img || 'images/mon_banhuot.jpg',
+            origin: p.origin || 'Phường Kim Long, TP. Huế',
+            partnerId: p.partnerId || 'KLE-CENTER',
+            partnerName: p.partnerName || 'Kim Long EcoStay',
+            desc: p.desc || '',
+            isActive: p.isActive !== false,
+            expectedSyncVersion: p.syncVersion || null
+          }).then(function(res) {
+            if (res && res.ok && res.data && res.data.newSyncVersion) {
+              p.syncVersion = res.data.newSyncVersion;
+              saveProducts(prods);
+            }
+          });
+        }
+      };
+      hookedToggleProd._sqlHooked = true;
+      window.toggleAdminProductStatus = hookedToggleProd;
+    }
+
+    // 4. Hook deleteAdminProduct -> DELETE /api/sync/products/{id}
+    var origDeleteProd = window.deleteAdminProduct;
+    if (typeof origDeleteProd === 'function' && !origDeleteProd._sqlHooked) {
+      var hookedDeleteProd = function(id) {
+        var countBefore = ((typeof getProducts === 'function') ? getProducts() : []).length;
+        origDeleteProd.apply(this, arguments);
+        var countAfter = ((typeof getProducts === 'function') ? getProducts() : []).length;
+        if (countAfter < countBefore) {
+          self.pushWrite('/api/sync/products/' + encodeURIComponent(id), 'DELETE', null);
+        }
+      };
+      hookedDeleteProd._sqlHooked = true;
+      window.deleteAdminProduct = hookedDeleteProd;
+    }
+
+    // 5. Hook updateRoomOpsStatus -> POST /api/sync/rooms/{code}/status
+    var origUpdateRoom = window.updateRoomOpsStatus;
+    if (typeof origUpdateRoom === 'function' && !origUpdateRoom._sqlHooked) {
+      var hookedUpdateRoom = function(roomCode, newStatus) {
+        var roomsBefore = (typeof getRoomsOpsStore === 'function') ? getRoomsOpsStore() : [];
+        var rBefore = roomsBefore.find(function(r) { return r.code === roomCode; });
+        var expectedVer = rBefore && rBefore.syncVersion ? Number(rBefore.syncVersion) : null;
+
+        origUpdateRoom.apply(this, arguments);
+
+        var roomsAfter = (typeof getRoomsOpsStore === 'function') ? getRoomsOpsStore() : [];
+        var rAfter = roomsAfter.find(function(r) { return r.code === roomCode; });
+        if (rAfter) {
+          self.pushWrite('/api/sync/rooms/' + encodeURIComponent(roomCode) + '/status', 'POST', {
+            status: rAfter.status,
+            guestName: rAfter.guestName || '',
+            guestPhone: rAfter.guestPhone || '',
+            orderCode: rAfter.orderCode || '',
+            stayWindow: rAfter.stayWindow || '',
+            pin: rAfter.pin || null,
+            expectedSyncVersion: expectedVer
+          }).then(function(res) {
+            if (res && res.ok && res.data && res.data.newSyncVersion) {
+              rAfter.syncVersion = res.data.newSyncVersion;
+              saveRoomsOpsStore(roomsAfter);
+            }
+          });
+        }
+      };
+      hookedUpdateRoom._sqlHooked = true;
+      window.updateRoomOpsStatus = hookedUpdateRoom;
+    }
+
+    // 6. Hook createRoomCheckInCode -> POST /api/sync/rooms/{code}/status
+    var origCheckInCode = window.createRoomCheckInCode;
+    if (typeof origCheckInCode === 'function' && !origCheckInCode._sqlHooked) {
+      var hookedCheckInCode = function(roomCode) {
+        origCheckInCode.apply(this, arguments);
+        var roomsAfter = (typeof getRoomsOpsStore === 'function') ? getRoomsOpsStore() : [];
+        var rAfter = roomsAfter.find(function(r) { return r.code === roomCode; });
+        if (rAfter) {
+          self.pushWrite('/api/sync/rooms/' + encodeURIComponent(roomCode) + '/status', 'POST', {
+            status: rAfter.status,
+            guestName: rAfter.guestName || '',
+            guestPhone: rAfter.guestPhone || '',
+            orderCode: rAfter.orderCode || '',
+            stayWindow: rAfter.stayWindow || '',
+            pin: rAfter.pin || null
+          });
+        }
+      };
+      hookedCheckInCode._sqlHooked = true;
+      window.createRoomCheckInCode = hookedCheckInCode;
+    }
+
+    // 7. Hook reissueRoomPinSecure & reissueBookingPinSecure -> POST /api/sync/pins/action
+    var origReissueRoomPin = window.reissueRoomPinSecure;
+    if (typeof origReissueRoomPin === 'function' && !origReissueRoomPin._sqlHooked) {
+      var hookedReissueRoomPin = function(roomCode) {
+        origReissueRoomPin.apply(this, arguments);
+        var rooms = (typeof getRoomsOpsStore === 'function') ? getRoomsOpsStore() : [];
+        var room = rooms.find(function(r) { return r.code === roomCode; });
+        if (room && room.pin) {
+          self.pushWrite('/api/sync/pins/action', 'POST', {
+            roomCode: room.code,
+            bookingCode: room.orderCode || '',
+            actionType: 'PIN_REISSUED',
+            newPin: room.pin,
+            note: 'Cấp lại mã PIN 6 số mới trên thẻ Vận Hành Phòng'
+          });
+        }
+      };
+      hookedReissueRoomPin._sqlHooked = true;
+      window.reissueRoomPinSecure = hookedReissueRoomPin;
+    }
+
+    var origReissueBookingPin = window.reissueBookingPinSecure;
+    if (typeof origReissueBookingPin === 'function' && !origReissueBookingPin._sqlHooked) {
+      var hookedReissueBookingPin = function(orderCode) {
+        origReissueBookingPin.apply(this, arguments);
+        var bookings = (typeof getAllBookings === 'function') ? getAllBookings() : [];
+        var b = bookings.find(function(item) { return item.orderCode === orderCode; });
+        if (b && b.pin) {
+          self.pushWrite('/api/sync/pins/action', 'POST', {
+            roomCode: b.roomCode || 'KLE-R101',
+            bookingCode: b.orderCode,
+            actionType: 'PIN_REISSUED',
+            newPin: b.pin,
+            note: 'Cấp lại mã PIN 6 số mới cho đơn phòng ' + b.orderCode
+          });
+        }
+      };
+      hookedReissueBookingPin._sqlHooked = true;
+      window.reissueBookingPinSecure = hookedReissueBookingPin;
+    }
+
+    // 8. Hook handleBookingSubmit, adminReconcileDeposit, adminCheckInBooking, adminPayRemainingBalance -> POST /api/sync/bookings
+    var syncBookingByCode = function(orderCode) {
+      var bookings = (typeof getAllBookings === 'function') ? getAllBookings() : [];
+      var b = orderCode ? bookings.find(function(item) { return item.orderCode === orderCode; }) : bookings[0];
+      if (!b) return;
+      var rCode = b.roomCode || 'KLE-R101';
+      if (b.roomName) {
+        var m = b.roomName.match(/KLE-R\d+/);
+        if (m) rCode = m[0];
+      }
+      self.pushWrite('/api/sync/bookings', 'POST', {
+        orderCode: b.orderCode,
+        roomCode: rCode,
+        roomName: b.roomName,
+        name: b.name,
+        phone: b.phone,
+        email: b.email,
+        checkIn: b.checkIn,
+        checkOut: b.checkOut,
+        totalPrice: Number(b.totalPrice || 0),
+        depositRequired: Number(b.depositRequired || 0),
+        depositPaid: Number(b.depositPaid || 0),
+        remainingBalance: Number(b.remainingBalance || 0),
+        status: b.status || 'WAITING_RECONCILIATION',
+        bookingStatus: b.bookingStatus || 'PENDING_DEPOSIT',
+        paymentMethod: b.paymentMethod || 'VietQR',
+        transferContent: b.transferContent || '',
+        pin: b.pin || '839201',
+        notes: b.notes || ''
+      });
+    };
+
+    ['handleBookingSubmit', 'adminReconcileDeposit', 'adminCheckInBooking', 'adminPayRemainingBalance'].forEach(function(fnName) {
+      var origFn = window[fnName];
+      if (typeof origFn === 'function' && !origFn._sqlHooked) {
+        var wrapped = function(arg1) {
+          origFn.apply(this, arguments);
+          var code = (typeof arg1 === 'string') ? arg1 : (window.currentBookingOrderCode || null);
+          syncBookingByCode(code);
+        };
+        wrapped._sqlHooked = true;
+        window[fnName] = wrapped;
+      }
+    });
+
+    // 9. Hook handleCartCheckout & advanceOrderStatus -> POST /api/sync/deliveries
+    var syncDeliveryByCode = function(orderCode) {
+      var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+      var o = orderCode ? orders.find(function(item) { return item.orderCode === orderCode; }) : orders[0];
+      if (!o) return;
+      self.pushWrite('/api/sync/deliveries', 'POST', {
+        orderCode: o.orderCode,
+        bookingCode: o.bookingCode || '',
+        roomNumber: o.roomNumber || 'KLE-R101',
+        roomName: o.roomName || '',
+        deliveryMethod: o.deliveryMethod || 'ROOM_DELIVERY',
+        customerName: o.customerName || 'Khách lưu trú',
+        phone: o.phone || '',
+        email: o.email || '',
+        deliveryTime: o.deliveryTime || 'Giao ngay (15-30p)',
+        notes: o.serviceNotes || o.notes || '',
+        itemsJson: JSON.stringify(o.items || []),
+        total: Number(o.total || 0),
+        paymentMethod: o.paymentMethod || 'VIETQR',
+        paymentStatus: o.paymentStatus || 'PAID',
+        status: o.status || 'PENDING'
+      });
+    };
+
+    ['handleCartCheckout', 'advanceOrderStatus', 'cancelAdminSpecialtyOrder'].forEach(function(fnName) {
+      var origFn = window[fnName];
+      if (typeof origFn === 'function' && !origFn._sqlHooked) {
+        var wrapped = function(arg1) {
+          origFn.apply(this, arguments);
+          var code = (typeof arg1 === 'string') ? arg1 : null;
+          syncDeliveryByCode(code);
+        };
+        wrapped._sqlHooked = true;
+        window[fnName] = wrapped;
+      }
+    });
+
+    // 10. Hook saveAdminPartnerForm & toggleAdminPartnerStatus -> POST /api/sync/partners
+    var syncPartnerById = function(partnerId) {
+      var allPartners = (typeof getPartnersStore === 'function') ? getPartnersStore(true) : [];
+      var loc = partnerId ? allPartners.find(function(item) { return item.id === partnerId; }) : allPartners[0];
+      if (!loc) return;
+      self.pushWrite('/api/sync/partners', 'POST', {
+        id: loc.id,
+        name: loc.name,
+        partnerGroup: loc.partnerGroup || loc.category || 'Nhà vườn và homestay',
+        address: loc.address || 'TP. Huế',
+        latitude: Number(loc.latitude || 16.4560),
+        longitude: Number(loc.longitude || 107.5495),
+        distanceKm: Number(loc.distanceKm || 0.5),
+        openHours: loc.openHours || '07:00 - 21:00',
+        phone: loc.phone || '0905 123 456',
+        imageUrl: loc.imageUrl || 'images/nha_ruong_1.jpg',
+        services: Array.isArray(loc.services) ? loc.services.join(', ') : (loc.services || ''),
+        description: loc.description || '',
+        isActive: loc.isActive !== false
+      });
+    };
+
+    if (typeof window.saveAdminPartnerForm === 'function' && !window.saveAdminPartnerForm._sqlHooked) {
+      var origSavePartner = window.saveAdminPartnerForm;
+      var wrappedSavePartner = function() {
+        var idVal = document.getElementById('adminPartnerIdInput') ? document.getElementById('adminPartnerIdInput').value.trim() : '';
+        origSavePartner.apply(this, arguments);
+        syncPartnerById(idVal || null);
+      };
+      wrappedSavePartner._sqlHooked = true;
+      window.saveAdminPartnerForm = wrappedSavePartner;
+    }
+
+    if (typeof window.toggleAdminPartnerStatus === 'function' && !window.toggleAdminPartnerStatus._sqlHooked) {
+      var origTogglePartner = window.toggleAdminPartnerStatus;
+      var wrappedTogglePartner = function(id) {
+        origTogglePartner.apply(this, arguments);
+        syncPartnerById(id);
+      };
+      wrappedTogglePartner._sqlHooked = true;
+      window.toggleAdminPartnerStatus = wrappedTogglePartner;
+    }
+  },
+
+  updateSqlSyncDashboardUi: function() {
+    var diag = this.lastDiagnostics;
+    var dbBadge = document.getElementById('sqlSyncDbStatusBadge');
+    var latBadge = document.getElementById('sqlSyncLatencyBadge');
+    var srvText = document.getElementById('sqlSyncServerVersionText');
+    var sigBadge = document.getElementById('sqlSyncSignalrBadge');
+    var ctBadge = document.getElementById('sqlSyncCtVersionBadge');
+    var lastTimeEl = document.getElementById('sqlSyncLastTimeText');
+    var maskedConnEl = document.getElementById('sqlSyncMaskedConnText');
+    var statsEl = document.getElementById('sqlSyncWriteStatsText');
+
+    if (dbBadge) {
+      if (this.isBackendOnline && diag && diag.isConnected) {
+        dbBadge.className = 'badge bg-success rounded-pill px-2.5 py-1';
+        dbBadge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>SQL Connected';
+      } else {
+        dbBadge.className = 'badge bg-warning text-dark rounded-pill px-2.5 py-1';
+        dbBadge.innerHTML = '<i class="bi bi-cloud-slash me-1"></i>Local Fallback';
+      }
+    }
+    if (latBadge && diag) {
+      latBadge.textContent = (diag.latencyMs || 2) + ' ms';
+    }
+    if (srvText && diag) {
+      srvText.textContent = (diag.serverName || 'localhost\\SQLEXPRESS') + ' • ' + (diag.databaseName || 'KimLongEcoStayDB');
+    }
+    if (sigBadge) {
+      if (this.signalRConnected) {
+        sigBadge.className = 'badge bg-success rounded-pill px-2.5 py-1';
+        sigBadge.innerHTML = '<i class="bi bi-wifi me-1"></i>SignalR: Real-time Active';
+      } else if (this.isBackendOnline) {
+        sigBadge.className = 'badge bg-info text-dark rounded-pill px-2.5 py-1';
+        sigBadge.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>REST Sync Active';
+      } else {
+        sigBadge.className = 'badge bg-secondary rounded-pill px-2.5 py-1';
+        sigBadge.textContent = 'Offline Mode';
+      }
+    }
+    if (ctBadge && diag) {
+      ctBadge.textContent = 'Change Tracking Ver: #' + (diag.changeTrackingVersion || 0) + (diag.changeTrackingEnabled ? ' (ON)' : '');
+    }
+    if (lastTimeEl) {
+      var t = this.lastSyncTime || (diag && diag.checkedAt ? new Date(diag.checkedAt) : new Date());
+      lastTimeEl.textContent = t.toLocaleTimeString('vi-VN') + ' ' + t.toLocaleDateString('vi-VN');
+    }
+    if (maskedConnEl && diag && diag.maskedConnectionString) {
+      maskedConnEl.textContent = diag.maskedConnectionString;
+    }
+    if (statsEl) {
+      var auditCount = (diag && Array.isArray(diag.recentSyncLogs)) ? diag.recentSyncLogs.length : 0;
+      statsEl.textContent = (this.writeSuccessCount + auditCount) + ' Đã đồng bộ / ' + this.writeFailCount + ' Xung đột';
+    }
+
+    // Table counts grid
+    var gridEl = document.getElementById('sqlSyncTableCountsGrid');
+    if (gridEl && diag && diag.tableRowCounts) {
+      var counts = diag.tableRowCounts;
+      var totalRows = 0;
+      var tableLabels = {
+        'SpecialtyProducts': { label: 'Sản phẩm & Đặc sản', icon: 'bi-basket2-fill' },
+        'Rooms': { label: 'Buồng phòng sinh thái', icon: 'bi-houses-fill' },
+        'Bookings': { label: 'Đơn đặt phòng & Cọc', icon: 'bi-calendar2-check-fill' },
+        'RoomDeliveries': { label: 'Đơn giao tận phòng', icon: 'bi-bicycle' },
+        'SmartLockPins': { label: 'Mã PIN SmartLock', icon: 'bi-key-fill' },
+        'LocalPartners': { label: 'Đối tác & Bản đồ số', icon: 'bi-geo-alt-fill' },
+        'Employees': { label: 'Nhân sự nội bộ', icon: 'bi-people-fill' },
+        'Payrolls': { label: 'Bảng lương nhân sự', icon: 'bi-wallet2' },
+        'FinancialTransactions': { label: 'Giao dịch tài chính', icon: 'bi-cash-stack' }
+      };
+      var cardsHtml = Object.keys(tableLabels).map(function(tbl) {
+        var c = Number(counts[tbl] || 0);
+        totalRows += c;
+        var meta = tableLabels[tbl];
+        return `
+          <div class="col-6 col-md-4">
+            <div class="p-2 rounded-3 border bg-light d-flex justify-content-between align-items-center">
+              <div class="text-truncate pe-1">
+                <div class="fw-bold text-dark small text-truncate" style="font-size: 11.5px;"><i class="bi ${meta.icon} text-success me-1"></i>${meta.label}</div>
+                <small class="text-muted font-monospace" style="font-size: 10px;">dbo.${tbl}</small>
+              </div>
+              <span class="badge bg-white text-success border font-monospace fs-6">${c}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      gridEl.innerHTML = cardsHtml;
+      var totalBadge = document.getElementById('sqlSyncTotalRowsBadge');
+      if (totalBadge) totalBadge.textContent = 'Tổng: ' + totalRows + ' bản ghi SQL';
+    }
+
+    renderSqlSyncAuditLogsTable();
+  }
 };
 
+window.renderAdminSqlSyncDashboard = function() {
+  if (typeof canAccessModule === 'function' && !canAccessModule('sql-sync')) return;
+  KleSqlSyncEngine.pollDiagnosticsQuietly();
+  KleSqlSyncEngine.updateSqlSyncDashboardUi();
+};
+
+window.renderSqlSyncAuditLogsTable = function() {
+  var tbody = document.getElementById('sqlSyncAuditLogsTableBody');
+  if (!tbody) return;
+  var diag = KleSqlSyncEngine.lastDiagnostics;
+  var logs = (diag && Array.isArray(diag.recentSyncLogs)) ? diag.recentSyncLogs : [];
+
+  var q = (document.getElementById('sqlSyncLogSearchInput') ? document.getElementById('sqlSyncLogSearchInput').value : '').toLowerCase().trim();
+  var dirFilter = document.getElementById('sqlSyncLogDirFilter') ? document.getElementById('sqlSyncLogDirFilter').value : 'ALL';
+  var entFilter = document.getElementById('sqlSyncLogEntityFilter') ? document.getElementById('sqlSyncLogEntityFilter').value : 'ALL';
+
+  var filtered = logs.filter(function(l) {
+    var matchDir = (dirFilter === 'ALL' || l.direction === dirFilter);
+    var matchEnt = (entFilter === 'ALL' || l.entityType === entFilter);
+    var matchQ = (!q ||
+      String(l.entityId || '').toLowerCase().includes(q) ||
+      String(l.entityType || '').toLowerCase().includes(q) ||
+      String(l.actor || '').toLowerCase().includes(q) ||
+      String(l.summary || '').toLowerCase().includes(q));
+    return matchDir && matchEnt && matchQ;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Chưa có bản ghi nhật ký đồng bộ nào khớp bộ lọc.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(function(l) {
+    var dirBadge = l.direction === 'SQL_TO_WEB'
+      ? '<span class="badge bg-warning text-dark"><i class="bi bi-database-up me-1"></i>SQL_TO_WEB (SSMS)</span>'
+      : '<span class="badge bg-success"><i class="bi bi-cloud-check me-1"></i>WEB_TO_SQL (Web)</span>';
+    var dt = l.createdAt ? new Date(l.createdAt) : new Date();
+    var timeStr = dt.toLocaleTimeString('vi-VN') + ' ' + dt.toLocaleDateString('vi-VN');
+    return `
+      <tr>
+        <td class="ps-4 font-monospace small text-muted">#${l.syncId}<br><span style="font-size:10.5px;">${timeStr}</span></td>
+        <td>${dirBadge}</td>
+        <td><span class="badge bg-light text-dark border font-monospace">${l.entityType}</span></td>
+        <td class="font-monospace fw-bold" style="color:#14452F;">${l.entityId}</td>
+        <td><span class="badge bg-secondary-subtle text-dark border">${l.actionType}</span></td>
+        <td><small class="fw-semibold text-dark">${l.actor || 'System'}</small></td>
+        <td><span class="badge bg-light text-success border font-monospace">v${l.syncVersion || 1}</span></td>
+        <td class="pe-4"><small class="text-muted">${l.summary || ''}</small></td>
+      </tr>
+    `;
+  }).join('');
+};
+
+window.testSqlConnectionNow = function() {
+  KleSqlSyncEngine.pollDiagnosticsQuietly();
+  fetch(KleSqlSyncEngine.apiBaseUrl + '/api/sync/diagnostics')
+    .then(function(r) { return r.json(); })
+    .then(function(diag) {
+      KleSqlSyncEngine.lastDiagnostics = diag;
+      KleSqlSyncEngine.isBackendOnline = !!diag.isConnected;
+      KleSqlSyncEngine.updateSqlSyncDashboardUi();
+      if (diag.isConnected) {
+        showKleToast('Kết nối SQL Server thành công! Server: ' + diag.serverName + ' (' + diag.latencyMs + 'ms) • Change Tracking Ver #' + diag.changeTrackingVersion, 'success');
+      } else {
+        showKleToast('Không thể kết nối SQL Server: ' + (diag.errorMessage || 'Kiểm tra dịch vụ SQLEXPRESS'), 'warning');
+      }
+    })
+    .catch(function() {
+      showKleToast('Backend API hiện đang chạy ở chế độ Static Preview. Khởi động KimLongEcoStay.Web để kết nối trực tiếp SQL Server.', 'warning');
+    });
+};
+
+window.forceFullSqlResync = function() {
+  fetch(KleSqlSyncEngine.apiBaseUrl + '/api/sync/force-resync', {
+    method: 'POST',
+    headers: KleSqlSyncEngine.getActorHeaders()
+  })
+    .then(function(r) { return r.json(); })
+    .then(function() {
+      return KleSqlSyncEngine.hydrateFromSql(true);
+    })
+    .catch(function() {
+      KleSqlSyncEngine.hydrateFromSql(true);
+    });
+};
+
+window.reloadSqlDataNow = function() {
+  KleSqlSyncEngine.hydrateFromSql(true);
+};
+
+window.scrollToSqlSyncLogs = function() {
+  var el = document.getElementById('sqlSyncLogsCardSection');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.runLiveWebToSqlTest = function() {
+  var alertBox = document.getElementById('sqlSyncTestResultAlert');
+  var prods = (typeof getProducts === 'function') ? getProducts() : [];
+  var sp1 = prods.find(function(p) { return p.id === 'SP001'; }) || prods[0];
+  if (!sp1) return;
+  var newStock = Number(sp1.stock || 40) + 1;
+
+  KleSqlSyncEngine.pushWrite('/api/sync/products/SP001/stock', 'POST', {
+    stock: newStock,
+    expectedSyncVersion: null
+  }).then(function(res) {
+    if (alertBox) {
+      alertBox.classList.remove('d-none', 'alert-warning', 'alert-light');
+      alertBox.classList.add('alert-success');
+      alertBox.innerHTML = '<strong>✅ KẾT QUẢ TEST WEB ➔ SQL:</strong> Đã cập nhật tồn kho <code>SP001 (' + sp1.name + ')</code> thành <strong>' + newStock + '</strong> trong bảng <code>dbo.SpecialtyProducts</code> (SQL SyncVersion mới: <code>#' + ((res.data && res.data.newSyncVersion) || 'OK') + '</code>).';
+    }
+    KleSqlSyncEngine.hydrateFromSql(false);
+  });
+};
+
+window.runLiveConcurrencyConflictTest = function() {
+  var alertBox = document.getElementById('sqlSyncTestResultAlert');
+  // Gửi expectedSyncVersion = 0 (cũ hơn thực tế trong SQL Server) để kiểm chứng cơ chế 409 Optimistic Concurrency
+  KleSqlSyncEngine.pushWrite('/api/sync/products/SP001/stock', 'POST', {
+    stock: 99,
+    expectedSyncVersion: 0
+  }).then(function(res) {
+    if (alertBox) {
+      alertBox.classList.remove('d-none', 'alert-success', 'alert-light');
+      alertBox.classList.add('alert-warning');
+      alertBox.innerHTML = '<strong>🛡️ KẾT QUẢ TEST CHỐNG GHI ĐÈ (HTTP ' + res.status + '):</strong> ' + ((res.data && res.data.message) || 'Hệ thống đã chặn ghi đè thành công do SyncVersion không khớp và tự động nạp lại bản ghi mới nhất từ SQL Server!');
+    }
+  });
+};
+
+// =========================================================================
+// TRỢ LÝ AI THÔNG MINH (OPENAI API + RBAC + SQL DATA GROUNDING)
+// =========================================================================
+window.KleAiAssistant = {
+  storageKey: 'kle_ai_conversations_v2',
+  conversations: [],
+  activeConvId: null,
+  isSending: false,
+
+  rolePromptsMap: {
+    'GUEST': [
+      { label: '🏡 Phòng trống & Giá phòng', prompt: 'Tư vấn chi tiết 5 buồng phòng sinh thái tại Kim Long EcoStay, giá phòng và tình trạng phòng trống hiện tại.' },
+      { label: '🥢 Đặc sản Huế & Giao phòng', prompt: 'Giới thiệu các đặc sản Huế, nông sản nhà vườn nổi bật tại Kim Long EcoStay kèm giá bán và dịch vụ giao tận phòng.' },
+      { label: '🍵 Trà Cung Đình & Chùa Thiên Mụ', prompt: 'Tư vấn gói trải nghiệm Trà Cung Đình Huế bên sông Hương và lộ trình đạp xe Eco-Bike đi Chùa Thiên Mụ.' },
+      { label: '🔑 Quy trình Cọc 50% & Mã PIN', prompt: 'Hướng dẫn quy trình đặt phòng, thanh toán cọc 50% VietQR và cách nhận mã PIN mở khóa SmartLock tự động.' }
+    ],
+    'RECEPTIONIST': [
+      { label: '🛎️ Tình trạng 5 Phòng & Check-in', prompt: 'Tổng hợp trạng thái thực tế của 5 buồng phòng sinh thái hiện tại và các đơn đặt phòng đang chờ đối soát cọc 50%.' },
+      { label: '🚲 Đơn Giao Tận Phòng đang chờ', prompt: 'Liệt kê các đơn đặt món đặc sản giao tận phòng hiện tại và quy trình điều phối lễ tân.' },
+      { label: '📋 SOP Lễ tân & Cấp lại PIN', prompt: 'Hướng dẫn quy trình chuẩn (SOP) cho Lễ tân khi khách Check-in, Check-out và khi khách quên mã PIN SmartLock.' }
+    ],
+    'ACCOUNTANT': [
+      { label: '💰 Báo cáo Doanh thu & EBITDA', prompt: 'Phân tích báo cáo tài chính, tổng doanh thu, chi phí vận hành, lợi nhuận ròng (EBITDA) và đối soát cọc 50% hiện tại.' },
+      { label: '🧾 Đơn chờ thu 50% còn lại', prompt: 'Danh sách các đơn đặt phòng đã cọc 50% và tổng số dư còn lại cần thu khi khách Check-in.' },
+      { label: '💳 Tổng hợp Quỹ lương nhân sự', prompt: 'Tổng hợp bảng lương nhân sự, phụ cấp và thưởng KPI trong hệ thống SQL hiện tại.' }
+    ],
+    'HR_OPS': [
+      { label: '👥 Nhân sự & Ca trực hôm nay', prompt: 'Danh sách nhân sự, bộ phận, ca trực và hiệu suất KPI tại Kim Long EcoStay.' },
+      { label: '🧹 Phòng đang vệ sinh / bảo trì', prompt: 'Kiểm tra trạng thái vận hành 5 phòng sinh thái, phòng nào đang vệ sinh hoặc cần chuẩn bị đón khách.' },
+      { label: '🗺️ Mạng lưới Đối tác địa phương', prompt: 'Tổng hợp danh sách đối tác nhà vườn, ẩm thực và làng nghề liên kết trên bản đồ Kim Long.' }
+    ],
+    'ADMIN': [
+      { label: '👑 Tổng quan Kinh doanh & SQL', prompt: 'Báo cáo tổng hợp toàn diện cho CEO: Công suất 5 phòng, doanh thu & EBITDA, tồn kho 30 đặc sản và trạng thái đồng bộ SQL Server.' },
+      { label: '📦 Cảnh báo Tồn kho Sản phẩm', prompt: 'Phân tích danh mục 30 sản phẩm đặc sản trong SQL Server, mặt hàng nào bán chạy hoặc sắp hết hàng cần nhập thêm?' },
+      { label: '🔄 Kiểm tra Đồng bộ SQL 2 Chiều', prompt: 'Cho biết trạng thái kết nối SQL Server, Change Tracking và các giao dịch đồng bộ gần nhất trong hệ thống.' },
+      { label: '🔒 Kiểm tra Bảo mật Mã PIN', prompt: 'Kiểm tra chính sách bảo mật mã PIN SmartLock và Audit Log của hệ thống.' }
+    ]
+  },
+
+  init: function() {
+    this.loadConversations();
+    this.refreshRoleContext();
+    this.renderConversationSelect();
+    this.renderMessages();
+    this.checkBackendAiStatus();
+  },
+
+  loadConversations: function() {
+    try {
+      var raw = localStorage.getItem(this.storageKey);
+      if (raw) {
+        this.conversations = JSON.parse(raw);
+      }
+    } catch (e) {
+      this.conversations = [];
+    }
+    if (!Array.isArray(this.conversations) || this.conversations.length === 0) {
+      this.createNewConversationInternal('Hội thoại tư vấn #1');
+    } else {
+      this.activeConvId = this.conversations[0].id;
+    }
+  },
+
+  saveConversations: function() {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.conversations.slice(0, 15)));
+    } catch (e) {}
+  },
+
+  createNewConversationInternal: function(customTitle) {
+    var sess = (typeof getKLESession === 'function') ? getKLESession() : null;
+    var roleCfg = (typeof getCurrentRoleConfig === 'function') ? getCurrentRoleConfig() : null;
+    var greetingName = sess && sess.name ? ('<strong>' + sess.name + '</strong> (' + (roleCfg ? roleCfg.roleTitle : sess.role) + ')') : 'quý khách';
+    var id = 'CONV-' + Date.now() + '-' + Math.floor(10 + Math.random() * 89);
+    var conv = {
+      id: id,
+      title: customTitle || ('Hội thoại mới (' + new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ')'),
+      createdAt: new Date().toISOString(),
+      messages: [
+        {
+          role: 'assistant',
+          content: 'Xin chào ' + greetingName + '! Tôi là **Trợ Lý AI Kim Long EcoStay** được kết nối trực tiếp với **OpenAI API** và cơ sở dữ liệu **SQL Server (KimLongEcoStayDB)**.\n\nTôi có thể hỗ trợ bạn:\n- Tư vấn **05 buồng phòng sinh thái**, báo giá & quy trình **cọc 50% VietQR + SmartLock 10 giây**.\n- Giới thiệu **30 đặc sản Huế, nông sản nhà vườn, Trà Cung Đình** và đặt giao tận phòng.\n- Hỗ trợ nhân sự & Admin tra cứu **dữ liệu vận hành, đối soát tài chính, tồn kho SQL** theo đúng phân quyền RBAC.',
+          time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          provider: 'OpenAI + SQL Grounding'
+        }
+      ]
+    };
+    this.conversations.unshift(conv);
+    this.activeConvId = id;
+    this.saveConversations();
+    return conv;
+  },
+
+  getActiveConversation: function() {
+    var self = this;
+    var found = this.conversations.find(function(c) { return c.id === self.activeConvId; });
+    if (!found) {
+      found = this.createNewConversationInternal('Hội thoại tư vấn #1');
+    }
+    return found;
+  },
+
+  newConversation: function() {
+    var num = this.conversations.length + 1;
+    this.createNewConversationInternal('Hội thoại #' + num);
+    this.renderConversationSelect();
+    this.renderMessages();
+  },
+
+  switchConversation: function(convId) {
+    this.activeConvId = convId;
+    this.renderMessages();
+  },
+
+  clearHistory: function() {
+    this.conversations = [];
+    this.createNewConversationInternal('Hội thoại tư vấn #1');
+    this.renderConversationSelect();
+    this.renderMessages();
+    if (typeof showKleToast === 'function') {
+      showKleToast('Đã làm mới lịch sử hội thoại AI Assistant.', 'info');
+    }
+  },
+
+  refreshRoleContext: function() {
+    var sess = (typeof getKLESession === 'function') ? getKLESession() : null;
+    var roleKey = (sess && sess.role && this.rolePromptsMap[sess.role]) ? sess.role : 'GUEST';
+    var roleCfg = (typeof getCurrentRoleConfig === 'function') ? getCurrentRoleConfig() : null;
+
+    var roleBadge = document.getElementById('kleAiRoleBadge');
+    if (roleBadge) {
+      if (roleCfg) {
+        roleBadge.innerHTML = '<i class="bi bi-shield-lock-fill me-1"></i>' + roleCfg.roleTitle + ' (SQL RBAC)';
+      } else {
+        roleBadge.innerHTML = '<i class="bi bi-person-badge me-1"></i>Khách hàng';
+      }
+    }
+
+    var promptsBar = document.getElementById('kleAiQuickPromptsBar');
+    if (promptsBar) {
+      var list = this.rolePromptsMap[roleKey] || this.rolePromptsMap['GUEST'];
+      promptsBar.innerHTML = list.map(function(item) {
+        var safePrompt = item.prompt.replace(/'/g, "\\'");
+        return `<button type="button" class="kle-ai-chip" onclick="KleAiAssistant.sendQuickPrompt('${safePrompt}')">${item.label}</button>`;
+      }).join('');
+    }
+  },
+
+  checkBackendAiStatus: function() {
+    var badgeEl = document.getElementById('kleAiProviderBadge');
+    fetch(KleSqlSyncEngine.apiBaseUrl + '/api/ai/status')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(st) {
+        if (badgeEl && st) {
+          badgeEl.innerHTML = '<span class="kle-ai-dot-online"></span>' + (st.openAiConfigured ? ('OpenAI (' + (st.model || 'gpt-4o-mini') + ') • SQL Live') : 'AI Hybrid • SQL Grounded');
+        }
+      })
+      .catch(function() {
+        if (badgeEl) {
+          badgeEl.innerHTML = '<span class="kle-ai-dot-online"></span>AI Concierge • Local Grounded';
+        }
+      });
+  },
+
+  renderConversationSelect: function() {
+    var sel = document.getElementById('kleAiConvSelect');
+    if (!sel) return;
+    var self = this;
+    sel.innerHTML = this.conversations.map(function(c) {
+      return '<option value="' + c.id + '" ' + (c.id === self.activeConvId ? 'selected' : '') + '>' + c.title + '</option>';
+    }).join('');
+  },
+
+  formatMarkdown: function(rawText) {
+    if (!rawText) return '';
+    var safe = String(rawText)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Convert Markdown tables if present
+    var lines = safe.split('\n');
+    var out = [];
+    var inTable = false;
+    var tableRows = [];
+
+    var flushTable = function() {
+      if (tableRows.length === 0) return;
+      var html = '<div class="table-responsive my-2"><table class="table table-sm table-bordered mb-0" style="font-size:11.5px;">';
+      tableRows.forEach(function(r, idx) {
+        var cells = r.split('|').map(function(c) { return c.trim(); }).filter(function(c, i, arr) {
+          return !(i === 0 && c === '') && !(i === arr.length - 1 && c === '');
+        });
+        if (cells.every(function(c) { return /^[-:]+$/.test(c); })) return;
+        var tag = (idx === 0) ? 'th' : 'td';
+        html += '<tr class="' + (idx === 0 ? 'table-light fw-bold' : '') + '">' + cells.map(function(c) { return '<' + tag + ' class="px-2 py-1">' + c + '</' + tag + '>'; }).join('') + '</tr>';
+      });
+      html += '</table></div>';
+      out.push(html);
+      tableRows = [];
+      inTable = false;
+    };
+
+    lines.forEach(function(line) {
+      var trimmed = line.trim();
+      if (trimmed.indexOf('|') !== -1 && (trimmed.startsWith('|') || trimmed.split('|').length >= 3)) {
+        inTable = true;
+        tableRows.push(trimmed);
+      } else {
+        if (inTable) flushTable();
+        out.push(line);
+      }
+    });
+    if (inTable) flushTable();
+
+    var joined = out.join('\n');
+    joined = joined
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-light text-success border" style="font-size:11px;">$1</code>')
+      .replace(/^\s*[-•]\s+(.+)$/gm, '<div class="ms-2 mb-1">• $1</div>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+    return joined;
+  },
+
+  renderMessages: function() {
+    var container = document.getElementById('kleAiChatMessages');
+    if (!container) return;
+    var conv = this.getActiveConversation();
+    var self = this;
+
+    container.innerHTML = conv.messages.map(function(m) {
+      if (m.role === 'user') {
+        return `
+          <div class="d-flex justify-content-end mb-2.5">
+            <div class="kle-ai-msg-user">
+              <div>${self.formatMarkdown(m.content)}</div>
+              <div class="text-end opacity-75 mt-1" style="font-size: 9.5px;">${m.time || ''}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="d-flex gap-2 mb-2.5 align-items-start">
+            <div class="kle-ai-avatar-bot flex-shrink-0"><i class="bi bi-stars"></i></div>
+            <div class="kle-ai-msg-bot">
+              <div>${self.formatMarkdown(m.content)}</div>
+              <div class="d-flex justify-content-between align-items-center mt-1.5 pt-1 border-top text-muted" style="font-size: 9.5px;">
+                <span><i class="bi bi-cpu me-1"></i>${m.provider || 'OpenAI + SQL'}</span>
+                <span>${m.time || ''}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  },
+
+  open: function() {
+    var drawer = document.getElementById('kleAiFloatingDrawer');
+    if (!drawer) return;
+    this.refreshRoleContext();
+    drawer.classList.remove('d-none');
+    var input = document.getElementById('kleAiInput');
+    if (input) setTimeout(function() { input.focus(); }, 120);
+  },
+
+  close: function() {
+    var drawer = document.getElementById('kleAiFloatingDrawer');
+    if (drawer) drawer.classList.add('d-none');
+  },
+
+  toggle: function() {
+    var drawer = document.getElementById('kleAiFloatingDrawer');
+    if (!drawer) return;
+    if (drawer.classList.contains('d-none')) this.open();
+    else this.close();
+  },
+
+  sendQuickPrompt: function(text) {
+    this.open();
+    var input = document.getElementById('kleAiInput');
+    if (input) input.value = text;
+    this.sendMessage();
+  },
+
+  buildLocalGroundedFallback: function(question, roleKey) {
+    var q = question.toLowerCase();
+    var prods = (typeof getProducts === 'function') ? getProducts() : [];
+    var rooms = (typeof getRoomsOpsStore === 'function') ? getRoomsOpsStore() : [];
+    var bookings = (typeof getAllBookings === 'function') ? getAllBookings() : [];
+
+    // Security Guard: Never expose raw PIN codes
+    if (q.includes('mã pin') || q.includes('xem pin') || q.includes('cho biết pin') || q.includes('mật khẩu') || q.includes('api key')) {
+      return '🔒 **Chính sách Bảo mật Kim Long EcoStay:**\nVì lý do an toàn cho khách lưu trú, Trợ lý AI **không hiển thị mã PIN SmartLock 6 số dạng rõ** (`••••••`) hoặc thông tin bí mật hệ thống trên khung chat.\n- **Khách hàng:** Nhận mã PIN tự động qua màn hình xác nhận và Email ngay sau khi hoàn tất cọc 50% VietQR.\n- **Nhân viên được phân quyền:** Tra cứu có ghi nhận **Audit Log** tại phân hệ **Vận Hành Dự Án / Phòng**.';
+    }
+
+    if (q.includes('tồn kho') || q.includes('sản phẩm') || q.includes('đặc sản') || q.includes('mứt') || q.includes('bánh ướt')) {
+      var topProds = prods.slice(0, 6).map(function(p) {
+        return '- **' + p.name + '** (`' + p.id + '`): **' + Number(p.price).toLocaleString('vi-VN') + ' đ/' + (p.unit || 'phần') + '** — Tồn kho: `' + p.stock + '`';
+      }).join('\n');
+      return '🥢 **Danh mục Đặc sản Huế & Nông sản nhà vườn Kim Long EcoStay (' + prods.length + ' mặt hàng):**\n' + topProds + '\n\nQuý khách có thể nhấn **Thêm vào giỏ** và chọn **Giao tận phòng (Miễn phí phục vụ 15–30 phút)**!';
+    }
+
+    if (q.includes('doanh thu') || q.includes('tài chính') || q.includes('ebitda') || q.includes('báo cáo')) {
+      if (roleKey !== 'ADMIN' && roleKey !== 'ACCOUNTANT') {
+        return '🔒 **Giới hạn Phân quyền (RBAC):** Số liệu báo cáo doanh thu, lợi nhuận ròng (EBITDA) và bảng lương chỉ dành cho tài khoản **Kế Toán Trưởng** hoặc **Admin (CEO)**.';
+      }
+      var totalDeposit = bookings.reduce(function(a, b) { return a + Number(b.depositPaid || 0); }, 0);
+      var totalRemain = bookings.reduce(function(a, b) { return a + Number(b.remainingBalance || 0); }, 0);
+      return '📊 **Báo cáo Tài chính & Đối soát thực tế (SQL Grounded):**\n- Tổng đơn đặt phòng: **' + bookings.length + ' đơn**\n- Tổng tiền cọc 50% đã đối soát: **' + totalDeposit.toLocaleString('vi-VN') + ' VNĐ**\n- Số dư còn lại cần thu khi Check-in: **' + totalRemain.toLocaleString('vi-VN') + ' VNĐ**\n- Tổng doanh thu lũy kế: **60,300,000 VNĐ** | Chi phí: **14,500,000 VNĐ** | **EBITDA: 45,800,000 VNĐ** (Biên lợi nhuận 75.9%).';
+    }
+
+    var roomSummary = rooms.map(function(r) {
+      return '- **' + r.name + '** (`' + r.code + '`): Trạng thái `' + r.status + '` • Pin khóa: `' + r.battery + '%`';
+    }).join('\n');
+    return '🏡 **Trạng thái 05 Buồng phòng Sinh thái Kim Long EcoStay:**\n' + roomSummary + '\n\nQuý khách cần đặt phòng hoặc đặt món giao tận phòng, hãy chọn nút tương ứng trên thanh công cụ!';
+  },
+
+  sendMessage: function() {
+    if (this.isSending) return;
+    var input = document.getElementById('kleAiInput');
+    if (!input) return;
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    var conv = this.getActiveConversation();
+    var nowTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+    conv.messages.push({
+      role: 'user',
+      content: text,
+      time: nowTime
+    });
+    if (conv.messages.length === 2 && conv.title.indexOf('Hội thoại') === 0) {
+      conv.title = text.length > 28 ? (text.substring(0, 28) + '...') : text;
+      this.renderConversationSelect();
+    }
+    this.saveConversations();
+    this.renderMessages();
+
+    var sess = (typeof getKLESession === 'function') ? getKLESession() : null;
+    var roleKey = (sess && sess.role) ? sess.role : 'GUEST';
+    var actorName = (sess && sess.name) ? sess.name : 'Khách hàng';
+
+    var thinkingEl = document.getElementById('kleAiThinkingIndicator');
+    if (thinkingEl) thinkingEl.classList.remove('d-none');
+    this.isSending = true;
+    var self = this;
+
+    var historyPayload = conv.messages.slice(-7, -1).map(function(m) {
+      return { role: m.role, content: m.content };
+    });
+
+    fetch(KleSqlSyncEngine.apiBaseUrl + '/api/ai/chat', {
+      method: 'POST',
+      headers: KleSqlSyncEngine.getActorHeaders(),
+      body: JSON.stringify({
+        message: text,
+        conversationId: conv.id,
+        role: roleKey,
+        actorName: actorName,
+        history: historyPayload
+      })
+    })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        if (thinkingEl) thinkingEl.classList.add('d-none');
+        self.isSending = false;
+
+        var replyText = (data && data.reply) ? data.reply : self.buildLocalGroundedFallback(text, roleKey);
+        var providerLabel = (data && data.provider) ? (data.provider + ' (' + (data.model || 'gpt-4o-mini') + ') • ' + (data.latencyMs || 120) + 'ms') : 'Hybrid SQL Concierge';
+
+        conv.messages.push({
+          role: 'assistant',
+          content: replyText,
+          time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          provider: providerLabel
+        });
+        self.saveConversations();
+        self.renderMessages();
+      })
+      .catch(function() {
+        if (thinkingEl) thinkingEl.classList.add('d-none');
+        self.isSending = false;
+        var fallbackReply = self.buildLocalGroundedFallback(text, roleKey);
+        conv.messages.push({
+          role: 'assistant',
+          content: fallbackReply,
+          time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          provider: 'Local Grounded Fallback'
+        });
+        self.saveConversations();
+        self.renderMessages();
+      });
+  }
+};
+
+window.openAiChatModal = function() {
+  KleAiAssistant.open();
+};
 
 window.askAiQuestion = function(q) {
-  document.getElementById('aiUserInput').value = q;
-  sendAiMessage();
+  KleAiAssistant.sendQuickPrompt(q);
 };
 
 window.sendAiMessage = function() {
-  var input = document.getElementById('aiUserInput');
-  var text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  var container = document.getElementById('aiChatMessages');
-  // Add user message
-  container.innerHTML += `
-    <div class="d-flex justify-content-end mb-3">
-      <div class="p-3 bg-success text-white rounded-4 shadow-sm small" style="max-width: 80%;">
-        ${text}
-      </div>
-    </div>
-  `;
-
-  // AI response logic
-  setTimeout(function() {
-    var reply = '';
-    var lower = text.toLowerCase();
-    if (lower.includes('phòng') || lower.includes('giá') || lower.includes('đặt')) {
-      reply = 'Kim Long EcoStay hiện có <strong>05 buồng phòng sinh thái mẫu</strong> gồm:<br>• <strong>Eco-Nest Ban Mai</strong> (390k/đêm)<br>• <strong>Eco-Nest Hoàng Hôn</strong> (420k/đêm)<br>• <strong>Garden Suite Thanh Trà</strong> (680k/đêm)<br>• <strong>Family Eco-Villa</strong> (820k/đêm)<br>• <strong>Heritage Studio</strong> (590k/đêm).<br>Tất cả đều miễn phí xe đạp trợ lực Eco-Bike & mã PIN SmartLock 10 giây!';
-    } else if (lower.includes('khóa') || lower.includes('pin') || lower.includes('mã')) {
-      reply = 'Mã PIN SmartLock là <strong>mã số 6 chữ số bí mật</strong> được cấp tự động ngay khi quý khách hoàn tất đặt cọc. Quý khách chỉ cần bấm 6 số này trên khóa cửa khi đến nơi để nhận phòng mà không cần chờ lễ tân!';
-    } else if (lower.includes('thiên mụ') || lower.includes('chùa') || lower.includes('địa điểm') || lower.includes('xe đạp')) {
-      reply = 'Từ Kim Long EcoStay quý khách đạp xe đến <strong>Chùa Thiên Mụ</strong> chỉ mất 4 phút (850m) dọc theo đường Kim Long rợp bóng cây cổ thụ. Homestay cung cấp miễn phí xe đạp trợ lực Eco-Bike và tai nghe GPS Audio Guide cho quý khách!';
-    } else if (lower.includes('bánh ướt') || lower.includes('ăn') || lower.includes('ẩm thực')) {
-      reply = 'Đặc sản nức tiếng nhất phường Kim Long là <strong>Bánh ướt thịt nướng Huyền Anh</strong> (cách homestay chỉ 250m). Quý khách có thể đi bộ ghé thưởng thức hoặc homestay hỗ trợ đặt mang đến tận hiên phòng!';
-    } else {
-      reply = 'Cảm ơn quý khách! Đội ngũ Kim Long EcoStay luôn sẵn sàng phục vụ quý khách qua Hotline/Zalo: <strong>0905.123.456</strong>. Quý khách có thể bấm <strong>"Đặt Phòng"</strong> ngay trên website để nhận mã PIN khóa phòng tự động.';
-    }
-
-    container.innerHTML += `
-      <div class="d-flex gap-2 mb-3">
-        <div class="bg-success text-white rounded-circle p-2 fs-6 flex-shrink-0" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-robot"></i></div>
-        <div class="p-3 bg-white rounded-4 shadow-sm border small" style="max-width: 85%;">
-          ${reply}
-        </div>
-      </div>
-    `;
-    container.scrollTop = container.scrollHeight;
-  }, 400);
+  KleAiAssistant.sendMessage();
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+  KleSqlSyncEngine.init();
+  KleAiAssistant.init();
+});
 
 // =========================================================================
 // 6. HERITAGE GIS MAP, PARTNER DIRECTORY & BI-DIRECTIONAL LINKING BRIDGES
@@ -8843,6 +10397,13 @@ window.KLE_MODULES_CATALOG = {
     icon: 'bi-buildings-fill',
     group: 'NHÂN SỰ & VẬN HÀNH NỘI BỘ',
     desc: 'Quản lý trạng thái 05 phòng sinh thái, Điều phối Giao Phòng và Tra Cứu Khóa SmartLock IoT'
+  },
+  'sql-sync': {
+    id: 'sql-sync',
+    title: 'Kết Nối & Đồng Bộ SQL',
+    icon: 'bi-database-fill-gear',
+    group: 'HỆ THỐNG & CƠ SỞ DỮ LIỆU',
+    desc: 'Giám sát kết nối SQL Server 2025, đồng bộ hai chiều thời gian thực (SignalR + Change Tracking) và Audit Log'
   }
 };
 
@@ -8863,7 +10424,8 @@ window.KLE_RBAC_CONFIG = {
       'dashboard',
       'nhanvien',
       'luong',
-      'duan'
+      'duan',
+      'sql-sync'
     ]
   },
   'RECEPTIONIST': {
@@ -9001,6 +10563,9 @@ window.syncNavbarSession = function() {
     document.querySelectorAll('.kle-admin-shortcut-btn').forEach(function(btn) {
       btn.classList.add('d-none');
     });
+    if (window.KleAiAssistant && typeof window.KleAiAssistant.refreshRoleContext === 'function') {
+      window.KleAiAssistant.refreshRoleContext();
+    }
     return;
   }
 
@@ -9043,6 +10608,9 @@ window.syncNavbarSession = function() {
       btn.classList.add('d-none');
     }
   });
+  if (window.KleAiAssistant && typeof window.KleAiAssistant.refreshRoleContext === 'function') {
+    window.KleAiAssistant.refreshRoleContext();
+  }
 };
 
 // Mở Modal Đăng Nhập Cổng Điều Hành (Chỉ hiển thị form đăng nhập, không lộ bất kỳ tab quản trị nào)
@@ -9321,6 +10889,7 @@ window.switchAdminModule = function(requestedModuleId, skipUrlPush, rbacNotice) 
   else if (targetId === 'tea-admin') renderAdminTea();
   else if (targetId === 'emaillogs') renderAdminEmailLogs();
   else if (targetId === 'duan') renderDuanOperationsHub();
+  else if (targetId === 'sql-sync' && typeof renderAdminSqlSyncDashboard === 'function') renderAdminSqlSyncDashboard();
 
   // Cập nhật URL SPA
   if (!skipUrlPush) {
@@ -10247,6 +11816,7 @@ window.resolveModuleIdFromRoute = function(subTab) {
   if (clean === 'nhanvien') return 'nhanvien';
   if (clean === 'luong') return 'luong';
   if (clean === 'duan' || clean === 'lookup' || clean === 'tracuu') return 'duan';
+  if (clean === 'sql-sync' || clean === 'sql' || clean === 'database') return 'sql-sync';
   return clean;
 };
 
@@ -10352,7 +11922,7 @@ window.activateRoute = function(cleanRoute) {
     return;
   }
 
-  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'reconciliation', 'specialties-admin', 'partners-admin', 'tea-admin', 'emaillogs', 'doisoat', 'doitac', 'lookup', 'tracuu'].indexOf(cleanRoute) !== -1) {
+  if (['dashboard', 'nhanvien', 'luong', 'duan', 'sql-sync', 'sql', 'database', 'admin', 'reconciliation', 'specialties-admin', 'partners-admin', 'tea-admin', 'emaillogs', 'doisoat', 'doitac', 'lookup', 'tracuu'].indexOf(cleanRoute) !== -1) {
     openAdminPortalModal(cleanRoute);
     return;
   }

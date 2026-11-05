@@ -17,18 +17,19 @@ namespace KimLongEcoStay.CoreBusiness.Services
 
         public HomestayAiService(HttpClient? httpClient = null)
         {
-            _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-            var geminiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+            _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
             var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-            var hasGemini = !string.IsNullOrWhiteSpace(geminiKey);
+            var geminiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+            var openAiModel = Environment.GetEnvironmentVariable("OPENAI_MODEL");
             var hasOpenAi = !string.IsNullOrWhiteSpace(openAiKey);
+            var hasGemini = !string.IsNullOrWhiteSpace(geminiKey);
 
             _config = new HomestayAiConfiguration
             {
-                Provider = hasGemini ? AiProviderType.Gemini : (hasOpenAi ? AiProviderType.OpenAi : AiProviderType.LocalSmartEngine),
-                Model = hasGemini ? "gemini-3.8-flash" : (hasOpenAi ? "gpt-4o-mini" : "gemini-3.8-flash"),
+                Provider = hasOpenAi ? AiProviderType.OpenAi : (hasGemini ? AiProviderType.Gemini : AiProviderType.LocalSmartEngine),
+                Model = hasOpenAi ? (string.IsNullOrWhiteSpace(openAiModel) ? "gpt-4o-mini" : openAiModel) : "gemini-2.5-flash",
                 IsEnabled = true,
-                ApiKey = (hasGemini ? geminiKey : openAiKey) ?? string.Empty
+                ApiKey = (hasOpenAi ? openAiKey : geminiKey) ?? string.Empty
             };
         }
 
@@ -37,7 +38,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
             return new HomestayAiConfiguration
             {
                 Provider = _config.Provider,
-                ApiKey = _config.ApiKey,
+                // Không bao giờ trả về chuỗi API Key thật ra tầng giao diện để bảo mật tuyệt đối
+                ApiKey = string.IsNullOrWhiteSpace(_config.ApiKey) ? string.Empty : "••••••••••••••••••••",
                 Model = _config.Model,
                 IsEnabled = _config.IsEnabled,
                 CustomNotes = _config.CustomNotes
@@ -48,7 +50,12 @@ namespace KimLongEcoStay.CoreBusiness.Services
         {
             if (config != null)
             {
+                var existingKey = _config.ApiKey;
                 _config = config;
+                if (string.IsNullOrWhiteSpace(_config.ApiKey) || _config.ApiKey.Contains('•'))
+                {
+                    _config.ApiKey = existingKey;
+                }
             }
         }
 

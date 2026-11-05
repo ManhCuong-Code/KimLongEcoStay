@@ -3670,4 +3670,216 @@ main.flex-grow-1 {
   }
 }
 
+/* ==========================================================================
+   FLOATING AI ASSISTANT DRAWER & TWO-WAY SQL SYNC MODULE (ECO LUXURY)
+   ========================================================================== */
+.kle-ai-drawer {
+  position: fixed;
+  right: 22px;
+  bottom: 84px;
+  width: 395px;
+  max-width: calc(100vw - 24px);
+  height: 550px;
+  max-height: calc(100vh - 110px);
+  background: #FFFFFF;
+  border: 1px solid rgba(20, 69, 47, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(10, 46, 31, 0.25);
+  z-index: 1085;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: kleAiSlideUp 0.22s ease-out;
+}
+
+@keyframes kleAiSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.kle-ai-drawer-header {
+  background: linear-gradient(135deg, #14452F 0%, #1E6B45 100%);
+  color: #FFFFFF;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.kle-ai-avatar-pulse {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1.5px solid #D4AF37;
+  color: #FDE68A;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.kle-ai-dot-online {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ADE80;
+  margin-right: 5px;
+  box-shadow: 0 0 6px #4ADE80;
+}
+
+.kle-ai-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all 0.18s ease;
+}
+
+.kle-ai-icon-btn:hover {
+  background: #D4AF37;
+  color: #14452F;
+  border-color: #D4AF37;
+}
+
+.kle-ai-conv-bar {
+  background: #F1F5F2;
+  padding: 6px 12px;
+  border-bottom: 1px solid #E2E8E4;
+}
+
+.kle-ai-quick-bar {
+  background: #F7F8F4;
+  padding: 7px 10px;
+  border-bottom: 1px solid #E2E8E4;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.kle-ai-chip {
+  border: 1px solid rgba(30, 107, 69, 0.28);
+  background: #FFFFFF;
+  color: #14452F;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.kle-ai-chip:hover {
+  background: #14452F;
+  color: #FDE68A;
+  border-color: #14452F;
+}
+
+.kle-ai-messages-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 14px;
+  background: #F7F8F4;
+}
+
+.kle-ai-avatar-bot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #14452F;
+  color: #D4AF37;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.kle-ai-msg-bot {
+  background: #FFFFFF;
+  color: #26352B;
+  border: 1px solid #DCE5DF;
+  border-radius: 4px 14px 14px 14px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  max-width: 87%;
+  box-shadow: 0 2px 6px rgba(20, 69, 47, 0.05);
+}
+
+.kle-ai-msg-user {
+  background: linear-gradient(135deg, #14452F 0%, #1E6B45 100%);
+  color: #FFFFFF;
+  border-radius: 14px 4px 14px 14px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  max-width: 84%;
+  box-shadow: 0 3px 8px rgba(20, 69, 47, 0.16);
+}
+
+.kle-ai-thinking-bar {
+  background: #EDF4F0;
+  padding: 6px 14px;
+  border-top: 1px solid #DCE5DF;
+}
+
+.kle-ai-typing-dots {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.kle-ai-typing-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #1E6B45;
+  animation: kleAiDotBounce 1.2s infinite ease-in-out;
+}
+
+.kle-ai-typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.kle-ai-typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes kleAiDotBounce {
+  0%, 80%, 100% { transform: scale(0.65); opacity: 0.45; }
+  40% { transform: scale(1.1); opacity: 1; }
+}
+
+.kle-ai-input-footer {
+  background: #FFFFFF;
+  padding: 9px 12px;
+  border-top: 1px solid #E2E8E4;
+}
+
+@media (max-width: 575.98px) {
+  .kle-ai-drawer {
+    right: 10px;
+    left: 10px;
+    bottom: 76px;
+    width: auto;
+    height: 72vh;
+  }
+}
+
+
 

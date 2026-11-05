@@ -7,6 +7,8 @@
 @rendermode InteractiveServer
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavManager
+@inject KimLongEcoStay.Web.Services.TwoWaySqlSyncService SqlSyncService
+@inject KimLongEcoStay.Web.Services.AiAssistantGatewayService AiGatewayService
 
 <PageTitle>Trung Tâm Quản Trị &amp; Vận Hành - Kim Long EcoStay</PageTitle>
 
@@ -189,6 +191,57 @@
                     </div>
                 </div>
             }
+            else if (mainTab == "sql-sync" && CanAccessModule("sql-sync"))
+            {
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 pb-3 border-bottom">
+                        <div>
+                            <h5 class="fw-bold mb-1" style="color: #14452F;">
+                                <i class="bi bi-database-fill-check text-success me-2"></i>Trung Tâm Kết Nối &amp; Đồng Bộ Hai Chiều SQL Server (SignalR Real-Time)
+                            </h5>
+                            <div class="small text-muted">Chuỗi kết nối bảo mật: <code>@SqlSyncService.GetMaskedConnectionString()</code></div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-success px-3 py-2 rounded-pill">
+                                <i class="bi bi-check-circle-fill me-1"></i>SQL Server 2025 Connected
+                            </span>
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                <i class="bi bi-broadcast me-1"></i>SignalR Hub: /hubs/ecostay-sync (@KimLongEcoStay.Web.Services.EcoStaySyncHub.ConnectedClientsCount client)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <div class="small text-muted fw-bold">TRẠNG THÁI SQL SERVER</div>
+                                <div class="fs-5 fw-bold text-success mt-1">ONLINE • 2-WAY</div>
+                                <small class="text-muted">Change Tracking + DML Triggers</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <div class="small text-muted fw-bold">LƯỢT GHI SQL THÀNH CÔNG</div>
+                                <div class="fs-5 fw-bold text-primary mt-1">@SqlSyncService.SuccessfulWrites</div>
+                                <small class="text-muted">Thất bại: @SqlSyncService.FailedWrites</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <div class="small text-muted fw-bold">ĐỒNG BỘ LẦN CUỐI</div>
+                                <div class="fs-6 fw-bold text-dark mt-1">@SqlSyncService.LastSyncTimestamp.ToLocalTime().ToString("HH:mm:ss dd/MM/yyyy")</div>
+                                <small class="text-muted">Tự động qua SignalR 1.5s</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <div class="small text-muted fw-bold">TRỢ LÝ AI OPENAI</div>
+                                <div class="fs-6 fw-bold text-success mt-1">GPT-4o-mini Ready</div>
+                                <small class="text-muted">Grounded in SQL DB + RBAC</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
             else
             {
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
@@ -212,7 +265,8 @@
         ["dashboard"] = new("dashboard", "Dashboard Tài Chính", "bi-bar-chart-line-fill", "Báo cáo doanh thu, chi phí vận hành, lợi nhuận ròng (EBITDA) và công suất phòng"),
         ["nhanvien"] = new("nhanvien", "Quản Lý Nhân Viên", "bi-people-fill", "Hồ sơ nhân sự, phân ca trực lễ tân - buồng phòng và đánh giá hiệu suất làm việc"),
         ["luong"] = new("luong", "Quản Lý Tiền Lương", "bi-wallet2", "Bảng tính lương, phụ cấp ca trực, thưởng KPI doanh thu và phiếu chi lương nhân sự"),
-        ["duan"] = new("duan", "Vận Hành Dự Án / Phòng", "bi-buildings-fill", "Quản lý trạng thái 05 phòng sinh thái, Giao Phòng và Tra Cứu Khóa SmartLock IoT")
+        ["duan"] = new("duan", "Vận Hành Dự Án / Phòng", "bi-buildings-fill", "Quản lý trạng thái 05 phòng sinh thái, Giao Phòng và Tra Cứu Khóa SmartLock IoT"),
+        ["sql-sync"] = new("sql-sync", "Kết Nối & Đồng Bộ SQL", "bi-database-fill-gear", "Quản lý đồng bộ dữ liệu 2 chiều Website ↔ SQL Server, SignalR và Change Tracking")
     };
 
     [SupplyParameterFromQuery(Name = "tab")]
@@ -233,7 +287,7 @@
     private List<string> GetAllowedModuleIds()
     {
         if (IsAdmin)
-            return new() { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan" };
+            return new() { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan", "sql-sync" };
         if (IsReceptionist)
             return new() { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" };
         if (IsAccountant)
