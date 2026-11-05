@@ -5,8 +5,10 @@
 
 :root {
   --kle-primary: #14452F;
+  --kle-secondary: #1E6B45;
+  --kle-light-green: #E8F1E9;
   --kle-primary-hover: #1E6B45;
-  --kle-primary-subtle: #EDF7F2;
+  --kle-primary-subtle: #E8F1E9;
   --kle-primary-glow: rgba(20, 69, 47, 0.15);
   
   --kle-forest: #14452F;
@@ -16,14 +18,18 @@
   --kle-gold-subtle: #FEF3C7;
   --kle-gold-glow: rgba(212, 175, 55, 0.25);
 
+  --kle-text: #26352B;
+  --kle-text-muted: #718076;
   --kle-dark: #26352B;
   --kle-slate: #334155;
-  --kle-muted: #526358;
+  --kle-muted: #718076;
   --kle-light-muted: #94A3B8;
-  --kle-border: #DDE5DF;
+  --kle-border: #E3E9E2;
   --kle-card-bg: #FFFFFF;
   --kle-bg: #F7F8F4;
   --kle-success: #1E6B45;
+  --kle-warning: #C8872D;
+  --kle-error: #C84A43;
   --kle-header-offset: 88px;
   
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -3169,7 +3175,7 @@ main.flex-grow-1 {
   overflow: hidden;
 }
 
-/* Sidebar dọc bên trái */
+/* Sidebar dọc bên trái — Chuẩn hóa đồng bộ mọi class (.kle-sidebar-item & .kle-sidebar-nav-btn) */
 .kle-admin-sidebar {
   width: 268px;
   min-width: 268px;
@@ -3184,6 +3190,7 @@ main.flex-grow-1 {
   overflow-x: hidden;
   z-index: 20;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .kle-admin-sidebar.collapsed {
@@ -3192,82 +3199,112 @@ main.flex-grow-1 {
 }
 
 .kle-admin-sidebar.collapsed .kle-sidebar-group-title,
+.kle-admin-sidebar.collapsed .kle-sidebar-group-label,
 .kle-admin-sidebar.collapsed .kle-sidebar-item-label,
+.kle-admin-sidebar.collapsed .kle-sidebar-text,
 .kle-admin-sidebar.collapsed .kle-sidebar-role-switcher,
 .kle-admin-sidebar.collapsed .kle-sidebar-collapse-text {
   display: none !important;
 }
 
-.kle-admin-sidebar.collapsed .kle-sidebar-nav-btn {
+.kle-admin-sidebar.collapsed .kle-sidebar-nav-btn,
+.kle-admin-sidebar.collapsed .kle-sidebar-item {
   justify-content: center;
   padding: 11px 0;
 }
 
-.kle-sidebar-group-title {
-  font-size: 10.5px;
-  font-weight: 800;
+#adminSidebarNavContainer,
+.kle-sidebar-nav-list {
+  list-style: none;
+  padding: 8px 10px;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.kle-sidebar-group-title,
+.kle-sidebar-group-label {
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1.1px;
-  color: #D4AF37;
-  padding: 14px 16px 5px;
+  letter-spacing: 0.5px;
+  color: #86EFAC;
+  padding: 12px 14px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  opacity: 0.92;
+  box-sizing: border-box;
+  width: 100%;
 }
 
-.kle-sidebar-nav-list {
-  list-style: none;
-  padding: 6px 0;
-  margin: 0;
-}
-
-.kle-sidebar-nav-btn {
+.kle-sidebar-nav-btn,
+.kle-sidebar-item {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 11px;
-  width: calc(100% - 16px);
-  margin: 3px 8px;
+  gap: 10px;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
   border: 1px solid transparent;
   background: transparent;
-  color: rgba(247, 248, 244, 0.86);
+  color: #CBD5E1;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.kle-sidebar-nav-btn:hover {
-  background: #1E6B45;
+.kle-sidebar-nav-btn:hover,
+.kle-sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.1);
   color: #FFFFFF;
 }
 
-.kle-sidebar-nav-btn.active {
-  background: linear-gradient(90deg, rgba(212, 175, 55, 0.24) 0%, rgba(30, 107, 69, 0.55) 100%);
-  color: #D4AF37;
-  border-color: rgba(212, 175, 55, 0.55);
-  box-shadow: inset 3px 0 0 #D4AF37;
-  font-weight: 700;
+.kle-sidebar-nav-btn.active,
+.kle-sidebar-item.active {
+  background: #D4AF37 !important;
+  color: #0F3522 !important;
+  font-weight: 600 !important;
+  border-color: #D4AF37 !important;
+  box-shadow: 0 3px 10px rgba(212, 175, 55, 0.25);
 }
 
-.kle-sidebar-nav-btn .kle-sidebar-icon {
+.kle-sidebar-nav-btn .kle-sidebar-icon,
+.kle-sidebar-item .kle-sidebar-icon {
   font-size: 16.5px;
   width: 22px;
   text-align: center;
   flex-shrink: 0;
   color: #D4AF37;
+  transition: color 0.18s ease;
 }
 
-.kle-sidebar-item-label {
+.kle-sidebar-nav-btn:hover .kle-sidebar-icon,
+.kle-sidebar-item:hover .kle-sidebar-icon {
+  color: #FDE68A;
+}
+
+.kle-sidebar-nav-btn.active .kle-sidebar-icon,
+.kle-sidebar-item.active .kle-sidebar-icon {
+  color: #0F3522 !important;
+}
+
+.kle-sidebar-item-label,
+.kle-sidebar-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
 }
 
 .kle-sidebar-footer {
@@ -3279,7 +3316,9 @@ main.flex-grow-1 {
 /* Main Content bên phải */
 .kle-admin-main {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 22px 26px;
   background: #F7F8F4;
   color: #26352B;
@@ -3287,7 +3326,7 @@ main.flex-grow-1 {
 
 .kle-admin-module-header {
   background: #FFFFFF;
-  border: 1px solid #DDE5DF;
+  border: 1px solid #E3E9E2;
   border-left: 4px solid #14452F;
   border-radius: 14px;
   padding: 14px 20px;
@@ -3300,7 +3339,272 @@ main.flex-grow-1 {
   box-shadow: 0 3px 12px rgba(20, 69, 47, 0.05);
 }
 
-/* Responsive Sidebar trên màn hình nhỏ (Tablet & Mobile) */
+/* ==========================================================================
+   CHUẨN HÓA CARD SẢN PHẨM & GRID ĐẶC SẢN KIM LONG (MỤC V)
+   ========================================================================== */
+.specialty-product-card,
+.kle-product-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E3E9E2 !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.specialty-product-card:hover,
+.kle-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(20, 69, 47, 0.12) !important;
+  border-color: #1E6B45 !important;
+}
+
+.kle-product-img-wrap {
+  position: relative;
+  height: 205px;
+  overflow: hidden;
+  background: #E8F1E9;
+  flex-shrink: 0;
+}
+
+.kle-product-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.specialty-product-card:hover .kle-product-img-wrap img,
+.kle-product-card:hover .kle-product-img-wrap img {
+  transform: scale(1.05);
+}
+
+.kle-product-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 44px;
+  font-size: 15.5px;
+  line-height: 1.38;
+  font-weight: 700;
+  color: #26352B;
+  margin-bottom: 4px;
+}
+
+.kle-product-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 56px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #718076;
+  margin-bottom: 12px;
+}
+
+.kle-product-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #E3E9E2;
+}
+
+/* ==========================================================================
+   SMARTLOCK IOT & QUẢN LÝ PHÒNG — PIN MASKING & TRẠNG THÁI (MỤC IV)
+   ========================================================================== */
+.kle-room-ops-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #FFFFFF;
+  border: 1px solid #E3E9E2;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 3px 12px rgba(20, 69, 47, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kle-room-ops-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(20, 69, 47, 0.09);
+}
+
+.kle-pin-mask-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #E8F1E9;
+  color: #14452F;
+  border: 1px solid rgba(30, 107, 69, 0.35);
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+}
+
+.kle-pin-eye-btn {
+  border: none;
+  background: rgba(20, 69, 47, 0.1);
+  color: #14452F;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.kle-pin-eye-btn:hover {
+  background: #14452F;
+  color: #D4AF37;
+}
+
+/* ==========================================================================
+   TOAST NOTIFICATION, CONFIRM DIALOG & SHARED STATES (MỤC II.3)
+   ========================================================================== */
+.kle-toast-container {
+  position: fixed;
+  top: 84px;
+  right: 20px;
+  z-index: 2050;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(400px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.kle-toast {
+  pointer-events: auto;
+  background: #FFFFFF;
+  color: #26352B;
+  border: 1px solid #E3E9E2;
+  border-left: 5px solid #14452F;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 12px 32px rgba(20, 69, 47, 0.18);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13.5px;
+  animation: kleToastSlideIn 0.25s ease forwards;
+}
+
+.kle-toast.kle-toast-warning {
+  border-left-color: #C8872D;
+}
+
+.kle-toast.kle-toast-error {
+  border-left-color: #C84A43;
+}
+
+@keyframes kleToastSlideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ==========================================================================
+   ĐỒNG BỘ MÀU SẮC ECO LUXURY TOÀN WEBSITE — LOẠI BỎ XANH DƯƠNG #0d6efd
+   ========================================================================== */
+.btn-primary,
+#adminPortalModal .btn-primary,
+#kleLoginModal .btn-primary,
+.admin-portal-wrapper .btn-primary {
+  background-color: #14452F !important;
+  border-color: #14452F !important;
+  color: #FFFFFF !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+#adminPortalModal .btn-primary:hover,
+#kleLoginModal .btn-primary:hover,
+.admin-portal-wrapper .btn-primary:hover {
+  background-color: #1E6B45 !important;
+  border-color: #1E6B45 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-outline-primary,
+#adminPortalModal .btn-outline-primary,
+#kleLoginModal .btn-outline-primary,
+.admin-portal-wrapper .btn-outline-primary {
+  color: #14452F !important;
+  border-color: #1E6B45 !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+#adminPortalModal .btn-outline-primary:hover,
+#kleLoginModal .btn-outline-primary:hover,
+.admin-portal-wrapper .btn-outline-primary:hover {
+  background-color: #14452F !important;
+  border-color: #14452F !important;
+  color: #FFFFFF !important;
+}
+
+.bg-primary,
+#adminPortalModal .bg-primary,
+#kleLoginModal .bg-primary,
+.admin-portal-wrapper .bg-primary {
+  background-color: #14452F !important;
+  color: #FFFFFF !important;
+}
+
+.bg-primary-subtle,
+#adminPortalModal .bg-primary-subtle,
+.admin-portal-wrapper .bg-primary-subtle {
+  background-color: #E8F1E9 !important;
+  color: #14452F !important;
+}
+
+.text-primary,
+#adminPortalModal .text-primary,
+#kleLoginModal .text-primary,
+.admin-portal-wrapper .text-primary {
+  color: #14452F !important;
+}
+
+.border-primary,
+#adminPortalModal .border-primary,
+#kleLoginModal .border-primary,
+.admin-portal-wrapper .border-primary {
+  border-color: #1E6B45 !important;
+}
+
+.progress-bar.bg-primary,
+#adminPortalModal .progress-bar.bg-primary,
+.admin-portal-wrapper .progress-bar.bg-primary {
+  background-color: #1E6B45 !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #1E6B45 !important;
+  box-shadow: 0 0 0 0.2rem rgba(30, 107, 69, 0.18) !important;
+}
+
+/* ==========================================================================
+   RESPONSIVE TOÀN DIỆN (1920px, 1440px, 1366px, 1024px, 768px, 390px, 360px)
+   ========================================================================== */
+@media (max-width: 1399.98px) {
+  .nav-link.kle-nav-item {
+    font-size: 12.5px;
+    padding: 6px 8px !important;
+  }
+}
+
 @media (max-width: 991.98px) {
   #adminPortalModal .modal-dialog {
     max-width: 100vw !important;
@@ -3333,66 +3637,37 @@ main.flex-grow-1 {
   }
 }
 
-/* 3. Đồng bộ màu sắc Eco Luxury — Loại bỏ màu xanh dương #0d6efd trong Quản trị & Login */
-#adminPortalModal .btn-primary,
-#kleLoginModal .btn-primary,
-.admin-portal-wrapper .btn-primary {
-  background-color: #14452F !important;
-  border-color: #14452F !important;
-  color: #FFFFFF !important;
+@media (max-width: 767.98px) {
+  html, body {
+    overflow-x: hidden;
+  }
+  .kle-admin-topbar {
+    padding: 10px 14px !important;
+  }
+  .kle-admin-module-header {
+    padding: 12px 14px;
+  }
+  .kle-product-img-wrap {
+    height: 190px;
+  }
+  .modal-dialog {
+    margin: 0.5rem;
+  }
 }
 
-#adminPortalModal .btn-primary:hover,
-#kleLoginModal .btn-primary:hover,
-.admin-portal-wrapper .btn-primary:hover {
-  background-color: #1E6B45 !important;
-  border-color: #1E6B45 !important;
-  color: #FFFFFF !important;
+@media (max-width: 400px) {
+  .brand-text-title {
+    font-size: 16px;
+  }
+  .brand-text-sub {
+    font-size: 9px;
+  }
+  .kle-admin-main {
+    padding: 10px;
+  }
+  .kle-product-title {
+    font-size: 14.5px;
+  }
 }
 
-#adminPortalModal .btn-outline-primary,
-#kleLoginModal .btn-outline-primary,
-.admin-portal-wrapper .btn-outline-primary {
-  color: #14452F !important;
-  border-color: #1E6B45 !important;
-  background-color: transparent !important;
-}
-
-#adminPortalModal .btn-outline-primary:hover,
-#kleLoginModal .btn-outline-primary:hover,
-.admin-portal-wrapper .btn-outline-primary:hover {
-  background-color: #14452F !important;
-  border-color: #14452F !important;
-  color: #FFFFFF !important;
-}
-
-#adminPortalModal .bg-primary,
-#kleLoginModal .bg-primary,
-.admin-portal-wrapper .bg-primary {
-  background-color: #14452F !important;
-  color: #FFFFFF !important;
-}
-
-#adminPortalModal .bg-primary-subtle,
-.admin-portal-wrapper .bg-primary-subtle {
-  background-color: #EDF7F2 !important;
-  color: #14452F !important;
-}
-
-#adminPortalModal .text-primary,
-#kleLoginModal .text-primary,
-.admin-portal-wrapper .text-primary {
-  color: #14452F !important;
-}
-
-#adminPortalModal .border-primary,
-#kleLoginModal .border-primary,
-.admin-portal-wrapper .border-primary {
-  border-color: #1E6B45 !important;
-}
-
-#adminPortalModal .progress-bar.bg-primary,
-.admin-portal-wrapper .progress-bar.bg-primary {
-  background-color: #1E6B45 !important;
-}
 

@@ -49,15 +49,33 @@
                             <h6 class="fw-bold text-success mb-1">@dev.RoomName</h6>
                             <div class="text-muted small mb-3">Thiết bị ID: <code>@dev.DeviceId</code></div>
 
-                            <!-- Khung mã PIN hiện hành -->
+                            <!-- Khung mã PIN hiện hành (Mặc định ẩn •••••• kèm nút Hiện/Ẩn) -->
                             <div class="p-3 rounded-3 bg-light border text-center mb-3">
-                                <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 11px;">Mã PIN Đang Cấp Cho Khách:</small>
-                                <span class="fs-2 fw-bold font-monospace text-danger letter-spacing-2" style="letter-spacing: 4px;">
-                                    @dev.CurrentPin
-                                </span>
-                                <div class="small text-muted mt-1" style="font-size: 11.5px;">
-                                    <i class="bi bi-person-fill text-primary me-1"></i>@dev.AssignedGuestName (@dev.AssignedGuestPhone)
-                                </div>
+                                <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 11px;">Mã PIN SmartLock Bảo Mật:</small>
+                                @if (!string.IsNullOrWhiteSpace(dev.AssignedGuestName) && !dev.AssignedGuestName.Contains("Trống"))
+                                {
+                                    <div class="d-inline-flex align-items-center justify-content-center gap-2">
+                                        <span class="fs-3 fw-bold font-monospace text-success" style="letter-spacing: 3px;">
+                                            @(IsPinRevealed(dev.RoomNumber) ? dev.CurrentPin : "••••••")
+                                        </span>
+                                        <button type="button" class="btn btn-sm btn-outline-success rounded-circle p-1" style="width:30px;height:30px;"
+                                                @onclick="() => TogglePinReveal(dev)" title="Hiện / Ẩn mã PIN (Ghi nhận Audit Log)">
+                                            <i class="bi @(IsPinRevealed(dev.RoomNumber) ? "bi-eye-slash" : "bi-eye")"></i>
+                                        </button>
+                                    </div>
+                                    <div class="small text-muted mt-1" style="font-size: 11.5px;">
+                                        <i class="bi bi-person-fill text-success me-1"></i>@dev.AssignedGuestName (@dev.AssignedGuestPhone)
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-white text-secondary border font-monospace px-3 py-2 my-1">
+                                        <i class="bi bi-shield-lock me-1"></i>Chưa kích hoạt PIN khách
+                                    </span>
+                                    <div class="small text-muted mt-1" style="font-size: 11.5px;">
+                                        Phòng sẵn sàng • Chỉ cấp PIN khi có khách đặt/nhận phòng
+                                    </div>
+                                }
                             </div>
 
                             <div class="d-flex justify-content-between text-muted small mb-2">
@@ -132,6 +150,7 @@
 @code {
     private List<SmartLockDevice> devices = new();
     private List<SmartLockAuditLog> auditLogs = new();
+    private HashSet<string> revealedRooms = new();
     private string? message;
 
     protected override void OnInitialized()
@@ -145,11 +164,41 @@
         auditLogs = SmartLockUseCase.GetAuditLogs();
     }
 
+    private bool IsPinRevealed(string roomNumber) => revealedRooms.Contains(roomNumber);
+
+    private string MaskPin(string? pin)
+    {
+        if (string.IsNullOrEmpty(pin) || pin.Length < 2) return "••••••";
+        return "••••" + pin.Substring(pin.Length - 2);
+    }
+
+    private async Task TogglePinReveal(SmartLockDevice dev)
+    {
+        if (revealedRooms.Contains(dev.RoomNumber))
+        {
+            revealedRooms.Remove(dev.RoomNumber);
+        }
+        else
+        {
+            revealedRooms.Add(dev.RoomNumber);
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            string actor = authState.User.Identity?.Name ?? "Nhân sự được cấp quyền";
+            auditLogs.Insert(0, new SmartLockAuditLog
+            {
+                Timestamp = DateTime.Now,
+                RoomNumber = dev.RoomNumber,
+                ActionType = "PIN_VIEWED",
+                Actor = actor,
+                Details = $"Mở xem mã PIN ({MaskPin(dev.CurrentPin)}) trên bảng điều khiển SmartLock IoT"
+            });
+        }
+    }
+
     private void HandleRegeneratePin(string roomNumber)
     {
         if (SmartLockUseCase.RegeneratePin(roomNumber, out string newPin))
         {
-            message = $"Đã tạo lại mã PIN khẩn cấp mới: {newPin} cho phòng {roomNumber}. Khóa IoT đã đồng bộ mã mới.";
+            message = $"Đã cấp lại mã PIN bảo mật mới ({MaskPin(newPin)}) cho phòng {roomNumber} và ghi nhận vào Audit Log.";
             LoadData();
         }
     }
@@ -182,7 +231,7 @@
                         };
 
             var res = await EmailService.SendBookingConfirmationEmailAsync(order, dev.CurrentPin, dev.RoomName);
-            message = $"[SmartLock IoT] {res.StatusMessage} (Mã PIN: {dev.CurrentPin} - Phòng: {dev.RoomNumber})";
+            message = $"[SmartLock IoT] {res.StatusMessage} (Mã PIN: {MaskPin(dev.CurrentPin)} - Phòng: {dev.RoomNumber})";
         }
         catch (Exception ex)
         {

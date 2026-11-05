@@ -70,17 +70,24 @@
 
     private string GetStatusText(string status) => status switch
     {
-        "AVAILABLE" => "Trống (Sẵn Sàng)",
-        "OCCUPIED" => "Đang Có Khách",
-        "CLEANING" => "Đang Dọn Buồng",
+        "EMPTY" => "Phòng trống",
+        "AVAILABLE" or "READY" => "Đã sẵn sàng",
+        "BOOKED" => "Đã đặt phòng",
+        "WAITING_CHECKIN" => "Đang chờ Check-in",
+        "OCCUPIED" => "Đang lưu trú",
+        "WAITING_CHECKOUT" => "Chờ Check-out",
+        "CLEANING" => "Đang vệ sinh",
+        "MAINTENANCE" => "Đang bảo trì",
         _ => status
     };
 
     private string GetBadgeClass(string status) => status switch
     {
-        "AVAILABLE" => "bg-success",
+        "EMPTY" or "AVAILABLE" or "READY" => "bg-success",
+        "BOOKED" or "WAITING_CHECKIN" => "bg-warning text-dark",
         "OCCUPIED" => "bg-primary",
-        "CLEANING" => "bg-warning text-dark",
+        "WAITING_CHECKOUT" or "CLEANING" => "bg-warning text-dark",
+        "MAINTENANCE" => "bg-danger",
         _ => "bg-secondary"
     };
 

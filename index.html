@@ -4412,7 +4412,7 @@
                   </button>
                 </div>
                 <div class="d-flex gap-2">
-                  <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="renderDuanOperationsHub(); alert('Đã đồng bộ dữ liệu Vận hành Phòng, Giao phòng & Gateway SmartLock IoT!');">
+                  <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="renderDuanOperationsHub(); showKleToast('Đã đồng bộ dữ liệu Vận hành Phòng, Giao phòng & Gateway SmartLock IoT!', 'success');">
                     <i class="bi bi-arrow-repeat me-1"></i>Đồng Bộ Vận Hành
                   </button>
                 </div>
@@ -4424,138 +4424,28 @@
               <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div>
                   <h6 class="fw-bold font-serif mb-0" style="color: #14452F;"><i class="bi bi-houses-fill me-2" style="color: #1E6B45;"></i>1. Tình Trạng 05 Buồng Phòng Sinh Thái &amp; Khóa Thông Minh SmartLock IoT</h6>
-                  <small class="text-muted">Cấp mã PIN tự động trong 10 giây qua Zalo &amp; đồng bộ đám mây Hub Zigbee</small>
+                  <small class="text-muted">Bảo mật mã PIN 6 số (mặc định ẩn ••••••) • Chỉ kích hoạt PIN khách khi phòng Đã đặt / Đang lưu trú • Ghi nhận Audit Log tự động</small>
                 </div>
-                <span class="badge rounded-pill px-3 py-1.5" style="background: #EDF7F2; color: #14452F; border: 1px solid #1E6B45;">
-                  <i class="bi bi-wifi me-1"></i>Gateway Zigbee 3.0 Online (5/5 Khóa)
-                </span>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <select id="duanRoomStatusFilterSelect" class="form-select form-select-sm rounded-pill px-3" style="width: auto; font-size: 12.5px;" onchange="renderDuanRoomsGrid()">
+                    <option value="ALL">Tất cả trạng thái (05 phòng)</option>
+                    <option value="EMPTY">Phòng trống</option>
+                    <option value="READY">Đã sẵn sàng</option>
+                    <option value="BOOKED">Đã đặt phòng</option>
+                    <option value="WAITING_CHECKIN">Đang chờ Check-in</option>
+                    <option value="OCCUPIED">Đang lưu trú</option>
+                    <option value="WAITING_CHECKOUT">Chờ Check-out</option>
+                    <option value="CLEANING">Đang vệ sinh</option>
+                    <option value="MAINTENANCE">Đang bảo trì</option>
+                  </select>
+                  <span class="badge rounded-pill px-3 py-1.5" style="background: #E8F1E9; color: #14452F; border: 1px solid #1E6B45;">
+                    <i class="bi bi-wifi me-1"></i>Gateway Zigbee 3.0 Online (5/5 Khóa)
+                  </span>
+                </div>
               </div>
 
-              <div class="row g-3">
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span class="badge bg-success">ĐÃ SẴN SÀNG</span>
-                      <span class="badge bg-light text-dark font-monospace">KLE-R101</span>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1">Eco-Nest Ban Mai</h6>
-                    <p class="small text-muted mb-2">Nhà Vườn Hương Sen (View lúa &amp; sông Hương)</p>
-                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span>Mã PIN Hiện Tại:</span>
-                        <strong class="font-monospace text-success fs-6">839201</strong>
-                      </div>
-                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                        <span>Pin Khóa: <strong>99%</strong></span>
-                        <span>Tín Hiệu: <strong>-48 dBm (Tốt)</strong></span>
-                      </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="alert('Đã cấp lại mã PIN mới cho phòng KLE-R101!')">Cấp Lại PIN</button>
-                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('101')">Thử Khóa</button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-warning">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span class="badge bg-warning text-dark">ĐANG CÓ KHÁCH</span>
-                      <span class="badge bg-light text-dark font-monospace">KLE-R102</span>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1">Eco-Nest Hoàng Hôn</h6>
-                    <p class="small text-muted mb-2">Nhà Vườn Hương Sen (View ráng chiều)</p>
-                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span>Mã PIN Hiện Tại:</span>
-                        <strong class="font-monospace text-success fs-6">512940</strong>
-                      </div>
-                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                        <span>Pin Khóa: <strong>95%</strong></span>
-                        <span>Tín Hiệu: <strong>-52 dBm (Tốt)</strong></span>
-                      </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-warning flex-fill rounded-pill text-dark fw-bold" onclick="alert('Khách trả phòng: Đã gửi mã dọn dẹp cho tổ buồng phòng!')">Check-out</button>
-                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('102')">Thử Khóa</button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span class="badge" style="background: #1E6B45; color: #FFFFFF;">ĐÃ DỌN DẸP</span>
-                      <span class="badge bg-light text-dark font-monospace">KLE-R201</span>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1">Garden Suite Cố Đô Thanh Trà</h6>
-                    <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Vườn bưởi 40 năm)</p>
-                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span>Mã PIN Hiện Tại:</span>
-                        <strong class="font-monospace text-success fs-6">724819</strong>
-                      </div>
-                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                        <span>Pin Khóa: <strong>97%</strong></span>
-                        <span>Tín Hiệu: <strong>-46 dBm (Tốt)</strong></span>
-                      </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="alert('Đã sẵn sàng đón tiếp khách!')">Bật Sẵn Sàng</button>
-                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('201')">Thử Khóa</button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-warning">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span class="badge" style="background: #D4AF37; color: #14452F;">ĐÃ ĐẶT TRƯỚC</span>
-                      <span class="badge bg-light text-dark font-monospace">KLE-R202</span>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1">Family Eco-Villa Gắn Kết</h6>
-                    <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Biệt thự sân vườn)</p>
-                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span>Mã PIN Hiện Tại:</span>
-                        <strong class="font-monospace text-success fs-6">395104</strong>
-                      </div>
-                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                        <span>Pin Khóa: <strong>92%</strong></span>
-                        <span>Tín Hiệu: <strong>-55 dBm (Ổn định)</strong></span>
-                      </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="alert('Đã gửi mã PIN Zalo nhắc khách giờ nhận phòng 14:00!')">Gửi Zalo PIN</button>
-                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('202')">Thử Khóa</button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span class="badge bg-success">ĐÃ SẴN SÀNG</span>
-                      <span class="badge bg-light text-dark font-monospace">KLE-R203</span>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1">Heritage Studio Trầm Mặc</h6>
-                    <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Độc bản văn hóa)</p>
-                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span>Mã PIN Hiện Tại:</span>
-                        <strong class="font-monospace text-success fs-6">608372</strong>
-                      </div>
-                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                        <span>Pin Khóa: <strong>98%</strong></span>
-                        <span>Tín Hiệu: <strong>-49 dBm (Tốt)</strong></span>
-                      </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="alert('Đã làm mới mã PIN cho Heritage Studio!')">Cấp Lại PIN</button>
-                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('203')">Thử Khóa</button>
-                    </div>
-                  </div>
-                </div>
+              <div class="row g-3" id="duanRoomsGridContainer">
+                <!-- Rendered dynamically by renderDuanRoomsGrid() with masked PIN security & 8-state logic -->
               </div>
             </div>
 
@@ -4613,15 +4503,15 @@
               </div>
             </div>
 
-            <!-- PHẦN 4C: TRA CỨU KHÓA & MÃ PIN SMARTLOCK NỘI BỘ -->
+            <!-- PHẦN 4C: TRA CỨU KHÓA, MÃ PIN SMARTLOCK & NHẬT KÝ BẢO MẬT (AUDIT LOG) -->
             <div id="duanLookupSection" class="mb-2">
               <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
                 <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
                   <div>
                     <h6 class="fw-bold font-serif mb-0" style="color: #14452F;">
-                      <i class="bi bi-key-fill me-2" style="color: #D4AF37;"></i>3. Tra Cứu Khóa &amp; Cấp Mã PIN SmartLock IoT Nội Bộ
+                      <i class="bi bi-key-fill me-2" style="color: #D4AF37;"></i>3. Tra Cứu Khóa, Quản Lý Mã PIN SmartLock IoT &amp; Nhật Ký Bảo Mật (Audit Log)
                     </h6>
-                    <small class="text-muted">Tra cứu nhanh mã đặt phòng, SĐT khách lưu trú, kiểm tra mã PIN 6 số và mở trình mô phỏng khóa vật lý</small>
+                    <small class="text-muted">Mặc định ẩn mã PIN (••••••) • Chỉ vai trò được cấp quyền mới được xem hoặc cấp lại PIN • Lưu vết Audit Log mọi thao tác</small>
                   </div>
                   <div class="d-flex gap-2 flex-wrap">
                     <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="openLookupModal()">
@@ -4639,7 +4529,7 @@
                       <label class="form-label small fw-bold" style="color: #14452F;">Nhập Mã Đặt Phòng (Booking Code) hoặc Số Điện Thoại Khách Hàng:</label>
                       <div class="input-group">
                         <span class="input-group-text bg-light"><i class="bi bi-shield-lock-fill text-success"></i></span>
-                        <input type="text" id="duanLookupSearchInput" class="form-control font-monospace" placeholder="VD: KLE-893204, KLE-2026-001, 0905123456, R102..." oninput="handleDuanInlineLookup()">
+                        <input type="text" id="duanLookupSearchInput" class="form-control font-monospace" placeholder="VD: KLE-20261015-88, KLE-20261018-01, 0905123456, R102..." oninput="handleDuanInlineLookup()">
                         <button class="btn btn-success fw-bold px-4" type="button" onclick="handleDuanInlineLookup()">
                           <i class="bi bi-search me-1"></i>Tra Cứu Mã Khóa
                         </button>
@@ -4648,9 +4538,9 @@
                     <div class="col-md-4">
                       <div class="d-flex flex-wrap gap-1.5">
                         <span class="small text-muted w-100 mb-1">Tra cứu mẫu nhanh:</span>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='KLE-893204'; handleDuanInlineLookup();">KLE-893204 (Đã cọc)</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='KLE-551920'; handleDuanInlineLookup();">KLE-551920 (Chờ cọc)</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='0905123456'; handleDuanInlineLookup();">SĐT 0905123456</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='KLE-20261015-88'; handleDuanInlineLookup();">KLE-20261015-88 (Đã cọc)</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='KLE-20261018-01'; handleDuanInlineLookup();">KLE-20261018-01 (Chờ cọc)</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='0912334455'; handleDuanInlineLookup();">SĐT 0912334455</button>
                       </div>
                     </div>
                   </div>
@@ -4659,7 +4549,7 @@
                   <div id="duanLookupResultWrap" class="mb-3 d-none"></div>
 
                   <!-- Bảng tổng hợp Mã Khóa PIN đang hiệu lực -->
-                  <div class="table-responsive border rounded-3">
+                  <div class="table-responsive border rounded-3 mb-4">
                     <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
                       <thead class="table-light">
                         <tr>
@@ -4667,8 +4557,8 @@
                           <th>Khách Hàng / SĐT</th>
                           <th>Buồng Phòng</th>
                           <th>Nhận Phòng - Trả Phòng</th>
-                          <th>Trạng Thái Cọc</th>
-                          <th>Mã PIN SmartLock (6 Số)</th>
+                          <th>Trạng Thái Phòng &amp; Cọc</th>
+                          <th>Mã PIN SmartLock (Bảo Mật)</th>
                           <th class="text-end pe-3">Thao Tác Khóa</th>
                         </tr>
                       </thead>
@@ -4676,6 +4566,33 @@
                         <!-- Rendered dynamically by renderDuanOperationsHub() -->
                       </tbody>
                     </table>
+                  </div>
+
+                  <!-- Nhật ký bảo mật thao tác xem / cấp lại PIN (Audit Log) -->
+                  <div class="border rounded-3 overflow-hidden">
+                    <div class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <span class="fw-bold small" style="color: #14452F;">
+                        <i class="bi bi-journal-check me-1 text-success"></i>Nhật Ký Bảo Mật Thao Tác Mã PIN (SmartLock Audit Log)
+                      </span>
+                      <span class="badge bg-white text-secondary border" style="font-size: 11px;">Mã PIN luôn được che (••••XX) trong nhật ký bảo mật</span>
+                    </div>
+                    <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                      <table class="table table-sm table-hover align-middle mb-0" style="font-size: 12.5px;">
+                        <thead class="table-light">
+                          <tr>
+                            <th class="ps-3">Thời Gian</th>
+                            <th>Hành Động</th>
+                            <th>Phòng / Mã Đơn</th>
+                            <th>Mã PIN (Đã Che)</th>
+                            <th>Người Thực Hiện (Vai Trò)</th>
+                            <th class="pe-3">Ghi Chú Bảo Mật</th>
+                          </tr>
+                        </thead>
+                        <tbody id="duanPinAuditLogTableBody">
+                          <!-- Rendered dynamically by renderPinAuditLogs() -->
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -5449,9 +5366,9 @@ var DEFAULT_INITIAL_SPECIALTY_ORDERS = [
 
 function initKleStorage() {
   var currentProdVer = localStorage.getItem('kle_products_version');
-  if (!localStorage.getItem('kle_products') || currentProdVer !== 'v3_30items') {
+  if (!localStorage.getItem('kle_products') || currentProdVer !== 'v4_real_images') {
     localStorage.setItem('kle_products', JSON.stringify(DEFAULT_PRODUCTS));
-    localStorage.setItem('kle_products_version', 'v3_30items');
+    localStorage.setItem('kle_products_version', 'v4_real_images');
   }
   if (!localStorage.getItem('kle_tea_services')) {
     localStorage.setItem('kle_tea_services', JSON.stringify(DEFAULT_TEA_SERVICES));
@@ -5675,10 +5592,10 @@ window.renderSpecialties = function() {
     var catStyle = catBadgeColors[p.category] || 'background:#FEF3C7; color:#92400E;';
 
     html += `
-      <div class="col-xl-3 col-lg-4 col-md-6">
-        <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden specialty-product-card bg-white" style="transition: transform 0.25s ease, box-shadow 0.25s ease;">
-          <div class="position-relative overflow-hidden" style="height: 205px; cursor: pointer;" onclick="openProductDetailModal('${p.id}')">
-            <img src="${p.img}" alt="${p.name}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" onerror="this.src='images/mon_banhuot.jpg'">
+      <div class="col-12 col-sm-6 col-md-6 col-xl-3 d-flex">
+        <div class="card border-0 rounded-4 shadow-sm overflow-hidden specialty-product-card kle-product-card bg-white w-100">
+          <div class="kle-product-img-wrap" style="cursor: pointer;" onclick="openProductDetailModal('${p.id}')">
+            <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='images/hero_ecostay.jpg';">
             <span class="badge position-absolute top-0 start-0 m-3 rounded-pill px-2.5 py-1 shadow-sm fw-bold" style="font-size: 11px; ${catStyle}">
               ${p.category}
             </span>
@@ -5686,37 +5603,40 @@ window.renderSpecialties = function() {
               ${p.unit || 'phần'}
             </span>
           </div>
-          <div class="card-body p-3 d-flex flex-column">
+          <div class="card-body p-3 d-flex flex-column flex-grow-1">
             <div class="d-flex justify-content-between align-items-center mb-2 gap-1 flex-wrap">
               ${stockBadge}
               <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-success fw-semibold" style="font-size: 11.5px;" onclick="viewPartnerOnMap('${p.partnerId || 'KLE-CENTER'}')" title="Xem vị trí nhà cung cấp trên bản đồ">
                 <i class="bi bi-geo-alt-fill text-danger"></i> Bản đồ
               </button>
             </div>
-            <h6 class="fw-bold font-serif text-dark mb-1" style="font-size: 15.5px; line-height: 1.35; cursor: pointer;" onclick="openProductDetailModal('${p.id}')" title="${p.name}">${p.name}</h6>
+            <h6 class="kle-product-title font-serif" style="cursor: pointer;" onclick="openProductDetailModal('${p.id}')" title="${p.name}">${p.name}</h6>
             <div class="small text-muted mb-2 text-truncate" title="Nhà cung cấp: ${partnerTitle}">
               <i class="bi bi-shop text-success me-1"></i>
               <a href="javascript:void(0)" class="text-decoration-none text-secondary fw-semibold" onclick="openPartnerDetailModal('${p.partnerId || 'KLE-CENTER'}')">${partnerTitle}</a>
             </div>
-            <p class="text-muted small mb-3 flex-grow-1" style="font-size: 12.5px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            <p class="kle-product-desc">
               ${p.desc}
             </p>
-            <div class="d-flex justify-content-between align-items-baseline pt-2 border-top mb-3">
-              <div>
-                <span class="fw-bold fs-5 text-success font-monospace">${Number(p.price || 0).toLocaleString('vi-VN')} đ</span>
-                <span class="text-muted small">/ ${p.unit || 'phần'}</span>
+            <div class="kle-product-footer">
+              <div class="d-flex justify-content-between align-items-baseline mb-2.5">
+                <div>
+                  <span class="fw-bold fs-5 text-success font-monospace">${Number(p.price || 0).toLocaleString('vi-VN')} đ</span>
+                  <span class="text-muted small">/ ${p.unit || 'phần'}</span>
+                </div>
+                <span class="badge bg-light text-muted border" style="font-size: 9.5px;" title="Ảnh chụp sản phẩm / ẩm thực minh họa">Ảnh thực tế/minh họa</span>
               </div>
-            </div>
-            <div class="d-flex gap-1.5 flex-wrap">
-              <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2 flex-fill fw-semibold" onclick="openProductDetailModal('${p.id}')" title="Xem chi tiết">
-                <i class="bi bi-eye me-1"></i>Chi tiết
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2 flex-fill fw-semibold" ${p.stock <= 0 ? 'disabled' : ''} onclick="quickAddToCart('${p.id}')" title="Thêm vào giỏ">
-                <i class="bi bi-cart-plus me-1"></i>Thêm giỏ
-              </button>
-              <button type="button" class="btn btn-sm btn-success rounded-pill px-2.5 fw-bold flex-fill shadow-sm" ${p.stock <= 0 ? 'disabled' : ''} onclick="buyNowSpecialty('${p.id}')" title="Đặt giao ngay lên phòng">
-                <i class="bi bi-door-open-fill me-1"></i>Đặt ngay
-              </button>
+              <div class="d-flex gap-1.5 flex-wrap">
+                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2 flex-fill fw-semibold" onclick="openProductDetailModal('${p.id}')" title="Xem chi tiết">
+                  <i class="bi bi-eye me-1"></i>Chi tiết
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2 flex-fill fw-semibold" ${p.stock <= 0 ? 'disabled' : ''} onclick="quickAddToCart('${p.id}')" title="Thêm vào giỏ">
+                  <i class="bi bi-cart-plus me-1"></i>Thêm giỏ
+                </button>
+                <button type="button" class="btn btn-sm btn-success rounded-pill px-2.5 fw-bold flex-fill shadow-sm" ${p.stock <= 0 ? 'disabled' : ''} onclick="buyNowSpecialty('${p.id}')" title="Đặt giao ngay lên phòng">
+                  <i class="bi bi-door-open-fill me-1"></i>Đặt ngay
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -7128,7 +7048,14 @@ window.renderAdminReconciliationList = function() {
         <td>${statusBadge}</td>
         <td>
           <span class="badge bg-light text-dark font-monospace border">${b.paymentMethod || 'VietQR'}</span>
-          ${b.pin ? ('<br><small class="text-success font-monospace fw-bold">PIN: ' + b.pin + '</small>') : ''}
+          ${(b.status === 'CONFIRMED' || b.status === 'CHECKED_IN')
+            ? `<div class="mt-1 d-inline-flex align-items-center gap-1">
+                 <span class="kle-pin-mask-box" id="reconcile-pin-${b.orderCode}">••••••</span>
+                 <button type="button" class="kle-pin-eye-btn" onclick="toggleBookingPinVisibility('${b.orderCode}', 'reconcile-pin-${b.orderCode}', this)" title="Hiện / Ẩn mã PIN (Lưu Audit Log)"><i class="bi bi-eye"></i></button>
+               </div>`
+            : (b.status === 'WAITING_RECONCILIATION'
+               ? '<br><small class="text-muted fst-italic" style="font-size:11px;">Chờ duyệt cọc 50%</small>'
+               : '<br><small class="text-muted" style="font-size:11px;">Đã thu hồi PIN</small>')}
         </td>
         <td class="text-end pe-4">
           <div class="d-inline-flex gap-1 align-items-center">
@@ -8293,46 +8220,53 @@ window.openLookupModal = function() {
 };
 
 window.handleLookup = function() {
+  if (!isAuthenticated() || !canAccessModule('duan')) {
+    openLoginModal('Vui lòng đăng nhập tài khoản có quyền Vận Hành Dự Án / Phòng để tra cứu mã khóa SmartLock.');
+    return;
+  }
   var val = document.getElementById('lookupInput').value.trim().toLowerCase();
   var resultBox = document.getElementById('lookupResult');
   resultBox.classList.remove('d-none');
 
   var allBookings = JSON.parse(localStorage.getItem('kle_all_bookings') || '[]');
   var found = allBookings.find(function(b) {
-    return b.phone.toLowerCase().includes(val) || b.orderCode.toLowerCase().includes(val) || b.email.toLowerCase().includes(val);
+    return (b.phone || '').toLowerCase().includes(val) || (b.orderCode || '').toLowerCase().includes(val) || (b.email || '').toLowerCase().includes(val) || (b.roomName || '').toLowerCase().includes(val);
   });
 
   if (found) {
+    var isPinActive = (found.status === 'CONFIRMED' || found.status === 'CHECKED_IN');
     resultBox.innerHTML = `
       <div class="card border-success p-3 rounded-4 shadow-sm bg-white">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge bg-success">Đang Hoạt Động</span>
-          <span class="small text-muted">${found.orderCode}</span>
+          <span class="badge ${isPinActive ? 'bg-success' : 'bg-warning text-dark'}">${isPinActive ? 'Đang Hoạt Động' : found.status}</span>
+          <span class="small text-muted font-monospace">${found.orderCode}</span>
         </div>
         <h6 class="fw-bold font-serif text-dark mb-1">${found.roomName}</h6>
         <div class="small text-muted mb-2">Khách: <strong>${found.name}</strong> • SĐT: <strong>${found.phone}</strong></div>
-        <div class="alert alert-success border-success p-2 mb-2 d-flex align-items-center justify-content-between">
-          <span>Mã PIN SmartLock: <strong class="fs-5 font-monospace text-success ms-2">${found.pin}</strong></span>
-          <button class="btn btn-sm btn-outline-success" onclick="navigator.clipboard.writeText('${found.pin}'); alert('Đã sao chép mã PIN: ${found.pin}')">Copy</button>
-        </div>
-        <div class="small text-muted">Thời gian: ${found.checkIn} ➔ ${found.checkOut}</div>
+        ${isPinActive ? `
+          <div class="alert alert-success border-success p-2 mb-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="small fw-semibold">Mã PIN SmartLock:</span>
+              <span class="kle-pin-mask-box" id="modal-lookup-pin-${found.orderCode}">••••••</span>
+              <button type="button" class="kle-pin-eye-btn" onclick="toggleBookingPinVisibility('${found.orderCode}', 'modal-lookup-pin-${found.orderCode}', this)" title="Hiện / Ẩn mã PIN"><i class="bi bi-eye"></i></button>
+            </div>
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5" onclick="copyBookingPinSecure('${found.orderCode}')"><i class="bi bi-clipboard-check me-1"></i>Copy</button>
+              <button type="button" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2.5 fw-bold" onclick="reissueBookingPinSecure('${found.orderCode}')"><i class="bi bi-arrow-repeat me-1"></i>Cấp lại</button>
+            </div>
+          </div>
+        ` : `
+          <div class="alert alert-warning p-2 mb-2 small">
+            <i class="bi bi-shield-exclamation me-1"></i>Chưa kích hoạt mã PIN khách (Đơn phòng đang chờ đối soát cọc 50% hoặc đã trả phòng).
+          </div>
+        `}
+        <div class="small text-muted">Thời gian lưu trú: ${found.checkIn} ➔ ${found.checkOut}</div>
       </div>
     `;
   } else {
-    // Default demo lookup
     resultBox.innerHTML = `
-      <div class="card border-0 p-3 rounded-4 shadow-sm bg-white">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge bg-success">Phòng Mẫu Demo</span>
-          <span class="small text-muted">KLE-DEMO-01</span>
-        </div>
-        <h6 class="fw-bold font-serif text-dark mb-1">Eco-Nest Ban Mai (KLE-R101)</h6>
-        <div class="small text-muted mb-2">Nhà Vườn Hương Sen (Kim Long, Huế)</div>
-        <div class="alert alert-success border-success p-2 mb-2 d-flex align-items-center justify-content-between">
-          <span>Mã PIN SmartLock: <strong class="fs-5 font-monospace text-success ms-2">839201</strong></span>
-          <button class="btn btn-sm btn-outline-success" onclick="navigator.clipboard.writeText('839201'); alert('Đã sao chép mã PIN!')">Copy</button>
-        </div>
-        <div class="small text-muted">Trạng thái: Đã sẵn sàng đón tiếp. Thử bấm mã PIN trên khóa IoT.</div>
+      <div class="alert alert-warning p-3 rounded-4 mb-0 small">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>Không tìm thấy đơn đặt phòng hoặc mã khóa đang hoạt động khớp với từ khóa <strong>"${document.getElementById('lookupInput').value}"</strong>.
       </div>
     `;
   }
@@ -9398,9 +9332,640 @@ window.switchAdminModule = function(requestedModuleId, skipUrlPush, rbacNotice) 
   }
 };
 
-// Render trung tâm Vận Hành Dự Án / Phòng (tích hợp Giao Phòng & Tra Cứu Khóa)
+// =========================================================================
+// HỆ THỐNG THÔNG BÁO TOAST, AUDIT LOG BẢO MẬT & QUẢN LÝ BUỒNG PHÒNG / SMARTLOCK IOT
+// =========================================================================
+window.showKleToast = function(msg, type) {
+  var container = document.getElementById('kleGlobalToastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'kleGlobalToastContainer';
+    container.className = 'kle-toast-container';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  var typeCls = '';
+  var iconHtml = '<i class="bi bi-check-circle-fill fs-5" style="color:#1E6B45;"></i>';
+  if (type === 'warning') {
+    typeCls = 'kle-toast-warning';
+    iconHtml = '<i class="bi bi-exclamation-triangle-fill fs-5" style="color:#C8872D;"></i>';
+  } else if (type === 'error' || type === 'danger') {
+    typeCls = 'kle-toast-error';
+    iconHtml = '<i class="bi bi-x-circle-fill fs-5" style="color:#C84A43;"></i>';
+  }
+  toast.className = 'kle-toast ' + typeCls;
+  toast.innerHTML = `
+    <div class="flex-shrink-0">${iconHtml}</div>
+    <div class="flex-grow-1">
+      <div class="fw-bold small" style="color:#14452F;">Kim Long EcoStay</div>
+      <div class="small" style="color:#26352B;">${msg}</div>
+    </div>
+    <button type="button" class="btn-close btn-sm" style="font-size:10px;" onclick="this.parentElement.remove()"></button>
+  `;
+  container.appendChild(toast);
+  setTimeout(function() {
+    if (toast && toast.parentElement) toast.remove();
+  }, 4200);
+};
+
+// Danh mục 8 trạng thái phòng chuẩn nghiệp vụ (Mục IV.2)
+window.KLE_ROOM_STATUS_META = {
+  'EMPTY': {
+    key: 'EMPTY',
+    label: 'Phòng trống',
+    badgeStyle: 'background:#E8F1E9; color:#14452F; border:1px solid #1E6B45;',
+    borderTopColor: '#1E6B45',
+    hasGuestPin: false
+  },
+  'READY': {
+    key: 'READY',
+    label: 'Đã sẵn sàng',
+    badgeStyle: 'background:#14452F; color:#FFFFFF;',
+    borderTopColor: '#14452F',
+    hasGuestPin: false
+  },
+  'BOOKED': {
+    key: 'BOOKED',
+    label: 'Đã đặt phòng',
+    badgeStyle: 'background:#FEF3C7; color:#92400E; border:1px solid #D4AF37;',
+    borderTopColor: '#D4AF37',
+    hasGuestPin: true
+  },
+  'WAITING_CHECKIN': {
+    key: 'WAITING_CHECKIN',
+    label: 'Đang chờ Check-in',
+    badgeStyle: 'background:#D4AF37; color:#14452F; font-weight:700;',
+    borderTopColor: '#D4AF37',
+    hasGuestPin: true
+  },
+  'OCCUPIED': {
+    key: 'OCCUPIED',
+    label: 'Đang lưu trú',
+    badgeStyle: 'background:#1E6B45; color:#FFFFFF;',
+    borderTopColor: '#1E6B45',
+    hasGuestPin: true
+  },
+  'WAITING_CHECKOUT': {
+    key: 'WAITING_CHECKOUT',
+    label: 'Chờ Check-out',
+    badgeStyle: 'background:#C8872D; color:#FFFFFF;',
+    borderTopColor: '#C8872D',
+    hasGuestPin: true
+  },
+  'CLEANING': {
+    key: 'CLEANING',
+    label: 'Đang vệ sinh',
+    badgeStyle: 'background:#E0F2FE; color:#0369A1; border:1px solid #BAE6FD;',
+    borderTopColor: '#0284C7',
+    hasGuestPin: false
+  },
+  'MAINTENANCE': {
+    key: 'MAINTENANCE',
+    label: 'Đang bảo trì',
+    badgeStyle: 'background:#FEE2E2; color:#C84A43; border:1px solid #FECACA;',
+    borderTopColor: '#C84A43',
+    hasGuestPin: false
+  }
+};
+
+window.DEFAULT_ROOMS_OPS = [
+  {
+    code: 'KLE-R101',
+    shortId: '101',
+    name: 'Eco-Nest Ban Mai',
+    garden: 'Nhà Vườn Hương Sen (View lúa & sông Hương)',
+    status: 'READY',
+    guestName: '',
+    guestPhone: '',
+    orderCode: '',
+    stayWindow: 'Sẵn sàng đón khách nhận phòng mới',
+    pin: null,
+    battery: 99,
+    signal: '-48 dBm (Tốt)'
+  },
+  {
+    code: 'KLE-R102',
+    shortId: '102',
+    name: 'Eco-Nest Hoàng Hôn',
+    garden: 'Nhà Vườn Hương Sen (View ráng chiều)',
+    status: 'OCCUPIED',
+    guestName: 'Hoàng Minh Tuấn',
+    guestPhone: '0912334455',
+    orderCode: 'KLE-20261015-88',
+    stayWindow: '14:00 16/10 ➔ 12:00 18/10',
+    pin: '512940',
+    battery: 95,
+    signal: '-52 dBm (Tốt)'
+  },
+  {
+    code: 'KLE-R201',
+    shortId: '201',
+    name: 'Garden Suite Cố Đô Thanh Trà',
+    garden: 'Nhà Vườn Nguyệt Biều (Vườn bưởi 40 năm)',
+    status: 'CLEANING',
+    guestName: '',
+    guestPhone: '',
+    orderCode: '',
+    stayWindow: 'Tổ buồng phòng đang vệ sinh & khử khuẩn thảo mộc',
+    pin: null,
+    battery: 97,
+    signal: '-46 dBm (Tốt)'
+  },
+  {
+    code: 'KLE-R202',
+    shortId: '202',
+    name: 'Family Eco-Villa Gắn Kết',
+    garden: 'Nhà Vườn Nguyệt Biều (Biệt thự sân vườn)',
+    status: 'WAITING_CHECKIN',
+    guestName: 'Đặng Thanh Nga',
+    guestPhone: '0988776655',
+    orderCode: 'KLE-20261014-42',
+    stayWindow: '14:00 Hôm nay ➔ 12:00 Ngày mai (Đã cọc 50%)',
+    pin: '395104',
+    battery: 92,
+    signal: '-55 dBm (Ổn định)'
+  },
+  {
+    code: 'KLE-R203',
+    shortId: '203',
+    name: 'Heritage Studio Trầm Mặc',
+    garden: 'Nhà Vườn Nguyệt Biều (Độc bản văn hóa)',
+    status: 'EMPTY',
+    guestName: '',
+    guestPhone: '',
+    orderCode: '',
+    stayWindow: 'Phòng trống tiêu chuẩn • Chưa có lịch lưu trú',
+    pin: null,
+    battery: 98,
+    signal: '-49 dBm (Tốt)'
+  }
+];
+
+window.getRoomsOpsStore = function() {
+  try {
+    var ver = localStorage.getItem('kle_rooms_ops_ver');
+    var raw = localStorage.getItem('kle_rooms_ops_v2');
+    if (!raw || ver !== 'v2_8states') {
+      localStorage.setItem('kle_rooms_ops_v2', JSON.stringify(window.DEFAULT_ROOMS_OPS));
+      localStorage.setItem('kle_rooms_ops_ver', 'v2_8states');
+      return window.DEFAULT_ROOMS_OPS.slice();
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return window.DEFAULT_ROOMS_OPS.slice();
+  }
+};
+
+window.saveRoomsOpsStore = function(list) {
+  localStorage.setItem('kle_rooms_ops_v2', JSON.stringify(list));
+};
+
+window.maskPinForAudit = function(pin) {
+  if (!pin || String(pin).length < 2) return '••••••';
+  var s = String(pin);
+  return '••••' + s.slice(-2);
+};
+
+window.getPinAuditLogs = function() {
+  try {
+    var raw = localStorage.getItem('kle_pin_audit_logs');
+    if (!raw) {
+      var seed = [
+        {
+          id: 'AUD-1001',
+          time: new Date(Date.now() - 1800000).toISOString(),
+          action: 'PIN_ISSUED_AUTO',
+          target: 'KLE-R102 (KLE-20261015-88)',
+          maskedPin: '••••40',
+          actor: 'Hệ thống VietQR Webhook (Tự động)',
+          note: 'Cấp PIN tự động sau khi xác nhận cọc 50% thành công'
+        },
+        {
+          id: 'AUD-1002',
+          time: new Date(Date.now() - 900000).toISOString(),
+          action: 'PIN_REVOKED_CHECKOUT',
+          target: 'KLE-R203 (KLE-20261010-19)',
+          maskedPin: '••••72',
+          actor: 'Đặng Thu Thảo (Lễ Tân)',
+          note: 'Thu hồi mã PIN khách sau khi hoàn tất Check-out'
+        }
+      ];
+      localStorage.setItem('kle_pin_audit_logs', JSON.stringify(seed));
+      return seed;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return [];
+  }
+};
+
+window.appendPinAuditLog = function(action, target, rawPin, note) {
+  var sess = getKLESession();
+  var roleCfg = getCurrentRoleConfig();
+  var actorLabel = sess ? ((sess.name || 'Nhân sự') + ' (' + (roleCfg ? roleCfg.roleTitle : sess.role) + ')') : 'Hệ thống bảo mật';
+  var logs = getPinAuditLogs();
+  logs.unshift({
+    id: 'AUD-' + Math.floor(1000 + Math.random() * 9000),
+    time: new Date().toISOString(),
+    action: action,
+    target: target,
+    maskedPin: maskPinForAudit(rawPin),
+    actor: actorLabel,
+    note: note || ''
+  });
+  localStorage.setItem('kle_pin_audit_logs', JSON.stringify(logs.slice(0, 50)));
+  renderPinAuditLogs();
+};
+
+window.renderPinAuditLogs = function() {
+  var tbody = document.getElementById('duanPinAuditLogTableBody');
+  if (!tbody) return;
+  var logs = getPinAuditLogs();
+  if (logs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Chưa có nhật ký thao tác mã PIN nào.</td></tr>';
+    return;
+  }
+  var actionBadgeMap = {
+    'PIN_VIEWED': '<span class="badge bg-light text-dark border"><i class="bi bi-eye me-1 text-success"></i>Xem mã PIN</span>',
+    'PIN_COPIED': '<span class="badge bg-light text-dark border"><i class="bi bi-clipboard-check me-1 text-success"></i>Sao chép PIN</span>',
+    'PIN_REISSUED': '<span class="badge bg-warning text-dark"><i class="bi bi-key-fill me-1"></i>Cấp lại PIN mới</span>',
+    'CHECKIN_PIN_ISSUED': '<span class="badge bg-success"><i class="bi bi-door-open-fill me-1"></i>Tạo mã Check-in</span>',
+    'PIN_ISSUED_AUTO': '<span class="badge bg-success"><i class="bi bi-shield-check me-1"></i>Kích hoạt tự động</span>',
+    'PIN_REVOKED_CHECKOUT': '<span class="badge bg-secondary"><i class="bi bi-lock-fill me-1"></i>Thu hồi PIN</span>'
+  };
+  tbody.innerHTML = logs.map(function(l) {
+    var dt = new Date(l.time);
+    var timeStr = dt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' ' + dt.toLocaleDateString('vi-VN');
+    return `
+      <tr>
+        <td class="ps-3 font-monospace text-muted" style="font-size:11.5px;">${timeStr}</td>
+        <td>${actionBadgeMap[l.action] || ('<span class="badge bg-secondary">' + l.action + '</span>')}</td>
+        <td class="font-monospace fw-bold" style="color:#14452F;">${l.target}</td>
+        <td><span class="badge font-monospace bg-light text-dark border">${l.maskedPin}</span></td>
+        <td><small class="fw-semibold text-dark">${l.actor}</small></td>
+        <td class="pe-3"><small class="text-muted">${l.note}</small></td>
+      </tr>
+    `;
+  }).join('');
+};
+
+// Render 5 buồng phòng sinh thái với 8 trạng thái chuẩn & bảo mật PIN
+window.renderDuanRoomsGrid = function() {
+  var grid = document.getElementById('duanRoomsGridContainer');
+  if (!grid) return;
+  if (!isAuthenticated() || !canAccessModule('duan')) {
+    grid.innerHTML = '';
+    return;
+  }
+
+  var filterEl = document.getElementById('duanRoomStatusFilterSelect');
+  var statusFilter = filterEl ? filterEl.value : 'ALL';
+  var rooms = getRoomsOpsStore();
+  var filtered = rooms.filter(function(r) {
+    return statusFilter === 'ALL' || r.status === statusFilter;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="col-12">
+        <div class="p-4 text-center bg-white rounded-4 border text-muted">
+          <i class="bi bi-houses fs-3 d-block mb-1 text-success"></i>
+          Không có buồng phòng nào đang ở trạng thái được lọc.
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  var allStatusOptionsHtml = function(curStatus) {
+    return Object.keys(window.KLE_ROOM_STATUS_META).map(function(k) {
+      var m = window.KLE_ROOM_STATUS_META[k];
+      return '<option value="' + k + '" ' + (k === curStatus ? 'selected' : '') + '>' + m.label + '</option>';
+    }).join('');
+  };
+
+  grid.innerHTML = filtered.map(function(r) {
+    var meta = window.KLE_ROOM_STATUS_META[r.status] || window.KLE_ROOM_STATUS_META['READY'];
+    var hasActivePin = meta.hasGuestPin && !!r.pin;
+
+    var pinSectionHtml = '';
+    if (hasActivePin) {
+      pinSectionHtml = `
+        <div class="d-flex justify-content-between align-items-center mb-1.5">
+          <span class="text-muted">Mã PIN Khách Lưu Trú:</span>
+          <div class="d-inline-flex align-items-center gap-1.5">
+            <span class="kle-pin-mask-box" id="room-pin-val-${r.code}">••••••</span>
+            <button type="button" class="kle-pin-eye-btn" onclick="toggleRoomPinVisibility('${r.code}', this)" title="Hiện / Ẩn mã PIN (Ghi nhận Audit Log)">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      pinSectionHtml = `
+        <div class="d-flex justify-content-between align-items-center mb-1.5">
+          <span class="text-muted">Trạng Thái Khóa Khách:</span>
+          <span class="badge bg-white text-secondary border font-monospace" style="font-size:11px;">
+            <i class="bi bi-shield-lock me-1"></i>Chưa kích hoạt PIN khách
+          </span>
+        </div>
+      `;
+    }
+
+    var primaryActionsHtml = '';
+    if (r.status === 'EMPTY' || r.status === 'READY') {
+      // Phòng trống / Đã sẵn sàng: Không hiển thị "Cấp Lại PIN" mặc định; ưu tiên "Tạo Mã Check-in / Giao Phòng"
+      primaryActionsHtml = `
+        <button type="button" class="btn btn-sm btn-success flex-fill rounded-pill fw-bold" onclick="createRoomCheckInCode('${r.code}')">
+          <i class="bi bi-key-fill me-1"></i>Tạo Mã Check-in / Giao Phòng
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5" onclick="openKeypadModal('${r.shortId}')" title="Mô phỏng bàn phím khóa">
+          <i class="bi bi-cpu"></i> Thử Khóa
+        </button>
+      `;
+    } else if (r.status === 'CLEANING' || r.status === 'MAINTENANCE') {
+      primaryActionsHtml = `
+        <button type="button" class="btn btn-sm btn-success flex-fill rounded-pill fw-bold" onclick="updateRoomOpsStatus('${r.code}', 'READY')">
+          <i class="bi bi-check2-circle me-1"></i>Hoàn Tất &amp; Bật Sẵn Sàng
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5" onclick="openKeypadModal('${r.shortId}')">
+          <i class="bi bi-cpu"></i> Thử Khóa
+        </button>
+      `;
+    } else if (r.status === 'BOOKED' || r.status === 'WAITING_CHECKIN') {
+      primaryActionsHtml = `
+        <button type="button" class="btn btn-sm btn-success flex-fill rounded-pill fw-bold" onclick="updateRoomOpsStatus('${r.code}', 'OCCUPIED')">
+          <i class="bi bi-box-arrow-in-right me-1"></i>Check-in
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="reissueRoomPinSecure('${r.code}')">
+          <i class="bi bi-arrow-repeat me-1"></i>Cấp Lại PIN
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="openKeypadModal('${r.shortId}')" title="Thử khóa">
+          <i class="bi bi-cpu"></i>
+        </button>
+      `;
+    } else {
+      // OCCUPIED or WAITING_CHECKOUT
+      primaryActionsHtml = `
+        <button type="button" class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="reissueRoomPinSecure('${r.code}')">
+          <i class="bi bi-arrow-repeat me-1"></i>Cấp Lại PIN
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-warning text-dark flex-fill rounded-pill fw-bold" onclick="updateRoomOpsStatus('${r.code}', 'CLEANING')">
+          <i class="bi bi-box-arrow-right me-1"></i>Check-out
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="openKeypadModal('${r.shortId}')" title="Thử khóa">
+          <i class="bi bi-cpu"></i>
+        </button>
+      `;
+    }
+
+    return `
+      <div class="col-md-6 col-xl-4 d-flex">
+        <div class="kle-room-ops-card w-100" style="border-top: 4px solid ${meta.borderTopColor};">
+          <div class="d-flex justify-content-between align-items-center mb-2 gap-1">
+            <span class="badge rounded-pill px-2.5 py-1" style="font-size:11px; ${meta.badgeStyle}">${meta.label}</span>
+            <span class="badge bg-light text-dark font-monospace border">${r.code}</span>
+          </div>
+          <h6 class="fw-bold text-dark mb-0.5">${r.name}</h6>
+          <p class="small text-muted mb-2">${r.garden}</p>
+
+          <div class="p-2.5 rounded-3 border bg-light mb-2.5 small flex-grow-1">
+            ${pinSectionHtml}
+            <div class="small text-dark mb-1 text-truncate" title="${r.guestName ? (r.guestName + ' (' + r.guestPhone + ')') : r.stayWindow}">
+              <i class="bi ${r.guestName ? 'bi-person-check-fill text-success' : 'bi-info-circle text-muted'} me-1"></i>
+              ${r.guestName ? ('<strong>' + r.guestName + '</strong> (' + r.guestPhone + ')') : '<span class="text-muted">Chưa gán khách lưu trú</span>'}
+            </div>
+            <div class="text-muted text-truncate mb-1.5" style="font-size:11.5px;">
+              <i class="bi bi-calendar3 me-1"></i>${r.stayWindow}
+            </div>
+            <div class="d-flex justify-content-between text-muted pt-1 border-top" style="font-size: 11px;">
+              <span><i class="bi bi-battery-full text-success me-1"></i>Pin: <strong>${r.battery}%</strong></span>
+              <span><i class="bi bi-reception-4 text-success me-1"></i>Zigbee: <strong>${r.signal}</strong></span>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-1.5 mb-2">
+            <label class="small text-muted text-nowrap mb-0" style="font-size:11px;">Trạng thái:</label>
+            <select class="form-select form-select-sm py-0.5 px-2" style="font-size:11.5px;" onchange="updateRoomOpsStatus('${r.code}', this.value)">
+              ${allStatusOptionsHtml(r.status)}
+            </select>
+          </div>
+
+          <div class="d-flex gap-1.5 flex-wrap mt-auto">
+            ${primaryActionsHtml}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+// Hiện / Ẩn mã PIN của Phòng có kiểm tra RBAC và lưu Audit Log
+window.toggleRoomPinVisibility = function(roomCode, btnEl) {
+  if (!isAuthenticated() || !canAccessModule('duan')) {
+    openLoginModal('Chỉ tài khoản được phân quyền Vận Hành Dự Án / Phòng mới được phép xem mã PIN SmartLock.');
+    return;
+  }
+  var rooms = getRoomsOpsStore();
+  var room = rooms.find(function(r) { return r.code === roomCode; });
+  if (!room || !room.pin) return;
+
+  var span = document.getElementById('room-pin-val-' + roomCode);
+  if (!span) return;
+  var icon = btnEl ? btnEl.querySelector('i') : null;
+
+  if (span.getAttribute('data-revealed') === 'true') {
+    span.textContent = '••••••';
+    span.setAttribute('data-revealed', 'false');
+    if (icon) icon.className = 'bi bi-eye';
+  } else {
+    span.textContent = room.pin;
+    span.setAttribute('data-revealed', 'true');
+    if (icon) icon.className = 'bi bi-eye-slash';
+    appendPinAuditLog('PIN_VIEWED', room.code + (room.orderCode ? (' (' + room.orderCode + ')') : ''), room.pin, 'Nhân sự mở xem mã PIN trên thẻ vận hành phòng');
+  }
+};
+
+// Hiện / Ẩn mã PIN của Đơn đặt phòng (trong Đối soát & Tra cứu khóa)
+window.toggleBookingPinVisibility = function(orderCode, targetSpanId, btnEl) {
+  if (!isAuthenticated() || (!canAccessModule('duan') && !canAccessModule('reconciliation'))) {
+    openLoginModal('Chỉ tài khoản có quyền Đối Soát hoặc Vận Hành Phòng mới được phép xem mã PIN.');
+    return;
+  }
+  var bookings = getAllBookings();
+  var b = bookings.find(function(item) { return item.orderCode === orderCode; });
+  if (!b || !b.pin) return;
+
+  var span = document.getElementById(targetSpanId);
+  if (!span) return;
+  var icon = btnEl ? btnEl.querySelector('i') : null;
+
+  if (span.getAttribute('data-revealed') === 'true') {
+    span.textContent = '••••••';
+    span.setAttribute('data-revealed', 'false');
+    if (icon) icon.className = 'bi bi-eye';
+  } else {
+    span.textContent = b.pin;
+    span.setAttribute('data-revealed', 'true');
+    if (icon) icon.className = 'bi bi-eye-slash';
+    appendPinAuditLog('PIN_VIEWED', b.orderCode + ' (' + b.roomName + ')', b.pin, 'Nhân sự mở xem mã PIN đặt phòng');
+  }
+};
+
+// Sao chép mã PIN bảo mật (không nhúng PIN thuần vào DOM)
+window.copyBookingPinSecure = function(orderCode) {
+  if (!isAuthenticated() || (!canAccessModule('duan') && !canAccessModule('reconciliation'))) {
+    openLoginModal('Vui lòng đăng nhập tài khoản có quyền để sao chép mã PIN.');
+    return;
+  }
+  var bookings = getAllBookings();
+  var b = bookings.find(function(item) { return item.orderCode === orderCode; });
+  if (!b || !b.pin) return;
+  if (b.status !== 'CONFIRMED' && b.status !== 'CHECKED_IN') {
+    showKleToast('Đơn phòng chưa xác nhận cọc hoặc đã kết thúc lưu trú, không thể sao chép PIN.', 'warning');
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(b.pin);
+  }
+  appendPinAuditLog('PIN_COPIED', b.orderCode + ' (' + b.roomName + ')', b.pin, 'Sao chép mã PIN để gửi khách lưu trú');
+  showKleToast('Đã sao chép mã PIN bảo mật (' + maskPinForAudit(b.pin) + ') của đơn ' + b.orderCode + ' vào bộ nhớ tạm!', 'success');
+};
+
+// Cấp lại mã PIN mới cho Phòng đang lưu trú / chờ Check-in
+window.reissueRoomPinSecure = function(roomCode) {
+  if (!isAuthenticated() || !canAccessModule('duan')) {
+    openLoginModal('Chỉ tài khoản được phân quyền Vận Hành Dự Án / Phòng mới được phép cấp lại mã PIN.');
+    return;
+  }
+  var rooms = getRoomsOpsStore();
+  var room = rooms.find(function(r) { return r.code === roomCode; });
+  if (!room) return;
+
+  var meta = window.KLE_ROOM_STATUS_META[room.status];
+  if (!meta || !meta.hasGuestPin) {
+    showKleToast('Phòng ' + room.code + ' đang ở trạng thái "' + (meta ? meta.label : room.status) + '", không thể cấp lại PIN khi chưa có khách đặt/lưu trú.', 'warning');
+    return;
+  }
+
+  var newPin = Math.floor(100000 + Math.random() * 900000).toString();
+  room.pin = newPin;
+  saveRoomsOpsStore(rooms);
+
+  // Đồng bộ với booking nếu có gắn mã đơn
+  if (room.orderCode) {
+    var bookings = getAllBookings();
+    var b = bookings.find(function(item) { return item.orderCode === room.orderCode; });
+    if (b) {
+      b.pin = newPin;
+      saveAllBookings(bookings);
+    }
+  }
+
+  appendPinAuditLog('PIN_REISSUED', room.code + (room.orderCode ? (' (' + room.orderCode + ')') : ''), newPin, 'Cấp lại mã PIN 6 số mới và vô hiệu hóa PIN cũ trên Gateway Zigbee');
+  renderDuanOperationsHub();
+  showKleToast('Đã cấp mã PIN mới (' + maskPinForAudit(newPin) + ') cho phòng ' + room.code + ' và ghi nhận vào Audit Log!', 'success');
+};
+
+window.reissueBookingPinSecure = function(orderCode) {
+  if (!isAuthenticated() || !canAccessModule('duan')) {
+    openLoginModal('Chỉ tài khoản được phân quyền mới được phép cấp lại mã PIN.');
+    return;
+  }
+  var bookings = getAllBookings();
+  var b = bookings.find(function(item) { return item.orderCode === orderCode; });
+  if (!b) return;
+  if (b.status !== 'CONFIRMED' && b.status !== 'CHECKED_IN') {
+    showKleToast('Chỉ có thể cấp lại PIN cho đơn phòng đã xác nhận cọc hoặc đang lưu trú.', 'warning');
+    return;
+  }
+  var newPin = Math.floor(100000 + Math.random() * 900000).toString();
+  b.pin = newPin;
+  saveAllBookings(bookings);
+
+  appendPinAuditLog('PIN_REISSUED', b.orderCode + ' (' + b.roomName + ')', newPin, 'Cấp lại mã PIN mới theo yêu cầu của khách lưu trú');
+  renderDuanOperationsHub();
+  if (document.getElementById('duanLookupSearchInput') && document.getElementById('duanLookupSearchInput').value) {
+    handleDuanInlineLookup();
+  }
+  showKleToast('Đã cấp lại mã PIN mới (' + maskPinForAudit(newPin) + ') cho đơn ' + b.orderCode + '!', 'success');
+};
+
+// Tạo mã Check-in / Giao phòng cho phòng đang Trống hoặc Đã sẵn sàng
+window.createRoomCheckInCode = function(roomCode) {
+  if (!isAuthenticated() || !canAccessModule('duan')) {
+    openLoginModal('Vui lòng đăng nhập tài khoản có quyền Vận Hành Phòng.');
+    return;
+  }
+  var rooms = getRoomsOpsStore();
+  var room = rooms.find(function(r) { return r.code === roomCode; });
+  if (!room) return;
+
+  var newPin = Math.floor(100000 + Math.random() * 900000).toString();
+  var newOrderCode = 'KLE-WALKIN-' + Math.floor(100 + Math.random() * 900);
+  room.status = 'WAITING_CHECKIN';
+  room.pin = newPin;
+  room.orderCode = newOrderCode;
+  room.guestName = 'Khách nhận phòng tiêu chuẩn';
+  room.guestPhone = '0905123456';
+  room.stayWindow = '14:00 Hôm nay ➔ 12:00 Ngày mai';
+  saveRoomsOpsStore(rooms);
+
+  appendPinAuditLog('CHECKIN_PIN_ISSUED', room.code + ' (' + newOrderCode + ')', newPin, 'Kích hoạt mã Check-in mới cho phòng sẵn sàng đón khách');
+  renderDuanOperationsHub();
+  showKleToast('Đã chuyển phòng ' + room.code + ' sang "Đang chờ Check-in" và khởi tạo mã PIN bảo mật (' + maskPinForAudit(newPin) + ')!', 'success');
+};
+
+// Cập nhật trạng thái phòng theo đúng quy trình 8 trạng thái
+window.updateRoomOpsStatus = function(roomCode, newStatus) {
+  if (!isAuthenticated() || !canAccessModule('duan')) {
+    openLoginModal('Vui lòng đăng nhập tài khoản có quyền Vận Hành Phòng.');
+    return;
+  }
+  var rooms = getRoomsOpsStore();
+  var room = rooms.find(function(r) { return r.code === roomCode; });
+  if (!room) return;
+  var meta = window.KLE_ROOM_STATUS_META[newStatus];
+  if (!meta) return;
+
+  var oldPin = room.pin;
+  room.status = newStatus;
+
+  if (!meta.hasGuestPin) {
+    // Thu hồi mã PIN khách khi phòng chuyển về Trống / Đã sẵn sàng / Đang vệ sinh / Đang bảo trì
+    if (oldPin) {
+      appendPinAuditLog('PIN_REVOKED_CHECKOUT', room.code, oldPin, 'Thu hồi mã PIN khách khi chuyển sang trạng thái "' + meta.label + '"');
+    }
+    room.pin = null;
+    room.guestName = '';
+    room.guestPhone = '';
+    room.orderCode = '';
+    if (newStatus === 'READY') room.stayWindow = 'Sẵn sàng đón khách nhận phòng mới';
+    else if (newStatus === 'EMPTY') room.stayWindow = 'Phòng trống tiêu chuẩn • Chưa có lịch lưu trú';
+    else if (newStatus === 'CLEANING') room.stayWindow = 'Tổ buồng phòng đang vệ sinh & khử khuẩn thảo mộc';
+    else if (newStatus === 'MAINTENANCE') room.stayWindow = 'Kỹ thuật viên đang kiểm tra bảo trì định kỳ';
+  } else if (!room.pin) {
+    var generatedPin = Math.floor(100000 + Math.random() * 900000).toString();
+    room.pin = generatedPin;
+    if (!room.guestName) {
+      room.guestName = 'Khách lưu trú Kim Long';
+      room.guestPhone = '0905123456';
+    }
+    room.stayWindow = '14:00 Hôm nay ➔ 12:00 Ngày mai';
+    appendPinAuditLog('CHECKIN_PIN_ISSUED', room.code, generatedPin, 'Kích hoạt mã PIN khách khi chuyển sang trạng thái "' + meta.label + '"');
+  }
+
+  saveRoomsOpsStore(rooms);
+  renderDuanOperationsHub();
+  showKleToast('Đã cập nhật trạng thái phòng ' + room.code + ' sang "' + meta.label + '"!', 'success');
+};
+
+// Render trung tâm Vận Hành Dự Án / Phòng (tích hợp 5 Phòng, Giao Phòng, Tra Cứu Khóa & Audit Log)
 window.renderDuanOperationsHub = function() {
   if (!canAccessModule('duan')) return;
+
+  // 0. Render lưới 05 Buồng Phòng Sinh Thái & Khóa SmartLock IoT
+  renderDuanRoomsGrid();
 
   // 1. Render bảng Điều Phối Giao Phòng (Room Delivery)
   var delivBody = document.getElementById('duanDeliveryTableBody');
@@ -9472,18 +10037,47 @@ window.renderDuanOperationsHub = function() {
     }
   }
 
-  // 2. Render bảng Mã PIN SmartLock IoT đang hoạt động
+  // 2. Render bảng Mã PIN SmartLock IoT đang hoạt động (Mặc định ẩn •••••• + Nút con mắt)
   var pinBody = document.getElementById('duanActivePinTableBody');
   if (pinBody && typeof getAllBookings === 'function') {
     var allBookings = getAllBookings();
     pinBody.innerHTML = allBookings.map(function(b) {
-      var isConfirmed = (b.status === 'CONFIRMED' || b.status === 'CHECKED_IN' || b.status === 'COMPLETED');
-      var stBadge = isConfirmed
-        ? '<span class="badge bg-success">Đã Kích Hoạt PIN</span>'
-        : '<span class="badge bg-warning text-dark">Chờ Đối Soát Cọc</span>';
-      var pinDisplay = isConfirmed
-        ? '<span class="badge font-monospace fs-6 px-3 py-1" style="background:#EDF7F2; color:#14452F; border:1px solid #1E6B45;">' + (b.pin || '839201') + '</span>'
-        : '<span class="text-muted small fst-italic">Cấp sau khi cọc 50%</span>';
+      var isPinActive = (b.status === 'CONFIRMED' || b.status === 'CHECKED_IN');
+      var stBadge = '';
+      if (b.status === 'CHECKED_IN') {
+        stBadge = '<span class="badge bg-success"><i class="bi bi-person-check-fill me-1"></i>Đang Lưu Trú (PIN Hiệu Lực)</span>';
+      } else if (b.status === 'CONFIRMED') {
+        stBadge = '<span class="badge" style="background:#D4AF37;color:#14452F;"><i class="bi bi-key-fill me-1"></i>Đã Cọc 50% (Chờ Check-in)</span>';
+      } else if (b.status === 'COMPLETED') {
+        stBadge = '<span class="badge bg-secondary">Đã Check-out (Thu Hồi PIN)</span>';
+      } else {
+        stBadge = '<span class="badge bg-warning text-dark">Chờ Đối Soát Cọc 50%</span>';
+      }
+
+      var pinDisplay = isPinActive
+        ? `<div class="d-inline-flex align-items-center gap-1.5">
+             <span class="kle-pin-mask-box" id="duan-tbl-pin-${b.orderCode}">••••••</span>
+             <button type="button" class="kle-pin-eye-btn" onclick="toggleBookingPinVisibility('${b.orderCode}', 'duan-tbl-pin-${b.orderCode}', this)" title="Hiện / Ẩn mã PIN"><i class="bi bi-eye"></i></button>
+           </div>`
+        : (b.status === 'COMPLETED'
+           ? '<span class="text-muted small fst-italic">Đã hết hiệu lực lưu trú</span>'
+           : '<span class="text-muted small fst-italic">Kích hoạt sau khi cọc 50%</span>');
+
+      var actionCol = isPinActive
+        ? `<div class="d-inline-flex gap-1">
+             <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-0.5 fw-bold" onclick="copyBookingPinSecure('${b.orderCode}')">
+               <i class="bi bi-clipboard-check me-1"></i>Copy PIN
+             </button>
+             <button type="button" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2.5 py-0.5 fw-bold" onclick="reissueBookingPinSecure('${b.orderCode}')">
+               <i class="bi bi-arrow-repeat me-1"></i>Cấp Lại PIN
+             </button>
+             <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0.5" onclick="openKeypadModal()" title="Mô phỏng khóa">
+               <i class="bi bi-cpu"></i>
+             </button>
+           </div>`
+        : `<button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5" onclick="openKeypadModal()">
+             <i class="bi bi-cpu me-1"></i>Thử Khóa
+           </button>`;
 
       return `
         <tr>
@@ -9496,20 +10090,14 @@ window.renderDuanOperationsHub = function() {
           <td><small class="font-monospace text-muted">${b.checkIn} ➔ ${b.checkOut}</small></td>
           <td>${stBadge}</td>
           <td>${pinDisplay}</td>
-          <td class="text-end pe-3">
-            <div class="d-inline-flex gap-1">
-              <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-0.5 fw-bold" onclick="navigator.clipboard.writeText('${b.pin || '839201'}'); alert('Đã sao chép mã PIN: ${b.pin || '839201'}')">
-                <i class="bi bi-clipboard-check me-1"></i>Copy PIN
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5" onclick="openKeypadModal()">
-                <i class="bi bi-cpu me-1"></i>Thử Khóa
-              </button>
-            </div>
-          </td>
+          <td class="text-end pe-3">${actionCol}</td>
         </tr>
       `;
     }).join('');
   }
+
+  // 3. Render bảng Nhật Ký Bảo Mật (Audit Log)
+  renderPinAuditLogs();
 };
 
 // Bộ lọc 3 phân khu con trong Vận Hành Dự Án / Phòng
@@ -9546,8 +10134,9 @@ window.filterDuanSubSection = function(subKey, btnEl) {
   }
 };
 
-// Tra cứu nhanh mã khóa ngay trong phân hệ Vận Hành Dự Án / Phòng
+// Tra cứu nhanh mã khóa ngay trong phân hệ Vận Hành Dự Án / Phòng (Mặc định ẩn mã PIN ••••••)
 window.handleDuanInlineLookup = function() {
+  if (!isAuthenticated() || !canAccessModule('duan')) return;
   var inp = document.getElementById('duanLookupSearchInput');
   var wrap = document.getElementById('duanLookupResultWrap');
   if (!inp || !wrap) return;
@@ -9569,18 +10158,29 @@ window.handleDuanInlineLookup = function() {
 
   wrap.classList.remove('d-none');
   if (found) {
+    var isPinActive = (found.status === 'CONFIRMED' || found.status === 'CHECKED_IN');
     wrap.innerHTML = `
-      <div class="p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-3" style="background: #EDF7F2; border-color: #1E6B45 !important;">
+      <div class="p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-3" style="background: #E8F1E9; border-color: #1E6B45 !important;">
         <div>
           <span class="badge bg-success mb-1">${found.orderCode}</span>
           <h6 class="fw-bold mb-0.5" style="color: #14452F;">${found.roomName} — Khách: ${found.name} (${found.phone})</h6>
           <small class="text-muted">Lưu trú: ${found.checkIn} ➔ ${found.checkOut} • Trạng thái: <strong>${found.status}</strong></small>
         </div>
-        <div class="d-flex align-items-center gap-2">
-          <div class="px-3 py-1.5 rounded-3 bg-white border text-center">
-            <span class="small text-muted d-block" style="font-size:10px;">MÃ PIN SMARTLOCK</span>
-            <strong class="font-monospace fs-5 text-success">${found.pin || '839201'}</strong>
-          </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          ${isPinActive ? `
+            <div class="px-3 py-1.5 rounded-3 bg-white border d-flex align-items-center gap-2">
+              <div>
+                <span class="small text-muted d-block" style="font-size:10px;">MÃ PIN SMARTLOCK</span>
+                <span class="kle-pin-mask-box" id="inline-lookup-pin-${found.orderCode}">••••••</span>
+              </div>
+              <button type="button" class="kle-pin-eye-btn" onclick="toggleBookingPinVisibility('${found.orderCode}', 'inline-lookup-pin-${found.orderCode}', this)" title="Hiện / Ẩn mã PIN"><i class="bi bi-eye"></i></button>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="reissueBookingPinSecure('${found.orderCode}')">
+              <i class="bi bi-arrow-repeat me-1"></i>Cấp Lại PIN
+            </button>
+          ` : `
+            <span class="badge bg-warning text-dark px-3 py-2">Chưa kích hoạt PIN (Chờ cọc / Đã trả phòng)</span>
+          `}
           <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="openKeypadModal()">
             <i class="bi bi-cpu me-1"></i>Mở Khóa Thử
           </button>
