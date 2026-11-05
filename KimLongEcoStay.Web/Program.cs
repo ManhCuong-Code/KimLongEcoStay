@@ -227,11 +227,19 @@ app.MapPost("/authenticate", async (HttpContext context, IUserRepository userRep
     {
         if (username.Equals("admin", StringComparison.OrdinalIgnoreCase) && (password == "123456" || string.IsNullOrEmpty(password)))
         {
-            user = new AppUser { Username = "admin", FullName = "Quản Trị Viên Kim Long EcoStay", Role = "Admin" };
+            user = new AppUser { Username = "admin", FullName = "Trần Mạnh Cường (Admin - CEO)", Role = "Admin" };
         }
         else if ((username.Equals("letan", StringComparison.OrdinalIgnoreCase) || username.Equals("staff", StringComparison.OrdinalIgnoreCase)) && (password == "123456" || string.IsNullOrEmpty(password)))
         {
-            user = new AppUser { Username = "letan", FullName = "Lễ Tân Kim Long EcoStay (Nhân Viên)", Role = "Staff" };
+            user = new AppUser { Username = "letan", FullName = "Đặng Thu Thảo (Lễ Tân)", Role = "Staff" };
+        }
+        else if ((username.Equals("ketoan", StringComparison.OrdinalIgnoreCase) || username.Equals("cfo", StringComparison.OrdinalIgnoreCase)) && (password == "123456" || string.IsNullOrEmpty(password)))
+        {
+            user = new AppUser { Username = "ketoan", FullName = "Lê Thị Mai Lan (Kế Toán Trưởng)", Role = "Accountant" };
+        }
+        else if ((username.Equals("nhansu", StringComparison.OrdinalIgnoreCase) || username.Equals("hr", StringComparison.OrdinalIgnoreCase) || username.Equals("coo", StringComparison.OrdinalIgnoreCase)) && (password == "123456" || string.IsNullOrEmpty(password)))
+        {
+            user = new AppUser { Username = "nhansu", FullName = "Nguyễn Văn An (Nhân Sự / Vận Hành)", Role = "HR" };
         }
         else if (username.Equals("khachhang", StringComparison.OrdinalIgnoreCase) && password == "123456")
         {
@@ -251,13 +259,20 @@ app.MapPost("/authenticate", async (HttpContext context, IUserRepository userRep
 
         if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
         {
-            claims.Add(new Claim(ClaimTypes.Role, "Staff"));
             claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
             claims.Add(new Claim("Department", "Ban Điều Hành & Quản Trị Homestay"));
         }
         else if (user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase))
         {
-            claims.Add(new Claim("Department", "Bộ Phận Tiếp Tân & Kiểm Tra"));
+            claims.Add(new Claim("Department", "Bộ Phận Lễ Tân & Đón Tiếp"));
+        }
+        else if (user.Role.Equals("Accountant", StringComparison.OrdinalIgnoreCase))
+        {
+            claims.Add(new Claim("Department", "Bộ Phận Tài Chính - Kế Toán"));
+        }
+        else if (user.Role.Equals("HR", StringComparison.OrdinalIgnoreCase))
+        {
+            claims.Add(new Claim("Department", "Bộ Phận Nhân Sự & Vận Hành"));
         }
         else
         {
@@ -273,8 +288,12 @@ app.MapPost("/authenticate", async (HttpContext context, IUserRepository userRep
             ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
         });
 
-        // Nhân viên và Admin bắt buộc vào Admin Portal để kiểm tra
-        if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) || user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase) || user.Role.Equals("Administrator", StringComparison.OrdinalIgnoreCase))
+        // Nhân viên và Admin bắt buộc vào Admin Portal
+        if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+            user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase) ||
+            user.Role.Equals("Accountant", StringComparison.OrdinalIgnoreCase) ||
+            user.Role.Equals("HR", StringComparison.OrdinalIgnoreCase) ||
+            user.Role.Equals("Administrator", StringComparison.OrdinalIgnoreCase))
         {
             context.Response.Redirect("/admin");
         }
@@ -289,18 +308,17 @@ app.MapPost("/authenticate", async (HttpContext context, IUserRepository userRep
     context.Response.Redirect("/login?error=invalid");
 }).DisableAntiforgery();
 
-// Endpoint Đăng Nhập Nhanh 1-Click (Quick Login) dành cho Host / Admin / Khách
+// Endpoint Đăng Nhập Nhanh 1-Click (Quick Login) dành cho 4 vai trò RBAC
 app.MapGet("/quick-login", async (string? role, HttpContext context) =>
 {
     string targetRole = (role ?? "admin").Trim().ToLowerInvariant();
     AppUser user = targetRole switch
     {
-        "letan" or "staff" or "nhanvien" => new AppUser { Username = "letan", FullName = "Lễ Tân Kim Long (Nhân Viên)", Role = "Staff" },
-        "ketoan" => new AppUser { Username = "ketoan", FullName = "Trần Minh Khoa (Kế Toán Trưởng - CFO)", Role = "Accountant" },
-        "nhansu" => new AppUser { Username = "nhansu", FullName = "Trần Viết Mạnh Cường (Trưởng Phòng Nhân Sự - COO)", Role = "HR" },
-        "quanly" or "host" => new AppUser { Username = "quanly", FullName = "Trần Thị Thu (Giám Đốc Quản Lý - CEO)", Role = "Manager" },
-        "khachhang" or "customer" => new AppUser { Username = "khachhang", FullName = "Nguyễn Văn An (Khách Hàng)", Role = "Customer" },
-        _ => new AppUser { Username = "admin", FullName = "Quản Trị Viên Kim Long EcoStay", Role = "Admin" }
+        "letan" or "staff" => new AppUser { Username = "letan", FullName = "Đặng Thu Thảo (Lễ Tân)", Role = "Staff" },
+        "ketoan" or "cfo" or "accountant" => new AppUser { Username = "ketoan", FullName = "Lê Thị Mai Lan (Kế Toán Trưởng)", Role = "Accountant" },
+        "nhansu" or "hr" or "coo" or "vanhanh" => new AppUser { Username = "nhansu", FullName = "Nguyễn Văn An (Nhân Sự / Vận Hành)", Role = "HR" },
+        "khachhang" or "customer" => new AppUser { Username = "khachhang", FullName = "Khách Lưu Trú Kim Long", Role = "Customer" },
+        _ => new AppUser { Username = "admin", FullName = "Trần Mạnh Cường (Admin - CEO)", Role = "Admin" }
     };
 
     var claims = new List<Claim>
@@ -313,32 +331,20 @@ app.MapGet("/quick-login", async (string? role, HttpContext context) =>
 
     if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
     {
-        claims.Add(new Claim(ClaimTypes.Role, "Staff"));
         claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
-        claims.Add(new Claim(ClaimTypes.Role, "Manager"));
-        claims.Add(new Claim(ClaimTypes.Role, "HR"));
-        claims.Add(new Claim(ClaimTypes.Role, "Accountant"));
         claims.Add(new Claim("Department", "Ban Điều Hành & Quản Trị Homestay"));
-    }
-    else if (user.Role.Equals("Manager", StringComparison.OrdinalIgnoreCase))
-    {
-        claims.Add(new Claim(ClaimTypes.Role, "Staff"));
-        claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
-        claims.Add(new Claim("Department", "Ban Giám Đốc Điều Hành"));
     }
     else if (user.Role.Equals("HR", StringComparison.OrdinalIgnoreCase))
     {
-        claims.Add(new Claim(ClaimTypes.Role, "Staff"));
-        claims.Add(new Claim("Department", "Bộ Phận Nhân Sự & Tuyển Dụng"));
+        claims.Add(new Claim("Department", "Bộ Phận Nhân Sự & Vận Hành"));
     }
     else if (user.Role.Equals("Accountant", StringComparison.OrdinalIgnoreCase))
     {
-        claims.Add(new Claim(ClaimTypes.Role, "Staff"));
         claims.Add(new Claim("Department", "Bộ Phận Tài Chính - Kế Toán"));
     }
     else if (user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase))
     {
-        claims.Add(new Claim("Department", "Bộ Phận Tiếp Tân & Kiểm Tra"));
+        claims.Add(new Claim("Department", "Bộ Phận Lễ Tân & Đón Tiếp"));
     }
     else
     {
@@ -419,20 +425,52 @@ app.MapGet("/api/tea-services", () =>
     return Results.Ok(teaServices);
 });
 
-// 3. Nhật ký Email giao dịch & audit
+// 2B. Thông tin phân quyền RBAC của người dùng hiện tại
+app.MapGet("/api/rbac/me", (HttpContext context) =>
+{
+    var user = context.User;
+    if (user?.Identity?.IsAuthenticated != true)
+    {
+        return Results.Ok(new { isAuthenticated = false, currentUser = (object?)null, allowedModules = Array.Empty<string>() });
+    }
+
+    string roleClaim = user.FindFirst("UserRole")?.Value ?? user.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
+    string[] allowedModules = roleClaim.ToUpperInvariant() switch
+    {
+        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan" },
+        "STAFF" or "LETAN" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
+        "ACCOUNTANT" or "CFO" => new[] { "dashboard", "reconciliation", "luong", "emaillogs" },
+        "HR" or "COO" or "MANAGER" => new[] { "nhanvien", "duan", "partners-admin" },
+        _ => Array.Empty<string>()
+    };
+
+    return Results.Ok(new
+    {
+        isAuthenticated = allowedModules.Length > 0,
+        currentUser = new
+        {
+            name = user.Identity.Name,
+            username = user.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            role = roleClaim
+        },
+        allowedModules
+    });
+});
+
+// 3. Nhật ký Email giao dịch & audit (Yêu cầu xác thực nội bộ)
 app.MapGet("/api/email-logs", (IEmailService emailService) =>
 {
     return Results.Ok(emailService.GetSentEmailHistory());
-});
+}).RequireAuthorization("StaffOnly");
 
-// 4. Thử lại gửi Email bị lỗi
+// 4. Thử lại gửi Email bị lỗi (Yêu cầu xác thực nội bộ)
 app.MapPost("/api/email-logs/retry/{logId}", async (string logId, IEmailService emailService) =>
 {
     var result = await emailService.RetryEmailAsync(logId);
     return result.IsSuccess 
         ? Results.Ok(new { success = true, message = $"Đã kích hoạt gửi lại email {logId}" }) 
         : Results.NotFound(new { success = false, message = !string.IsNullOrEmpty(result.ErrorDetails) ? result.ErrorDetails : result.StatusMessage });
-});
+}).RequireAuthorization("StaffOnly");
 
 // 5. Webhook thanh toán an toàn (Bảo vệ chống lặp & Xác thực chữ ký số HMAC)
 var processedTransactions = new System.Collections.Concurrent.ConcurrentDictionary<string, DateTime>();

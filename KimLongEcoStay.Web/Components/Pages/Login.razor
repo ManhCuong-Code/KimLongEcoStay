@@ -1,116 +1,86 @@
 @page "/login"
 
-<PageTitle>Đăng Nhập Hệ Thống - Kim Long EcoStay</PageTitle>
+<PageTitle>Đăng Nhập Cổng Điều Hành - Kim Long EcoStay</PageTitle>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
+<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 140px);">
+    <div class="kle-login-card w-100" style="max-width: 460px;">
+        <div class="kle-login-header">
+            <div class="kle-login-icon-ring">
+                <i class="bi bi-shield-lock-fill fs-3" style="color: #D4AF37;"></i>
+            </div>
+            <h5 class="fw-bold font-serif text-white mb-1">Đăng Nhập Cổng Điều Hành</h5>
+            <p class="small mb-0" style="color: rgba(247, 248, 244, 0.8); font-size: 12.5px;">
+                Kim Long EcoStay • Xác thực phân quyền theo vai trò
+            </p>
+        </div>
 
-            <!-- Banner giải thích rõ cấu trúc phân quyền -->
-            <div class="alert alert-info border-0 shadow-sm rounded-3 mb-4 p-3">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-info-circle-fill text-primary fs-3 me-3"></i>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-primary">Cấu Trúc Phân Quyền Hệ Thống Kim Long EcoStay</h6>
-                        <ul class="mb-0 ps-3 small text-secondary">
-                            <li><strong>Khách hàng:</strong> Có thể đặt phòng trực tuyến ngay <em>mà không cần đăng nhập</em>, hoặc đăng nhập để quản lý lịch sử cá nhân.</li>
-                            <li><strong>Nhân viên / Quản trị:</strong> <em>Bắt buộc phải đăng nhập</em> để vào hệ thống kiểm tra đơn đặt phòng, duyệt cọc và quản lý buồng phòng.</li>
-                        </ul>
-                    </div>
+        <div class="kle-login-body">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-warning border-warning d-flex align-items-center rounded-3 small py-2 px-3 mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>@errorMessage</div>
+                </div>
+            }
+
+            <form method="post" action="/authenticate" id="loginForm" data-enhance="false" autocomplete="off">
+                <AntiforgeryToken />
+                <div class="mb-3">
+                    <label class="form-label small fw-bold mb-1" style="color: #26352B;">
+                        <i class="bi bi-person-fill me-1" style="color: #14452F;"></i>Tên Đăng Nhập / Email
+                    </label>
+                    <input type="text" id="usernameInput" name="username" class="form-control kle-login-input"
+                           placeholder="Nhập tên đăng nhập hoặc email công vụ" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold mb-1" style="color: #26352B;">
+                        <i class="bi bi-key-fill me-1" style="color: #14452F;"></i>Mật Khẩu
+                    </label>
+                    <input type="password" id="passwordInput" name="password" class="form-control kle-login-input"
+                           placeholder="Nhập mật khẩu điều hành" required />
+                </div>
+
+                <button type="submit" class="btn kle-btn-login-primary w-100 mb-3">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Đăng Nhập Hệ Thống
+                </button>
+            </form>
+
+            <div class="border-top pt-3" style="border-color: #DDE5DF !important;">
+                <div class="small fw-bold mb-2 text-center" style="color: #26352B; font-size: 11.5px; letter-spacing: 0.4px;">
+                    <i class="bi bi-lightning-charge-fill me-1" style="color: #D4AF37;"></i>ĐĂNG NHẬP NHANH MÔ PHỎNG VAI TRÒ (RBAC):
+                </div>
+                <div class="kle-quick-role-grid">
+                    <a href="quick-login?role=admin" class="kle-role-sim-btn text-decoration-none">
+                        <span>👑</span>
+                        <div>
+                            <div class="fw-bold" style="font-size: 12px;">Admin (CEO)</div>
+                            <small class="text-muted d-block" style="font-size: 10px;">Toàn quyền 9 phân hệ</small>
+                        </div>
+                    </a>
+                    <a href="quick-login?role=letan" class="kle-role-sim-btn text-decoration-none">
+                        <span>🛎️</span>
+                        <div>
+                            <div class="fw-bold" style="font-size: 12px;">Lễ Tân</div>
+                            <small class="text-muted d-block" style="font-size: 10px;">5 phân hệ &amp; Giao phòng</small>
+                        </div>
+                    </a>
+                    <a href="quick-login?role=ketoan" class="kle-role-sim-btn text-decoration-none">
+                        <span>💰</span>
+                        <div>
+                            <div class="fw-bold" style="font-size: 12px;">Kế Toán Trưởng</div>
+                            <small class="text-muted d-block" style="font-size: 10px;">4 phân hệ Tài chính</small>
+                        </div>
+                    </a>
+                    <a href="quick-login?role=nhansu" class="kle-role-sim-btn text-decoration-none">
+                        <span>📋</span>
+                        <div>
+                            <div class="fw-bold" style="font-size: 12px;">Nhân Sự / Vận Hành</div>
+                            <small class="text-muted d-block" style="font-size: 10px;">3 phân hệ NS &amp; Phòng</small>
+                        </div>
+                    </a>
                 </div>
             </div>
-
-            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
-                <div class="card-header bg-dark text-white text-center py-4">
-                    <div class="badge bg-warning text-dark px-3 py-2 mb-2 fw-bold text-uppercase">
-                        <i class="bi bi-shield-lock-fill me-1"></i>Xác Thực & Phân Quyền
-                    </div>
-                    <h4 class="mb-0 fw-bold">Đăng Nhập Hệ Thống</h4>
-                    <p class="small text-white-50 mb-0 mt-1">Hệ thống đặt phòng trực tuyến Kim Long EcoStay (Cố Đô Huế)</p>
-                </div>
-
-                <div class="card-body p-4 p-md-5">
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        <div class="alert alert-danger d-flex align-items-center rounded-3">
-                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-                            <div>@errorMessage</div>
-                        </div>
-                    }
-
-                    <!-- HTML Form POST tới Minimal API /authenticate (Set Cookie Authentication) -->
-                    <!-- data-enhance="false" bắt buộc để trình duyệt thực hiện Full HTTP POST & Cookie Set thay vì AJAX fetch -->
-                    <form method="post" action="/authenticate" id="loginForm" data-enhance="false">
-                        <AntiforgeryToken />
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-dark">Tên Đăng Nhập / Tài Khoản:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-person-circle text-muted"></i></span>
-                                <input type="text" id="usernameInput" name="username" class="form-control border-start-0" 
-                                       placeholder="Ví dụ: letan hoặc admin" required />
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-dark">Mật Khẩu:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-key-fill text-muted"></i></span>
-                                <input type="password" id="passwordInput" name="password" class="form-control border-start-0" 
-                                       placeholder="Mật khẩu: 123456" required />
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3 shadow-sm mb-3">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Đăng Nhập Vào Hệ Thống
-                        </button>
-                    </form>
-
-                    <!-- Khung Đăng Nhập Nhanh 1-Click Cực Tiện Lợi Cho Chấm Điểm & Kiểm Thử -->
-                    <div class="p-3 mb-3 bg-light rounded-3 border text-center">
-                        <div class="small fw-bold text-dark mb-2">
-                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Truy Cập Nhanh 1-Click (Không Cần Nhập Mật Khẩu):
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            <a href="quick-login?role=admin" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-2 shadow-sm rounded-pill flex-fill">
-                                <i class="bi bi-shield-check me-1"></i>Vào Admin Portal (Quản Trị)
-                            </a>
-                            <a href="quick-login?role=letan" class="btn btn-sm btn-success fw-bold px-3 py-2 shadow-sm rounded-pill flex-fill">
-                                <i class="bi bi-person-badge me-1"></i>Vào Host Portal (Lễ Tân)
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Nút quay lại đặt phòng cho khách không cần đăng nhập -->
-                    <div class="text-center pt-2 border-top">
-                        <span class="text-muted small">Bạn là khách du lịch muốn đặt phòng nhanh?</span>
-                        <div class="mt-2">
-                            <a href="products" class="btn btn-outline-success btn-sm fw-bold px-3 py-2 rounded-pill">
-                                <i class="bi bi-calendar-check me-1"></i>Đặt Phòng Ngay (Không Cần Đăng Nhập)
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tài khoản thử nghiệm nhanh cho giáo viên / người chấm -->
-                <div class="card-footer bg-light p-3">
-                    <div class="fw-bold small text-muted mb-2"><i class="bi bi-stars text-warning me-1"></i>Điền sẵn thông tin mẫu (Mật khẩu chung: <code>123456</code>):</div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-warning text-dark flex-fill" 
-                                onclick="document.getElementById('usernameInput').value='letan'; document.getElementById('passwordInput').value='123456';">
-                            <i class="bi bi-person-badge me-1"></i><strong>letan</strong> (Nhân Viên)
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-primary flex-fill" 
-                                onclick="document.getElementById('usernameInput').value='admin'; document.getElementById('passwordInput').value='123456';">
-                            <i class="bi bi-shield-check me-1"></i><strong>admin</strong> (Quản Trị)
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-info text-dark flex-fill" 
-                                onclick="document.getElementById('usernameInput').value='khachhang'; document.getElementById('passwordInput').value='123456';">
-                            <i class="bi bi-person me-1"></i><strong>khachhang</strong> (Khách Đã ĐK)
-                        </button>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
@@ -132,7 +102,7 @@
         }
         else if (error == "denied")
         {
-            errorMessage = "Bạn cần đăng nhập với vai trò Nhân Viên hoặc Quản Trị để truy cập khu vực này!";
+            errorMessage = "Vui lòng đăng nhập với vai trò được cấp quyền để truy cập phân hệ quản trị!";
         }
     }
 }

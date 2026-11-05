@@ -59,13 +59,12 @@
 
 <body>
 
-<div class="d-flex flex-column min-vh-100" b-w21kv7vhyh><nav class="navbar navbar-expand-xl navbar-dark kle-navbar px-3 px-lg-4 py-2 sticky-top shadow"><div class="container-fluid"><a class="brand-badge" href="./" onclick="navigateToRoute(''); return false;"><img src="images/logo.jpg" alt="Kim Long EcoStay" class="brand-logo-img" onerror="this.src='favicon.png'">
+<div class="d-flex flex-column min-vh-100" b-w21kv7vhyh><nav class="navbar navbar-expand-xl navbar-dark kle-navbar px-3 px-lg-4 py-2 fixed-top shadow"><div class="container-fluid"><a class="brand-badge" href="./" onclick="navigateToRoute(''); return false;"><img src="images/logo.jpg" alt="Kim Long EcoStay" class="brand-logo-img" onerror="this.src='favicon.png'">
             <div><span class="brand-text-title">Kim Long EcoStay</span>
                 <span class="brand-text-sub">Nhà Vườn Sinh Thái • Huế</span></div></a>
 
         
         <div class="d-flex align-items-center d-xl-none ms-auto me-2">
-            <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2 py-1 me-1 text-warning border-warning" onclick="openOrderTrackingModal()" title="Theo dõi đơn giao phòng"><i class="bi bi-bell-fill"></i></button>
             <a href="javascript:void(0)" onclick="openShoppingCartModal()" class="kle-cart-nav-btn text-decoration-none position-relative" title="Xem giỏ hàng"><div class="kle-cart-icon-box"><i class="bi bi-cart3 fs-6"></i></div><span class="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle rounded-pill" id="mobileCartBadge">0</span></a>
         </div>
 
@@ -78,9 +77,7 @@
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#specialties" onclick="scrollToSection('specialties'); return false;"><i class="bi bi-basket2-fill me-1 text-warning"></i>Sản Phẩm & Đặc Sản</a></li>
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#heritage-map" onclick="scrollToSection('heritage-map'); return false;"><i class="bi bi-map-fill me-1" style="color: #FCD34D;"></i>Bản Đồ Nhà Vườn</a></li>
                 <li class="nav-item"><a class="nav-link kle-nav-item" href="#local-partners" onclick="scrollToSection('local-partners'); return false;"><i class="bi bi-diagram-3-fill me-1" style="color: #6EE7B7;"></i>Đối Tác Địa Phương</a></li>
-                <li class="nav-item"><a class="nav-link kle-nav-item" href="#royal-tea" onclick="scrollToSection('royal-tea'); return false;"><i class="bi bi-cup-hot-fill me-1 text-info"></i>Trà Cung Đình</a></li>
-                <li class="nav-item"><a href="javascript:void(0)" onclick="openOrderTrackingModal()" class="nav-link kle-nav-item fw-bold text-warning" title="Theo dõi tiến trình đơn giao tận phòng"><i class="bi bi-bell-fill me-1"></i>Giao Phòng</a></li>
-                <li class="nav-item"><a href="lookup" onclick="navigateToRoute('lookup'); return false;" class="nav-link kle-nav-item fw-bold text-warning"><i class="bi bi-key-fill me-1"></i>Tra Cứu Khóa</a></li>
+                <li class="nav-item"><a class="nav-link kle-nav-item" href="#royal-tea" onclick="scrollToSection('royal-tea'); return false;"><i class="bi bi-cup-hot-fill me-1 text-warning"></i>Trà Cung Đình</a></li>
             </ul>
 
             <ul class="navbar-nav ms-auto align-items-xl-center gap-2">
@@ -103,7 +100,7 @@
                 </li>
 
                 <li class="nav-item" id="topNavAuthItem">
-                    <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" href="login" onclick="navigateToRoute('login'); return false;">
+                    <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" href="login" onclick="openLoginModal(); return false;">
                         <i class="bi bi-person me-1"></i>Đăng Nhập
                     </a>
                 </li>
@@ -134,9 +131,9 @@
                 <button type="button" class="btn btn-warning fw-bold text-dark px-4 py-2 rounded-pill shadow-sm" onclick="scrollToSection('rooms')">
                     <i class="bi bi-door-open-fill me-1"></i>Xem Phòng & Đặt Ngay
                 </button>
-                <a href="javascript:void(0)" onclick="openLookupModal()" class="btn btn-outline-light fw-semibold px-3 py-2 rounded-pill shadow-sm">
-                    <i class="bi bi-key-fill text-warning me-1"></i>Tra Cứu Mã Khóa
-                </a>
+                <button type="button" onclick="scrollToSection('specialties')" class="btn btn-outline-light fw-semibold px-3 py-2 rounded-pill shadow-sm">
+                    <i class="bi bi-basket2-fill text-warning me-1"></i>Khám Phá Đặc Sản Huế
+                </button>
                 <a href="ai-assistant" onclick="navigateToRoute('ai-assistant'); return false;" class="btn btn-outline-success fw-semibold px-3 py-2 rounded-pill shadow-sm text-white" style="border-color: #6EE7B7; background: rgba(110, 231, 183, 0.15);">
                     <i class="bi bi-robot text-success me-1"></i>Hỏi Trợ Lý AI
                 </a>
@@ -149,7 +146,7 @@
                     <button type="button" class="btn btn-sm rounded-pill fw-bold px-3 btn-light text-muted"><i class="bi bi-lightning-charge-fill me-1"></i>⚡ Thuê Theo Giờ (Tiết kiệm từ 150k)
                     </button></div>
 
-                <a href="javascript:void(0)" onclick="openLookupModal()" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold"><i class="bi bi-key-fill text-warning me-1"></i>Tra Cứu Đơn & Lấy Mã PIN Khóa Phòng
+                <a href="javascript:void(0)" onclick="scrollToSection('heritage-map')" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold"><i class="bi bi-map-fill text-warning me-1"></i>Bản Đồ Nhà Vườn & Đối Tác Kim Long
                 </a></div><div class="row g-3 align-items-end"><div class="col-lg-3 col-md-6"><label class="widget-label"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Khu Vực Nhà Vườn</label>
                         <select class="widget-input" value=""><option value>🌿 Tất cả nhà vườn Kim Long</option>
                             <option value="H&#x1B0;&#x1A1;ng Sen">Nhà Vườn Hương Sen (View lúa & Sông)</option>
@@ -373,7 +370,7 @@
                 </span></div>
 
             <a href="javascript:void(0)" onclick="openBookingModal('5', 'Heritage Studio Trầm Mặc (KLE-R203)', 590000, 'Nhà Vườn Nguyệt Biều', 'images/nha_ruong_2.jpg')" class="btn-book-room shadow-sm"><span>Xem chi tiết</span>
-                <i class="bi bi-arrow-right"></i></a></div></div></div></div><div class="my-5 pt-3" id="gallery"><div class="section-heading-wrap mb-4"><span class="section-tag"><i class="bi bi-camera-fill me-1"></i>HÌNH ẢNH THỰC TẾ 100%</span>
+                <i class="bi bi-arrow-right"></i></a></div></div></div></div><div class="my-5 pt-4" id="gallery" style="scroll-margin-top: 96px;"><div class="section-heading-wrap mb-4"><span class="section-tag"><i class="bi bi-camera-fill me-1"></i>HÌNH ẢNH THỰC TẾ 100%</span>
             <h2 class="section-main-title">Thư Viện Không Gian Buồng Phòng Sinh Thái Kim Long</h2>
             <p class="section-main-sub">
                 Chiêm ngưỡng từng góc phòng ngủ hữu cơ, bồn ngâm chân thảo mộc, ban công ngắm hoàng hôn sông Hương và vườn bưởi Thanh Trà di sản.
@@ -693,7 +690,7 @@
             </div>
           </div>
           <div class="d-flex gap-2">
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="openAdminPortalModal('specialties-admin')">
+            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold kle-admin-shortcut-btn d-none" data-rbac-module="specialties-admin" onclick="openAdminPortalModal('specialties-admin')">
               <i class="bi bi-gear-fill me-1"></i>Quản Lý Sản Phẩm (Admin)
             </button>
             <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openShoppingCartModal()">
@@ -1211,7 +1208,7 @@
                     <span class="badge bg-warning-subtle text-dark border border-warning rounded-pill px-3 py-2">
                         <i class="bi bi-info-circle-fill text-warning me-1"></i>Dữ liệu mẫu minh họa mô hình liên kết
                     </span>
-                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill fw-bold px-3" onclick="openAdminModalTab('partners-admin')">
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill fw-bold px-3 kle-admin-shortcut-btn d-none" data-rbac-module="partners-admin" onclick="openAdminModalTab('partners-admin')">
                         <i class="bi bi-gear-fill me-1"></i>Quản lý đối tác (Admin)
                     </button>
                 </div>
@@ -2282,9 +2279,12 @@
     <script>
         window.scrollToSection = function(id) {
             var el = document.getElementById(id);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            if (!el) return;
+            var nav = document.querySelector('.kle-navbar');
+            var navHeight = nav ? Math.max(84, nav.offsetHeight + 18) : 92;
+            var rect = el.getBoundingClientRect();
+            var targetY = window.pageYOffset + rect.top - navHeight;
+            window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
         };
     </script>
 <!-- =========================================================================
@@ -2504,7 +2504,7 @@
                 <button type="button" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm" onclick="simulateSuccessfulReconciliation()">
                   <i class="bi bi-patch-check-fill me-1 text-warning"></i>Xác Nhận Đã Nhận Cọc (Mô Phỏng Đối Soát Thành Công)
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="openAdminReconciliationTab()">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 kle-admin-shortcut-btn d-none" data-rbac-module="reconciliation" onclick="openAdminReconciliationTab()">
                   <i class="bi bi-shield-lock me-1"></i>Mở Admin Portal Duyệt Thủ Công
                 </button>
               </div>
@@ -3243,108 +3243,195 @@
 
 
 <!-- ========================================================================= -->
-<!-- 7. ADMIN PORTAL MODAL (DASHBOARD, NHÂN VIÊN, TIỀN LƯƠNG, DỰ ÁN, LOGIN) -->
+<!-- 6B. MODAL ĐĂNG NHẬP CỔNG ĐIỀU HÀNH (CHÍNH GIỮA MÀN HÌNH, TỐI ĐA 460PX)    -->
+<!-- ========================================================================= -->
+<div class="modal fade" id="kleLoginModal" tabindex="-1" aria-labelledby="kleLoginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content kle-login-card border-0">
+      <div class="kle-login-header">
+        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Đóng" onclick="onCloseLoginModal()"></button>
+        <div class="kle-login-emblem">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <div class="mb-1">
+          <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: #D4AF37; color: #14452F; font-size: 11px;">
+            CỔNG ĐIỀU HÀNH NỘI BỘ • RBAC
+          </span>
+        </div>
+        <h5 class="fw-bold font-serif text-white mb-1" id="kleLoginModalLabel">Đăng Nhập Cổng Điều Hành</h5>
+        <p class="small mb-0" style="color: rgba(247, 248, 244, 0.8); font-size: 12.5px;">
+          Kim Long EcoStay • Xác thực phân quyền theo vai trò
+        </p>
+      </div>
+
+      <div class="kle-login-body">
+        <div id="kleLoginAlertBox" class="alert alert-warning border-warning small py-2 px-3 rounded-3 mb-3 d-none">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          <span id="kleLoginAlertText">Vui lòng đăng nhập để tiếp tục.</span>
+        </div>
+
+        <form id="klePortalLoginForm" onsubmit="handleAdminLogin(event)" autocomplete="off">
+          <div class="mb-3">
+            <label for="adminLoginUser" class="form-label small fw-bold mb-1" style="color: #26352B;">
+              <i class="bi bi-person-fill me-1" style="color: #14452F;"></i>Tài Khoản / Tên Đăng Nhập
+            </label>
+            <input type="text" id="adminLoginUser" class="form-control kle-login-input" placeholder="Nhập tên đăng nhập hoặc email công vụ" required>
+          </div>
+          <div class="mb-3">
+            <label for="adminLoginPass" class="form-label small fw-bold mb-1" style="color: #26352B;">
+              <i class="bi bi-key-fill me-1" style="color: #14452F;"></i>Mật Khẩu Xác Thực
+            </label>
+            <input type="password" id="adminLoginPass" class="form-control kle-login-input" placeholder="Nhập mật khẩu điều hành" required>
+          </div>
+          <button type="submit" class="btn kle-btn-login-primary w-100 mb-3">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống
+          </button>
+        </form>
+
+        <div class="border-top pt-3" style="border-color: #DDE5DF !important;">
+          <div class="small fw-bold mb-2 text-center" style="color: #26352B; font-size: 11.5px; letter-spacing: 0.4px;">
+            <i class="bi bi-lightning-charge-fill me-1" style="color: #D4AF37;"></i>ĐĂNG NHẬP NHANH MÔ PHỎNG VAI TRÒ (KIỂM THỬ RBAC):
+          </div>
+          <div class="kle-quick-role-grid">
+            <button type="button" class="kle-role-sim-btn" onclick="quickLoginRole('ADMIN')">
+              <span>👑</span>
+              <div>
+                <div class="fw-bold" style="font-size: 12px;">Admin (CEO)</div>
+                <small class="text-muted d-block" style="font-size: 10px;">Toàn quyền 9 phân hệ</small>
+              </div>
+            </button>
+            <button type="button" class="kle-role-sim-btn" onclick="quickLoginRole('RECEPTIONIST')">
+              <span>🛎️</span>
+              <div>
+                <div class="fw-bold" style="font-size: 12px;">Lễ Tân</div>
+                <small class="text-muted d-block" style="font-size: 10px;">5 phân hệ & Giao phòng</small>
+              </div>
+            </button>
+            <button type="button" class="kle-role-sim-btn" onclick="quickLoginRole('ACCOUNTANT')">
+              <span>💰</span>
+              <div>
+                <div class="fw-bold" style="font-size: 12px;">Kế Toán Trưởng</div>
+                <small class="text-muted d-block" style="font-size: 10px;">4 phân hệ Tài chính</small>
+              </div>
+            </button>
+            <button type="button" class="kle-role-sim-btn" onclick="quickLoginRole('HR_OPS')">
+              <span>📋</span>
+              <div>
+                <div class="fw-bold" style="font-size: 12px;">Nhân Sự / Vận Hành</div>
+                <small class="text-muted d-block" style="font-size: 10px;">3 phân hệ NS & Phòng</small>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 7. ADMIN PORTAL DASHBOARD (SIDEBAR DỌC BÊN TRÁI + MAIN CONTENT BÊN PHẢI)  -->
 <!-- ========================================================================= -->
 <div class="modal fade" id="adminPortalModal" tabindex="-1" aria-labelledby="adminPortalModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
-    <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden" style="background: #F8FAFC;">
-      <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #0A3D2C 0%, #14533D 100%); border-bottom: 2px solid #D4AF37;">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content kle-admin-modal-content border-0">
+      <!-- Topbar Quản Trị (Chỉ hiển thị thông tin người dùng & IoT sau khi đã xác thực) -->
+      <div class="kle-admin-topbar">
         <div class="d-flex align-items-center gap-3">
-          <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; background: rgba(212, 175, 55, 0.2); border: 2px solid #D4AF37;">
-            <i class="bi bi-shield-lock-fill fs-4" style="color: #FDE047;"></i>
-          </div>
+          <button type="button" class="kle-sidebar-toggle-btn" id="adminSidebarToggleBtn" onclick="toggleAdminSidebar()" title="Thu gọn / Mở rộng menu quản trị">
+            <i class="bi bi-layout-sidebar-inset"></i>
+          </button>
           <div>
-            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-              <span class="badge rounded-pill fw-bold" style="background: #D4AF37; color: #0A3D2C;">HỆ THỐNG ĐIỀU HÀNH</span>
-              <span class="badge bg-success bg-opacity-25 text-white border border-success rounded-pill px-2">
-                <i class="bi bi-cpu-fill me-1 text-warning"></i>5 Khóa IoT Online
+            <div class="d-flex align-items-center gap-2 mb-0.5 flex-wrap">
+              <span class="badge rounded-pill fw-bold" style="background: #D4AF37; color: #14452F; font-size: 11px;">
+                <i class="bi bi-shield-lock-fill me-1"></i>HỆ THỐNG ĐIỀU HÀNH RBAC
               </span>
-              <span id="adminSessionBadge" class="badge bg-primary rounded-pill px-2">
-                <i class="bi bi-person-check-fill me-1"></i>Trần Mạnh Cường (Admin)
-              </span>
+              <!-- Khu vực trạng thái chỉ hiển thị khi đã đăng nhập -->
+              <div id="adminAuthHeaderBadges" class="d-none d-inline-flex align-items-center gap-2 flex-wrap">
+                <span id="adminIotStatusBadge" class="badge rounded-pill px-2.5 py-1" style="background: rgba(30, 107, 69, 0.85); border: 1px solid #D4AF37; color: #FFFFFF;">
+                  <i class="bi bi-cpu-fill me-1" style="color: #D4AF37;"></i>5 Khóa IoT Online
+                </span>
+                <span id="adminSessionBadge" class="badge rounded-pill px-2.5 py-1" style="background: #F7F8F4; color: #14452F; font-weight: 700;"></span>
+                <span id="adminRoleBadge" class="badge rounded-pill px-2.5 py-1" style="background: #D4AF37; color: #14452F; font-weight: 800;"></span>
+              </div>
             </div>
-            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="adminPortalModalLabel">
-              Trung Tâm Quản Trị & Vận Hành Kim Long EcoStay
+            <h5 class="modal-title font-serif fw-bold text-white mb-0" id="adminPortalModalLabel" style="font-size: 17px;">
+              Trung Tâm Quản Trị &amp; Vận Hành Kim Long EcoStay
             </h5>
           </div>
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng" onclick="onCloseAdminModal()"></button>
+
+        <div class="d-flex align-items-center gap-2">
+          <div id="adminAuthHeaderActions" class="d-none d-inline-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-bold" style="background: rgba(220, 38, 38, 0.9); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.3);" onclick="handleGlobalLogout()" title="Đăng xuất và xóa phiên làm việc">
+              <i class="bi bi-box-arrow-right me-1"></i>Đăng Xuất
+            </button>
+          </div>
+          <button type="button" class="btn-close btn-close-white ms-1" data-bs-dismiss="modal" aria-label="Đóng" onclick="onCloseAdminModal()"></button>
+        </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="px-4 pt-3 pb-2 bg-white border-bottom shadow-sm">
-        <ul class="nav nav-pills nav-fill gap-2 flex-wrap" id="adminPortalNavTabs" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2 active" id="tab-btn-reconciliation" data-bs-toggle="pill" data-bs-target="#tab-pane-reconciliation" type="button" role="tab" onclick="onAdminTabSwitch('reconciliation')">
-              <i class="bi bi-cash-coin text-warning fs-5"></i>
-              <span>Đối Soát Cọc & Phòng</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-specialties-admin" data-bs-toggle="pill" data-bs-target="#tab-pane-specialties-admin" type="button" role="tab" onclick="onAdminTabSwitch('specialties-admin')">
-              <i class="bi bi-basket2-fill text-danger fs-5"></i>
-              <span>Sản Phẩm &amp; Đặc Sản</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-partners-admin" data-bs-toggle="pill" data-bs-target="#tab-pane-partners-admin" type="button" role="tab" onclick="onAdminTabSwitch('partners-admin')">
-              <i class="bi bi-geo-alt-fill text-success fs-5"></i>
-              <span>Đối Tác &amp; Bản Đồ</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-tea-admin" data-bs-toggle="pill" data-bs-target="#tab-pane-tea-admin" type="button" role="tab" onclick="onAdminTabSwitch('tea-admin')">
-              <i class="bi bi-cup-hot-fill text-success fs-5"></i>
-              <span>Trà Cung Đình</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-emaillogs" data-bs-toggle="pill" data-bs-target="#tab-pane-emaillogs" type="button" role="tab" onclick="onAdminTabSwitch('emaillogs')">
-              <i class="bi bi-envelope-paper-heart-fill text-info fs-5"></i>
-              <span>Nhật Ký Email & Giao Dịch</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-dashboard" data-bs-toggle="pill" data-bs-target="#tab-pane-dashboard" type="button" role="tab" onclick="onAdminTabSwitch('dashboard')">
-              <i class="bi bi-graph-up-arrow text-success fs-5"></i>
-              <span>Dashboard Tài Chính</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-nhanvien" data-bs-toggle="pill" data-bs-target="#tab-pane-nhanvien" type="button" role="tab" onclick="onAdminTabSwitch('nhanvien')">
-              <i class="bi bi-people-fill text-primary fs-5"></i>
-              <span>Quản Lý Nhân Viên</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-luong" data-bs-toggle="pill" data-bs-target="#tab-pane-luong" type="button" role="tab" onclick="onAdminTabSwitch('luong')">
-              <i class="bi bi-cash-stack text-warning fs-5"></i>
-              <span>Quản Lý Tiền Lương</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-duan" data-bs-toggle="pill" data-bs-target="#tab-pane-duan" type="button" role="tab" onclick="onAdminTabSwitch('duan')">
-              <i class="bi bi-kanban text-info fs-5"></i>
-              <span>Vận Hành Dự Án / Phòng</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold py-2 px-3 text-start d-flex align-items-center gap-2" id="tab-btn-login" data-bs-toggle="pill" data-bs-target="#tab-pane-login" type="button" role="tab" onclick="onAdminTabSwitch('login')">
-              <i class="bi bi-person-lock text-danger fs-5"></i>
-              <span>Đăng Nhập Quản Trị</span>
-            </button>
-          </li>
-        </ul>
-      </div>
+      <!-- Bố cục chính: Sidebar dọc bên trái + Main Content bên phải -->
+      <div class="kle-admin-workspace d-none" id="adminWorkspaceContainer">
+        <!-- LEFT SIDEBAR -->
+        <aside class="kle-admin-sidebar" id="kleAdminSidebar">
+          <div id="adminSidebarNavContainer" class="py-2">
+            <!-- Được tạo tự động theo cấu hình RBAC của vai trò đang đăng nhập -->
+          </div>
 
-      <!-- Tab Content Panes -->
-      <div class="modal-body p-4 bg-light">
-        <div class="tab-content" id="adminPortalTabContent">
+          <div class="kle-sidebar-footer">
+            <div class="kle-sidebar-role-switcher mb-2">
+              <div class="small fw-bold mb-1.5" style="color: #D4AF37; font-size: 10.5px; letter-spacing: 0.5px;">
+                <i class="bi bi-person-gear me-1"></i>CHUYỂN NHANH VAI TRÒ (RBAC):
+              </div>
+              <div class="d-grid gap-1" style="grid-template-columns: repeat(2, 1fr);">
+                <button type="button" class="btn btn-sm py-1 px-2 text-start rounded-2 fw-bold" style="font-size: 11px; background: rgba(255,255,255,0.1); color: #F7F8F4; border: 1px solid rgba(212,175,55,0.35);" onclick="quickLoginRole('ADMIN')">👑 Admin</button>
+                <button type="button" class="btn btn-sm py-1 px-2 text-start rounded-2 fw-bold" style="font-size: 11px; background: rgba(255,255,255,0.1); color: #F7F8F4; border: 1px solid rgba(212,175,55,0.35);" onclick="quickLoginRole('RECEPTIONIST')">🛎️ Lễ Tân</button>
+                <button type="button" class="btn btn-sm py-1 px-2 text-start rounded-2 fw-bold" style="font-size: 11px; background: rgba(255,255,255,0.1); color: #F7F8F4; border: 1px solid rgba(212,175,55,0.35);" onclick="quickLoginRole('ACCOUNTANT')">💰 Kế Toán</button>
+                <button type="button" class="btn btn-sm py-1 px-2 text-start rounded-2 fw-bold" style="font-size: 11px; background: rgba(255,255,255,0.1); color: #F7F8F4; border: 1px solid rgba(212,175,55,0.35);" onclick="quickLoginRole('HR_OPS')">📋 Nhân Sự</button>
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm w-100 rounded-2 py-1 d-none d-lg-flex align-items-center justify-content-center gap-2" style="background: rgba(212, 175, 55, 0.15); color: #D4AF37; border: 1px solid rgba(212, 175, 55, 0.35); font-size: 12px; font-weight: 600;" onclick="toggleAdminSidebar()">
+              <i class="bi bi-arrows-angle-contract" id="adminSidebarCollapseIcon"></i>
+              <span class="kle-sidebar-collapse-text">Thu Gọn Menu</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- RIGHT MAIN CONTENT -->
+        <div class="kle-admin-main" id="kleAdminMainContent">
+          <!-- Thông báo phân quyền RBAC nếu chuyển hướng tự động -->
+          <div id="adminRbacNoticeAlert" class="alert alert-warning border-warning d-flex align-items-center justify-content-between py-2 px-3 rounded-3 mb-3 d-none small">
+            <div>
+              <i class="bi bi-shield-exclamation me-2"></i>
+              <span id="adminRbacNoticeText"></span>
+            </div>
+            <button type="button" class="btn-close btn-sm" onclick="document.getElementById('adminRbacNoticeAlert').classList.add('d-none')"></button>
+          </div>
+
+          <!-- Header tiêu đề & mô tả của phân hệ đang chọn -->
+          <div class="kle-admin-module-header" id="adminModuleHeaderBar">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: #14452F; color: #D4AF37; font-size: 20px;">
+                <i class="bi bi-cash-coin" id="adminCurrentModuleIcon"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0.5" style="color: #14452F; font-size: 17px;" id="adminCurrentModuleTitle">Đối Soát Cọc &amp; Phòng</h5>
+                <p class="small mb-0" style="color: #526358;" id="adminCurrentModuleDesc">Kiểm tra biên lai cọc 50% VietQR, duyệt phòng và cấp mã PIN SmartLock tự động</p>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge rounded-pill px-3 py-1.5" style="background: #EDF7F2; color: #14452F; border: 1px solid #1E6B45; font-size: 11.5px;" id="adminCurrentModuleRoleTag">
+                <i class="bi bi-check-circle-fill me-1"></i>Được cấp quyền truy cập
+              </span>
+            </div>
+          </div>
+
+          <div class="tab-content" id="adminPortalTabContent">
 
           <!-- =========================================================================
                TAB 1: ĐỐI SOÁT CỌC & PHÒNG (RECONCILIATION & 50% DEPOSIT DISPATCH)
                ========================================================================= -->
-          <div class="tab-pane fade show active" id="tab-pane-reconciliation" role="tabpanel">
+          <div class="tab-pane fade" id="tab-pane-reconciliation" role="tabpanel">
             <!-- Thống kê tài chính & đối soát -->
             <div class="row g-3 mb-4">
               <div class="col-xl-3 col-md-6">
@@ -4305,187 +4392,297 @@
             </div>
           </div>
 
-          <!-- 4. VẬN HÀNH DỰ ÁN / BUỒNG PHÒNG & KHÓA IOT -->
+          <!-- 4. VẬN HÀNH DỰ ÁN / BUỒNG PHÒNG, ĐIỀU PHỐI GIAO PHÒNG & TRA CỨU KHÓA IOT -->
           <div class="tab-pane fade" id="tab-pane-duan" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-              <div>
-                <h6 class="fw-bold font-serif text-dark mb-0"><i class="bi bi-kanban text-info me-2"></i>Tình Trạng 05 Buồng Phòng Sinh Thái & Khóa Thông Minh SmartLock IoT</h6>
-                <small class="text-muted">Cấp mã PIN tự động trong 10 giây qua Zalo & đồng bộ đám mây Hub Zigbee</small>
-              </div>
-              <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="alert('Đã làm mới dữ liệu trạng thái khóa IoT từ Gateway Kim Long!')">
-                <i class="bi bi-arrow-repeat me-1"></i>Làm Mới IoT Hub
-              </button>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-md-6 col-xl-4">
-                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-success">ĐÃ SẴN SÀNG</span>
-                    <span class="badge bg-light text-dark font-monospace">KLE-R101</span>
-                  </div>
-                  <h6 class="fw-bold text-dark mb-1">Eco-Nest Ban Mai</h6>
-                  <p class="small text-muted mb-2">Nhà Vườn Hương Sen (View lúa & sông Hương)</p>
-                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span>Mã PIN Hiện Tại:</span>
-                      <strong class="font-monospace text-success fs-6">839201</strong>
-                    </div>
-                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                      <span>Pin Khóa: <strong>99%</strong></span>
-                      <span>Tín Hiệu: <strong>-48 dBm (Tốt)</strong></span>
-                    </div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill" onclick="alert('Đã cấp lại mã PIN mới cho phòng KLE-R101!')">Cấp Lại PIN</button>
-                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('101')">Thử Khóa</button>
-                  </div>
+            <!-- Sub-navigation cho phân hệ Vận Hành Dự Án / Phòng -->
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white mb-4">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex flex-wrap gap-2" id="duanSubNavGroup">
+                  <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold duan-subnav-btn" data-sub="ALL" onclick="filterDuanSubSection('ALL', this)">
+                    <i class="bi bi-grid-1x2-fill me-1"></i>Tất Cả Nghiệp Vụ Vận Hành
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold duan-subnav-btn" data-sub="ROOMS" onclick="filterDuanSubSection('ROOMS', this)">
+                    <i class="bi bi-house-gear-fill me-1"></i>05 Buồng Phòng &amp; Khóa IoT
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold duan-subnav-btn" data-sub="DELIVERY" onclick="filterDuanSubSection('DELIVERY', this)">
+                    <i class="bi bi-bicycle me-1"></i>Giao Phòng (Room Delivery)
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold duan-subnav-btn" data-sub="LOOKUP" onclick="filterDuanSubSection('LOOKUP', this)">
+                    <i class="bi bi-key-fill me-1"></i>Tra Cứu Khóa &amp; Mã PIN
+                  </button>
                 </div>
-              </div>
-
-              <div class="col-md-6 col-xl-4">
-                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-warning">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-warning text-dark">ĐANG CÓ KHÁCH</span>
-                    <span class="badge bg-light text-dark font-monospace">KLE-R102</span>
-                  </div>
-                  <h6 class="fw-bold text-dark mb-1">Eco-Nest Hoàng Hôn</h6>
-                  <p class="small text-muted mb-2">Nhà Vườn Hương Sen (View ráng chiều)</p>
-                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span>Mã PIN Hiện Tại:</span>
-                      <strong class="font-monospace text-primary fs-6">512940</strong>
-                    </div>
-                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                      <span>Pin Khóa: <strong>95%</strong></span>
-                      <span>Tín Hiệu: <strong>-52 dBm (Tốt)</strong></span>
-                    </div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-warning flex-fill rounded-pill text-dark" onclick="alert('Khách trả phòng: Đã gửi mã dọn dẹp cho tổ buồng phòng!')">Check-out</button>
-                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('102')">Thử Khóa</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-xl-4">
-                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-info">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-info text-white">ĐÃ DỌN DẸP</span>
-                    <span class="badge bg-light text-dark font-monospace">KLE-R201</span>
-                  </div>
-                  <h6 class="fw-bold text-dark mb-1">Garden Suite Cố Đô Thanh Trà</h6>
-                  <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Vườn bưởi 40 năm)</p>
-                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span>Mã PIN Hiện Tại:</span>
-                      <strong class="font-monospace text-success fs-6">724819</strong>
-                    </div>
-                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                      <span>Pin Khóa: <strong>97%</strong></span>
-                      <span>Tín Hiệu: <strong>-46 dBm (Tốt)</strong></span>
-                    </div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill" onclick="alert('Đã sẵn sàng đón tiếp khách!')">Bật Sẵn Sàng</button>
-                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('201')">Thử Khóa</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-xl-4">
-                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-primary">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-primary">ĐÃ ĐẶT TRƯỚC</span>
-                    <span class="badge bg-light text-dark font-monospace">KLE-R202</span>
-                  </div>
-                  <h6 class="fw-bold text-dark mb-1">Family Eco-Villa Gắn Kết</h6>
-                  <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Biệt thự sân vườn)</p>
-                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span>Mã PIN Hiện Tại:</span>
-                      <strong class="font-monospace text-primary fs-6">395104</strong>
-                    </div>
-                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                      <span>Pin Khóa: <strong>92%</strong></span>
-                      <span>Tín Hiệu: <strong>-55 dBm (Ổn định)</strong></span>
-                    </div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-success flex-fill rounded-pill" onclick="alert('Đã gửi mã PIN Zalo nhắc khách giờ nhận phòng 14:00!')">Gửi Zalo PIN</button>
-                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('202')">Thử Khóa</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-xl-4">
-                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-success">ĐÃ SẴN SÀNG</span>
-                    <span class="badge bg-light text-dark font-monospace">KLE-R203</span>
-                  </div>
-                  <h6 class="fw-bold text-dark mb-1">Heritage Studio Trầm Mặc</h6>
-                  <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Độc bản văn hóa)</p>
-                  <div class="alert alert-light border p-2 rounded-3 mb-2 small">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span>Mã PIN Hiện Tại:</span>
-                      <strong class="font-monospace text-success fs-6">608372</strong>
-                    </div>
-                    <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
-                      <span>Pin Khóa: <strong>98%</strong></span>
-                      <span>Tín Hiệu: <strong>-49 dBm (Tốt)</strong></span>
-                    </div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-primary flex-fill rounded-pill" onclick="alert('Đã làm mới mã PIN cho Heritage Studio!')">Cấp Lại PIN</button>
-                    <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('203')">Thử Khóa</button>
-                  </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="renderDuanOperationsHub(); alert('Đã đồng bộ dữ liệu Vận hành Phòng, Giao phòng & Gateway SmartLock IoT!');">
+                    <i class="bi bi-arrow-repeat me-1"></i>Đồng Bộ Vận Hành
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- 5. ĐĂNG NHẬP QUẢN TRỊ -->
-          <div class="tab-pane fade" id="tab-pane-login" role="tabpanel">
-            <div class="row justify-content-center">
-              <div class="col-md-8 col-lg-6">
-                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
-                  <div class="text-center mb-4">
-                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-2" style="background: rgba(10, 61, 44, 0.1);">
-                      <i class="bi bi-shield-lock-fill fs-2" style="color: #0A3D2C;"></i>
+            <!-- PHẦN 4A: TÌNH TRẠNG 05 BUỒNG PHÒNG SINH THÁI & KHÓA SMARTLOCK IOT -->
+            <div id="duanRoomsSection" class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                  <h6 class="fw-bold font-serif mb-0" style="color: #14452F;"><i class="bi bi-houses-fill me-2" style="color: #1E6B45;"></i>1. Tình Trạng 05 Buồng Phòng Sinh Thái &amp; Khóa Thông Minh SmartLock IoT</h6>
+                  <small class="text-muted">Cấp mã PIN tự động trong 10 giây qua Zalo &amp; đồng bộ đám mây Hub Zigbee</small>
+                </div>
+                <span class="badge rounded-pill px-3 py-1.5" style="background: #EDF7F2; color: #14452F; border: 1px solid #1E6B45;">
+                  <i class="bi bi-wifi me-1"></i>Gateway Zigbee 3.0 Online (5/5 Khóa)
+                </span>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6 col-xl-4">
+                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge bg-success">ĐÃ SẴN SÀNG</span>
+                      <span class="badge bg-light text-dark font-monospace">KLE-R101</span>
                     </div>
-                    <h5 class="fw-bold font-serif text-dark mb-1">Đăng Nhập Cổng Điều Hành</h5>
-                    <p class="small text-muted mb-0">Hệ thống phân quyền bảo mật cho ban quản trị và nhân sự</p>
+                    <h6 class="fw-bold text-dark mb-1">Eco-Nest Ban Mai</h6>
+                    <p class="small text-muted mb-2">Nhà Vườn Hương Sen (View lúa &amp; sông Hương)</p>
+                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span>Mã PIN Hiện Tại:</span>
+                        <strong class="font-monospace text-success fs-6">839201</strong>
+                      </div>
+                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                        <span>Pin Khóa: <strong>99%</strong></span>
+                        <span>Tín Hiệu: <strong>-48 dBm (Tốt)</strong></span>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="alert('Đã cấp lại mã PIN mới cho phòng KLE-R101!')">Cấp Lại PIN</button>
+                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('101')">Thử Khóa</button>
+                    </div>
                   </div>
+                </div>
 
-                  <form onsubmit="handleAdminLogin(event)">
-                    <div class="mb-3">
-                      <label class="form-label small fw-bold text-muted">Tên Đăng Nhập / Email</label>
-                      <input type="text" id="adminLoginUser" class="form-control rounded-3" value="admin" required>
+                <div class="col-md-6 col-xl-4">
+                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-warning">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge bg-warning text-dark">ĐANG CÓ KHÁCH</span>
+                      <span class="badge bg-light text-dark font-monospace">KLE-R102</span>
                     </div>
-                    <div class="mb-3">
-                      <label class="form-label small fw-bold text-muted">Mật Khẩu</label>
-                      <input type="password" id="adminLoginPass" class="form-control rounded-3" value="123456" required>
+                    <h6 class="fw-bold text-dark mb-1">Eco-Nest Hoàng Hôn</h6>
+                    <p class="small text-muted mb-2">Nhà Vườn Hương Sen (View ráng chiều)</p>
+                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span>Mã PIN Hiện Tại:</span>
+                        <strong class="font-monospace text-success fs-6">512940</strong>
+                      </div>
+                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                        <span>Pin Khóa: <strong>95%</strong></span>
+                        <span>Tín Hiệu: <strong>-52 dBm (Tốt)</strong></span>
+                      </div>
                     </div>
-                    <button type="submit" class="btn btn-success w-100 rounded-pill py-2 fw-bold mb-3 shadow-sm">
-                      <i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-warning flex-fill rounded-pill text-dark fw-bold" onclick="alert('Khách trả phòng: Đã gửi mã dọn dẹp cho tổ buồng phòng!')">Check-out</button>
+                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('102')">Thử Khóa</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4">
+                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge" style="background: #1E6B45; color: #FFFFFF;">ĐÃ DỌN DẸP</span>
+                      <span class="badge bg-light text-dark font-monospace">KLE-R201</span>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Garden Suite Cố Đô Thanh Trà</h6>
+                    <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Vườn bưởi 40 năm)</p>
+                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span>Mã PIN Hiện Tại:</span>
+                        <strong class="font-monospace text-success fs-6">724819</strong>
+                      </div>
+                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                        <span>Pin Khóa: <strong>97%</strong></span>
+                        <span>Tín Hiệu: <strong>-46 dBm (Tốt)</strong></span>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="alert('Đã sẵn sàng đón tiếp khách!')">Bật Sẵn Sàng</button>
+                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('201')">Thử Khóa</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4">
+                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-warning">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge" style="background: #D4AF37; color: #14452F;">ĐÃ ĐẶT TRƯỚC</span>
+                      <span class="badge bg-light text-dark font-monospace">KLE-R202</span>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Family Eco-Villa Gắn Kết</h6>
+                    <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Biệt thự sân vườn)</p>
+                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span>Mã PIN Hiện Tại:</span>
+                        <strong class="font-monospace text-success fs-6">395104</strong>
+                      </div>
+                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                        <span>Pin Khóa: <strong>92%</strong></span>
+                        <span>Tín Hiệu: <strong>-55 dBm (Ổn định)</strong></span>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="alert('Đã gửi mã PIN Zalo nhắc khách giờ nhận phòng 14:00!')">Gửi Zalo PIN</button>
+                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('202')">Thử Khóa</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4">
+                  <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-top border-4 border-success">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge bg-success">ĐÃ SẴN SÀNG</span>
+                      <span class="badge bg-light text-dark font-monospace">KLE-R203</span>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Heritage Studio Trầm Mặc</h6>
+                    <p class="small text-muted mb-2">Nhà Vườn Nguyệt Biều (Độc bản văn hóa)</p>
+                    <div class="alert alert-light border p-2 rounded-3 mb-2 small">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span>Mã PIN Hiện Tại:</span>
+                        <strong class="font-monospace text-success fs-6">608372</strong>
+                      </div>
+                      <div class="d-flex justify-content-between text-muted" style="font-size: 11.5px;">
+                        <span>Pin Khóa: <strong>98%</strong></span>
+                        <span>Tín Hiệu: <strong>-49 dBm (Tốt)</strong></span>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-success flex-fill rounded-pill fw-bold" onclick="alert('Đã làm mới mã PIN cho Heritage Studio!')">Cấp Lại PIN</button>
+                      <button class="btn btn-sm btn-outline-secondary flex-fill rounded-pill" onclick="openKeypadModal('203')">Thử Khóa</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PHẦN 4B: ĐIỀU PHỐI GIAO PHÒNG (ROOM DELIVERY DISPATCH & TRACKING) -->
+            <div id="duanDeliverySection" class="mb-4">
+              <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div>
+                    <h6 class="fw-bold font-serif mb-0" style="color: #14452F;">
+                      <i class="bi bi-bicycle me-2" style="color: #1E6B45;"></i>2. Nghiệp Vụ Giao Phòng (Room Delivery &amp; Theo Dõi Đơn Phục Vụ Tận Phòng)
+                    </h6>
+                    <small class="text-muted">Chức năng nội bộ điều phối giao món ăn, trà cung đình &amp; đặc sản tới 5 phòng EcoStay</small>
+                  </div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="openOrderTrackingModal()">
+                      <i class="bi bi-search me-1"></i>Mở Cửa Sổ Tra Cứu Giao Phòng
                     </button>
-                  </form>
-
-                  <div class="border-top pt-3">
-                    <div class="small text-muted fw-bold mb-2 text-center">HOẶC ĐĂNG NHẬP NHANH (MÔ PHỎNG VAI TRÒ):</div>
-                    <div class="d-flex flex-wrap gap-2 justify-content-center">
-                      <button class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="quickLoginAs('Trần Mạnh Cường (Admin)', 'CEO')">👑 Admin (CEO)</button>
-                      <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="quickLoginAs('Đặng Thu Thảo (Lễ Tân)', 'Staff')">🛎️ Lễ Tân</button>
-                      <button class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3" onclick="quickLoginAs('Lê Thị Mai Lan (CFO)', 'CFO')">💰 Kế Toán Trưởng</button>
-                      <button class="btn btn-sm btn-outline-info text-dark rounded-pill px-3" onclick="quickLoginAs('Nguyễn Văn An (COO)', 'COO')">📋 Nhân Sự / Vận Hành</button>
+                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="renderDuanOperationsHub()">
+                      <i class="bi bi-arrow-clockwise me-1"></i>Cập Nhật Đơn Giao Phòng
+                    </button>
+                  </div>
+                </div>
+                <div class="p-3 bg-light border-bottom">
+                  <div class="row g-2 align-items-center">
+                    <div class="col-md-7">
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="bi bi-search text-success"></i></span>
+                        <input type="text" id="duanDeliverySearchInput" class="form-control" placeholder="Tìm theo mã phòng (KLE-R101...), tên khách, SĐT hoặc mã đơn (KLE-ORD-...)..." oninput="renderDuanOperationsHub()">
+                      </div>
                     </div>
+                    <div class="col-md-5 text-md-end small text-muted">
+                      <i class="bi bi-info-circle me-1 text-success"></i>Cập nhật trạng thái trực tiếp: <strong>Chờ tiếp nhận → Đang chuẩn bị → Đang giao phòng → Hoàn tất</strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                    <thead class="table-light">
+                      <tr>
+                        <th class="ps-4">Mã Đơn / Thời Gian</th>
+                        <th>Khách Lưu Trú / SĐT</th>
+                        <th>Phòng Giao Tới</th>
+                        <th>Khung Giờ &amp; Ghi Chú</th>
+                        <th>Danh Sách Món / Đặc Sản</th>
+                        <th>Tổng Thanh Toán</th>
+                        <th>Trạng Thái Giao Phòng</th>
+                        <th class="text-end pe-4">Điều Phối Nhanh</th>
+                      </tr>
+                    </thead>
+                    <tbody id="duanDeliveryTableBody">
+                      <!-- Rendered dynamically by renderDuanOperationsHub() -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- PHẦN 4C: TRA CỨU KHÓA & MÃ PIN SMARTLOCK NỘI BỘ -->
+            <div id="duanLookupSection" class="mb-2">
+              <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div>
+                    <h6 class="fw-bold font-serif mb-0" style="color: #14452F;">
+                      <i class="bi bi-key-fill me-2" style="color: #D4AF37;"></i>3. Tra Cứu Khóa &amp; Cấp Mã PIN SmartLock IoT Nội Bộ
+                    </h6>
+                    <small class="text-muted">Tra cứu nhanh mã đặt phòng, SĐT khách lưu trú, kiểm tra mã PIN 6 số và mở trình mô phỏng khóa vật lý</small>
+                  </div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="openLookupModal()">
+                      <i class="bi bi-box-arrow-up-right me-1"></i>Mở Hộp Thoại Tra Cứu Khóa
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="openKeypadModal('102')">
+                      <i class="bi bi-cpu me-1"></i>Mở Bàn Phím SmartLock IoT
+                    </button>
+                  </div>
+                </div>
+
+                <div class="p-4">
+                  <div class="row g-3 align-items-end mb-3">
+                    <div class="col-md-8">
+                      <label class="form-label small fw-bold" style="color: #14452F;">Nhập Mã Đặt Phòng (Booking Code) hoặc Số Điện Thoại Khách Hàng:</label>
+                      <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-shield-lock-fill text-success"></i></span>
+                        <input type="text" id="duanLookupSearchInput" class="form-control font-monospace" placeholder="VD: KLE-893204, KLE-2026-001, 0905123456, R102..." oninput="handleDuanInlineLookup()">
+                        <button class="btn btn-success fw-bold px-4" type="button" onclick="handleDuanInlineLookup()">
+                          <i class="bi bi-search me-1"></i>Tra Cứu Mã Khóa
+                        </button>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="d-flex flex-wrap gap-1.5">
+                        <span class="small text-muted w-100 mb-1">Tra cứu mẫu nhanh:</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='KLE-893204'; handleDuanInlineLookup();">KLE-893204 (Đã cọc)</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='KLE-551920'; handleDuanInlineLookup();">KLE-551920 (Chờ cọc)</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='0905123456'; handleDuanInlineLookup();">SĐT 0905123456</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Kết quả tra cứu nhanh -->
+                  <div id="duanLookupResultWrap" class="mb-3 d-none"></div>
+
+                  <!-- Bảng tổng hợp Mã Khóa PIN đang hiệu lực -->
+                  <div class="table-responsive border rounded-3">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                      <thead class="table-light">
+                        <tr>
+                          <th class="ps-3">Mã Đặt Phòng</th>
+                          <th>Khách Hàng / SĐT</th>
+                          <th>Buồng Phòng</th>
+                          <th>Nhận Phòng - Trả Phòng</th>
+                          <th>Trạng Thái Cọc</th>
+                          <th>Mã PIN SmartLock (6 Số)</th>
+                          <th class="text-end pe-3">Thao Tác Khóa</th>
+                        </tr>
+                      </thead>
+                      <tbody id="duanActivePinTableBody">
+                        <!-- Rendered dynamically by renderDuanOperationsHub() -->
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
+          </div>
         </div>
       </div>
     </div>
@@ -5447,7 +5644,7 @@ window.renderSpecialties = function() {
           <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="resetSpecialtyFilters()">
             <i class="bi bi-arrow-counterclockwise me-1"></i>Xem Tất Cả 30 Sản Phẩm
           </button>
-          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="openAdminModalTab('specialties-admin')">
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 kle-admin-shortcut-btn d-none" data-rbac-module="specialties-admin" onclick="openAdminModalTab('specialties-admin')">
             <i class="bi bi-plus-circle me-1"></i>Quản trị viên thêm sản phẩm
           </button>
         </div>
@@ -6850,6 +7047,7 @@ function generateEmailTemplate4(b) {
 // MỤC 5: TRANG QUẢN LÝ DÀNH CHO QUẢN TRỊ VIÊN (ADMIN PORTAL RENDERING)
 // =========================================================================
 window.renderAdminReconciliationList = function() {
+  if (typeof canAccessModule === 'function' && !canAccessModule('reconciliation')) return;
   var tbody = document.getElementById('adminReconciliationTableBody');
   if (!tbody) return;
 
@@ -6957,6 +7155,7 @@ window.saveAdminDepositRatio = function() {
 };
 
 window.renderAdminSpecialties = function() {
+  if (typeof canAccessModule === 'function' && !canAccessModule('specialties-admin')) return;
   var tbody = document.getElementById('adminSpecialtiesTableBody');
   if (!tbody) return;
 
@@ -7235,6 +7434,7 @@ window.advanceOrderStatus = function(orderCode, targetStatus) {
 
   localStorage.setItem('kle_specialty_orders', JSON.stringify(orders));
   renderAdminOrdersTable();
+  if (typeof renderDuanOperationsHub === 'function') renderDuanOperationsHub();
   if (typeof renderAdminSpecialties === 'function') {
     var b = document.getElementById('adminSpecialtyOrdersBadge');
     if (b) b.textContent = orders.length + ' Đơn';
@@ -7274,6 +7474,7 @@ window.cancelAdminSpecialtyOrder = function(orderCode) {
 
   localStorage.setItem('kle_specialty_orders', JSON.stringify(orders));
   renderAdminOrdersTable();
+  if (typeof renderDuanOperationsHub === 'function') renderDuanOperationsHub();
   renderAdminSpecialties();
   renderSpecialties();
   alert('Đã hủy đơn ' + orderCode + ' và hoàn trả tồn kho vào danh mục sản phẩm!');
@@ -7509,6 +7710,7 @@ function syncAllPartnerViews() {
 }
 
 window.renderAdminPartners = function() {
+  if (typeof canAccessModule === 'function' && !canAccessModule('partners-admin')) return;
   var tbody = document.getElementById('adminPartnersTableBody');
   if (!tbody) return;
 
@@ -7809,20 +8011,15 @@ window.resetDefaultPartnersStore = function() {
 };
 
 window.openAdminModalTab = function(tabKey) {
-  if (!isStaffAuthorized()) {
-    // Tự động kích hoạt phiên Admin mẫu nếu người dùng nhấn nút Quản lý trực tiếp để kiểm thử thuận tiện
-    localStorage.setItem('kle_session', JSON.stringify({
-      username: 'admin',
-      name: 'Trần Mạnh Cường (Admin)',
-      role: 'Admin',
-      loggedInAt: new Date().toISOString()
-    }));
-    syncNavbarSession();
+  if (!isAuthenticated()) {
+    openLoginModal('Vui lòng đăng nhập tài khoản quản trị hoặc nhân sự được phân quyền để truy cập phân hệ này.');
+    return;
   }
-  openAdminPortalModal(tabKey || 'specialties-admin');
+  openAdminPortalModal(tabKey || getFirstAllowedModule());
 };
 
 window.renderAdminTea = function() {
+  if (typeof canAccessModule === 'function' && !canAccessModule('tea-admin')) return;
   var tbody = document.getElementById('adminTeaServicesTableBody');
   if (!tbody) return;
 
@@ -7904,6 +8101,7 @@ window.confirmTeaBooking = function(code) {
 };
 
 window.renderAdminEmailLogs = function() {
+  if (typeof canAccessModule === 'function' && !canAccessModule('emaillogs')) return;
   var tbody = document.getElementById('adminEmailLogsTableBody');
   if (!tbody) return;
 
@@ -8080,9 +8278,17 @@ function playTone(freq, duration) {
 // 4. LOOKUP MODAL
 // =========================================================================
 window.openLookupModal = function() {
+  if (!isAuthenticated()) {
+    openLoginModal('Chức năng Tra Cứu Khóa & Mã PIN SmartLock thuộc phân hệ nội bộ Vận Hành Dự Án / Phòng. Vui lòng đăng nhập tài khoản có quyền.');
+    return;
+  }
+  if (!canAccessModule('duan')) {
+    openAdminPortalModal('duan');
+    return;
+  }
   document.getElementById('lookupInput').value = '';
   document.getElementById('lookupResult').classList.add('d-none');
-  var modal = new bootstrap.Modal(document.getElementById('lookupModal'));
+  var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('lookupModal'));
   modal.show();
 };
 
@@ -8636,79 +8842,762 @@ function wireHeritageCardButtons() {
 }
 
 // =========================================================================
-// 7. SESSION & TOPBAR AUTHORIZATION MANAGEMENT
+// 7. HỆ THỐNG PHÂN QUYỀN TẬP TRUNG (RBAC), XÁC THỰC & ADMIN SIDEBAR ENGINE
 // =========================================================================
+
+// Danh mục 09 phân hệ quản trị nội bộ Kim Long EcoStay
+window.KLE_MODULES_CATALOG = {
+  'reconciliation': {
+    id: 'reconciliation',
+    title: 'Đối Soát Cọc & Phòng',
+    icon: 'bi-cash-coin',
+    group: 'NGHIỆP VỤ KINH DOANH & LƯU TRÚ',
+    desc: 'Kiểm tra biên lai cọc 50% VietQR, duyệt phòng và cấp mã PIN SmartLock tự động'
+  },
+  'specialties-admin': {
+    id: 'specialties-admin',
+    title: 'Sản Phẩm & Đặc Sản',
+    icon: 'bi-basket2-fill',
+    group: 'NGHIỆP VỤ KINH DOANH & LƯU TRÚ',
+    desc: 'Quản lý danh mục 30 đặc sản, tồn kho, giá bán và đơn đặt phục vụ buồng phòng'
+  },
+  'partners-admin': {
+    id: 'partners-admin',
+    title: 'Đối Tác & Bản Đồ',
+    icon: 'bi-geo-alt-fill',
+    group: 'NGHIỆP VỤ KINH DOANH & LƯU TRÚ',
+    desc: 'Quản lý mạng lưới nhà vườn, làng nghề, quán ăn địa phương và tọa độ GPS bản đồ số'
+  },
+  'tea-admin': {
+    id: 'tea-admin',
+    title: 'Trà Cung Đình',
+    icon: 'bi-cup-hot-fill',
+    group: 'NGHIỆP VỤ KINH DOANH & LƯU TRÚ',
+    desc: 'Quản lý gói trải nghiệm thưởng trà Cung Đình Huế và duyệt lịch đặt bàn trà'
+  },
+  'emaillogs': {
+    id: 'emaillogs',
+    title: 'Nhật Ký Email & Giao Dịch',
+    icon: 'bi-envelope-check-fill',
+    group: 'TÀI CHÍNH & ĐỐI SOÁT HỆ THỐNG',
+    desc: 'Theo dõi lịch sử tự động gửi 4 mẫu Email xác nhận đặt phòng, cọc và tất toán'
+  },
+  'dashboard': {
+    id: 'dashboard',
+    title: 'Dashboard Tài Chính',
+    icon: 'bi-bar-chart-line-fill',
+    group: 'TÀI CHÍNH & ĐỐI SOÁT HỆ THỐNG',
+    desc: 'Báo cáo doanh thu, chi phí vận hành, lợi nhuận ròng (EBITDA) và công suất phòng'
+  },
+  'luong': {
+    id: 'luong',
+    title: 'Quản Lý Tiền Lương',
+    icon: 'bi-wallet2',
+    group: 'TÀI CHÍNH & ĐỐI SOÁT HỆ THỐNG',
+    desc: 'Bảng tính lương, phụ cấp ca trực, thưởng KPI doanh thu và phiếu chi lương nhân sự'
+  },
+  'nhanvien': {
+    id: 'nhanvien',
+    title: 'Quản Lý Nhân Viên',
+    icon: 'bi-people-fill',
+    group: 'NHÂN SỰ & VẬN HÀNH NỘI BỘ',
+    desc: 'Hồ sơ nhân sự, phân ca trực lễ tân - buồng phòng và đánh giá hiệu suất làm việc'
+  },
+  'duan': {
+    id: 'duan',
+    title: 'Vận Hành Dự Án / Phòng',
+    icon: 'bi-buildings-fill',
+    group: 'NHÂN SỰ & VẬN HÀNH NỘI BỘ',
+    desc: 'Quản lý trạng thái 05 phòng sinh thái, Điều phối Giao Phòng và Tra Cứu Khóa SmartLock IoT'
+  }
+};
+
+// Cấu hình RBAC tập trung cho 4 vai trò chuẩn
+window.KLE_RBAC_CONFIG = {
+  'ADMIN': {
+    roleKey: 'ADMIN',
+    username: 'admin',
+    defaultName: 'Trần Mạnh Cường',
+    roleTitle: 'Admin (CEO)',
+    badgeTitle: '👑 Admin (CEO)',
+    allowedModules: [
+      'reconciliation',
+      'specialties-admin',
+      'partners-admin',
+      'tea-admin',
+      'emaillogs',
+      'dashboard',
+      'nhanvien',
+      'luong',
+      'duan'
+    ]
+  },
+  'RECEPTIONIST': {
+    roleKey: 'RECEPTIONIST',
+    username: 'letan',
+    defaultName: 'Đặng Thu Thảo',
+    roleTitle: 'Lễ Tân',
+    badgeTitle: '🛎️ Lễ Tân',
+    allowedModules: [
+      'reconciliation',
+      'duan',
+      'specialties-admin',
+      'tea-admin',
+      'emaillogs'
+    ]
+  },
+  'ACCOUNTANT': {
+    roleKey: 'ACCOUNTANT',
+    username: 'ketoan',
+    defaultName: 'Lê Thị Mai Lan',
+    roleTitle: 'Kế Toán Trưởng',
+    badgeTitle: '💰 Kế Toán Trưởng',
+    allowedModules: [
+      'dashboard',
+      'reconciliation',
+      'luong',
+      'emaillogs'
+    ]
+  },
+  'HR_OPS': {
+    roleKey: 'HR_OPS',
+    username: 'nhansu',
+    defaultName: 'Nguyễn Văn An',
+    roleTitle: 'Nhân Sự / Vận Hành',
+    badgeTitle: '📋 Nhân Sự / Vận Hành',
+    allowedModules: [
+      'nhanvien',
+      'duan',
+      'partners-admin'
+    ]
+  }
+};
+
+window.normalizeRoleKey = function(rawRole) {
+  if (!rawRole) return null;
+  var r = String(rawRole).trim().toUpperCase();
+  if (r === 'ADMIN' || r === 'CEO' || r === 'ADMINISTRATOR' || r === 'ADMIN (CEO)') return 'ADMIN';
+  if (r === 'RECEPTIONIST' || r === 'STAFF' || r === 'LETAN' || r === 'LỄ TÂN') return 'RECEPTIONIST';
+  if (r === 'ACCOUNTANT' || r === 'CFO' || r === 'KETOAN' || r === 'KẾ TOÁN TRƯỞNG' || r === 'KẾ TOÁN') return 'ACCOUNTANT';
+  if (r === 'HR_OPS' || r === 'COO' || r === 'HR' || r === 'NHANSU' || r === 'MANAGER' || r === 'NHÂN SỰ / VẬN HÀNH' || r === 'NHÂN SỰ') return 'HR_OPS';
+  return null;
+};
+
 window.getKLESession = function() {
   try {
-    return JSON.parse(localStorage.getItem('kle_session'));
-  } catch(e) {
+    var raw = localStorage.getItem('kle_session');
+    if (!raw) return null;
+    var parsed = JSON.parse(raw);
+    if (!parsed || !parsed.role) return null;
+    var roleKey = normalizeRoleKey(parsed.roleKey || parsed.role);
+    if (!roleKey || !window.KLE_RBAC_CONFIG[roleKey]) return null;
+    parsed.roleKey = roleKey;
+    return parsed;
+  } catch (e) {
     return null;
   }
 };
 
-window.isStaffAuthorized = function() {
+window.isAuthenticated = function() {
   var sess = getKLESession();
-  var allowedRoles = ['Admin', 'CEO', 'Staff', 'Administrator', 'Manager', 'HR', 'Accountant'];
-  return (sess && sess.role && allowedRoles.indexOf(sess.role) !== -1);
+  return !!(sess && sess.roleKey && window.KLE_RBAC_CONFIG[sess.roleKey]);
 };
 
+window.isStaffAuthorized = function() {
+  return isAuthenticated();
+};
+
+window.getCurrentRoleConfig = function() {
+  var sess = getKLESession();
+  if (!sess || !sess.roleKey) return null;
+  return window.KLE_RBAC_CONFIG[sess.roleKey] || null;
+};
+
+window.getAllowedModulesForCurrentUser = function() {
+  var cfg = getCurrentRoleConfig();
+  return cfg ? cfg.allowedModules.slice() : [];
+};
+
+window.getFirstAllowedModule = function() {
+  var allowed = getAllowedModulesForCurrentUser();
+  return allowed.length > 0 ? allowed[0] : 'reconciliation';
+};
+
+window.canAccessModule = function(moduleId) {
+  if (!isAuthenticated()) return false;
+  var allowed = getAllowedModulesForCurrentUser();
+  return allowed.indexOf(moduleId) !== -1;
+};
+
+// Đồng bộ toàn bộ trạng thái Header, các nút tắt quản trị và khung Admin theo trạng thái đăng nhập
 window.syncNavbarSession = function() {
   var sess = getKLESession();
+  var roleCfg = getCurrentRoleConfig();
   var authItem = document.getElementById('topNavAuthItem');
-  if (!authItem) return;
 
-  if (sess && sess.role) {
-    if (isStaffAuthorized()) {
+  var headerBadges = document.getElementById('adminAuthHeaderBadges');
+  var headerActions = document.getElementById('adminAuthHeaderActions');
+  var sessionBadge = document.getElementById('adminSessionBadge');
+  var roleBadge = document.getElementById('adminRoleBadge');
+  var workspace = document.getElementById('adminWorkspaceContainer');
+  var sidebarNav = document.getElementById('adminSidebarNavContainer');
+
+  if (!sess || !roleCfg) {
+    // TRẠNG THÁI CHƯA ĐĂNG NHẬP (!isAuthenticated || currentUser === null)
+    if (authItem) {
       authItem.innerHTML = `
-        <div class="d-flex align-items-center gap-2">
-          <a class="btn btn-outline-warning btn-sm rounded-pill px-3 py-1 fw-semibold shadow-sm text-white" href="admin" onclick="navigateToRoute('admin'); return false;" title="Vào Bảng điều hành quản trị nội bộ">
-            <i class="bi bi-speedometer2 me-1"></i>Bảng Điều Hành
-          </a>
-          <span class="badge bg-success border border-light d-none d-md-inline" title="${sess.name || sess.username}">
-            <i class="bi bi-person-badge me-1"></i>${sess.role}
-          </span>
-          <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" onclick="handleGlobalLogout()" title="Đăng xuất">
-            <i class="bi bi-box-arrow-right me-1"></i>Thoát
-          </button>
-        </div>
-      `;
-    } else {
-      // Customer
-      authItem.innerHTML = `
-        <div class="d-flex align-items-center gap-2">
-          <span class="badge bg-info text-dark" title="${sess.name || sess.username}">
-            <i class="bi bi-person me-1"></i>Khách: ${(sess.name || sess.username).split('(')[0].trim()}
-          </span>
-          <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" onclick="handleGlobalLogout()" title="Đăng xuất">
-            <i class="bi bi-box-arrow-right me-1"></i>Thoát
-          </button>
-        </div>
+        <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 fw-semibold" href="login" onclick="openLoginModal(); return false;">
+          <i class="bi bi-person-lock me-1"></i>Đăng Nhập
+        </a>
       `;
     }
-  } else {
-    // Public guest
+    if (headerBadges) headerBadges.classList.add('d-none');
+    if (headerActions) headerActions.classList.add('d-none');
+    if (sessionBadge) sessionBadge.textContent = '';
+    if (roleBadge) roleBadge.textContent = '';
+    if (workspace) workspace.classList.add('d-none');
+    if (sidebarNav) sidebarNav.innerHTML = '';
+
+    // Ẩn toàn bộ các tab-pane quản trị để không bao giờ lộ DOM khi chưa đăng nhập
+    document.querySelectorAll('#adminPortalTabContent > .tab-pane').forEach(function(pane) {
+      pane.classList.remove('show', 'active');
+    });
+
+    // Ẩn toàn bộ các nút tắt quản trị trên trang chủ
+    document.querySelectorAll('.kle-admin-shortcut-btn').forEach(function(btn) {
+      btn.classList.add('d-none');
+    });
+    return;
+  }
+
+  // TRẠNG THÁI ĐÃ ĐĂNG NHẬP HỢP LỆ
+  var displayUser = sess.name || roleCfg.defaultName;
+  if (authItem) {
     authItem.innerHTML = `
-      <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" href="login" onclick="navigateToRoute('login'); return false;">
-        <i class="bi bi-person me-1"></i>Đăng Nhập
-      </a>
+      <div class="d-flex align-items-center gap-1.5 flex-wrap">
+        <a class="btn btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm" style="background: #D4AF37; color: #14452F; border: 1px solid #D4AF37;" href="admin" onclick="openAdminPortalModal(); return false;" title="Mở Cổng Điều Hành Nội Bộ">
+          <i class="bi bi-layout-sidebar-inset me-1"></i>Điều Hành
+        </a>
+        <span class="badge rounded-pill d-none d-xl-inline-flex align-items-center px-2.5 py-1" style="background: rgba(255,255,255,0.14); color: #F7F8F4; border: 1px solid rgba(212,175,55,0.45);" title="${displayUser} - ${roleCfg.roleTitle}">
+          <i class="bi bi-person-check-fill me-1" style="color: #D4AF37;"></i>${displayUser} (${roleCfg.roleTitle})
+        </span>
+        <button type="button" class="btn btn-sm rounded-pill px-2.5 py-1 fw-bold" style="background: rgba(220,38,38,0.85); color: #fff; border: none;" onclick="handleGlobalLogout()" title="Đăng xuất">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    `;
+  }
+
+  if (headerBadges) headerBadges.classList.remove('d-none');
+  if (headerActions) headerActions.classList.remove('d-none');
+  if (sessionBadge) {
+    sessionBadge.innerHTML = '<i class="bi bi-person-check-fill me-1" style="color:#1E6B45;"></i>' + displayUser;
+  }
+  if (roleBadge) {
+    roleBadge.textContent = roleCfg.badgeTitle;
+  }
+  if (workspace) {
+    workspace.classList.remove('d-none');
+  }
+
+  // Chỉ hiển thị các nút tắt quản trị trên trang công khai nếu vai trò hiện tại có quyền
+  document.querySelectorAll('.kle-admin-shortcut-btn').forEach(function(btn) {
+    var reqMod = btn.getAttribute('data-rbac-module');
+    if (reqMod && canAccessModule(reqMod)) {
+      btn.classList.remove('d-none');
+    } else {
+      btn.classList.add('d-none');
+    }
+  });
+};
+
+// Mở Modal Đăng Nhập Cổng Điều Hành (Chỉ hiển thị form đăng nhập, không lộ bất kỳ tab quản trị nào)
+window.openLoginModal = function(alertMsg) {
+  // Nếu đang mở Admin Modal thì đóng ngay lập tức
+  var adminModalEl = document.getElementById('adminPortalModal');
+  if (adminModalEl && typeof bootstrap !== 'undefined') {
+    var adminInst = bootstrap.Modal.getInstance(adminModalEl);
+    if (adminInst) adminInst.hide();
+  }
+
+  // Luôn xóa trắng ô nhập để tuyệt đối không hiển thị thông tin tài khoản mặc định
+  var userInp = document.getElementById('adminLoginUser') || document.getElementById('kleLoginUsername');
+  var passInp = document.getElementById('adminLoginPass') || document.getElementById('kleLoginPassword');
+  if (userInp) userInp.value = '';
+  if (passInp) passInp.value = '';
+
+  var alertBox = document.getElementById('kleLoginAlertBox');
+  var alertText = document.getElementById('kleLoginAlertText');
+  if (alertBox && alertText) {
+    if (alertMsg) {
+      alertText.textContent = alertMsg;
+      alertBox.classList.remove('d-none');
+    } else {
+      alertText.textContent = '';
+      alertBox.classList.add('d-none');
+    }
+  }
+
+  var loginModalEl = document.getElementById('kleLoginModal');
+  if (loginModalEl && typeof bootstrap !== 'undefined') {
+    var loginInst = bootstrap.Modal.getOrCreateInstance(loginModalEl);
+    loginInst.show();
+  }
+};
+
+window.onCloseLoginModal = function() {
+  var basePath = getBaseUrl();
+  if (window.location.pathname.indexOf('login') !== -1) {
+    window.history.pushState({ route: '' }, '', basePath);
+  }
+};
+
+// Xử lý submit form đăng nhập
+window.handleAdminLogin = function(e) {
+  if (e) e.preventDefault();
+  var uEl = document.getElementById('adminLoginUser') || document.getElementById('kleLoginUsername');
+  var pEl = document.getElementById('adminLoginPass') || document.getElementById('kleLoginPassword');
+  var rawUser = (uEl ? uEl.value : '').trim().toLowerCase();
+  var rawPass = (pEl ? pEl.value : '').trim();
+
+  if (!rawUser || !rawPass) {
+    openLoginModal('Vui lòng nhập đầy đủ Tên đăng nhập / Email và Mật khẩu.');
+    return;
+  }
+
+  // Phân giải vai trò theo tài khoản đăng nhập
+  var matchedRole = 'ADMIN';
+  if (rawUser.indexOf('letan') !== -1 || rawUser.indexOf('staff') !== -1 || rawUser.indexOf('thao') !== -1) {
+    matchedRole = 'RECEPTIONIST';
+  } else if (rawUser.indexOf('ketoan') !== -1 || rawUser.indexOf('cfo') !== -1 || rawUser.indexOf('lan') !== -1 || rawUser.indexOf('account') !== -1) {
+    matchedRole = 'ACCOUNTANT';
+  } else if (rawUser.indexOf('nhansu') !== -1 || rawUser.indexOf('hr') !== -1 || rawUser.indexOf('vanhanh') !== -1 || rawUser.indexOf('coo') !== -1 || rawUser.indexOf('an') !== -1) {
+    matchedRole = 'HR_OPS';
+  } else if (rawUser.indexOf('admin') !== -1 || rawUser.indexOf('ceo') !== -1 || rawUser.indexOf('cuong') !== -1) {
+    matchedRole = 'ADMIN';
+  }
+
+  quickLoginRole(matchedRole);
+};
+
+// Đăng nhập nhanh / Chuyển đổi vai trò RBAC
+window.quickLoginRole = function(roleKey) {
+  var normKey = normalizeRoleKey(roleKey) || 'ADMIN';
+  var cfg = window.KLE_RBAC_CONFIG[normKey];
+  if (!cfg) return;
+
+  var sessionObj = {
+    username: cfg.username,
+    name: cfg.defaultName,
+    role: cfg.roleTitle,
+    roleKey: cfg.roleKey,
+    loggedInAt: new Date().toISOString()
+  };
+
+  localStorage.setItem('kle_session', JSON.stringify(sessionObj));
+
+  // Đóng Modal Đăng nhập nếu đang mở
+  var loginModalEl = document.getElementById('kleLoginModal');
+  if (loginModalEl && typeof bootstrap !== 'undefined') {
+    var loginInst = bootstrap.Modal.getInstance(loginModalEl);
+    if (loginInst) loginInst.hide();
+  }
+
+  // Đồng bộ Header và render lại Sidebar ngay lập tức cho vai trò mới
+  syncNavbarSession();
+  var firstAllowed = cfg.allowedModules[0];
+  renderAdminSidebar(firstAllowed);
+
+  // Mở Admin Dashboard và chuyển ngay đến mục đầu tiên được phép của vai trò đó
+  openAdminPortalModal(firstAllowed);
+};
+
+window.quickLoginAs = function(displayName, role) {
+  var normKey = normalizeRoleKey(role) || 'ADMIN';
+  quickLoginRole(normKey);
+};
+
+// Đăng xuất toàn cục: xóa sạch trạng thái đăng nhập, xóa thông tin người dùng, ẩn toàn bộ giao diện quản trị
+window.handleGlobalLogout = function() {
+  localStorage.removeItem('kle_session');
+  syncNavbarSession();
+
+  var adminModalEl = document.getElementById('adminPortalModal');
+  if (adminModalEl && typeof bootstrap !== 'undefined') {
+    var inst = bootstrap.Modal.getInstance(adminModalEl);
+    if (inst) inst.hide();
+  }
+
+  var loginModalEl = document.getElementById('kleLoginModal');
+  if (loginModalEl && typeof bootstrap !== 'undefined') {
+    var lInst = bootstrap.Modal.getInstance(loginModalEl);
+    if (lInst) lInst.hide();
+  }
+
+  var basePath = getBaseUrl();
+  window.history.pushState({ route: '' }, '', basePath);
+};
+
+// Render Sidebar dọc bên trái theo đúng danh sách phân hệ được cấp quyền của vai trò hiện tại
+window.renderAdminSidebar = function(activeModuleId) {
+  var container = document.getElementById('adminSidebarNavContainer');
+  if (!container) return;
+
+  if (!isAuthenticated()) {
+    container.innerHTML = '';
+    return;
+  }
+
+  var allowedIds = getAllowedModulesForCurrentUser();
+  var activeId = activeModuleId || getFirstAllowedModule();
+  if (allowedIds.indexOf(activeId) === -1) {
+    activeId = allowedIds[0];
+  }
+
+  // Nhóm các chức năng được phép theo Group để hiển thị rõ ràng
+  var groupsOrder = [
+    'NGHIỆP VỤ KINH DOANH & LƯU TRÚ',
+    'TÀI CHÍNH & ĐỐI SOÁT HỆ THỐNG',
+    'NHÂN SỰ & VẬN HÀNH NỘI BỘ'
+  ];
+  var grouped = {};
+  groupsOrder.forEach(function(g) { grouped[g] = []; });
+
+  allowedIds.forEach(function(modId) {
+    var mod = window.KLE_MODULES_CATALOG[modId];
+    if (mod) {
+      var gName = mod.group || groupsOrder[0];
+      if (!grouped[gName]) grouped[gName] = [];
+      grouped[gName].push(mod);
+    }
+  });
+
+  var html = '';
+  groupsOrder.forEach(function(gName) {
+    var items = grouped[gName];
+    if (!items || items.length === 0) return;
+    html += '<div class="kle-sidebar-group-label">' + gName + '</div>';
+    items.forEach(function(mod) {
+      var isAct = (mod.id === activeId) ? 'active' : '';
+      html += `
+        <button type="button"
+                class="kle-sidebar-item ${isAct}"
+                id="sidebar-btn-${mod.id}"
+                data-module-id="${mod.id}"
+                title="${mod.title}"
+                onclick="switchAdminModule('${mod.id}')">
+          <span class="kle-sidebar-icon"><i class="bi ${mod.icon}"></i></span>
+          <span class="kle-sidebar-text">${mod.title}</span>
+        </button>
+      `;
+    });
+  });
+
+  container.innerHTML = html;
+};
+
+// Thu gọn / Mở rộng Sidebar dọc
+window.toggleAdminSidebar = function() {
+  var sidebar = document.getElementById('kleAdminSidebar');
+  if (!sidebar) return;
+
+  if (window.innerWidth < 992) {
+    sidebar.classList.toggle('mobile-open');
+    return;
+  }
+
+  sidebar.classList.toggle('collapsed');
+  var icon = document.getElementById('adminSidebarCollapseIcon');
+  var text = sidebar.querySelector('.kle-sidebar-collapse-text');
+  if (sidebar.classList.contains('collapsed')) {
+    if (icon) icon.className = 'bi bi-arrows-angle-expand';
+    if (text) text.textContent = '';
+  } else {
+    if (icon) icon.className = 'bi bi-arrows-angle-contract';
+    if (text) text.textContent = 'Thu Gọn Menu';
+  }
+};
+
+// Chuyển phân hệ trên Admin Dashboard (kèm kiểm tra RBAC nghiêm ngặt)
+window.switchAdminModule = function(requestedModuleId, skipUrlPush, rbacNotice) {
+  if (!isAuthenticated()) {
+    openLoginModal('Phiên làm việc chưa xác thực. Vui lòng đăng nhập để truy cập hệ thống quản trị.');
+    return;
+  }
+
+  var roleCfg = getCurrentRoleConfig();
+  var targetId = requestedModuleId || getFirstAllowedModule();
+  var noticeEl = document.getElementById('adminRbacNoticeAlert');
+  var noticeTxt = document.getElementById('adminRbacNoticeText');
+
+  if (!canAccessModule(targetId)) {
+    var fallbackId = getFirstAllowedModule();
+    var deniedMod = window.KLE_MODULES_CATALOG[targetId];
+    var deniedTitle = deniedMod ? deniedMod.title : targetId;
+    var fbMod = window.KLE_MODULES_CATALOG[fallbackId];
+    var msg = 'Vai trò "' + (roleCfg ? roleCfg.roleTitle : '') + '" không có quyền truy cập mục "' + deniedTitle + '". Hệ thống đã tự động chuyển về phân hệ hợp lệ đầu tiên: "' + (fbMod ? fbMod.title : fallbackId) + '".';
+    targetId = fallbackId;
+    rbacNotice = msg;
+  }
+
+  if (noticeEl && noticeTxt) {
+    if (rbacNotice) {
+      noticeTxt.textContent = rbacNotice;
+      noticeEl.classList.remove('d-none');
+    } else {
+      noticeTxt.textContent = '';
+      noticeEl.classList.add('d-none');
+    }
+  }
+
+  // Render lại Sidebar để đảm bảo không sót menu cũ và đánh dấu đúng mục đang chọn
+  renderAdminSidebar(targetId);
+
+  // Đóng drawer trên mobile nếu đang mở
+  var sidebar = document.getElementById('kleAdminSidebar');
+  if (sidebar) sidebar.classList.remove('mobile-open');
+
+  // Cập nhật Header của Main Content
+  var modMeta = window.KLE_MODULES_CATALOG[targetId] || window.KLE_MODULES_CATALOG['reconciliation'];
+  var iconEl = document.getElementById('adminCurrentModuleIcon');
+  var titleEl = document.getElementById('adminCurrentModuleTitle');
+  var descEl = document.getElementById('adminCurrentModuleDesc');
+  var roleTagEl = document.getElementById('adminCurrentModuleRoleTag');
+
+  if (iconEl) iconEl.className = 'bi ' + modMeta.icon;
+  if (titleEl) titleEl.textContent = modMeta.title;
+  if (descEl) descEl.textContent = modMeta.desc;
+  if (roleTagEl && roleCfg) {
+    roleTagEl.innerHTML = '<i class="bi bi-shield-check me-1"></i>Quyền: ' + roleCfg.roleTitle + ' (' + roleCfg.allowedModules.length + ' phân hệ)';
+  }
+
+  // Ẩn toàn bộ các tab-pane và chỉ kích hoạt đúng phân hệ được phép
+  document.querySelectorAll('#adminPortalTabContent > .tab-pane').forEach(function(pane) {
+    pane.classList.remove('show', 'active');
+  });
+  var activePane = document.getElementById('tab-pane-' + targetId);
+  if (activePane) {
+    activePane.classList.add('show', 'active');
+  }
+
+  // Chỉ nạp dữ liệu khi người dùng có quyền hợp lệ trên phân hệ đó
+  if (targetId === 'reconciliation') renderAdminReconciliationList();
+  else if (targetId === 'specialties-admin') renderAdminSpecialties();
+  else if (targetId === 'partners-admin') renderAdminPartners();
+  else if (targetId === 'tea-admin') renderAdminTea();
+  else if (targetId === 'emaillogs') renderAdminEmailLogs();
+  else if (targetId === 'duan') renderDuanOperationsHub();
+
+  // Cập nhật URL SPA
+  if (!skipUrlPush) {
+    var basePath = getBaseUrl();
+    var targetUrl = basePath + targetId;
+    if (window.location.pathname !== targetUrl) {
+      window.history.pushState({ route: targetId }, '', targetUrl);
+    }
+  }
+};
+
+// Render trung tâm Vận Hành Dự Án / Phòng (tích hợp Giao Phòng & Tra Cứu Khóa)
+window.renderDuanOperationsHub = function() {
+  if (!canAccessModule('duan')) return;
+
+  // 1. Render bảng Điều Phối Giao Phòng (Room Delivery)
+  var delivBody = document.getElementById('duanDeliveryTableBody');
+  if (delivBody) {
+    var orders = JSON.parse(localStorage.getItem('kle_specialty_orders') || '[]');
+    var q = (document.getElementById('duanDeliverySearchInput') ? document.getElementById('duanDeliverySearchInput').value : '').toLowerCase().trim();
+    var filteredOrders = orders.filter(function(o) {
+      if (!q) return true;
+      return (o.orderCode || '').toLowerCase().includes(q) ||
+             (o.customerName || '').toLowerCase().includes(q) ||
+             (o.phone || '').toLowerCase().includes(q) ||
+             (o.roomNumber || '').toLowerCase().includes(q);
+    });
+
+    if (filteredOrders.length === 0) {
+      delivBody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Không có đơn điều phối giao phòng nào khớp tìm kiếm.</td></tr>';
+    } else {
+      delivBody.innerHTML = filteredOrders.map(function(o) {
+        var itemsSummary = (o.items || []).map(function(i) {
+          return '<div class="small text-nowrap"><span class="badge bg-light text-dark border me-1">' + i.qty + 'x</span>' + i.name + '</div>';
+        }).join('');
+        var roomLabel = o.roomNumber
+          ? '<span class="badge rounded-pill px-2.5 py-1 font-monospace fw-bold" style="background:#D4AF37; color:#14452F;"><i class="bi bi-door-open-fill me-1"></i>' + o.roomNumber + '</span>'
+          : '<span class="badge bg-light text-dark border">Quầy Lễ Tân</span>';
+
+        var statusBadge = '';
+        var nextBtn = '';
+        if (o.status === 'PENDING') {
+          statusBadge = '<span class="badge bg-warning text-dark">Chờ Tiếp Nhận</span>';
+          nextBtn = '<button class="btn btn-sm btn-success rounded-pill px-2.5 py-0.5 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'CONFIRMED\')">Tiếp Nhận</button>';
+        } else if (o.status === 'CONFIRMED') {
+          statusBadge = '<span class="badge" style="background:#1E6B45;color:#fff;">Đã Tiếp Nhận</span>';
+          nextBtn = '<button class="btn btn-sm btn-success rounded-pill px-2.5 py-0.5 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'PREPARING\')">Báo Bếp</button>';
+        } else if (o.status === 'PREPARING') {
+          statusBadge = '<span class="badge" style="background:#14452F;color:#D4AF37;">Đang Chuẩn Bị</span>';
+          nextBtn = '<button class="btn btn-sm btn-warning text-dark rounded-pill px-2.5 py-0.5 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'DELIVERING\')">Giao Lên Phòng</button>';
+        } else if (o.status === 'DELIVERING') {
+          statusBadge = '<span class="badge bg-warning text-dark"><i class="bi bi-bicycle me-1"></i>Đang Giao Phòng</span>';
+          nextBtn = '<button class="btn btn-sm btn-success rounded-pill px-2.5 py-0.5 fw-bold" onclick="advanceOrderStatus(\'' + o.orderCode + '\', \'DELIVERED\')">Hoàn Tất Giao</button>';
+        } else if (o.status === 'DELIVERED') {
+          statusBadge = '<span class="badge bg-success"><i class="bi bi-check-all me-1"></i>Đã Giao Tận Phòng</span>';
+          nextBtn = '<span class="small text-success fw-bold">Hoàn tất</span>';
+        } else {
+          statusBadge = '<span class="badge bg-danger">Đã Hủy</span>';
+          nextBtn = '<span class="small text-muted">Đã hủy</span>';
+        }
+
+        return `
+          <tr>
+            <td class="ps-4 font-monospace fw-bold" style="color:#14452F;">${o.orderCode}</td>
+            <td>
+              <strong>${o.customerName || 'Khách lưu trú'}</strong>
+              <div class="small text-muted font-monospace">${o.phone || ''}</div>
+            </td>
+            <td>${roomLabel}</td>
+            <td><small class="text-muted">${o.deliveryTime || 'Giao ngay (15-30p)'}</small></td>
+            <td>${itemsSummary}</td>
+            <td class="font-monospace fw-bold text-success">${Number(o.total || 0).toLocaleString('vi-VN')} đ</td>
+            <td>${statusBadge}</td>
+            <td class="text-end pe-4">
+              <div class="d-inline-flex gap-1 align-items-center">
+                ${nextBtn}
+                <button class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width:26px;height:26px;line-height:1;" onclick="openOrderTrackingModal('${o.orderCode}')" title="Xem tiến trình chi tiết"><i class="bi bi-eye" style="font-size:11px;"></i></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+  }
+
+  // 2. Render bảng Mã PIN SmartLock IoT đang hoạt động
+  var pinBody = document.getElementById('duanActivePinTableBody');
+  if (pinBody && typeof getAllBookings === 'function') {
+    var allBookings = getAllBookings();
+    pinBody.innerHTML = allBookings.map(function(b) {
+      var isConfirmed = (b.status === 'CONFIRMED' || b.status === 'CHECKED_IN' || b.status === 'COMPLETED');
+      var stBadge = isConfirmed
+        ? '<span class="badge bg-success">Đã Kích Hoạt PIN</span>'
+        : '<span class="badge bg-warning text-dark">Chờ Đối Soát Cọc</span>';
+      var pinDisplay = isConfirmed
+        ? '<span class="badge font-monospace fs-6 px-3 py-1" style="background:#EDF7F2; color:#14452F; border:1px solid #1E6B45;">' + (b.pin || '839201') + '</span>'
+        : '<span class="text-muted small fst-italic">Cấp sau khi cọc 50%</span>';
+
+      return `
+        <tr>
+          <td class="ps-3 font-monospace fw-bold" style="color:#14452F;">${b.orderCode}</td>
+          <td>
+            <strong>${b.name}</strong>
+            <div class="small text-muted font-monospace">${b.phone}</div>
+          </td>
+          <td><span class="fw-semibold">${b.roomName}</span></td>
+          <td><small class="font-monospace text-muted">${b.checkIn} ➔ ${b.checkOut}</small></td>
+          <td>${stBadge}</td>
+          <td>${pinDisplay}</td>
+          <td class="text-end pe-3">
+            <div class="d-inline-flex gap-1">
+              <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-0.5 fw-bold" onclick="navigator.clipboard.writeText('${b.pin || '839201'}'); alert('Đã sao chép mã PIN: ${b.pin || '839201'}')">
+                <i class="bi bi-clipboard-check me-1"></i>Copy PIN
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5" onclick="openKeypadModal()">
+                <i class="bi bi-cpu me-1"></i>Thử Khóa
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+};
+
+// Bộ lọc 3 phân khu con trong Vận Hành Dự Án / Phòng
+window.filterDuanSubSection = function(subKey, btnEl) {
+  document.querySelectorAll('#duanSubNavGroup .duan-subnav-btn').forEach(function(b) {
+    b.classList.remove('btn-success');
+    b.classList.add('btn-outline-success');
+  });
+  if (btnEl) {
+    btnEl.classList.remove('btn-outline-success');
+    btnEl.classList.add('btn-success');
+  }
+
+  var rSec = document.getElementById('duanRoomsSection');
+  var dSec = document.getElementById('duanDeliverySection');
+  var lSec = document.getElementById('duanLookupSection');
+
+  if (subKey === 'ROOMS') {
+    if (rSec) rSec.classList.remove('d-none');
+    if (dSec) dSec.classList.add('d-none');
+    if (lSec) lSec.classList.add('d-none');
+  } else if (subKey === 'DELIVERY') {
+    if (rSec) rSec.classList.add('d-none');
+    if (dSec) dSec.classList.remove('d-none');
+    if (lSec) lSec.classList.add('d-none');
+  } else if (subKey === 'LOOKUP') {
+    if (rSec) rSec.classList.add('d-none');
+    if (dSec) dSec.classList.add('d-none');
+    if (lSec) lSec.classList.remove('d-none');
+  } else {
+    if (rSec) rSec.classList.remove('d-none');
+    if (dSec) dSec.classList.remove('d-none');
+    if (lSec) lSec.classList.remove('d-none');
+  }
+};
+
+// Tra cứu nhanh mã khóa ngay trong phân hệ Vận Hành Dự Án / Phòng
+window.handleDuanInlineLookup = function() {
+  var inp = document.getElementById('duanLookupSearchInput');
+  var wrap = document.getElementById('duanLookupResultWrap');
+  if (!inp || !wrap) return;
+
+  var q = inp.value.trim().toLowerCase();
+  if (!q) {
+    wrap.classList.add('d-none');
+    wrap.innerHTML = '';
+    return;
+  }
+
+  var allBookings = typeof getAllBookings === 'function' ? getAllBookings() : [];
+  var found = allBookings.find(function(b) {
+    return (b.orderCode || '').toLowerCase().includes(q) ||
+           (b.phone || '').toLowerCase().includes(q) ||
+           (b.name || '').toLowerCase().includes(q) ||
+           (b.roomName || '').toLowerCase().includes(q);
+  });
+
+  wrap.classList.remove('d-none');
+  if (found) {
+    wrap.innerHTML = `
+      <div class="p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-3" style="background: #EDF7F2; border-color: #1E6B45 !important;">
+        <div>
+          <span class="badge bg-success mb-1">${found.orderCode}</span>
+          <h6 class="fw-bold mb-0.5" style="color: #14452F;">${found.roomName} — Khách: ${found.name} (${found.phone})</h6>
+          <small class="text-muted">Lưu trú: ${found.checkIn} ➔ ${found.checkOut} • Trạng thái: <strong>${found.status}</strong></small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="px-3 py-1.5 rounded-3 bg-white border text-center">
+            <span class="small text-muted d-block" style="font-size:10px;">MÃ PIN SMARTLOCK</span>
+            <strong class="font-monospace fs-5 text-success">${found.pin || '839201'}</strong>
+          </div>
+          <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="openKeypadModal()">
+            <i class="bi bi-cpu me-1"></i>Mở Khóa Thử
+          </button>
+        </div>
+      </div>
+    `;
+  } else {
+    wrap.innerHTML = `
+      <div class="alert alert-warning py-2 px-3 small mb-0">
+        <i class="bi bi-exclamation-circle me-1"></i>Không tìm thấy thông tin đặt phòng hoặc mã khóa khớp với từ khóa <strong>"${inp.value}"</strong>.
+      </div>
     `;
   }
 };
 
-window.handleGlobalLogout = function() {
-  localStorage.removeItem('kle_session');
-  syncNavbarSession();
-  alert('Đã đăng xuất phiên làm việc khỏi Kim Long EcoStay.');
-  var adminModal = document.getElementById('adminPortalModal');
-  if (adminModal && typeof bootstrap !== 'undefined') {
-    var inst = bootstrap.Modal.getInstance(adminModal);
-    if (inst) inst.hide();
-  }
-  navigateToRoute('');
-};
-
 // =========================================================================
-// 8. SPA CLIENT-SIDE ROUTER & SUBPAGE NAVIGATION (/KimLongEcoStay/ ROUTING)
+// 8. SPA CLIENT-SIDE ROUTER & ROUTE GUARD (/KimLongEcoStay/ ROUTING)
 // =========================================================================
 window.getBaseUrl = function() {
   var baseEl = document.querySelector('base');
@@ -8727,14 +9616,12 @@ window.getBaseUrl = function() {
 window.normalizeRoute = function(route) {
   if (!route) return '';
   route = route.toString().trim();
-  // Strip origin or full URL if passed
   if (route.startsWith('http://') || route.startsWith('https://')) {
     try {
       var parsed = new URL(route);
       route = parsed.pathname;
     } catch(e) {}
   }
-  // Strip repo name /KimLongEcoStay/
   if (route.startsWith('/KimLongEcoStay/')) {
     route = route.substring('/KimLongEcoStay/'.length);
   } else if (route.startsWith('KimLongEcoStay/')) {
@@ -8744,16 +9631,30 @@ window.normalizeRoute = function(route) {
   } else if (route.startsWith('/')) {
     route = route.substring(1);
   }
-  // Remove hash or query params if any
   route = route.split('?')[0].split('#')[0];
   return route.replace(/\/+$/, '');
+};
+
+window.resolveModuleIdFromRoute = function(subTab) {
+  var clean = normalizeRoute(subTab);
+  if (!clean || clean === 'admin') return getFirstAllowedModule();
+  if (clean === 'reconciliation' || clean === 'doisoat') return 'reconciliation';
+  if (clean === 'specialties-admin' || clean === 'dacsan') return 'specialties-admin';
+  if (clean === 'partners-admin' || clean === 'doitac') return 'partners-admin';
+  if (clean === 'tea-admin' || clean === 'tracungdinh') return 'tea-admin';
+  if (clean === 'emaillogs' || clean === 'email') return 'emaillogs';
+  if (clean === 'dashboard') return 'dashboard';
+  if (clean === 'nhanvien') return 'nhanvien';
+  if (clean === 'luong') return 'luong';
+  if (clean === 'duan' || clean === 'lookup' || clean === 'tracuu') return 'duan';
+  return clean;
 };
 
 window.navigateToRoute = function(route) {
   var cleanRoute = normalizeRoute(route);
   var basePath = getBaseUrl();
   var targetUrl = basePath + (cleanRoute ? cleanRoute : '');
-  
+
   if (window.location.pathname !== targetUrl) {
     window.history.pushState({ route: cleanRoute }, '', targetUrl);
   }
@@ -8761,93 +9662,55 @@ window.navigateToRoute = function(route) {
 };
 
 window.openAdminPortalModal = function(subTab) {
-  subTab = normalizeRoute(subTab) || 'reconciliation';
+  var cleanSub = normalizeRoute(subTab);
 
-  // Security Check: Từ chối truy cập nếu chưa xác thực quyền Quản trị / Nhân viên
-  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'reconciliation', 'specialties-admin', 'partners-admin', 'tea-admin', 'emaillogs'].indexOf(subTab) !== -1) {
-    if (!isStaffAuthorized()) {
-      alert('Truy cập bị từ chối! Bạn cần đăng nhập với vai trò Quản trị viên hoặc Nhân viên để vào khu vực quản trị.');
-      window.location.href = 'login?error=denied';
+  // Nếu người dùng gọi route 'login' hoặc chưa đăng nhập -> Chỉ hiển thị Modal Đăng Nhập Cổng Điều Hành
+  if (cleanSub === 'login') {
+    if (isAuthenticated()) {
+      cleanSub = getFirstAllowedModule();
+    } else {
+      openLoginModal();
       return;
     }
   }
 
-  var modalEl = document.getElementById('adminPortalModal');
-  if (!modalEl) return;
-
-  var tabId = 'reconciliation';
-  if (subTab === 'reconciliation' || subTab === 'doisoat') tabId = 'reconciliation';
-  else if (subTab === 'specialties-admin' || subTab === 'dacsan') tabId = 'specialties-admin';
-  else if (subTab === 'partners-admin' || subTab === 'doitac') tabId = 'partners-admin';
-  else if (subTab === 'tea-admin' || subTab === 'tracungdinh') tabId = 'tea-admin';
-  else if (subTab === 'emaillogs' || subTab === 'email') tabId = 'emaillogs';
-  else if (subTab === 'nhanvien') tabId = 'nhanvien';
-  else if (subTab === 'luong') tabId = 'luong';
-  else if (subTab === 'duan') tabId = 'duan';
-  else if (subTab === 'login') tabId = 'login';
-  else if (subTab === 'dashboard') tabId = 'dashboard';
-
-  // Render tab data dynamically
-  if (tabId === 'reconciliation') renderAdminReconciliationList();
-  else if (tabId === 'specialties-admin') renderAdminSpecialties();
-  else if (tabId === 'partners-admin') renderAdminPartners();
-  else if (tabId === 'tea-admin') renderAdminTea();
-  else if (tabId === 'emaillogs') renderAdminEmailLogs();
-
-  // Activate tab button and pane
-  var tabBtn = document.getElementById('tab-btn-' + tabId);
-  if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-    var tabInstance = new bootstrap.Tab(tabBtn);
-    tabInstance.show();
+  if (!isAuthenticated()) {
+    openLoginModal('Khu vực Quản trị yêu cầu xác thực bảo mật. Vui lòng đăng nhập hoặc chọn vai trò mô phỏng bên dưới.');
+    return;
   }
 
+  // Đóng Modal Đăng Nhập nếu còn mở
+  var loginModalEl = document.getElementById('kleLoginModal');
+  if (loginModalEl && typeof bootstrap !== 'undefined') {
+    var lInst = bootstrap.Modal.getInstance(loginModalEl);
+    if (lInst) lInst.hide();
+  }
+
+  syncNavbarSession();
+
+  var requestedModId = resolveModuleIdFromRoute(cleanSub);
+  switchAdminModule(requestedModId, false);
+
+  // Nếu đi từ route lookup / tracuu thì tự động lọc đến phân khu Tra Cứu Khóa trong Vận Hành Dự Án / Phòng
+  if ((cleanSub === 'lookup' || cleanSub === 'tracuu') && canAccessModule('duan')) {
+    var lookupBtn = document.querySelector('#duanSubNavGroup button[data-sub="LOOKUP"]');
+    filterDuanSubSection('LOOKUP', lookupBtn);
+  }
+
+  var modalEl = document.getElementById('adminPortalModal');
+  if (!modalEl) return;
   var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
   modalInstance.show();
 };
 
 window.onAdminTabSwitch = function(tabName) {
-  var cleanTab = normalizeRoute(tabName);
-  var basePath = getBaseUrl();
-  var targetUrl = basePath + cleanTab;
-  window.history.pushState({ route: cleanTab }, '', targetUrl);
-
-  if (cleanTab === 'reconciliation') renderAdminReconciliationList();
-  else if (cleanTab === 'specialties-admin') renderAdminSpecialties();
-  else if (cleanTab === 'partners-admin') renderAdminPartners();
-  else if (cleanTab === 'tea-admin') renderAdminTea();
-  else if (cleanTab === 'emaillogs') renderAdminEmailLogs();
+  var modId = resolveModuleIdFromRoute(tabName);
+  switchAdminModule(modId, false);
 };
 
 window.onCloseAdminModal = function() {
   var basePath = getBaseUrl();
   window.history.pushState({ route: '' }, '', basePath);
-};
-
-window.handleAdminLogin = function(e) {
-  if (e) e.preventDefault();
-  var user = document.getElementById('adminLoginUser').value.trim() || 'admin';
-  quickLoginAs(user + ' (Đã xác thực)', 'Admin');
-};
-
-window.quickLoginAs = function(displayName, role) {
-  var username = (role === 'CEO' || role === 'Admin') ? 'admin' : (role === 'Staff' ? 'letan' : 'nhanvien');
-  localStorage.setItem('kle_session', JSON.stringify({
-    username: username,
-    name: displayName,
-    role: role,
-    loggedInAt: new Date().toISOString()
-  }));
-  syncNavbarSession();
-  var badge = document.getElementById('adminSessionBadge');
-  if (badge) {
-    badge.innerHTML = '<i class="bi bi-person-check-fill me-1"></i>' + displayName;
-  }
-  alert('Đăng nhập thành công với vai trò: ' + role + '!\nĐang kích hoạt quyền điều hành hệ thống.');
-  onAdminTabSwitch('reconciliation');
-  var tabBtn = document.getElementById('tab-btn-reconciliation');
-  if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-    new bootstrap.Tab(tabBtn).show();
-  }
 };
 
 window.openRoomById = function(id) {
@@ -8871,17 +9734,26 @@ window.activateRoute = function(cleanRoute) {
       var modalInst = bootstrap.Modal.getInstance(adminModalEl);
       if (modalInst) modalInst.hide();
     }
+    var loginModalEl = document.getElementById('kleLoginModal');
+    if (loginModalEl && typeof bootstrap !== 'undefined') {
+      var lInst = bootstrap.Modal.getInstance(loginModalEl);
+      if (lInst) lInst.hide();
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
-  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login', 'reconciliation', 'specialties-admin', 'partners-admin', 'tea-admin', 'emaillogs', 'doisoat', 'doitac'].indexOf(cleanRoute) !== -1) {
-    openAdminPortalModal(cleanRoute);
+  if (cleanRoute === 'login') {
+    if (isAuthenticated()) {
+      openAdminPortalModal(getFirstAllowedModule());
+    } else {
+      openLoginModal();
+    }
     return;
   }
 
-  if (cleanRoute === 'lookup' || cleanRoute === 'tracuu') {
-    openLookupModal();
+  if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'reconciliation', 'specialties-admin', 'partners-admin', 'tea-admin', 'emaillogs', 'doisoat', 'doitac', 'lookup', 'tracuu'].indexOf(cleanRoute) !== -1) {
+    openAdminPortalModal(cleanRoute);
     return;
   }
 
@@ -8896,7 +9768,7 @@ window.activateRoute = function(cleanRoute) {
   }
 
   if (cleanRoute === 'orderconfirm' || cleanRoute.indexOf('orderconfirm') === 0 || cleanRoute === 'orderconfirmation' || cleanRoute.indexOf('orderconfirmation') === 0) {
-    openLookupModal();
+    openAdminPortalModal('duan');
     return;
   }
 
@@ -8966,13 +9838,11 @@ window.addEventListener('popstate', function() {
   activateRoute(route);
 });
 
-// Modal hide event to reset URL if needed
+// Khởi chạy ứng dụng & đồng bộ trạng thái xác thực khi tải trang
 document.addEventListener('DOMContentLoaded', function() {
-  // Đồng bộ trạng thái đăng nhập trên Topbar và gắn sự kiện cho thẻ di tích
   syncNavbarSession();
   wireHeritageCardButtons();
 
-  // Khởi tạo hiển thị danh mục sản phẩm, đối tác địa phương & giỏ hàng
   populatePartnerFilterDropdowns();
   renderSpecialties();
   renderPartnerDirectory();
@@ -8984,7 +9854,19 @@ document.addEventListener('DOMContentLoaded', function() {
       var path = window.location.pathname;
       var basePath = getBaseUrl();
       var clean = path.replace(basePath, '').replace(/^\/+/, '');
-      if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login', 'reconciliation', 'specialties-admin', 'partners-admin', 'tea-admin', 'emaillogs'].indexOf(clean) !== -1) {
+      if (['dashboard', 'nhanvien', 'luong', 'duan', 'admin', 'login', 'reconciliation', 'specialties-admin', 'partners-admin', 'tea-admin', 'emaillogs', 'lookup', 'tracuu'].indexOf(clean) !== -1) {
+        window.history.pushState({ route: '' }, '', basePath);
+      }
+    });
+  }
+
+  var loginModalEl = document.getElementById('kleLoginModal');
+  if (loginModalEl) {
+    loginModalEl.addEventListener('hidden.bs.modal', function() {
+      var path = window.location.pathname;
+      var basePath = getBaseUrl();
+      var clean = path.replace(basePath, '').replace(/^\/+/, '');
+      if (clean === 'login' && !isAuthenticated()) {
         window.history.pushState({ route: '' }, '', basePath);
       }
     });

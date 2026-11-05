@@ -4,27 +4,35 @@
    ========================================================================== */
 
 :root {
-  --kle-primary: #0A3D2C;
-  --kle-primary-hover: #14533D;
+  --kle-primary: #14452F;
+  --kle-primary-hover: #1E6B45;
   --kle-primary-subtle: #EDF7F2;
-  --kle-primary-glow: rgba(10, 61, 44, 0.15);
+  --kle-primary-glow: rgba(20, 69, 47, 0.15);
   
-  --kle-gold: #B8860B;
-  --kle-gold-hover: #D4A017;
+  --kle-forest: #14452F;
+  --kle-forest-sub: #1E6B45;
+  --kle-gold: #D4AF37;
+  --kle-gold-hover: #B89328;
   --kle-gold-subtle: #FEF3C7;
-  --kle-gold-glow: rgba(184, 134, 11, 0.25);
+  --kle-gold-glow: rgba(212, 175, 55, 0.25);
 
-  --kle-dark: #0F172A;
+  --kle-dark: #26352B;
   --kle-slate: #334155;
-  --kle-muted: #64748B;
+  --kle-muted: #526358;
   --kle-light-muted: #94A3B8;
-  --kle-border: #E2E8F0;
+  --kle-border: #DDE5DF;
   --kle-card-bg: #FFFFFF;
-  --kle-bg: #F8FAF9;
-  --kle-success: #15803D;
+  --kle-bg: #F7F8F4;
+  --kle-success: #1E6B45;
+  --kle-header-offset: 88px;
   
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
+}
+
+html {
+  scroll-padding-top: 96px;
+  scroll-behavior: smooth;
 }
 
 * {
@@ -109,12 +117,28 @@ h1, h2, h3 {
    TOPBAR / NAVBAR - REFINED & STREAMLINED
    ========================================================================== */
 .kle-navbar {
-  background: rgba(10, 61, 44, 0.95) !important;
+  background: rgba(20, 69, 47, 0.97) !important;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-bottom: 2px solid rgba(184, 134, 11, 0.35);
+  border-bottom: 2px solid rgba(212, 175, 55, 0.45);
   transition: all 0.25s ease;
-  min-height: 62px;
+  min-height: 70px;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1030;
+}
+
+main.flex-grow-1 {
+  padding-top: 76px;
+}
+
+@media (max-width: 991.98px) {
+  main.flex-grow-1 {
+    padding-top: 68px;
+  }
 }
 
 .brand-badge {
@@ -422,10 +446,27 @@ h1, h2, h3 {
 /* ==========================================================================
    ROOM / PRODUCT CARDS
    ========================================================================== */
+#rooms,
+#gallery,
+#specialties,
+#heritage-map,
+#local-partners,
+#royal-tea,
+#story,
+.section-heading-wrap {
+  scroll-margin-top: 96px !important;
+}
+
+#gallery {
+  padding-top: 28px !important;
+}
+
 .section-heading-wrap {
   text-align: center;
-  max-width: 720px;
+  max-width: 960px;
   margin: 0 auto 40px auto;
+  padding: 10px 16px 0 16px;
+  overflow: visible;
 }
 
 .section-tag {
@@ -439,10 +480,14 @@ h1, h2, h3 {
 }
 
 .section-main-title {
-  font-size: clamp(26px, 3.2vw, 36px);
-  color: var(--kle-primary);
+  font-size: clamp(24px, 3vw, 36px);
+  color: #14452F;
   font-weight: 700;
+  line-height: 1.35;
   margin-bottom: 12px;
+  overflow: visible;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .section-main-sub {
@@ -2941,7 +2986,413 @@ h1, h2, h3 {
 }
 
 .reconciliation-badge.completed {
-  background: #F3E8FF;
-  color: #7E22CE;
-  border: 1px solid #E9D5FF;
-}
+  background: #EDF7F2;
+  color: #14452F;
+  border: 1px solid #86EFAC;
+}
+
+/* ==========================================================================
+   ECO LUXURY LOGIN MODAL (460PX CENTERED) & RBAC ADMIN DASHBOARD
+   Bảng màu thương hiệu:
+   - Xanh rừng chính: #14452F
+   - Xanh lá phụ:     #1E6B45
+   - Vàng kim:        #D4AF37
+   - Nền sáng:        #F7F8F4
+   - Màu chữ:         #26352B
+   ========================================================================== */
+
+/* 1. Modal Đăng Nhập Cổng Điều Hành (Chính giữa màn hình, tối đa 460px) */
+#kleLoginModal .modal-dialog {
+  max-width: 460px !important;
+  width: calc(100% - 24px);
+  margin: 1.75rem auto;
+}
+
+.kle-login-card {
+  background: #F7F8F4;
+  color: #26352B;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-shadow: 0 24px 60px rgba(20, 69, 47, 0.35);
+  overflow: hidden;
+}
+
+.kle-login-header {
+  background: linear-gradient(135deg, #14452F 0%, #1E6B45 100%);
+  border-bottom: 2px solid #D4AF37;
+  padding: 24px 24px 20px;
+  color: #FFFFFF;
+  text-align: center;
+  position: relative;
+}
+
+.kle-login-emblem {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.18);
+  border: 2px solid #D4AF37;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #D4AF37;
+  font-size: 24px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.kle-login-body {
+  padding: 24px;
+  background: #F7F8F4;
+  color: #26352B;
+}
+
+.kle-login-input {
+  border: 1px solid #C8D6CE !important;
+  background: #FFFFFF !important;
+  color: #26352B !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+}
+
+.kle-login-input:focus {
+  border-color: #1E6B45 !important;
+  box-shadow: 0 0 0 3px rgba(30, 107, 69, 0.16) !important;
+}
+
+.kle-btn-login-primary {
+  background: linear-gradient(135deg, #14452F 0%, #1E6B45 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid #D4AF37 !important;
+  border-radius: 999px !important;
+  padding: 11px 20px !important;
+  font-weight: 700 !important;
+  font-size: 14.5px !important;
+  letter-spacing: 0.2px;
+  box-shadow: 0 6px 18px rgba(20, 69, 47, 0.24);
+  transition: all 0.2s ease;
+}
+
+.kle-btn-login-primary:hover {
+  background: linear-gradient(135deg, #1E6B45 0%, #14452F 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(20, 69, 47, 0.32);
+}
+
+.kle-quick-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.kle-role-sim-btn {
+  background: #FFFFFF;
+  color: #26352B;
+  border: 1px solid #C8D6CE;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kle-role-sim-btn:hover {
+  background: #14452F;
+  color: #FFFFFF;
+  border-color: #D4AF37;
+  transform: translateY(-1px);
+}
+
+/* 2. Bố cục Admin Dashboard: Sidebar dọc bên trái + Main Content bên phải */
+#adminPortalModal .modal-dialog {
+  max-width: min(1540px, 96vw) !important;
+  width: 96vw;
+  margin: 1rem auto;
+}
+
+.kle-admin-modal-content {
+  background: #F7F8F4 !important;
+  color: #26352B !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(20, 69, 47, 0.35);
+}
+
+.kle-admin-topbar {
+  background: linear-gradient(135deg, #14452F 0%, #1E6B45 100%) !important;
+  border-bottom: 2px solid #D4AF37 !important;
+  padding: 12px 20px !important;
+  color: #FFFFFF !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kle-sidebar-toggle-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.16);
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  color: #D4AF37;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.kle-sidebar-toggle-btn:hover {
+  background: #D4AF37;
+  color: #14452F;
+}
+
+.kle-admin-workspace {
+  display: flex;
+  min-height: 78vh;
+  max-height: calc(92vh - 72px);
+  background: #F7F8F4;
+  color: #26352B;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sidebar dọc bên trái */
+.kle-admin-sidebar {
+  width: 268px;
+  min-width: 268px;
+  background: #14452F;
+  color: #F7F8F4;
+  border-right: 1px solid rgba(212, 175, 55, 0.28);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 20;
+  user-select: none;
+}
+
+.kle-admin-sidebar.collapsed {
+  width: 74px;
+  min-width: 74px;
+}
+
+.kle-admin-sidebar.collapsed .kle-sidebar-group-title,
+.kle-admin-sidebar.collapsed .kle-sidebar-item-label,
+.kle-admin-sidebar.collapsed .kle-sidebar-role-switcher,
+.kle-admin-sidebar.collapsed .kle-sidebar-collapse-text {
+  display: none !important;
+}
+
+.kle-admin-sidebar.collapsed .kle-sidebar-nav-btn {
+  justify-content: center;
+  padding: 11px 0;
+}
+
+.kle-sidebar-group-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+  color: #D4AF37;
+  padding: 14px 16px 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.92;
+}
+
+.kle-sidebar-nav-list {
+  list-style: none;
+  padding: 6px 0;
+  margin: 0;
+}
+
+.kle-sidebar-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: calc(100% - 16px);
+  margin: 3px 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(247, 248, 244, 0.86);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.kle-sidebar-nav-btn:hover {
+  background: #1E6B45;
+  color: #FFFFFF;
+}
+
+.kle-sidebar-nav-btn.active {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.24) 0%, rgba(30, 107, 69, 0.55) 100%);
+  color: #D4AF37;
+  border-color: rgba(212, 175, 55, 0.55);
+  box-shadow: inset 3px 0 0 #D4AF37;
+  font-weight: 700;
+}
+
+.kle-sidebar-nav-btn .kle-sidebar-icon {
+  font-size: 16.5px;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+  color: #D4AF37;
+}
+
+.kle-sidebar-item-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kle-sidebar-footer {
+  border-top: 1px solid rgba(212, 175, 55, 0.22);
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+/* Main Content bên phải */
+.kle-admin-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 26px;
+  background: #F7F8F4;
+  color: #26352B;
+}
+
+.kle-admin-module-header {
+  background: #FFFFFF;
+  border: 1px solid #DDE5DF;
+  border-left: 4px solid #14452F;
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  box-shadow: 0 3px 12px rgba(20, 69, 47, 0.05);
+}
+
+/* Responsive Sidebar trên màn hình nhỏ (Tablet & Mobile) */
+@media (max-width: 991.98px) {
+  #adminPortalModal .modal-dialog {
+    max-width: 100vw !important;
+    width: 100vw;
+    margin: 0;
+  }
+  .kle-admin-modal-content {
+    border-radius: 0 !important;
+    min-height: 100vh;
+  }
+  .kle-admin-workspace {
+    min-height: calc(100vh - 68px);
+    max-height: calc(100vh - 68px);
+  }
+  .kle-admin-sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 270px !important;
+    min-width: 270px !important;
+    transform: translateX(-100%);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
+  }
+  .kle-admin-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .kle-admin-main {
+    padding: 14px;
+  }
+}
+
+/* 3. Đồng bộ màu sắc Eco Luxury — Loại bỏ màu xanh dương #0d6efd trong Quản trị & Login */
+#adminPortalModal .btn-primary,
+#kleLoginModal .btn-primary,
+.admin-portal-wrapper .btn-primary {
+  background-color: #14452F !important;
+  border-color: #14452F !important;
+  color: #FFFFFF !important;
+}
+
+#adminPortalModal .btn-primary:hover,
+#kleLoginModal .btn-primary:hover,
+.admin-portal-wrapper .btn-primary:hover {
+  background-color: #1E6B45 !important;
+  border-color: #1E6B45 !important;
+  color: #FFFFFF !important;
+}
+
+#adminPortalModal .btn-outline-primary,
+#kleLoginModal .btn-outline-primary,
+.admin-portal-wrapper .btn-outline-primary {
+  color: #14452F !important;
+  border-color: #1E6B45 !important;
+  background-color: transparent !important;
+}
+
+#adminPortalModal .btn-outline-primary:hover,
+#kleLoginModal .btn-outline-primary:hover,
+.admin-portal-wrapper .btn-outline-primary:hover {
+  background-color: #14452F !important;
+  border-color: #14452F !important;
+  color: #FFFFFF !important;
+}
+
+#adminPortalModal .bg-primary,
+#kleLoginModal .bg-primary,
+.admin-portal-wrapper .bg-primary {
+  background-color: #14452F !important;
+  color: #FFFFFF !important;
+}
+
+#adminPortalModal .bg-primary-subtle,
+.admin-portal-wrapper .bg-primary-subtle {
+  background-color: #EDF7F2 !important;
+  color: #14452F !important;
+}
+
+#adminPortalModal .text-primary,
+#kleLoginModal .text-primary,
+.admin-portal-wrapper .text-primary {
+  color: #14452F !important;
+}
+
+#adminPortalModal .border-primary,
+#kleLoginModal .border-primary,
+.admin-portal-wrapper .border-primary {
+  border-color: #1E6B45 !important;
+}
+
+#adminPortalModal .progress-bar.bg-primary,
+.admin-portal-wrapper .progress-bar.bg-primary {
+  background-color: #1E6B45 !important;
+}
+
