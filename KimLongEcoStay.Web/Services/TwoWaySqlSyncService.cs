@@ -200,25 +200,94 @@ namespace KimLongEcoStay.Web.Services
             }
         }
 
-        public async Task<object> GetFullSyncStateAsync()
+        public static string MaskPhone(string? rawPhone)
+        {
+            if (string.IsNullOrWhiteSpace(rawPhone)) return "•••";
+            var digits = new string(rawPhone.Where(char.IsDigit).ToArray());
+            if (digits.Length < 6) return "••••••";
+            return $"{digits.Substring(0, 3)}•••{digits.Substring(digits.Length - 3)}";
+        }
+
+        public static string MaskEmail(string? rawEmail)
+        {
+            if (string.IsNullOrWhiteSpace(rawEmail) || !rawEmail.Contains('@')) return "•••@•••";
+            var parts = rawEmail.Split('@');
+            var local = parts[0];
+            var domain = parts[1];
+            string maskedLocal = local.Length <= 2 ? $"{local[0]}•••" : $"{local.Substring(0, 2)}•••";
+            return $"{maskedLocal}@{domain}";
+        }
+
+        public async Task<object> GetPublicCatalogAsync()
         {
             await using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
 
             var products = await QueryProductsInternalAsync(conn);
-            var rooms = await QueryRoomsInternalAsync(conn);
-            var bookings = await QueryBookingsInternalAsync(conn);
-            var deliveries = await QueryDeliveriesInternalAsync(conn);
-            var smartlocks = await QuerySmartLocksInternalAsync(conn);
-            var smartlockLogs = await QuerySmartLockAuditLogsInternalAsync(conn);
+            var rawRooms = await conn.QueryAsync<dynamic>(@"
+                SELECT r.Id, r.RoomNumber, r.RoomTypeId, r.Status,
+                       r.UpdatedAt, r.SyncVersion,
+                       rt.TypeName, rt.Description, rt.MaxGuests, rt.BasePrice, rt.ImageUrl
+                FROM dbo.Rooms r
+                JOIN dbo.RoomTypes rt ON r.RoomTypeId = rt.Id
+                WHERE r.IsActive = 1
+                ORDER BY r.Id ASC;");
+
+            var rooms = rawRooms.Select(r => (object)new
+            {
+                id = (int)r.Id,
+                roomNumber = (string)r.RoomNumber,
+                name = $"{r.TypeName} ({r.RoomNumber})",
+                typeName = (string)r.TypeName,
+                brand = ((int)r.Id <= 2) ? "Nhà Vườn Hương Sen (Kim Long)" : "Nhà Vườn Nguyệt Biều (Kim Long)",
+                price = (decimal)r.BasePrice,
+                maxGuests = (int)r.MaxGuests,
+                status = (string)r.Status,
+                imageUrl = ((string?)r.ImageUrl ?? "images/room_econest.jpg").TrimStart('/'),
+                updatedAt = (DateTime)r.UpdatedAt,
+                syncVersion = (int)r.SyncVersion
+            }).ToList();
+
             var partners = await QueryPartnersInternalAsync(conn);
             var teaServices = await QueryTeaServicesInternalAsync(conn);
-            var employees = await QueryEmployeesInternalAsync(conn);
-            var payrolls = await QueryPayrollsInternalAsync(conn);
-            var transactions = await QueryTransactionsInternalAsync(conn);
-            var expenses = await QueryExpensesInternalAsync(conn);
-            var emailLogs = await QueryEmailLogsInternalAsync(conn);
-            var syncLogs = await QuerySyncLogsInternalAsync(conn);
+
+            return new
+            {
+                success = true,
+                isSqlConnected = true,
+                syncedAt = DateTime.UtcNow,
+                products,
+                rooms,
+                partners,
+                teaServices
+            };
+        }
+
+        public async Task<object> GetFullSyncStateAsync(string callerRole = "ADMIN")
+        {
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            string normRole = (callerRole ?? "ADMIN").Trim().ToUpperInvariant();
+            bool isAdmin = normRole is "ADMIN" or "ADMINISTRATOR";
+            bool isReceptionist = normRole is "STAFF" or "LETAN" or "RECEPTIONIST";
+            bool isAccountant = normRole is "ACCOUNTANT" or "CFO" or "KETOAN";
+            bool isHr = normRole is "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU";
+
+            var products = await QueryProductsInternalAsync(conn);
+            var rooms = await QueryRoomsInternalAsync(conn);
+            var bookings = (isAdmin || isReceptionist || isAccountant) ? await QueryBookingsInternalAsync(conn) : new List<object>();
+            var deliveries = (isAdmin || isReceptionist || isAccountant || isHr) ? await QueryDeliveriesInternalAsync(conn) : new List<object>();
+            var smartlocks = (isAdmin || isReceptionist || isHr) ? await QuerySmartLocksInternalAsync(conn) : new List<object>();
+            var smartlockLogs = (isAdmin || isReceptionist || isHr) ? await QuerySmartLockAuditLogsInternalAsync(conn) : new List<object>();
+            var partners = await QueryPartnersInternalAsync(conn);
+            var teaServices = await QueryTeaServicesInternalAsync(conn);
+            var employees = (isAdmin || isHr) ? await QueryEmployeesInternalAsync(conn) : new List<object>();
+            var payrolls = (isAdmin || isAccountant) ? await QueryPayrollsInternalAsync(conn) : new List<object>();
+            var transactions = (isAdmin || isAccountant) ? await QueryTransactionsInternalAsync(conn) : new List<object>();
+            var expenses = (isAdmin || isAccountant) ? await QueryExpensesInternalAsync(conn) : new List<object>();
+            var emailLogs = (isAdmin || isReceptionist || isAccountant) ? await QueryEmailLogsInternalAsync(conn) : new List<object>();
+            var syncLogs = isAdmin ? await QuerySyncLogsInternalAsync(conn) : new List<object>();
 
             var ctVer = await conn.ExecuteScalarAsync<long?>("SELECT ISNULL(CHANGE_TRACKING_CURRENT_VERSION(), 0);") ?? 0;
             var maxAuditId = await conn.ExecuteScalarAsync<long?>("SELECT ISNULL(MAX(Id), 0) FROM dbo.SyncAuditLogs;") ?? 0;
@@ -231,6 +300,7 @@ namespace KimLongEcoStay.Web.Services
             {
                 success = true,
                 isSqlConnected = true,
+                roleScope = normRole,
                 changeVersion = ctVer,
                 maxAuditId = maxAuditId,
                 syncedAt = _lastSyncTimestamp,
@@ -460,6 +530,7 @@ namespace KimLongEcoStay.Web.Services
             var rows = await conn.QueryAsync<dynamic>(@"
                 SELECT Id, RoomNumber, RoomName, BookingCode, GuestName, GuestPhone,
                        MaskedDisplay, PinStatus, BatteryPercent, ValidFrom, ValidUntil,
+                       FailedAttempts, LockedUntil, IsDemoSimulation,
                        LastReissuedBy, LastReissuedReason, UpdatedAt, SyncVersion
                 FROM dbo.SmartLockPins
                 ORDER BY RoomNumber ASC;");
@@ -471,12 +542,15 @@ namespace KimLongEcoStay.Web.Services
                 roomName = (string)s.RoomName,
                 bookingCode = (string?)s.BookingCode,
                 guestName = (string?)s.GuestName,
-                guestPhone = (string?)s.GuestPhone,
+                guestPhone = MaskPhone((string?)s.GuestPhone),
                 maskedPin = "••••••", // Không bao giờ trả về mã PIN thật
                 pinStatus = (string)s.PinStatus,
                 batteryPercent = (int)s.BatteryPercent,
                 validFrom = (DateTime?)s.ValidFrom,
                 validUntil = (DateTime?)s.ValidUntil,
+                failedAttempts = (int)(s.FailedAttempts ?? 0),
+                lockedUntil = (DateTime?)s.LockedUntil,
+                isDemoSimulation = (bool)(s.IsDemoSimulation ?? false),
                 lastReissuedBy = (string?)s.LastReissuedBy,
                 lastReissuedReason = (string?)s.LastReissuedReason,
                 updatedAt = (DateTime)s.UpdatedAt,
@@ -1238,6 +1312,8 @@ namespace KimLongEcoStay.Web.Services
                     }
                 }
 
+                string? newlyGeneratedPin = null;
+
                 // Đồng bộ trạng thái phòng và khóa SmartLock trong cùng Transaction
                 if (!string.IsNullOrEmpty(roomNum))
                 {
@@ -1258,7 +1334,63 @@ namespace KimLongEcoStay.Web.Services
                         WHERE RoomNumber = @RoomNum;",
                         new { RoomState = targetRoomState, GuestName = (string?)booking.GuestName, Code = orderCode, RoomNum = roomNum }, tx);
 
-                    if (norm == "CONFIRMED" || norm == "CHECKED_IN")
+                    if (norm == "CONFIRMED")
+                    {
+                        // Sinh mã PIN bảo mật ngẫu nhiên CSPRNG kèm muối mới
+                        newlyGeneratedPin = RandomNumberGenerator.GetInt32(100000, 1000000).ToString("D6");
+                        string pinSalt = Guid.NewGuid().ToString("N");
+                        byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes($"{pinSalt}:{newlyGeneratedPin}"));
+                        string pinHash = Convert.ToHexString(hashBytes);
+
+                        DateTime validFrom = ((DateTime)booking.CheckInDate).Date.AddHours(14); // 14:00 ngày check-in
+                        DateTime validUntil = ((DateTime)booking.CheckOutDate).Date.AddHours(12); // 12:00 ngày check-out
+
+                        await conn.ExecuteAsync(@"
+                            UPDATE dbo.SmartLockPins
+                            SET PinHash = @PinHash,
+                                PinSalt = @PinSalt,
+                                MaskedDisplay = '••••••',
+                                PinStatus = 'ACTIVE',
+                                FailedAttempts = 0,
+                                LockedUntil = NULL,
+                                BookingCode = @Code,
+                                GuestName = @GuestName,
+                                GuestPhone = @GuestPhone,
+                                ValidFrom = @ValidFrom,
+                                ValidUntil = @ValidUntil,
+                                LastReissuedBy = @Actor,
+                                LastReissuedReason = N'Tự động cấp PIN bảo mật khi đối soát xác nhận cọc 50%',
+                                UpdatedAt = SYSUTCDATETIME(),
+                                SyncVersion = SyncVersion + 1
+                            WHERE RoomNumber = @RoomNum;",
+                            new
+                            {
+                                PinHash = pinHash,
+                                PinSalt = pinSalt,
+                                Code = orderCode,
+                                GuestName = (string?)booking.GuestName,
+                                GuestPhone = (string?)booking.GuestPhone,
+                                ValidFrom = validFrom,
+                                ValidUntil = validUntil,
+                                Actor = actor,
+                                RoomNum = roomNum
+                            }, tx);
+
+                        await conn.ExecuteAsync(@"
+                            INSERT INTO dbo.SmartLockAuditLogs (
+                                LogCode, RoomNumber, BookingCode, ActionType, PerformedBy, RoleName, Reason
+                            ) VALUES (
+                                @LogCode, @RoomNum, @Code, 'AUTO_ISSUE_ON_DEPOSIT', @Actor, 'SYSTEM', N'Hệ thống tự động cấp PIN bảo mật CSPRNG sau đối soát cọc thành công'
+                            );",
+                            new
+                            {
+                                LogCode = $"LOG-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(100, 999)}",
+                                RoomNum = roomNum,
+                                Code = orderCode,
+                                Actor = actor
+                            }, tx);
+                    }
+                    else if (norm == "CHECKED_IN")
                     {
                         await conn.ExecuteAsync(@"
                             UPDATE dbo.SmartLockPins
@@ -1271,9 +1403,28 @@ namespace KimLongEcoStay.Web.Services
                     {
                         await conn.ExecuteAsync(@"
                             UPDATE dbo.SmartLockPins
-                            SET PinStatus = 'EXPIRED', UpdatedAt = SYSUTCDATETIME(), SyncVersion = SyncVersion + 1
+                            SET PinStatus = 'EXPIRED',
+                                PinHash = @RevokedHash,
+                                FailedAttempts = 0,
+                                LockedUntil = NULL,
+                                UpdatedAt = SYSUTCDATETIME(),
+                                SyncVersion = SyncVersion + 1
                             WHERE RoomNumber = @RoomNum;",
-                            new { RoomNum = roomNum }, tx);
+                            new { RoomNum = roomNum, RevokedHash = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)) }, tx);
+
+                        await conn.ExecuteAsync(@"
+                            INSERT INTO dbo.SmartLockAuditLogs (
+                                LogCode, RoomNumber, BookingCode, ActionType, PerformedBy, RoleName, Reason
+                            ) VALUES (
+                                @LogCode, @RoomNum, @Code, 'AUTO_REVOKE_ON_CHECKOUT', @Actor, 'SYSTEM', N'Thu hồi mã PIN phòng khi khách trả phòng hoàn tất'
+                            );",
+                            new
+                            {
+                                LogCode = $"LOG-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(100, 999)}",
+                                RoomNum = roomNum,
+                                Code = orderCode,
+                                Actor = actor
+                            }, tx);
                     }
                 }
 
@@ -1314,7 +1465,17 @@ namespace KimLongEcoStay.Web.Services
                 _lastSyncTimestamp = DateTime.UtcNow;
 
                 await BroadcastEntityChangeAsync("bookings", orderCode, "RECONCILE", $"Đơn {orderCode} chuyển trạng thái {norm}", actor);
-                return new { success = true, orderCode, status = norm, syncVersion = newVer };
+                return new
+                {
+                    success = true,
+                    orderCode,
+                    status = norm,
+                    syncVersion = newVer,
+                    oneTimePin = newlyGeneratedPin,
+                    pinSecurityNotice = newlyGeneratedPin != null
+                        ? "Mã PIN phòng được sinh ngẫu nhiên an toàn (CSPRNG) và chỉ xuất hiện DUY NHẤT một lần trong phản hồi này. Hệ thống không lưu trữ PIN ở dạng thô."
+                        : null
+                };
             }
             catch (Exception ex)
             {
@@ -1459,8 +1620,9 @@ namespace KimLongEcoStay.Web.Services
             if (string.IsNullOrWhiteSpace(reason) || reason.Trim().Length < 3)
                 throw new ArgumentException("Bắt buộc nhập lý do cấp lại mã khóa SmartLock (tối thiểu 3 ký tự) để lưu nhật ký kiểm toán.");
 
-            string newRawPin = Random.Shared.Next(100000, 999999).ToString();
-            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(newRawPin));
+            string newRawPin = RandomNumberGenerator.GetInt32(100000, 1000000).ToString("D6");
+            string pinSalt = Guid.NewGuid().ToString("N");
+            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes($"{pinSalt}:{newRawPin}"));
             string pinHash = Convert.ToHexString(hashBytes);
 
             await using var conn = new SqlConnection(_connectionString);
@@ -1472,6 +1634,7 @@ namespace KimLongEcoStay.Web.Services
                 p.Add("@RoomNumber", roomNumber);
                 p.Add("@BookingCode", bookingCode);
                 p.Add("@NewPinHash", pinHash);
+                p.Add("@PinSalt", pinSalt);
                 p.Add("@PerformedBy", actor);
                 p.Add("@RoleName", role);
                 p.Add("@Reason", reason.Trim());
@@ -1489,6 +1652,8 @@ namespace KimLongEcoStay.Web.Services
                     success = true,
                     roomNumber,
                     maskedPin = "••••••", // Không bao giờ trả về mã PIN thật trên giao diện quản trị
+                    oneTimePin = newRawPin,
+                    pinSecurityNotice = "Mã PIN phòng được sinh ngẫu nhiên an toàn (CSPRNG) và chỉ xuất hiện DUY NHẤT một lần trong phản hồi này. Vui lòng chuyển ngay cho khách hàng.",
                     reissuedBy = actor,
                     reason = reason.Trim(),
                     reissuedAt = DateTime.UtcNow,
@@ -1501,6 +1666,369 @@ namespace KimLongEcoStay.Web.Services
                 _lastError = ex.Message;
                 throw;
             }
+        }
+
+        public async Task<object> RevokeSmartLockPinAsync(string roomNumber, string? bookingCode, string reason, string actor, string role)
+        {
+            if (string.IsNullOrWhiteSpace(reason) || reason.Trim().Length < 3)
+                throw new ArgumentException("Bắt buộc nhập lý do thu hồi mã PIN (tối thiểu 3 ký tự).");
+
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+            await using var tx = (SqlTransaction)await conn.BeginTransactionAsync();
+
+            try
+            {
+                string randomizedRevocationHash = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+                await conn.ExecuteAsync(@"
+                    UPDATE dbo.SmartLockPins
+                    SET PinStatus = 'REVOKED',
+                        PinHash = @PinHash,
+                        FailedAttempts = 0,
+                        LockedUntil = NULL,
+                        UpdatedAt = SYSUTCDATETIME(),
+                        SyncVersion = SyncVersion + 1
+                    WHERE RoomNumber = @RoomNumber;",
+                    new { RoomNumber = roomNumber, PinHash = randomizedRevocationHash }, tx);
+
+                await conn.ExecuteAsync(@"
+                    INSERT INTO dbo.SmartLockAuditLogs (
+                        LogCode, RoomNumber, BookingCode, ActionType, PerformedBy, RoleName, Reason
+                    ) VALUES (
+                        @LogCode, @RoomNumber, @BookingCode, 'REVOKE_PIN', @Actor, @Role, @Reason
+                    );",
+                    new
+                    {
+                        LogCode = $"REV-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(100, 999)}",
+                        RoomNumber = roomNumber,
+                        BookingCode = bookingCode ?? "",
+                        Actor = actor,
+                        Role = role,
+                        Reason = reason.Trim()
+                    }, tx);
+
+                await tx.CommitAsync();
+                Interlocked.Increment(ref _successfulWrites);
+                _lastSyncTimestamp = DateTime.UtcNow;
+
+                var updatedSlice = await GetEntitySliceAsync("smartlock");
+                await BroadcastEntityChangeAsync("smartlock", roomNumber, "REVOKE_PIN", $"Đã thu hồi mã PIN phòng {roomNumber}", actor);
+
+                return new
+                {
+                    success = true,
+                    roomNumber,
+                    pinStatus = "REVOKED",
+                    revokedBy = actor,
+                    reason = reason.Trim(),
+                    revokedAt = DateTime.UtcNow,
+                    slice = updatedSlice
+                };
+            }
+            catch (Exception ex)
+            {
+                if (tx.Connection != null) await tx.RollbackAsync();
+                Interlocked.Increment(ref _failedWrites);
+                _lastError = ex.Message;
+                throw;
+            }
+        }
+
+        public async Task<(bool verified, int statusCode, string message)> VerifySmartLockPinAsync(string roomNumber, string? bookingCode, string enteredPin, string clientIp)
+        {
+            if (string.IsNullOrWhiteSpace(enteredPin) || enteredPin.Trim().Length != 6 || !enteredPin.Trim().All(char.IsDigit))
+            {
+                return (false, 400, "Mã PIN phải bao gồm đúng 6 chữ số.");
+            }
+
+            string cleanPin = enteredPin.Trim();
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var lockRow = await conn.QueryFirstOrDefaultAsync<dynamic>(@"
+                SELECT sl.Id, sl.RoomNumber, sl.BookingCode, sl.PinHash, sl.PinSalt,
+                       sl.PinStatus, sl.FailedAttempts, sl.LockedUntil, sl.ValidFrom, sl.ValidUntil,
+                       r.Status AS RoomStatus, b.Status AS BookingStatus
+                FROM dbo.SmartLockPins sl
+                LEFT JOIN dbo.Rooms r ON sl.RoomNumber = r.RoomNumber
+                LEFT JOIN dbo.Bookings b ON sl.BookingCode = b.BookingCode
+                WHERE sl.RoomNumber = @RoomNumber;",
+                new { RoomNumber = roomNumber });
+
+            if (lockRow == null)
+            {
+                return (false, 404, "Không tìm thấy thiết bị SmartLock cho phòng này.");
+            }
+
+            DateTime now = DateTime.UtcNow;
+
+            // 1. Kiểm tra tạm khóa chống Brute-Force (Lockout 15 phút)
+            DateTime? lockedUntil = (DateTime?)lockRow.LockedUntil;
+            if (lockedUntil.HasValue && lockedUntil.Value > now)
+            {
+                int remainingMinutes = (int)Math.Ceiling((lockedUntil.Value - now).TotalMinutes);
+                return (false, 429, $"Khóa phòng đang tạm khóa an toàn do nhập sai quá 5 lần. Vui lòng thử lại sau {remainingMinutes} phút.");
+            }
+
+            // 2. Kiểm tra trạng thái PIN & Đơn phòng
+            string pinStatus = (string)lockRow.PinStatus;
+            if (!pinStatus.Equals("ACTIVE", StringComparison.OrdinalIgnoreCase))
+            {
+                return (false, 403, "Khóa SmartLock của phòng hiện chưa được kích hoạt hoặc đã hết hạn.");
+            }
+
+            string? bookingStatus = (string?)lockRow.BookingStatus;
+            if (!string.IsNullOrEmpty(bookingStatus) &&
+                !bookingStatus.Equals("CONFIRMED", StringComparison.OrdinalIgnoreCase) &&
+                !bookingStatus.Equals("CHECKED_IN", StringComparison.OrdinalIgnoreCase))
+            {
+                return (false, 403, "Đơn đặt phòng liên kết chưa được xác nhận hoặc đã kết thúc lưu trú.");
+            }
+
+            // 3. Kiểm tra khung giờ hiệu lực
+            DateTime? validFrom = (DateTime?)lockRow.ValidFrom;
+            DateTime? validUntil = (DateTime?)lockRow.ValidUntil;
+            if (validFrom.HasValue && now < validFrom.Value)
+            {
+                return (false, 403, "Chưa đến thời gian nhận phòng hợp lệ theo hợp đồng đặt phòng.");
+            }
+            if (validUntil.HasValue && now > validUntil.Value)
+            {
+                return (false, 403, "Mã khóa SmartLock đã quá hạn thời gian lưu trú.");
+            }
+
+            // 4. Xác minh băm SHA-256 kèm muối bằng Constant-Time Equals
+            string storedHash = (string)lockRow.PinHash;
+            string pinSalt = (string?)lockRow.PinSalt ?? "KLE_SL_SALT_2026";
+            byte[] computedHashBytes = SHA256.HashData(Encoding.UTF8.GetBytes($"{pinSalt}:{cleanPin}"));
+            string computedHash = Convert.ToHexString(computedHashBytes);
+
+            byte[] storedBytes = Encoding.UTF8.GetBytes(storedHash.ToUpperInvariant());
+            byte[] compBytes = Encoding.UTF8.GetBytes(computedHash.ToUpperInvariant());
+
+            bool isMatch = CryptographicOperations.FixedTimeEquals(storedBytes, compBytes);
+
+            if (isMatch)
+            {
+                // Mở khóa thành công: Reset số lần nhập sai
+                await conn.ExecuteAsync(@"
+                    UPDATE dbo.SmartLockPins
+                    SET FailedAttempts = 0, LockedUntil = NULL, UpdatedAt = SYSUTCDATETIME()
+                    WHERE RoomNumber = @RoomNumber;",
+                    new { RoomNumber = roomNumber });
+
+                await conn.ExecuteAsync(@"
+                    INSERT INTO dbo.SmartLockAuditLogs (
+                        LogCode, RoomNumber, BookingCode, ActionType, PerformedBy, RoleName, Reason
+                    ) VALUES (
+                        @LogCode, @RoomNumber, @BookingCode, 'PIN_UNLOCK_SUCCESS', @ClientIp, 'GUEST', N'Mở khóa phòng thành công qua mã PIN SmartLock 6 số'
+                    );",
+                    new
+                    {
+                        LogCode = $"UNL-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(100, 999)}",
+                        RoomNumber = roomNumber,
+                        BookingCode = (string?)lockRow.BookingCode ?? "",
+                        ClientIp = clientIp
+                    });
+
+                return (true, 200, "Xác thực mã PIN thành công. Đã mở chốt cửa an toàn!");
+            }
+            else
+            {
+                // Nhập sai PIN: Tăng FailedAttempts
+                int currentFailed = (int)(lockRow.FailedAttempts ?? 0) + 1;
+                DateTime? newLockedUntil = currentFailed >= 5 ? now.AddMinutes(15) : null;
+
+                await conn.ExecuteAsync(@"
+                    UPDATE dbo.SmartLockPins
+                    SET FailedAttempts = @Failed,
+                        LockedUntil = @LockedUntil,
+                        UpdatedAt = SYSUTCDATETIME()
+                    WHERE RoomNumber = @RoomNumber;",
+                    new { Failed = currentFailed, LockedUntil = newLockedUntil, RoomNumber = roomNumber });
+
+                if (currentFailed >= 5)
+                {
+                    await conn.ExecuteAsync(@"
+                        INSERT INTO dbo.SmartLockAuditLogs (
+                            LogCode, RoomNumber, BookingCode, ActionType, PerformedBy, RoleName, Reason
+                        ) VALUES (
+                            @LogCode, @RoomNumber, @BookingCode, 'BRUTE_FORCE_LOCKOUT', @ClientIp, 'GUEST', N'Tự động khóa 15 phút do nhập sai mã PIN quá 5 lần liên tiếp'
+                        );",
+                        new
+                        {
+                            LogCode = $"LCK-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(100, 999)}",
+                            RoomNumber = roomNumber,
+                            BookingCode = (string?)lockRow.BookingCode ?? "",
+                            ClientIp = clientIp
+                        });
+
+                    return (false, 429, "Quý khách đã nhập sai mã PIN 5 lần. Khóa phòng tạm khóa an toàn trong 15 phút.");
+                }
+                else
+                {
+                    await conn.ExecuteAsync(@"
+                        INSERT INTO dbo.SmartLockAuditLogs (
+                            LogCode, RoomNumber, BookingCode, ActionType, PerformedBy, RoleName, Reason
+                        ) VALUES (
+                            @LogCode, @RoomNumber, @BookingCode, 'PIN_ATTEMPT_FAILED', @ClientIp, 'GUEST', N'Nhập sai mã PIN SmartLock'
+                        );",
+                        new
+                        {
+                            LogCode = $"ERR-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(100, 999)}",
+                            RoomNumber = roomNumber,
+                            BookingCode = (string?)lockRow.BookingCode ?? "",
+                            ClientIp = clientIp
+                        });
+
+                    return (false, 401, $"Mã PIN không chính xác. Quý khách còn {5 - currentFailed} lần thử.");
+                }
+            }
+        }
+
+        public async Task<(bool success, int statusCode, string message, object? booking)> LookupCustomerBookingVerifiedAsync(string orderCode, string phoneOrEmail)
+        {
+            if (string.IsNullOrWhiteSpace(orderCode) || string.IsNullOrWhiteSpace(phoneOrEmail))
+            {
+                return (false, 400, "Vui lòng nhập đầy đủ Mã Đặt Phòng và Số Điện Thoại / Email để xác minh danh tính.", null);
+            }
+
+            string cleanCode = orderCode.Trim().ToUpperInvariant();
+            string cleanVerifier = phoneOrEmail.Trim().ToLowerInvariant();
+            string digitsVerifier = new string(cleanVerifier.Where(char.IsDigit).ToArray());
+
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var row = await conn.QueryFirstOrDefaultAsync<dynamic>(@"
+                SELECT b.Id, b.BookingCode, b.GuestName, b.GuestPhone, b.GuestEmail,
+                       b.RoomName, b.CheckInDate, b.CheckOutDate, b.TotalGuests,
+                       b.TotalAmount, b.DepositAmount, b.Status, b.PaymentStatus,
+                       b.PaymentMethod, b.TransferContent, b.Notes, b.CreatedAt, b.UpdatedAt
+                FROM dbo.Bookings b
+                WHERE b.BookingCode = @Code;",
+                new { Code = cleanCode });
+
+            if (row == null)
+            {
+                return (false, 404, "Không tìm thấy đơn đặt phòng với mã cung cấp.", null);
+            }
+
+            string guestPhone = (string?)row.GuestPhone ?? "";
+            string guestEmail = (string?)row.GuestEmail ?? "";
+            string guestDigits = new string(guestPhone.Where(char.IsDigit).ToArray());
+
+            bool isMatch = false;
+            if (!string.IsNullOrEmpty(digitsVerifier) && digitsVerifier.Length >= 4 && guestDigits.EndsWith(digitsVerifier))
+            {
+                isMatch = true;
+            }
+            else if (!string.IsNullOrEmpty(guestEmail) && guestEmail.Trim().Equals(cleanVerifier, StringComparison.OrdinalIgnoreCase))
+            {
+                isMatch = true;
+            }
+
+            if (!isMatch)
+            {
+                return (false, 403, "Số điện thoại hoặc email không khớp với đơn đặt phòng này. Để bảo mật thông tin khách hàng, yêu cầu bị từ chối.", null);
+            }
+
+            decimal total = (decimal)row.TotalAmount;
+            decimal deposit = (decimal)row.DepositAmount;
+            string payStatus = (string?)row.PaymentStatus ?? "WAITING_RECONCILIATION";
+            decimal remaining = payStatus == "COMPLETED" ? 0 : (total - deposit);
+
+            var sanitizedBooking = new
+            {
+                orderCode = (string)row.BookingCode,
+                roomName = (string?)row.RoomName ?? "Eco-Nest Ban Mai",
+                checkIn = ((DateTime)row.CheckInDate).ToString("yyyy-MM-dd"),
+                checkOut = ((DateTime)row.CheckOutDate).ToString("yyyy-MM-dd"),
+                totalGuests = (int)row.TotalGuests,
+                totalPrice = total,
+                depositPaid = deposit,
+                remainingBalance = remaining,
+                status = payStatus,
+                bookingStatus = (string)row.Status,
+                transferContent = (string?)row.TransferContent ?? $"KLE {cleanCode} COC50",
+                guestName = (string?)row.GuestName ?? "Quý Khách",
+                maskedPhone = MaskPhone(guestPhone),
+                maskedEmail = MaskEmail(guestEmail),
+                pin = "••••••" // Luôn ẩn PIN trong API tra cứu công khai để chống lộ lọt
+            };
+
+            return (true, 200, "Xác minh đơn đặt phòng thành công.", sanitizedBooking);
+        }
+
+        public async Task<(bool success, int statusCode, string message, object? delivery)> LookupCustomerDeliveryVerifiedAsync(string orderCode, string phoneOrRoom)
+        {
+            if (string.IsNullOrWhiteSpace(orderCode) || string.IsNullOrWhiteSpace(phoneOrRoom))
+            {
+                return (false, 400, "Vui lòng nhập đầy đủ Mã Đơn Hàng và Số Điện Thoại / Số Phòng để xác minh.", null);
+            }
+
+            string cleanCode = orderCode.Trim().ToUpperInvariant();
+            string cleanVerifier = phoneOrRoom.Trim().ToLowerInvariant();
+            string digitsVerifier = new string(cleanVerifier.Where(char.IsDigit).ToArray());
+
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            var row = await conn.QueryFirstOrDefaultAsync<dynamic>(@"
+                SELECT Id, OrderCode, DeliveryMethod, RoomNumber, RoomName, BookingCode,
+                       CustomerName, Phone, Email, DeliveryTime, ServiceNotes,
+                       PaymentMethod, PaymentStatus, ItemsJson, Subtotal, ShippingFee, Total,
+                       Status, StatusHistoryJson, CreatedAt, UpdatedAt
+                FROM dbo.RoomDeliveries
+                WHERE OrderCode = @Code;",
+                new { Code = cleanCode });
+
+            if (row == null)
+            {
+                return (false, 404, "Không tìm thấy đơn giao dịch vụ với mã cung cấp.", null);
+            }
+
+            string phone = (string?)row.Phone ?? "";
+            string roomNum = (string?)row.RoomNumber ?? "";
+            string phoneDigits = new string(phone.Where(char.IsDigit).ToArray());
+
+            bool isMatch = false;
+            if (!string.IsNullOrEmpty(digitsVerifier) && digitsVerifier.Length >= 4 && phoneDigits.EndsWith(digitsVerifier))
+            {
+                isMatch = true;
+            }
+            else if (!string.IsNullOrEmpty(roomNum) && roomNum.Trim().Equals(cleanVerifier, StringComparison.OrdinalIgnoreCase))
+            {
+                isMatch = true;
+            }
+
+            if (!isMatch)
+            {
+                return (false, 403, "Thông tin xác minh không khớp với đơn hàng này.", null);
+            }
+
+            object? items = null;
+            try { items = JsonSerializer.Deserialize<JsonElement>((string)row.ItemsJson); } catch { items = Array.Empty<object>(); }
+
+            var sanitizedDelivery = new
+            {
+                orderCode = (string)row.OrderCode,
+                roomNumber = (string)row.RoomNumber,
+                roomName = (string)row.RoomName,
+                customerName = (string)row.CustomerName,
+                maskedPhone = MaskPhone(phone),
+                deliveryTime = (string)row.DeliveryTime,
+                serviceNotes = (string?)row.ServiceNotes ?? "",
+                paymentStatus = (string)row.PaymentStatus,
+                status = (string)row.Status,
+                items,
+                subtotal = (decimal)row.Subtotal,
+                shippingFee = (decimal)row.ShippingFee,
+                total = (decimal)row.Total,
+                createdAt = (DateTime)row.CreatedAt
+            };
+
+            return (true, 200, "Xác minh đơn giao phòng thành công.", sanitizedDelivery);
         }
 
         public async Task<object> UpsertPartnerAsync(JsonElement payload, string actor)

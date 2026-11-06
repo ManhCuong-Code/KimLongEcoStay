@@ -172,9 +172,9 @@ GO
 -- 8.1. Tài khoản Phân Quyền Hệ Thống (Admin, Lễ Tân / Nhân Viên, Khách Hàng)
 INSERT INTO dbo.AppUsers (Username, PasswordHash, FullName, Email, Role)
 VALUES 
-('admin', '123456', N'Quản Trị Viên Kim Long EcoStay', 'admin@kimlongecostay.vn', 'Admin'),
-('letan', '123456', N'Lễ Tân Kim Long EcoStay (Nhân Viên)', 'letan@kimlongecostay.vn', 'Staff'),
-('khachhang', '123456', N'Nguyễn Văn An (Khách Hàng)', 'an.nguyen@gmail.com', 'Customer');
+('admin', '564C07116D7DED47805641FC46710CA1724F44F37868A56169213CBB65A07DA9|177D7D30D3222D79E85E878362C8AE8B3B2FF1933DF3CB12DF85A27A402970FC', N'Quản Trị Viên Kim Long EcoStay', 'admin@kimlongecostay.vn', 'Admin'),
+('letan', '1465521F76F3642957E4B412E40319191D256A74E97934123DD3B268FEADA82E|C1FD4E790FD8EBCC9216BE70DC10EAFDC85BD520DAC1820F4B60DC88CB2C7BA5', N'Lễ Tân Kim Long EcoStay (Nhân Viên)', 'letan@kimlongecostay.vn', 'Staff'),
+('khachhang', '3FCA856599D86F9B5E2A3304A1AB027BC3EA023C06DEA7B2E509087ACFA86B70|D3312D3ADC0A4EC182E7B111D386E7B8693F6A1D7F5CF64002DB86B301434AB5', N'Nguyễn Văn An (Khách Hàng)', 'an.nguyen@gmail.com', 'Customer');
 
 -- 8.2. Khách hàng mẫu
 INSERT INTO dbo.Guests (FullName, PhoneNumber, Email, IdentityCard)

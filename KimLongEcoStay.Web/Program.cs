@@ -34,6 +34,7 @@ using KimLongEcoStay.UseCases.AdminPortal.PayrollManagementScreen;
 using KimLongEcoStay.UseCases.AdminPortal.FinancialManagementScreen;
 using KimLongEcoStay.Web.Services;
 using System.Text.Json;
+using System.Text;
 
 // 0. NẠP BIẾN MÔI TRƯỜNG TỪ FILE .env (BẢO MẬT TUYỆT ĐỐI API KEY & SQL CONNECTION)
 EnvConfigurationLoader.LoadDotEnv();
@@ -52,16 +53,41 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSignalR();
 
-// 2. COOKIE AUTHENTICATION & AUTHORIZATION (PART 4)
+// 2. COOKIE AUTHENTICATION & AUTHORIZATION (BẢO MẬT TUYỆT ĐỐI RBAC BACKEND)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.Cookie.Name = "KimLongEcoStay.Auth.Cookie";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
         options.AccessDeniedPath = "/login?error=denied";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+        options.Events.OnRedirectToLogin = ctx =>
+        {
+            if (ctx.Request.Path.StartsWithSegments("/api"))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                ctx.Response.ContentType = "application/json";
+                return ctx.Response.WriteAsync("{\"success\":false,\"error\":\"Unauthorized: Yêu cầu đăng nhập tài khoản có thẩm quyền (401).\"}");
+            }
+            ctx.Response.Redirect(ctx.RedirectUri);
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = ctx =>
+        {
+            if (ctx.Request.Path.StartsWithSegments("/api"))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                ctx.Response.ContentType = "application/json";
+                return ctx.Response.WriteAsync("{\"success\":false,\"error\":\"Forbidden: Tài khoản của bạn không có quyền truy cập tài nguyên này (403 RBAC).\"}");
+            }
+            ctx.Response.Redirect(ctx.RedirectUri);
+            return Task.CompletedTask;
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -187,151 +213,42 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.UseStaticFiles();
 
-// 6. MINIMAL API ENDPOINTS FOR AUTHENTICATION (PART 4)
-// Xử lý Login truyền thống bằng HTTP POST để phát hành Cookie trình duyệt
-app.MapPost("/authenticate", async (HttpContext context, IUserRepository userRepo) =>
+// =========================================================================
+// 6. RBAC & BẢO MẬT XÁC THỰC BACKEND (ZERO-TRUST, RATE-LIMIT & BRUTE-FORCE LOCKOUT)
+// =========================================================================
+
+var loginAttempts = new System.Collections.Concurrent.ConcurrentDictionary<string, (int count, DateTime lockoutUntil)>();
+
+static IResult? AuthorizeRole(HttpContext ctx, params string[] allowedRoles)
 {
-    string username = "";
-    string password = "";
-
-    try
+    if (ctx.User?.Identity?.IsAuthenticated != true)
     {
-        if (context.Request.HasFormContentType)
-        {
-            var form = await context.Request.ReadFormAsync();
-            username = form["username"].ToString().Trim();
-            password = form["password"].ToString().Trim();
-        }
-        else if (context.Request.Query.ContainsKey("username"))
-        {
-            username = context.Request.Query["username"].ToString().Trim();
-            password = context.Request.Query["password"].ToString().Trim();
-        }
-        else
-        {
-            var json = await context.Request.ReadFromJsonAsync<Dictionary<string, string>>();
-            if (json != null)
-            {
-                json.TryGetValue("username", out var u);
-                json.TryGetValue("password", out var p);
-                username = u?.Trim() ?? "";
-                password = p?.Trim() ?? "";
-            }
-        }
-    }
-    catch
-    {
-        // Fallback an toàn
+        return Results.Json(new { success = false, error = "Yêu cầu đăng nhập tài khoản có thẩm quyền (401 Unauthorized)." }, statusCode: 401);
     }
 
-    AppUser? user = null;
-    try
+    string role = ctx.User.FindFirst("UserRole")?.Value ?? ctx.User.FindFirst(ClaimTypes.Role)?.Value ?? "";
+    string norm = role.ToUpperInvariant();
+    bool isAllowed = false;
+    foreach (var r in allowedRoles)
     {
-        user = await userRepo.AuthenticateAsync(username, password);
-    }
-    catch
-    {
-        // Khi không kết nối được CSDL, fallback sang tài khoản mẫu
-    }
-
-    if (user == null)
-    {
-        if (username.Equals("admin", StringComparison.OrdinalIgnoreCase) && (password == "123456" || string.IsNullOrEmpty(password)))
-        {
-            user = new AppUser { Username = "admin", FullName = "Trần Mạnh Cường (Admin - CEO)", Role = "Admin" };
-        }
-        else if ((username.Equals("letan", StringComparison.OrdinalIgnoreCase) || username.Equals("staff", StringComparison.OrdinalIgnoreCase)) && (password == "123456" || string.IsNullOrEmpty(password)))
-        {
-            user = new AppUser { Username = "letan", FullName = "Đặng Thu Thảo (Lễ Tân)", Role = "Staff" };
-        }
-        else if ((username.Equals("ketoan", StringComparison.OrdinalIgnoreCase) || username.Equals("cfo", StringComparison.OrdinalIgnoreCase)) && (password == "123456" || string.IsNullOrEmpty(password)))
-        {
-            user = new AppUser { Username = "ketoan", FullName = "Lê Thị Mai Lan (Kế Toán Trưởng)", Role = "Accountant" };
-        }
-        else if ((username.Equals("nhansu", StringComparison.OrdinalIgnoreCase) || username.Equals("hr", StringComparison.OrdinalIgnoreCase) || username.Equals("coo", StringComparison.OrdinalIgnoreCase)) && (password == "123456" || string.IsNullOrEmpty(password)))
-        {
-            user = new AppUser { Username = "nhansu", FullName = "Nguyễn Văn An (Nhân Sự / Vận Hành)", Role = "HR" };
-        }
-        else if (username.Equals("khachhang", StringComparison.OrdinalIgnoreCase) && password == "123456")
-        {
-            user = new AppUser { Username = "khachhang", FullName = "Nguyễn Văn An (Khách Hàng)", Role = "Customer" };
-        }
+        string nr = r.ToUpperInvariant();
+        if (norm == nr) { isAllowed = true; break; }
+        if ((norm is "ADMIN" or "ADMINISTRATOR") && (nr is "ADMIN" or "ADMINISTRATOR")) { isAllowed = true; break; }
+        if ((norm is "STAFF" or "LETAN" or "RECEPTIONIST") && (nr is "STAFF" or "LETAN" or "RECEPTIONIST")) { isAllowed = true; break; }
+        if ((norm is "ACCOUNTANT" or "CFO" or "KETOAN") && (nr is "ACCOUNTANT" or "CFO" or "KETOAN")) { isAllowed = true; break; }
+        if ((norm is "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU") && (nr is "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU")) { isAllowed = true; break; }
     }
 
-    if (user != null)
+    if (!isAllowed)
     {
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.FullName),
-            new Claim(ClaimTypes.NameIdentifier, user.Username),
-            new Claim(ClaimTypes.Role, user.Role),
-            new Claim("UserRole", user.Role)
-        };
-
-        if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-        {
-            claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
-            claims.Add(new Claim("Department", "Ban Điều Hành & Quản Trị Homestay"));
-        }
-        else if (user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase))
-        {
-            claims.Add(new Claim("Department", "Bộ Phận Lễ Tân & Đón Tiếp"));
-        }
-        else if (user.Role.Equals("Accountant", StringComparison.OrdinalIgnoreCase))
-        {
-            claims.Add(new Claim("Department", "Bộ Phận Tài Chính - Kế Toán"));
-        }
-        else if (user.Role.Equals("HR", StringComparison.OrdinalIgnoreCase))
-        {
-            claims.Add(new Claim("Department", "Bộ Phận Nhân Sự & Vận Hành"));
-        }
-        else
-        {
-            claims.Add(new Claim("Department", "Khách Hàng"));
-        }
-
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(claimsIdentity);
-
-        await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
-        {
-            IsPersistent = true,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
-        });
-
-        // Nhân viên và Admin bắt buộc vào Admin Portal
-        if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
-            user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase) ||
-            user.Role.Equals("Accountant", StringComparison.OrdinalIgnoreCase) ||
-            user.Role.Equals("HR", StringComparison.OrdinalIgnoreCase) ||
-            user.Role.Equals("Administrator", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.Redirect("/admin");
-        }
-        else
-        {
-            // Khách hàng trở về trang đặt phòng
-            context.Response.Redirect("/");
-        }
-        return;
+        return Results.Json(new { success = false, error = $"Tài khoản ({role}) không có quyền thực hiện thao tác này. Yêu cầu: {string.Join(", ", allowedRoles)} (403 Forbidden)." }, statusCode: 403);
     }
 
-    context.Response.Redirect("/login?error=invalid");
-}).DisableAntiforgery();
+    return null;
+}
 
-// Endpoint Đăng Nhập Nhanh 1-Click (Quick Login) dành cho 4 vai trò RBAC
-app.MapGet("/quick-login", async (string? role, HttpContext context) =>
+static async Task SignInUserAsync(HttpContext context, AppUser user)
 {
-    string targetRole = (role ?? "admin").Trim().ToLowerInvariant();
-    AppUser user = targetRole switch
-    {
-        "letan" or "staff" => new AppUser { Username = "letan", FullName = "Đặng Thu Thảo (Lễ Tân)", Role = "Staff" },
-        "ketoan" or "cfo" or "accountant" => new AppUser { Username = "ketoan", FullName = "Lê Thị Mai Lan (Kế Toán Trưởng)", Role = "Accountant" },
-        "nhansu" or "hr" or "coo" or "vanhanh" => new AppUser { Username = "nhansu", FullName = "Nguyễn Văn An (Nhân Sự / Vận Hành)", Role = "HR" },
-        "khachhang" or "customer" => new AppUser { Username = "khachhang", FullName = "Khách Lưu Trú Kim Long", Role = "Customer" },
-        _ => new AppUser { Username = "admin", FullName = "Trần Mạnh Cường (Admin - CEO)", Role = "Admin" }
-    };
-
     var claims = new List<Claim>
     {
         new Claim(ClaimTypes.Name, user.FullName),
@@ -340,22 +257,22 @@ app.MapGet("/quick-login", async (string? role, HttpContext context) =>
         new Claim("UserRole", user.Role)
     };
 
-    if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+    if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) || user.Role.Equals("Administrator", StringComparison.OrdinalIgnoreCase))
     {
         claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
         claims.Add(new Claim("Department", "Ban Điều Hành & Quản Trị Homestay"));
     }
-    else if (user.Role.Equals("HR", StringComparison.OrdinalIgnoreCase))
+    else if (user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase) || user.Role.Equals("Receptionist", StringComparison.OrdinalIgnoreCase))
     {
-        claims.Add(new Claim("Department", "Bộ Phận Nhân Sự & Vận Hành"));
+        claims.Add(new Claim("Department", "Bộ Phận Lễ Tân & Đón Tiếp"));
     }
     else if (user.Role.Equals("Accountant", StringComparison.OrdinalIgnoreCase))
     {
         claims.Add(new Claim("Department", "Bộ Phận Tài Chính - Kế Toán"));
     }
-    else if (user.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase))
+    else if (user.Role.Equals("HR", StringComparison.OrdinalIgnoreCase) || user.Role.Equals("HR_OPS", StringComparison.OrdinalIgnoreCase))
     {
-        claims.Add(new Claim("Department", "Bộ Phận Lễ Tân & Đón Tiếp"));
+        claims.Add(new Claim("Department", "Bộ Phận Nhân Sự & Vận Hành"));
     }
     else
     {
@@ -370,8 +287,66 @@ app.MapGet("/quick-login", async (string? role, HttpContext context) =>
         IsPersistent = true,
         ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
     });
+}
 
-    if (user.Role == "Customer")
+// Xử lý Login truyền thống bằng HTTP POST (HTML Form)
+app.MapPost("/authenticate", async (HttpContext context, IUserRepository userRepo) =>
+{
+    string username = "";
+    string password = "";
+
+    try
+    {
+        if (context.Request.HasFormContentType)
+        {
+            var form = await context.Request.ReadFormAsync();
+            username = form["username"].ToString().Trim();
+            password = form["password"].ToString().Trim();
+        }
+        else
+        {
+            var json = await context.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+            if (json != null)
+            {
+                json.TryGetValue("username", out var u);
+                json.TryGetValue("password", out var p);
+                username = u?.Trim() ?? "";
+                password = p?.Trim() ?? "";
+            }
+        }
+    }
+    catch { }
+
+    if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+    {
+        context.Response.Redirect("/login?error=invalid");
+        return;
+    }
+
+    string clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "local";
+    string attemptKey = $"{clientIp}_{username.ToLowerInvariant()}";
+
+    if (loginAttempts.TryGetValue(attemptKey, out var att) && att.lockoutUntil > DateTime.UtcNow)
+    {
+        context.Response.Redirect("/login?error=lockout");
+        return;
+    }
+
+    AppUser? user = await userRepo.AuthenticateAsync(username, password);
+    if (user == null)
+    {
+        int count = att.lockoutUntil > DateTime.UtcNow ? att.count + 1 : 1;
+        DateTime lockout = count >= 5 ? DateTime.UtcNow.AddMinutes(15) : DateTime.MinValue;
+        loginAttempts[attemptKey] = (count, lockout);
+
+        context.Response.Redirect("/login?error=invalid");
+        return;
+    }
+
+    loginAttempts.TryRemove(attemptKey, out _);
+    await SignInUserAsync(context, user);
+
+    if (user.Role.Equals("Customer", StringComparison.OrdinalIgnoreCase))
     {
         context.Response.Redirect("/");
     }
@@ -379,6 +354,113 @@ app.MapGet("/quick-login", async (string? role, HttpContext context) =>
     {
         context.Response.Redirect("/admin");
     }
+}).DisableAntiforgery();
+
+// REST API Đăng Nhập Bảo Mật (/api/auth/login) có kiểm soát Brute-force
+app.MapPost("/api/auth/login", async (HttpContext context, IUserRepository userRepo) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string username = doc.RootElement.TryGetProperty("username", out var up) ? (up.GetString() ?? "").Trim() : "";
+        string password = doc.RootElement.TryGetProperty("password", out var pp) ? (pp.GetString() ?? "").Trim() : "";
+
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            return Results.BadRequest(new { success = false, error = "Tên đăng nhập và mật khẩu không được để trống." });
+        }
+
+        string clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "local";
+        string attemptKey = $"{clientIp}_{username.ToLowerInvariant()}";
+
+        if (loginAttempts.TryGetValue(attemptKey, out var att) && att.lockoutUntil > DateTime.UtcNow)
+        {
+            int remainingMins = (int)Math.Ceiling((att.lockoutUntil - DateTime.UtcNow).TotalMinutes);
+            return Results.Json(new
+            {
+                success = false,
+                error = $"Tài khoản tạm khóa an toàn do đăng nhập sai quá 5 lần. Vui lòng thử lại sau {remainingMins} phút."
+            }, statusCode: 429);
+        }
+
+        AppUser? user = await userRepo.AuthenticateAsync(username, password);
+        if (user == null)
+        {
+            int count = att.lockoutUntil > DateTime.UtcNow ? att.count + 1 : 1;
+            DateTime lockout = count >= 5 ? DateTime.UtcNow.AddMinutes(15) : DateTime.MinValue;
+            loginAttempts[attemptKey] = (count, lockout);
+
+            if (count >= 5)
+            {
+                return Results.Json(new
+                {
+                    success = false,
+                    error = "Đăng nhập sai 5 lần liên tiếp. Tài khoản tạm khóa an toàn trong 15 phút."
+                }, statusCode: 429);
+            }
+
+            return Results.Json(new
+            {
+                success = false,
+                error = $"Tên đăng nhập hoặc mật khẩu không chính xác. Quý khách còn {5 - count} lần thử."
+            }, statusCode: 401);
+        }
+
+        loginAttempts.TryRemove(attemptKey, out _);
+        await SignInUserAsync(context, user);
+
+        return Results.Ok(new
+        {
+            success = true,
+            username = user.Username,
+            name = user.FullName,
+            role = user.Role,
+            redirectUrl = user.Role.Equals("Customer", StringComparison.OrdinalIgnoreCase) ? "/" : "/admin"
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// REST API Đăng Xuất (/api/auth/logout)
+app.MapPost("/api/auth/logout", async (HttpContext context) =>
+{
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.Ok(new { success = true, message = "Đã đăng xuất phiên làm việc an toàn." });
+}).DisableAntiforgery();
+
+// REST API Kiểm tra thông tin phiên (/api/auth/me)
+app.MapGet("/api/auth/me", (HttpContext context) =>
+{
+    var user = context.User;
+    if (user?.Identity?.IsAuthenticated != true)
+    {
+        return Results.Ok(new { isAuthenticated = false, currentUser = (object?)null, allowedModules = Array.Empty<string>() });
+    }
+
+    string roleClaim = user.FindFirst("UserRole")?.Value ?? user.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
+    string[] allowedModules = roleClaim.ToUpperInvariant() switch
+    {
+        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan", "sql-sync" },
+        "STAFF" or "LETAN" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
+        "ACCOUNTANT" or "CFO" => new[] { "dashboard", "reconciliation", "luong", "emaillogs" },
+        "HR" or "COO" or "MANAGER" => new[] { "nhanvien", "duan", "partners-admin" },
+        _ => Array.Empty<string>()
+    };
+
+    return Results.Ok(new
+    {
+        isAuthenticated = true,
+        currentUser = new
+        {
+            name = user.Identity.Name,
+            username = user.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            role = roleClaim
+        },
+        allowedModules
+    });
 });
 
 // Chuyển hướng GET /authenticate về /login
@@ -387,7 +469,7 @@ app.MapGet("/authenticate", (HttpContext context) =>
     context.Response.Redirect("/login");
 });
 
-// Xử lý Logout
+// Xử lý Logout GET
 app.MapGet("/logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -502,25 +584,299 @@ app.MapPost("/api/ai/chat", async (HttpContext context, AiAssistantGatewayServic
 }).DisableAntiforgery();
 
 // =========================================================================
-// 6B. ENDPOINTS ĐỒNG BỘ SQL HAI CHIỀU (WEBSITE ↔ SQL SERVER + SIGNALR)
+// 6B. CÁC API CÔNG KHAI (ZERO-SENSITIVE-DATA / MASKED PII / CSPRNG SMARTLOCK)
 // =========================================================================
-app.MapGet("/api/sync/diagnostics", async (TwoWaySqlSyncService syncService) =>
+
+// 1. Danh mục công khai không chứa thông tin nội bộ / PII
+app.MapGet("/api/public/catalog", async (TwoWaySqlSyncService syncService) =>
 {
+    var catalog = await syncService.GetPublicCatalogAsync();
+    return Results.Ok(catalog);
+});
+
+// 2. Tiếp nhận đơn đặt phòng công khai (Trạng thái PENDING_DEPOSIT, chưa cấp PIN)
+app.MapPost("/api/public/bookings", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        var res = await syncService.UpsertBookingAsync(doc.RootElement, "OnlineGuest");
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// 3. Tra cứu đơn đặt phòng có xác minh 2 yếu tố (Mã đơn + SĐT/Email), che PII & không bao giờ lộ PIN
+app.MapPost("/api/public/booking-lookup", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string orderCode = doc.RootElement.TryGetProperty("orderCode", out var ocp) ? (ocp.GetString() ?? "").Trim() : "";
+        string verifier = doc.RootElement.TryGetProperty("phoneOrEmail", out var vp) ? (vp.GetString() ?? "").Trim()
+            : (doc.RootElement.TryGetProperty("verifier", out var vrp) ? (vrp.GetString() ?? "").Trim() : "");
+
+        var (success, statusCode, message, booking) = await syncService.LookupCustomerBookingVerifiedAsync(orderCode, verifier);
+        return Results.Json(new { success, message, booking }, statusCode: statusCode);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// 4. Tra cứu đơn giao phòng có xác minh 2 yếu tố (Mã đơn + SĐT/Số phòng)
+app.MapPost("/api/public/delivery-lookup", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string orderCode = doc.RootElement.TryGetProperty("orderCode", out var ocp) ? (ocp.GetString() ?? "").Trim() : "";
+        string verifier = doc.RootElement.TryGetProperty("phoneOrRoom", out var vp) ? (vp.GetString() ?? "").Trim()
+            : (doc.RootElement.TryGetProperty("verifier", out var vrp) ? (vrp.GetString() ?? "").Trim() : "");
+
+        var (success, statusCode, message, delivery) = await syncService.LookupCustomerDeliveryVerifiedAsync(orderCode, verifier);
+        return Results.Json(new { success, message, delivery }, statusCode: statusCode);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// 5. Xác thực mã PIN SmartLock tại Backend (Constant-time SHA-256 + Khóa an toàn 15 phút sau 5 lần sai)
+app.MapPost("/api/smartlock/verify-pin", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string roomNumber = doc.RootElement.TryGetProperty("roomNumber", out var rnp) ? (rnp.GetString() ?? "KLE-R101").Trim() : "KLE-R101";
+        string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bcp) ? bcp.GetString() : null;
+        string pin = doc.RootElement.TryGetProperty("pin", out var pp) ? (pp.GetString() ?? "").Trim() : "";
+
+        string clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "local";
+        var (verified, statusCode, message) = await syncService.VerifySmartLockPinAsync(roomNumber, bookingCode, pin, clientIp);
+        return Results.Json(new { verified, statusCode, message }, statusCode: statusCode);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { verified = false, statusCode = 400, message = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// =========================================================================
+// 6C. ENDPOINTS PHÂN HỆ QUẢN TRỊ & NẠP VIEW ĐỘNG THEO VAI TRÒ (RBAC)
+// =========================================================================
+
+static string[]? GetAllowedRolesForModule(string moduleId)
+{
+    string norm = (moduleId ?? "").Trim().ToLowerInvariant();
+    return norm switch
+    {
+        "reconciliation" => new[] { "Admin", "Staff", "Accountant" },
+        "duan" => new[] { "Admin", "Staff", "HR" },
+        "specialties-admin" => new[] { "Admin", "Staff" },
+        "tea-admin" => new[] { "Admin", "Staff" },
+        "partners-admin" => new[] { "Admin", "HR" },
+        "emaillogs" => new[] { "Admin", "Staff", "Accountant" },
+        "dashboard" => new[] { "Admin", "Accountant" },
+        "nhanvien" => new[] { "Admin", "HR" },
+        "luong" => new[] { "Admin", "Accountant" },
+        "sql-sync" => new[] { "Admin" },
+        _ => null
+    };
+}
+
+static string? ExtractAdminModuleHtml(string moduleId)
+{
+    string[] candidatePaths = new[]
+    {
+        Path.Combine(AppContext.BaseDirectory, "AdminTemplates", "AdminPortalTabs.html"),
+        Path.Combine(Directory.GetCurrentDirectory(), "KimLongEcoStay.Web", "AdminTemplates", "AdminPortalTabs.html"),
+        Path.Combine(Directory.GetCurrentDirectory(), "AdminTemplates", "AdminPortalTabs.html")
+    };
+
+    string? templatePath = candidatePaths.FirstOrDefault(File.Exists);
+    if (templatePath == null) return null;
+
+    string allHtml = File.ReadAllText(templatePath, Encoding.UTF8);
+    string targetTag = $"id=\"tab-pane-{moduleId}\"";
+    int startIndex = allHtml.IndexOf(targetTag, StringComparison.OrdinalIgnoreCase);
+    if (startIndex == -1) return null;
+
+    int divStart = allHtml.LastIndexOf("<div", startIndex, StringComparison.OrdinalIgnoreCase);
+    if (divStart == -1) return null;
+
+    int depth = 0;
+    int cur = divStart;
+    while (cur <= allHtml.Length - 6)
+    {
+        if (cur <= allHtml.Length - 4 && allHtml.Substring(cur, 4).Equals("<div", StringComparison.OrdinalIgnoreCase))
+        {
+            depth++;
+            cur += 4;
+        }
+        else if (allHtml.Substring(cur, 6).Equals("</div>", StringComparison.OrdinalIgnoreCase))
+        {
+            depth--;
+            if (depth == 0)
+            {
+                return allHtml.Substring(divStart, cur + 6 - divStart);
+            }
+            cur += 6;
+        }
+        else
+        {
+            cur++;
+        }
+    }
+    return null;
+}
+
+// Nạp HTML view động của từng Tab quản trị (Chỉ trả về khi đã xác thực & đúng quyền RBAC)
+app.MapGet("/api/admin/module-view/{moduleId}", (string moduleId, HttpContext context) =>
+{
+    var allowedRoles = GetAllowedRolesForModule(moduleId);
+    if (allowedRoles == null)
+    {
+        return Results.NotFound(new { success = false, error = "Không tìm thấy phân hệ yêu cầu." });
+    }
+
+    var authCheck = AuthorizeRole(context, allowedRoles);
+    if (authCheck != null) return authCheck;
+
+    string? htmlSnippet = ExtractAdminModuleHtml(moduleId);
+    if (string.IsNullOrEmpty(htmlSnippet))
+    {
+        return Results.NotFound(new { success = false, error = $"Không tìm thấy giao diện cho phân hệ '{moduleId}'." });
+    }
+
+    return Results.Content(htmlSnippet, "text/html; charset=utf-8");
+});
+
+// Cấp lại mã PIN SmartLock (Chỉ Admin & Lễ Tân) - Sinh CSPRNG, lưu băm muối, trả mã thô đúng 1 lần
+app.MapPost("/api/smartlock/reissue", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string roomNumber = doc.RootElement.TryGetProperty("roomNumber", out var rp) ? (rp.GetString() ?? "KLE-R101")
+            : (doc.RootElement.TryGetProperty("roomCode", out var rcp) ? (rcp.GetString() ?? "KLE-R101") : "KLE-R101");
+        string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bp) ? bp.GetString() : null;
+        string reason = doc.RootElement.TryGetProperty("reason", out var rsp) ? (rsp.GetString() ?? "")
+            : (doc.RootElement.TryGetProperty("note", out var np) ? (np.GetString() ?? "") : "");
+        string actor = context.User.Identity?.Name ?? "Admin";
+        string role = context.User.FindFirst("UserRole")?.Value ?? "Admin";
+
+        var res = await syncService.ReissueSmartLockPinAsync(roomNumber, bookingCode, reason, actor, role);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// Thu hồi mã PIN SmartLock (Chỉ Admin & Lễ Tân)
+app.MapPost("/api/smartlock/revoke", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string roomNumber = doc.RootElement.TryGetProperty("roomNumber", out var rp) ? (rp.GetString() ?? "KLE-R101") : "KLE-R101";
+        string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bp) ? bp.GetString() : null;
+        string reason = doc.RootElement.TryGetProperty("reason", out var rsp) ? (rsp.GetString() ?? "Thu hồi theo yêu cầu") : "Thu hồi theo yêu cầu";
+        string actor = context.User.Identity?.Name ?? "Admin";
+        string role = context.User.FindFirst("UserRole")?.Value ?? "Admin";
+
+        var res = await syncService.RevokeSmartLockPinAsync(roomNumber, bookingCode, reason, actor, role);
+        return Results.Ok(res);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// Dữ liệu Nhân sự bảo mật (Chỉ Admin & HR)
+app.MapGet("/api/admin/employees", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin", "HR");
+    if (authCheck != null) return authCheck;
+
+    var slice = await syncService.GetEntitySliceAsync("employees");
+    return Results.Ok(slice);
+});
+
+// Dữ liệu Bảng lương bảo mật (Chỉ Admin & Kế Toán)
+app.MapGet("/api/admin/payrolls", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin", "Accountant");
+    if (authCheck != null) return authCheck;
+
+    var slice = await syncService.GetEntitySliceAsync("payrolls");
+    return Results.Ok(slice);
+});
+
+// Dữ liệu Tài chính Dashboard bảo mật (Chỉ Admin & Kế Toán)
+app.MapGet("/api/admin/finance", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin", "Accountant");
+    if (authCheck != null) return authCheck;
+
+    var slice = await syncService.GetEntitySliceAsync("finance");
+    return Results.Ok(slice);
+});
+
+// Dữ liệu Đơn đặt phòng nội bộ (Chỉ Admin, Lễ Tân, Kế Toán)
+app.MapGet("/api/admin/bookings", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin", "Staff", "Accountant");
+    if (authCheck != null) return authCheck;
+
+    var slice = await syncService.GetEntitySliceAsync("bookings");
+    return Results.Ok(slice);
+});
+
+// =========================================================================
+// 6D. ENDPOINTS ĐỒNG BỘ SQL HAI CHIỀU (WEBSITE ↔ SQL SERVER + SIGNALR)
+// =========================================================================
+app.MapGet("/api/sync/diagnostics", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin");
+    if (authCheck != null) return authCheck;
+
     var diag = await syncService.TestConnectionAndGetDiagnosticsAsync();
     return Results.Ok(diag);
 });
 
-app.MapPost("/api/sync/test-connection", async (TwoWaySqlSyncService syncService) =>
+app.MapPost("/api/sync/test-connection", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin");
+    if (authCheck != null) return authCheck;
+
     var diag = await syncService.TestConnectionAndGetDiagnosticsAsync();
     return Results.Ok(diag);
 }).DisableAntiforgery();
 
-app.MapGet("/api/sync/state", async (TwoWaySqlSyncService syncService) =>
+app.MapGet("/api/sync/state", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff", "Accountant", "HR");
+    if (authCheck != null) return authCheck;
+
     try
     {
-        var state = await syncService.GetFullSyncStateAsync();
+        string role = context.User.FindFirst("UserRole")?.Value ?? "Admin";
+        var state = await syncService.GetFullSyncStateAsync(role);
         return Results.Ok(state);
     }
     catch (Exception ex)
@@ -529,11 +885,33 @@ app.MapGet("/api/sync/state", async (TwoWaySqlSyncService syncService) =>
     }
 });
 
-app.MapGet("/api/sync/slice/{entityType}", async (string entityType, TwoWaySqlSyncService syncService) =>
+app.MapGet("/api/sync/slice/{entityType}", async (string entityType, HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    string norm = (entityType ?? "").Trim().ToLowerInvariant();
+    if (norm == "employees")
+    {
+        var authCheck = AuthorizeRole(context, "Admin", "HR");
+        if (authCheck != null) return authCheck;
+    }
+    else if (norm is "payrolls" or "finance")
+    {
+        var authCheck = AuthorizeRole(context, "Admin", "Accountant");
+        if (authCheck != null) return authCheck;
+    }
+    else if (norm == "bookings")
+    {
+        var authCheck = AuthorizeRole(context, "Admin", "Staff", "Accountant");
+        if (authCheck != null) return authCheck;
+    }
+    else if (norm == "smartlock")
+    {
+        var authCheck = AuthorizeRole(context, "Admin", "Staff");
+        if (authCheck != null) return authCheck;
+    }
+
     try
     {
-        var slice = await syncService.GetEntitySliceAsync(entityType);
+        var slice = await syncService.GetEntitySliceAsync(entityType ?? "");
         return Results.Ok(slice);
     }
     catch (Exception ex)
@@ -544,10 +922,13 @@ app.MapGet("/api/sync/slice/{entityType}", async (string entityType, TwoWaySqlSy
 
 app.MapPost("/api/sync/resync", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin");
+    if (authCheck != null) return authCheck;
+
     try
     {
-        string actor = context.User?.Identity?.Name ?? "Admin";
-        var state = await syncService.GetFullSyncStateAsync();
+        string actor = context.User.Identity?.Name ?? "Admin";
+        var state = await syncService.GetFullSyncStateAsync("ADMIN");
         await syncService.BroadcastEntityChangeAsync("ALL", "FULL_RESYNC", "RESYNC", $"Đồng bộ lại toàn bộ dữ liệu từ SQL Server bởi {actor}", actor);
         return Results.Ok(state);
     }
@@ -559,10 +940,13 @@ app.MapPost("/api/sync/resync", async (HttpContext context, TwoWaySqlSyncService
 
 app.MapPost("/api/sync/force-resync", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin");
+    if (authCheck != null) return authCheck;
+
     try
     {
-        string actor = context.User?.Identity?.Name ?? "Admin";
-        var state = await syncService.GetFullSyncStateAsync();
+        string actor = context.User.Identity?.Name ?? "Admin";
+        var state = await syncService.GetFullSyncStateAsync("ADMIN");
         await syncService.BroadcastEntityChangeAsync("ALL", "FULL_RESYNC", "RESYNC", $"Đồng bộ lại toàn bộ dữ liệu từ SQL Server bởi {actor}", actor);
         return Results.Ok(state);
     }
@@ -572,15 +956,16 @@ app.MapPost("/api/sync/force-resync", async (HttpContext context, TwoWaySqlSyncS
     }
 }).DisableAntiforgery();
 
-// CRUD Sản phẩm Đặc sản (Website → SQL Transaction + Optimistic Concurrency)
+// CRUD Sản phẩm Đặc sản (Chỉ Admin & Lễ Tân)
 app.MapPost("/api/sync/products", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Admin";
+        string actor = context.User.Identity?.Name ?? "Admin";
         var res = await syncService.UpsertProductAsync(doc.RootElement, actor);
         return Results.Ok(res);
     }
@@ -603,9 +988,12 @@ app.MapPost("/api/sync/products", async (HttpContext context, TwoWaySqlSyncServi
 
 app.MapDelete("/api/sync/products/{code}", async (string code, HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
     try
     {
-        string actor = context.User?.Identity?.Name ?? context.Request.Query["actor"].FirstOrDefault() ?? "Admin";
+        string actor = context.User.Identity?.Name ?? "Admin";
         var res = await syncService.DeleteProductAsync(code, actor);
         return Results.Ok(res);
     }
@@ -617,6 +1005,9 @@ app.MapDelete("/api/sync/products/{code}", async (string code, HttpContext conte
 
 app.MapPost("/api/sync/products/{code}/stock", async (string code, HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
@@ -628,9 +1019,7 @@ app.MapPost("/api/sync/products/{code}/stock", async (string code, HttpContext c
         else if (doc.RootElement.TryGetProperty("syncVersion", out var svp) && svp.ValueKind == JsonValueKind.Number && svp.TryGetInt32(out var svv))
             expectedVer = svv;
 
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Staff";
+        string actor = context.User.Identity?.Name ?? "Staff";
         var res = await syncService.UpdateProductStockAsync(code, delta, abs, actor, expectedVer);
         return Results.Ok(res);
     }
@@ -653,9 +1042,12 @@ app.MapPost("/api/sync/products/{code}/stock", async (string code, HttpContext c
     }
 }).DisableAntiforgery();
 
-// Cập nhật trạng thái 8 bước của Buồng phòng trong SQL Transaction
+// Cập nhật trạng thái buồng phòng (Chỉ Admin, Lễ Tân, HR)
 app.MapPost("/api/sync/rooms/{roomNumber}/status", async (string roomNumber, HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff", "HR");
+    if (authCheck != null) return authCheck;
+
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
@@ -663,9 +1055,7 @@ app.MapPost("/api/sync/rooms/{roomNumber}/status", async (string roomNumber, Htt
         string? guestName = doc.RootElement.TryGetProperty("guestName", out var gp) ? gp.GetString() : null;
         string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bp) ? bp.GetString() : null;
         int? expectedVer = doc.RootElement.TryGetProperty("syncVersion", out var vp) && vp.ValueKind == JsonValueKind.Number && vp.TryGetInt32(out var vv) ? vv : null;
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Lễ Tân";
+        string actor = context.User.Identity?.Name ?? "Lễ Tân";
 
         var res = await syncService.UpdateRoomStatusAsync(roomNumber, status, guestName, bookingCode, expectedVer, actor);
         return Results.Ok(res);
@@ -680,15 +1070,13 @@ app.MapPost("/api/sync/rooms/{roomNumber}/status", async (string roomNumber, Htt
     }
 }).DisableAntiforgery();
 
-// Đặt phòng & Đối soát cọc 50% trong SQL Transaction
+// Đặt phòng & đối soát cọc 50%
 app.MapPost("/api/sync/bookings", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Khách Đặt Trực Tuyến";
+        string actor = context.User?.Identity?.Name ?? "Khách Đặt Trực Tuyến";
         var res = await syncService.UpsertBookingAsync(doc.RootElement, actor);
         return Results.Ok(res);
     }
@@ -700,13 +1088,14 @@ app.MapPost("/api/sync/bookings", async (HttpContext context, TwoWaySqlSyncServi
 
 app.MapPost("/api/sync/bookings/{orderCode}/reconcile", async (string orderCode, HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff", "Accountant");
+    if (authCheck != null) return authCheck;
+
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
         string status = doc.RootElement.TryGetProperty("status", out var sp) ? (sp.GetString() ?? "CONFIRMED") : "CONFIRMED";
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Kế Toán / Lễ Tân";
+        string actor = context.User.Identity?.Name ?? "Kế Toán / Lễ Tân";
         var res = await syncService.ReconcileBookingAsync(orderCode, status, actor);
         return Results.Ok(res);
     }
@@ -716,15 +1105,16 @@ app.MapPost("/api/sync/bookings/{orderCode}/reconcile", async (string orderCode,
     }
 }).DisableAntiforgery();
 
-// Đơn Giao Tận Phòng (Trừ tồn kho + Đổi trạng thái phòng trong 1 SQL Transaction)
+// Đơn Giao Tận Phòng
 app.MapPost("/api/sync/deliveries", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Lễ Tân Điều Phối";
+        string actor = context.User.Identity?.Name ?? "Lễ Tân Điều Phối";
         var res = await syncService.UpsertRoomDeliveryAsync(doc.RootElement, actor);
         return Results.Ok(res);
     }
@@ -737,6 +1127,9 @@ app.MapPost("/api/sync/deliveries", async (HttpContext context, TwoWaySqlSyncSer
 // Cấp lại mã khóa SmartLock bảo mật (Hash SHA-256 + Ghi Audit Log trong SQL Transaction)
 app.MapPost("/api/sync/smartlock/reissue", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
@@ -745,12 +1138,8 @@ app.MapPost("/api/sync/smartlock/reissue", async (HttpContext context, TwoWaySql
         string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bp) ? bp.GetString() : null;
         string reason = doc.RootElement.TryGetProperty("reason", out var rsp) ? (rsp.GetString() ?? "")
             : (doc.RootElement.TryGetProperty("note", out var np) ? (np.GetString() ?? "") : "");
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Lễ Tân";
-        string role = context.User?.FindFirst("UserRole")?.Value
-            ?? (doc.RootElement.TryGetProperty("role", out var rlp) ? rlp.GetString() : null)
-            ?? "RECEPTIONIST";
+        string actor = context.User.Identity?.Name ?? "Lễ Tân";
+        string role = context.User.FindFirst("UserRole")?.Value ?? "RECEPTIONIST";
 
         var res = await syncService.ReissueSmartLockPinAsync(roomNumber, bookingCode, reason, actor, role);
         return Results.Ok(res);
@@ -763,6 +1152,9 @@ app.MapPost("/api/sync/smartlock/reissue", async (HttpContext context, TwoWaySql
 
 app.MapPost("/api/sync/pins/action", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
@@ -771,12 +1163,8 @@ app.MapPost("/api/sync/pins/action", async (HttpContext context, TwoWaySqlSyncSe
         string? bookingCode = doc.RootElement.TryGetProperty("bookingCode", out var bp) ? bp.GetString() : null;
         string reason = doc.RootElement.TryGetProperty("note", out var np) ? (np.GetString() ?? "")
             : (doc.RootElement.TryGetProperty("reason", out var rsp) ? (rsp.GetString() ?? "") : "");
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Lễ Tân";
-        string role = context.User?.FindFirst("UserRole")?.Value
-            ?? (doc.RootElement.TryGetProperty("role", out var rlp) ? rlp.GetString() : null)
-            ?? "RECEPTIONIST";
+        string actor = context.User.Identity?.Name ?? "Lễ Tân";
+        string role = context.User.FindFirst("UserRole")?.Value ?? "RECEPTIONIST";
 
         var res = await syncService.ReissueSmartLockPinAsync(roomNumber, bookingCode, reason, actor, role);
         return Results.Ok(res);
@@ -787,15 +1175,16 @@ app.MapPost("/api/sync/pins/action", async (HttpContext context, TwoWaySqlSyncSe
     }
 }).DisableAntiforgery();
 
-// Cập nhật đối tác địa phương trên Bản đồ số
+// Cập nhật đối tác địa phương trên Bản đồ số (Admin & HR)
 app.MapPost("/api/sync/partners", async (HttpContext context, TwoWaySqlSyncService syncService) =>
 {
+    var authCheck = AuthorizeRole(context, "Admin", "HR");
+    if (authCheck != null) return authCheck;
+
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
-        string actor = context.User?.Identity?.Name
-            ?? (doc.RootElement.TryGetProperty("actor", out var ap) ? ap.GetString() : null)
-            ?? "Admin";
+        string actor = context.User.Identity?.Name ?? "Admin";
         var res = await syncService.UpsertPartnerAsync(doc.RootElement, actor);
         return Results.Ok(res);
     }

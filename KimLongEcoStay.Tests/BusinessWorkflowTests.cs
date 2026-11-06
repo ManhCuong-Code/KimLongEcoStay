@@ -56,7 +56,7 @@ namespace KimLongEcoStay.Tests
             };
             order.AddProduct(1, 2, 390000);
 
-            string smartLockPin = "839201";
+            string smartLockPin = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString("D6");
             decimal depositPaid = 390000m;
             decimal remainingBalance = 390000m;
 

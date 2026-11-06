@@ -1,0 +1,1340 @@
+﻿          <div class="tab-pane fade" id="tab-pane-reconciliation" role="tabpanel">
+            <!-- Thống kê tài chính & đối soát -->
+            <div class="row g-3 mb-4">
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-warning">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small fw-semibold">CHỜ ĐỐI SOÁT CỌC</span>
+                    <span class="badge bg-warning text-dark fw-bold" id="statPendingReconcileCount">1 Đơn</span>
+                  </div>
+                  <h4 class="fw-bold text-dark mb-1" id="statPendingReconcileAmount">390,000 <small class="fs-6 text-muted">đ</small></h4>
+                  <div class="small text-muted"><i class="bi bi-clock-history text-warning me-1"></i>Cần nhân viên kiểm tra tài khoản</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-success">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small fw-semibold">TIỀN CỌC 50% ĐÃ THU</span>
+                    <span class="badge bg-success bg-opacity-10 text-success fw-bold">Đã Xác Nhận</span>
+                  </div>
+                  <h4 class="fw-bold text-success mb-1" id="statConfirmedDepositAmount">1,780,000 <small class="fs-6 text-muted">đ</small></h4>
+                  <div class="small text-muted"><i class="bi bi-shield-check text-success me-1"></i>Đã cấp mã PIN SmartLock</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-danger">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small fw-semibold">SỐ TIỀN CÒN LẠI (CHECK-IN)</span>
+                    <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">Thu Khi Đến</span>
+                  </div>
+                  <h4 class="fw-bold text-danger mb-1" id="statRemainingBalanceAmount">1,400,000 <small class="fs-6 text-muted">đ</small></h4>
+                  <div class="small text-muted"><i class="bi bi-bell-fill text-danger me-1"></i>Sẽ tự động gửi Email 3 khi Check-in</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-primary">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small fw-semibold">TỔNG LƯỢT ĐẶT PHÒNG</span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold" id="statTotalBookingsCount">4 Lượt</span>
+                  </div>
+                  <h4 class="fw-bold text-primary mb-1" id="statTotalBookingValue">3,560,000 <small class="fs-6 text-muted">đ</small></h4>
+                  <div class="small text-muted"><i class="bi bi-door-open-fill text-primary me-1"></i>Tỉ lệ lấp đầy đạt 84.6%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cấu hình chính sách cọc & phương thức thanh toán -->
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white mb-4">
+              <div class="row g-3 align-items-center">
+                <div class="col-lg-3 col-md-6">
+                  <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-percent text-success me-1"></i>Tỷ Lệ Đặt Cọc Cấu Hình:</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" id="adminDepositRatioInput" class="form-control fw-bold" value="50" min="10" max="100" step="5">
+                    <span class="input-group-text bg-light">% Tổng Tiền</span>
+                    <button class="btn btn-outline-success fw-bold" type="button" onclick="saveAdminDepositRatio()">Lưu</button>
+                  </div>
+                  <small class="text-muted d-block mt-1" style="font-size:11px;">Mặc định 50% theo yêu cầu nghiệp vụ Kim Long EcoStay.</small>
+                </div>
+                <div class="col-lg-5 col-md-6">
+                  <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-credit-card-2-front-fill text-primary me-1"></i>Phương Thức Thanh Toán Hỗ Trợ:</label>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle p-2 rounded-3 small">
+                      <i class="bi bi-qr-code-scan me-1"></i>VietQR Chuyển Khoản (Bật)
+                    </span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle p-2 rounded-3 small">
+                      <i class="bi bi-bank me-1"></i>MB Bank 0905123456 (Bật)
+                    </span>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle p-2 rounded-3 small" title="HMAC-SHA512 Webhook">
+                      <i class="bi bi-shield-lock me-1"></i>Cổng VNPAY / Onepay (Sẵn sàng)
+                    </span>
+                  </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold me-2" onclick="renderAdminReconciliationList()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới Danh Sách
+                  </button>
+                  <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openBookingModal('1', 'Eco-Nest Ban Mai (KLE-R101)', 390000, 'Nhà Vườn Hương Sen', 'images/room_econest.jpg')">
+                    <i class="bi bi-plus-circle me-1"></i>Tạo Lượt Đặt Mới
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bảng đối soát đơn đặt phòng & kích hoạt email -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-journal-check text-success me-2"></i>Danh Sách Đơn Đặt Phòng, Đối Soát Cọc & Giao Dịch Thực Nhận
+                </h6>
+                <div class="d-flex gap-2">
+                  <select id="adminReconcileFilterSelect" class="form-select form-select-sm rounded-pill" onchange="renderAdminReconciliationList()" style="width: 170px;">
+                    <option value="ALL">Tất cả trạng thái</option>
+                    <option value="WAITING">Chờ đối soát cọc</option>
+                    <option value="CONFIRMED">Đã cọc (CONFIRMED)</option>
+                    <option value="CHECKED_IN">Đang ở (CHECKED_IN)</option>
+                    <option value="COMPLETED">Tất toán (COMPLETED)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Đơn</th>
+                      <th>Khách Hàng / SĐT</th>
+                      <th>Phòng Nghỉ</th>
+                      <th>Lưu Trú</th>
+                      <th>Tổng Tiền</th>
+                      <th>Cọc 50%</th>
+                      <th>Còn Lại</th>
+                      <th>Trạng Thái Đơn</th>
+                      <th>Thanh Toán</th>
+                      <th class="text-end pe-4">Thao Tác Nghiệp Vụ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminReconciliationTableBody">
+                    <!-- Rendered dynamically via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- =========================================================================
+               TAB 2: QUẢN LÝ SẢN PHẨM & ĐẶC SẢN KIM LONG (SPECIALTIES ADMIN)
+               ========================================================================= -->
+          <div class="tab-pane fade" id="tab-pane-specialties-admin" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-basket2-fill text-danger me-2"></i>Quản Lý Sản Phẩm, Đặc Sản, Nông Sản &amp; Đơn Đặt Hàng
+                </h6>
+                <small class="text-muted">Thêm mới, chỉnh sửa tên, giá, mô tả, ảnh, danh mục, quản lý tồn kho, gắn đối tác cung cấp và ẩn/hiện/xóa sản phẩm</small>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="resetDefaultProductsStore()">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Khôi phục dữ liệu mẫu
+                </button>
+                <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openAdminProductForm()">
+                  <i class="bi bi-plus-lg me-1"></i>Thêm Sản Phẩm Mới
+                </button>
+              </div>
+            </div>
+
+            <!-- FORM THÊM / CHỈNH SỬA SẢN PHẨM DÀNH CHO ADMIN -->
+            <div id="adminProductFormWrap" class="card border-0 rounded-4 shadow-sm bg-white p-4 mb-4 d-none border-start border-4 border-success">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h6 class="fw-bold text-success mb-0" id="adminProductFormTitle">
+                  <i class="bi bi-pencil-square me-1"></i>Thêm Sản Phẩm / Đặc Sản Mới
+                </h6>
+                <button type="button" class="btn btn-sm btn-light rounded-pill" onclick="closeAdminProductForm()">
+                  <i class="bi bi-x-lg"></i> Đóng
+                </button>
+              </div>
+              <input type="hidden" id="adminProdIdInput" value="">
+              <div class="row g-3">
+                <div class="col-md-5">
+                  <label class="form-label small fw-bold">Tên sản phẩm / món ăn <span class="text-danger">*</span></label>
+                  <input type="text" id="adminProdNameInput" class="form-control form-control-sm" placeholder="VD: Bưởi Thanh Trà Kim Long tuyển chọn">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold">Danh mục <span class="text-danger">*</span></label>
+                  <select id="adminProdCategoryInput" class="form-select form-select-sm">
+                    <option value="Đặc sản Huế">Đặc sản Huế</option>
+                    <option value="Sản phẩm nhà vườn">Sản phẩm nhà vườn</option>
+                    <option value="Đồ uống và trà">Đồ uống và trà</option>
+                    <option value="Ẩm thực Huế">Ẩm thực Huế (Phục vụ tại phòng)</option>
+                    <option value="Quà lưu niệm và trải nghiệm">Quà lưu niệm &amp; trải nghiệm</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Đơn vị tính <span class="text-danger">*</span></label>
+                  <input type="text" id="adminProdUnitInput" class="form-control form-control-sm" placeholder="hộp, gói, kg, phần, suất...">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                  <input type="number" id="adminProdPriceInput" class="form-control form-control-sm" min="0" step="1000" placeholder="VD: 85000">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Số lượng tồn kho <span class="text-danger">*</span></label>
+                  <input type="number" id="adminProdStockInput" class="form-control form-control-sm" min="0" step="1" placeholder="VD: 30">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Đối tác cung cấp (Liên kết bản đồ) <span class="text-danger">*</span></label>
+                  <select id="adminProdPartnerInput" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label small fw-bold">Nguồn gốc / Xuất xứ</label>
+                  <input type="text" id="adminProdOriginInput" class="form-control form-control-sm" placeholder="VD: Làng cổ Kim Long, TP. Huế">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold">Đường dẫn hình ảnh</label>
+                  <input type="text" id="adminProdImgInput" class="form-control form-control-sm" placeholder="images/qua_mutgung.jpg">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Trạng thái kinh doanh</label>
+                  <select id="adminProdStatusInput" class="form-select form-select-sm">
+                    <option value="true">Đang bán (Hiển thị)</option>
+                    <option value="false">Tạm ẩn / Ngừng bán</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-bold">Mô tả chi tiết sản phẩm</label>
+                  <textarea id="adminProdDescInput" class="form-control form-control-sm" rows="2" placeholder="Nhập mô tả hương vị, quy cách đóng gói, cam kết chất lượng..."></textarea>
+                </div>
+              </div>
+              <div id="adminProductFormError" class="alert alert-danger py-2 px-3 small mt-3 mb-0 d-none"></div>
+              <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="closeAdminProductForm()">Hủy</button>
+                <button type="button" class="btn btn-sm btn-success rounded-pill px-4 fw-bold" onclick="saveAdminProductForm()">
+                  <i class="bi bi-check2-circle me-1"></i>Lưu Sản Phẩm
+                </button>
+              </div>
+            </div>
+
+            <!-- Thanh tìm kiếm & lọc sản phẩm Admin -->
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white mb-3">
+              <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" id="adminProdSearchInput" class="form-control" placeholder="Tìm sản phẩm theo tên, mã, đối tác..." oninput="renderAdminSpecialties()">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <select id="adminProdCategoryFilter" class="form-select form-select-sm" onchange="renderAdminSpecialties()">
+                    <option value="ALL">-- Tất cả danh mục (5 nhóm) --</option>
+                    <option value="Đặc sản Huế">Đặc sản Huế</option>
+                    <option value="Sản phẩm nhà vườn">Sản phẩm nhà vườn</option>
+                    <option value="Đồ uống và trà">Đồ uống và trà</option>
+                    <option value="Ẩm thực Huế">Ẩm thực Huế (Phục vụ tại phòng)</option>
+                    <option value="Quà lưu niệm và trải nghiệm">Quà lưu niệm &amp; trải nghiệm</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select id="adminProdStatusFilter" class="form-select form-select-sm" onchange="renderAdminSpecialties()">
+                    <option value="ALL">-- Mọi trạng thái --</option>
+                    <option value="ACTIVE">Đang kinh doanh</option>
+                    <option value="HIDDEN">Đang tạm ẩn</option>
+                    <option value="OUT_OF_STOCK">Hết hàng (Tồn = 0)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-4">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+                <strong class="text-dark"><i class="bi bi-grid-3x3-gap-fill text-warning me-2"></i>Danh Sách Sản Phẩm &amp; Đặc Sản Kim Long</strong>
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" id="adminProductsTotalBadge">30 sản phẩm</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">ID</th>
+                      <th>Hình Ảnh</th>
+                      <th>Tên Sản Phẩm &amp; Đối Tác</th>
+                      <th>Danh Mục</th>
+                      <th>Đơn Giá</th>
+                      <th>Tồn Kho</th>
+                      <th>Đơn Vị</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-4">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminSpecialtiesTableBody">
+                    <!-- Rendered dynamically via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- QUẢN LÝ ĐƠN HÀNG GIAO TẬN PHÒNG & ĐẶC SẢN -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-4">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <strong class="text-dark fs-6"><i class="bi bi-door-open-fill text-warning me-2"></i>Quản Lý Đơn Giao Tận Phòng &amp; Ẩm Thực Homestay</strong>
+                  <div class="small text-muted">Quy trình chuẩn: Tiếp nhận &rarr; Chuẩn bị món &rarr; Giao đến phòng &rarr; Khách nhận món</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold" id="adminSpecialtyOrdersBadge">0 Đơn</span>
+                </div>
+              </div>
+
+              <!-- KPI THỐNG KÊ NHANH -->
+              <div class="p-3 bg-light border-bottom">
+                <div class="row g-2 text-center">
+                  <div class="col-md-3 col-6">
+                    <div class="bg-white p-2 rounded-3 border">
+                      <small class="text-muted d-block" style="font-size:11px;">Tổng Đơn Đặt</small>
+                      <strong class="fs-5 text-dark" id="adminOrdersKpiTotal">0</strong>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6">
+                    <div class="bg-white p-2 rounded-3 border">
+                      <small class="text-warning d-block fw-bold" style="font-size:11px;">Đơn Đang Xử Lý</small>
+                      <strong class="fs-5 text-warning" id="adminOrdersKpiInProgress">0</strong>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6">
+                    <div class="bg-white p-2 rounded-3 border">
+                      <small class="text-success d-block fw-bold" style="font-size:11px;">Đã Giao Thành Công</small>
+                      <strong class="fs-5 text-success" id="adminOrdersKpiDelivered">0</strong>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6">
+                    <div class="bg-white p-2 rounded-3 border">
+                      <small class="text-primary d-block fw-bold" style="font-size:11px;">Doanh Thu Giao Phòng</small>
+                      <strong class="fs-6 text-primary font-monospace" id="adminOrdersKpiRevenue">0 đ</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- BỘ LỌC TRẠNG THÁI ĐƠN HÀNG -->
+                <div class="d-flex gap-1 flex-wrap mt-2 pt-2 border-top">
+                  <button type="button" class="btn btn-sm btn-dark rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn active" onclick="filterAdminOrders('ALL', this)">
+                    Tất Cả
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2.5 py-0.5 fw-bold text-dark admin-order-filter-btn" onclick="filterAdminOrders('ROOM_DELIVERY', this)">
+                    🚪 Giao Tận Phòng
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('PENDING', this)">
+                    🕒 Chờ Tiếp Nhận
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('PREPARING', this)">
+                    🍳 Đang Chuẩn Bị
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('DELIVERING', this)">
+                    🚴 Đang Giao Phòng
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('DELIVERED', this)">
+                    ✅ Đã Hoàn Tất
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 fw-bold admin-order-filter-btn" onclick="filterAdminOrders('CANCELLED', this)">
+                    ❌ Đã Hủy
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Đơn / Giờ</th>
+                      <th>Khách Hàng / SĐT</th>
+                      <th>Buồng Phòng</th>
+                      <th>Giờ Hẹn &amp; Ghi Chú</th>
+                      <th>Món Ăn Đã Đặt</th>
+                      <th>Tổng Tiền</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-4">Thao Tác Nghiệp Vụ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminSpecialtyOrdersTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- =========================================================================
+               TAB 2B: QUẢN LÝ ĐỐI TÁC ĐỊA PHƯƠNG & BẢN ĐỒ SỐ (PARTNERS ADMIN)
+               ========================================================================= -->
+          <div class="tab-pane fade" id="tab-pane-partners-admin" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-geo-alt-fill text-success me-2"></i>Quản Lý Mạng Lưới Đối Tác Địa Phương &amp; Điểm Bản Đồ
+                </h6>
+                <small class="text-muted">Thêm, sửa, ẩn/hiện, xóa địa điểm đối tác; kiểm tra tọa độ GPS hợp lệ và đồng bộ trực tiếp với Bản đồ &amp; Sản phẩm</small>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="resetDefaultPartnersStore()">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Khôi phục bản đồ gốc
+                </button>
+                <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openAdminPartnerForm()">
+                  <i class="bi bi-plus-lg me-1"></i>Thêm Địa Điểm Đối Tác Mới
+                </button>
+              </div>
+            </div>
+
+            <!-- FORM THÊM / SỬA ĐỐI TÁC DÀNH CHO ADMIN -->
+            <div id="adminPartnerFormWrap" class="card border-0 rounded-4 shadow-sm bg-white p-4 mb-4 d-none border-start border-4 border-primary">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h6 class="fw-bold text-primary mb-0" id="adminPartnerFormTitle">
+                  <i class="bi bi-pin-map-fill me-1"></i>Thêm Đối Tác / Địa Điểm Bản Đồ Mới
+                </h6>
+                <button type="button" class="btn btn-sm btn-light rounded-pill" onclick="closeAdminPartnerForm()">
+                  <i class="bi bi-x-lg"></i> Đóng
+                </button>
+              </div>
+              <input type="hidden" id="adminPartnerEditMode" value="create">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Mã đối tác (ID)</label>
+                  <input type="text" id="adminPartnerIdInput" class="form-control form-control-sm" placeholder="Tự động tạo nếu để trống">
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label small fw-bold">Tên đối tác / Địa điểm <span class="text-danger">*</span></label>
+                  <input type="text" id="adminPartnerNameInput" class="form-control form-control-sm" placeholder="VD: Nhà Vườn Thanh Trà O Hoa">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold">Nhóm địa điểm trên bản đồ <span class="text-danger">*</span></label>
+                  <select id="adminPartnerGroupInput" class="form-select form-select-sm">
+                    <option value="Nhà vườn và homestay">Nhà vườn và homestay</option>
+                    <option value="Quán ăn và ẩm thực">Quán ăn và ẩm thực</option>
+                    <option value="Đặc sản và sản phẩm địa phương">Đặc sản và sản phẩm địa phương</option>
+                    <option value="Điểm trải nghiệm">Điểm trải nghiệm</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                  <input type="text" id="adminPartnerAddrInput" class="form-control form-control-sm" placeholder="VD: Kiệt 82 Kim Long, Phường Kim Long, TP. Huế">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Vĩ độ GPS (Latitude) <span class="text-danger">*</span></label>
+                  <input type="number" step="0.0001" id="adminPartnerLatInput" class="form-control form-control-sm" placeholder="VD: 16.4565">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Kinh độ GPS (Longitude) <span class="text-danger">*</span></label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" step="0.0001" id="adminPartnerLngInput" class="form-control form-control-sm" placeholder="VD: 107.5502">
+                    <button class="btn btn-outline-secondary" type="button" onclick="fillSampleHueCoords()" title="Điền nhanh tọa độ tâm Kim Long">Tâm KL</button>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Số điện thoại liên hệ</label>
+                  <input type="text" id="adminPartnerPhoneInput" class="form-control form-control-sm" placeholder="VD: 0934 789 456">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Giờ hoạt động</label>
+                  <input type="text" id="adminPartnerHoursInput" class="form-control form-control-sm" placeholder="VD: 06:30 - 21:00 hàng ngày">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Đường dẫn hình ảnh</label>
+                  <input type="text" id="adminPartnerImgInput" class="form-control form-control-sm" placeholder="images/nha_ruong_1.jpg">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold">Trạng thái hiển thị</label>
+                  <select id="adminPartnerStatusInput" class="form-select form-select-sm">
+                    <option value="true">Hiển thị trên bản đồ</option>
+                    <option value="false">Tạm ẩn</option>
+                  </select>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label small fw-bold">Dịch vụ cung cấp (phân cách bằng dấu phẩy)</label>
+                  <input type="text" id="adminPartnerServicesInput" class="form-control form-control-sm" placeholder="VD: Lưu trú nhà vườn, Bưởi Thanh Trà, Đạp xe Eco-Bike, Đặt món ăn Huế">
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label small fw-bold">Mô tả ngắn về đối tác / địa điểm</label>
+                  <textarea id="adminPartnerDescInput" class="form-control form-control-sm" rows="2" placeholder="Nhập mô tả không gian, câu chuyện di sản hoặc sản phẩm nổi bật của đối tác..."></textarea>
+                </div>
+              </div>
+              <div id="adminPartnerFormError" class="alert alert-danger py-2 px-3 small mt-3 mb-0 d-none"></div>
+              <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                <div class="small text-muted">
+                  <i class="bi bi-info-circle me-1"></i>Tọa độ hợp lệ khu vực Việt Nam / Thừa Thiên Huế: Vĩ độ <code>8.0 &rarr; 24.0</code>, Kinh độ <code>102.0 &rarr; 110.5</code>.
+                </div>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="closeAdminPartnerForm()">Hủy</button>
+                  <button type="button" class="btn btn-sm btn-primary rounded-pill px-4 fw-bold" onclick="saveAdminPartnerForm()">
+                    <i class="bi bi-check2-circle me-1"></i>Lưu Đối Tác &amp; Cập Nhật Bản Đồ
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bộ lọc tìm kiếm đối tác trong Admin -->
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white mb-3">
+              <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" id="adminPartnerSearchInput" class="form-control" placeholder="Tìm đối tác theo tên, địa chỉ, dịch vụ..." oninput="renderAdminPartners()">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <select id="adminPartnerGroupFilter" class="form-select form-select-sm" onchange="renderAdminPartners()">
+                    <option value="ALL">-- Tất cả nhóm địa điểm --</option>
+                    <option value="Nhà vườn và homestay">Nhà vườn và homestay</option>
+                    <option value="Quán ăn và ẩm thực">Quán ăn và ẩm thực</option>
+                    <option value="Đặc sản và sản phẩm địa phương">Đặc sản và sản phẩm địa phương</option>
+                    <option value="Điểm trải nghiệm">Điểm trải nghiệm</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select id="adminPartnerStatusFilter" class="form-select form-select-sm" onchange="renderAdminPartners()">
+                    <option value="ALL">-- Mọi trạng thái --</option>
+                    <option value="ACTIVE">Đang hiển thị</option>
+                    <option value="HIDDEN">Đang tạm ẩn</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bảng danh sách đối tác Admin -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+                <strong class="text-dark"><i class="bi bi-pin-map-fill text-success me-2"></i>Danh Sách Đối Tác &amp; Điểm Bản Đồ Tập Trung</strong>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill" id="adminPartnersTotalBadge">51 địa điểm</span>
+              </div>
+              <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                <table class="table table-hover align-middle mb-0" style="font-size: 12.5px;">
+                  <thead class="table-light sticky-top">
+                    <tr>
+                      <th class="ps-3">Đối Tác / Địa Điểm</th>
+                      <th>Nhóm Bản Đồ</th>
+                      <th>Địa Chỉ &amp; Tọa Độ GPS</th>
+                      <th>Liên Hệ &amp; Giờ Mở Cửa</th>
+                      <th>SP Liên Kết</th>
+                      <th>Chỉ Đường</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-3">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminPartnersTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- =========================================================================
+               TAB 3: QUẢN LÝ TRÀ CUNG ĐÌNH HUẾ (TEA SERVICES ADMIN)
+               ========================================================================= -->
+          <div class="tab-pane fade" id="tab-pane-tea-admin" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-cup-hot-fill text-success me-2"></i>Quản Lý Dịch Vụ Trà Cung Đình & Lịch Đặt Chỗ
+                </h6>
+                <small class="text-muted">Cấu hình 04 gói thưởng trà, kiểm tra sức chứa tối đa và xét duyệt lịch khách hẹn</small>
+              </div>
+              <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="renderAdminTea()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới Lịch Trà
+              </button>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-4">
+              <div class="card-header bg-white py-3 px-4 border-bottom">
+                <strong class="text-dark"><i class="bi bi-stars text-warning me-2"></i>04 Gói Dịch Vụ Trà Cung Đình Đang Hoạt Động</strong>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Gói</th>
+                      <th>Tên Gói Trải Nghiệm</th>
+                      <th>Đơn Giá</th>
+                      <th>Thời Lượng</th>
+                      <th>Sức Chứa Tối Đa</th>
+                      <th>Lịch Phục Vụ Hàng Ngày</th>
+                      <th>Trạng Thái Nhận Đặt</th>
+                      <th class="text-end pe-4">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminTeaServicesTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Yêu cầu đặt lịch trà từ khách -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+                <strong class="text-dark"><i class="bi bi-calendar-heart-fill text-danger me-2"></i>Danh Sách Yêu Cầu Đặt Lịch Thưởng Trà</strong>
+                <span class="badge bg-success rounded-pill" id="adminTeaBookingsBadge">0 Yêu cầu</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Đặt</th>
+                      <th>Khách Hàng</th>
+                      <th>Số Điện Thoại</th>
+                      <th>Gói Trà</th>
+                      <th>Ngày Hẹn</th>
+                      <th>Khung Giờ</th>
+                      <th>Số Khách</th>
+                      <th>Tổng Tiền</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-4">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminTeaBookingsTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- =========================================================================
+               TAB 4: NHẬT KÝ EMAIL & GIAO DỊCH (EMAIL AUDIT & RETRY LOGS)
+               ========================================================================= -->
+          <div class="tab-pane fade" id="tab-pane-emaillogs" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0">
+                  <i class="bi bi-envelope-paper-heart-fill text-info me-2"></i>Nhật Ký Tự Động Gửi 4 Mẫu Email Theo Trạng Thái & Đối Soát
+                </h6>
+                <small class="text-muted">Theo dõi Email 1 (Tiếp nhận), Email 2 (Cọc 50% + PIN), Email 3 (Yêu cầu 50% khi Check-in), Email 4 (Tất toán 100%)</small>
+              </div>
+              <div class="d-flex gap-2">
+                <select id="adminEmailLogFilterSelect" class="form-select form-select-sm rounded-pill" onchange="renderAdminEmailLogs()" style="width: 160px;">
+                  <option value="ALL">Tất cả mẫu email</option>
+                  <option value="BOOKING_RECEIVED">Email 1 (Tiếp nhận)</option>
+                  <option value="DEPOSIT_CONFIRMED">Email 2 (Xác nhận cọc)</option>
+                  <option value="REMAINING_REQUEST">Email 3 (Yêu cầu còn lại)</option>
+                  <option value="FINAL_PAID">Email 4 (Tất toán 100%)</option>
+                </select>
+                <button class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold" onclick="renderAdminEmailLogs()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới
+                </button>
+              </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã Log</th>
+                      <th>Thời Gian</th>
+                      <th>Mẫu Email</th>
+                      <th>Mã Đơn Đặt</th>
+                      <th>Hòm Thư Người Nhận</th>
+                      <th>Tiêu Đề Thư</th>
+                      <th>Trạng Thái Gửi</th>
+                      <th>Thử Lại</th>
+                      <th class="text-end pe-4">Hành Động</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminEmailLogsTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1. DASHBOARD TÀI CHÍNH -->
+          <div class="tab-pane fade" id="tab-pane-dashboard" role="tabpanel">
+            <div class="row g-3 mb-4">
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-success">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">DOANH THU THÁNG 10</span>
+                    <span class="badge bg-success bg-opacity-10 text-success fw-bold">+18.4%</span>
+                  </div>
+                  <h3 class="fw-bold text-success mb-1">-- <small class="fs-6 text-muted">đ</small></h3>
+                  <div class="small text-muted"><i class="bi bi-check-circle-fill text-success me-1"></i>Đạt 107% kế hoạch tháng</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-warning">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">CHI PHÍ VẬN HÀNH</span>
+                    <span class="badge bg-warning bg-opacity-10 text-warning fw-bold">37.5% DT</span>
+                  </div>
+                  <h3 class="fw-bold text-dark mb-1">48.200.000 <small class="fs-6 text-muted">đ</small></h3>
+                  <div class="small text-muted"><i class="bi bi-shield-check text-warning me-1"></i>Kiểm soát tối ưu định phí</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-primary">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">LỢI NHUẬN RÒNG (EBITDA)</span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold">62.5%</span>
+                  </div>
+                  <h3 class="fw-bold text-primary mb-1">80.300.000 <small class="fs-6 text-muted">đ</small></h3>
+                  <div class="small text-muted"><i class="bi bi-arrow-up-right text-primary me-1"></i>Tăng trưởng bền vững</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-3 bg-white h-100 border-start border-4 border-info">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">CÔNG SUẤT LẤP ĐẦY</span>
+                    <span class="badge bg-info bg-opacity-10 text-info fw-bold">5 Phòng Mẫu</span>
+                  </div>
+                  <h3 class="fw-bold text-info mb-1">84.6% <small class="fs-6 text-muted">trung bình</small></h3>
+                  <div class="small text-muted"><i class="bi bi-calendar-check text-info me-1"></i>Cuối tuần đạt 95%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+              <div class="col-lg-7">
+                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white h-100">
+                  <h6 class="fw-bold font-serif text-dark mb-3"><i class="bi bi-bar-chart-fill text-success me-2"></i>Doanh Thu 6 Tháng Gần Nhất (Triệu VNĐ)</h6>
+                  <div class="d-flex flex-column gap-3">
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 05/2026</span><strong>68.0 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-secondary" style="width: 53%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 06/2026</span><strong>82.5 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-info" style="width: 64%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 07/2026</span><strong>104.2 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" style="width: 81%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 08/2026</span><strong>118.0 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-warning text-dark" style="width: 92%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 09/2026</span><strong>110.4 tr đ</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" style="width: 86%;"></div></div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-between small mb-1"><span>Tháng 10/2026 (Hiện tại)</span><strong class="text-success">128.5 tr đ (Đỉnh điểm)</strong></div>
+                      <div class="progress" style="height: 10px;"><div class="progress-bar bg-success" style="width: 100%;"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-5">
+                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white h-100">
+                  <h6 class="fw-bold font-serif text-dark mb-3"><i class="bi bi-pie-chart-fill text-warning me-2"></i>Cơ Cấu Nguồn Doanh Thu</h6>
+                  <div class="d-flex flex-column gap-3">
+                    <div class="p-3 rounded-3 bg-light border-start border-3 border-success">
+                      <div class="d-flex justify-content-between fw-bold mb-1"><span>🌿 Thuê phòng lưu trú</span><span>92.520.000 đ (72%)</span></div>
+                      <small class="text-muted">5 buồng phòng sinh thái ven sông Hương & vườn bưởi</small>
+                    </div>
+                    <div class="p-3 rounded-3 bg-light border-start border-3 border-warning">
+                      <div class="d-flex justify-content-between fw-bold mb-1"><span>🍵 Ẩm thực & Trà Sen Cung Đình</span><span>23.130.000 đ (18%)</span></div>
+                      <small class="text-muted">Bánh ướt thịt nướng, ngâm chân thảo mộc Cung Đình</small>
+                    </div>
+                    <div class="p-3 rounded-3 bg-light border-start border-3 border-primary">
+                      <div class="d-flex justify-content-between fw-bold mb-1"><span>🚲 Tour Xe Đạp Trợ Lực GPS</span><span>12.850.000 đ (10%)</span></div>
+                      <small class="text-muted">Cho thuê xe đạp Eco-Bike & GPS Audio Guide di sản</small>
+                    </div>
+                  </div>
+                  <div class="alert alert-success border-0 rounded-3 mt-3 mb-0 p-2 small text-center">
+                    <i class="bi bi-shield-check text-success me-1"></i><strong>Tiết kiệm 18.500.000 đ</strong> hoa hồng OTA nhờ Direct Booking & SmartLock!
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. QUẢN LÝ NHÂN VIÊN -->
+          <div class="tab-pane fade" id="tab-pane-nhanvien" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0"><i class="bi bi-people-fill text-primary me-2"></i>Danh Sách Đội Ngũ Nhân Sự & Sáng Lập (7 Nhân Sự)</h6>
+                <small class="text-muted">Đội ngũ vận hành mô hình nhà vườn sinh thái & giải pháp SmartLock IoT</small>
+              </div>
+              <div class="d-flex gap-2">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success p-2 rounded-pill">5 Toàn thời gian</span>
+                <span class="badge bg-info bg-opacity-10 text-info border border-info p-2 rounded-pill">2 Bán thời gian</span>
+              </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-3">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Họ và Tên</th>
+                      <th>Vị Trí & Chức Vụ</th>
+                      <th>Phòng Ban</th>
+                      <th>Hình Thức</th>
+                      <th>KPI Hoàn Thành</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-4">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-primary text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">MC</div><div><strong class="d-block text-dark">Trần Mạnh Cường</strong><small class="text-muted">cuong.tran@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-danger">Giám Đốc Điều Hành (CEO)</span></td>
+                      <td>Ban Giám Đốc</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">98.5%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Trần Mạnh Cường - CEO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-success text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">ML</div><div><strong class="d-block text-dark">Lê Thị Mai Lan</strong><small class="text-muted">lan.le@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-warning text-dark">Kế Toán Trưởng (CFO)</span></td>
+                      <td>Tài Chính - Kế Toán</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">97.0%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Lê Thị Mai Lan - CFO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-info text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">VA</div><div><strong class="d-block text-dark">Nguyễn Văn An</strong><small class="text-muted">an.nguyen@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-primary">Trưởng Phòng Vận Hành (COO)</span></td>
+                      <td>Vận Hành Buồng Phòng</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">96.0%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Nguyễn Văn An - COO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-warning text-dark fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">NL</div><div><strong class="d-block text-dark">Hoàng Nhật Linh</strong><small class="text-muted">linh.hoang@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-info text-dark">Trưởng Phòng Marketing (CMO)</span></td>
+                      <td>Tiếp Thị & Đối Tác OTA</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">95.5%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Hoàng Nhật Linh - CMO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-dark text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">QA</div><div><strong class="d-block text-dark">Phạm Quỳnh Anh</strong><small class="text-muted">anh.pham@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-dark">Kỹ Sư IoT & Phần Mềm (CTO)</span></td>
+                      <td>Công Nghệ & SmartLock</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">99.0%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Phạm Quỳnh Anh - CTO Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-secondary text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">TT</div><div><strong class="d-block text-dark">Đặng Thu Thảo</strong><small class="text-muted">thao.dang@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-success">Lễ Tân Ca Sáng & Trà Sen</span></td>
+                      <td>Dịch Vụ Khách Hàng</td>
+                      <td>Toàn thời gian</td>
+                      <td><span class="fw-bold text-success">96.5%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Đặng Thu Thảo - Lễ Tân Kim Long EcoStay')">Chi tiết</button></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4"><div class="d-flex align-items-center gap-2"><div class="avatar-badge bg-secondary text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">QB</div><div><strong class="d-block text-dark">Trần Quốc Bảo</strong><small class="text-muted">bao.tran@kimlongecostay.vn</small></div></div></td>
+                      <td><span class="badge bg-secondary">Lễ Tân Ca Chiều & Xe Đạp</span></td>
+                      <td>Dịch Vụ Vận Hành</td>
+                      <td>Bán thời gian</td>
+                      <td><span class="fw-bold text-success">94.0%</span></td>
+                      <td><span class="badge bg-success">Đang làm việc</span></td>
+                      <td class="text-end pe-4"><button class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="alert('Hồ sơ nhân viên: Trần Quốc Bảo - Lễ Tân Bán Thời Gian')">Chi tiết</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. QUẢN LÝ TIỀN LƯƠNG -->
+          <div class="tab-pane fade" id="tab-pane-luong" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold font-serif text-dark mb-0"><i class="bi bi-cash-stack text-warning me-2"></i>Bảng Lương Tháng 10/2026 (Kỳ Chi Trả Ngày 05/11/2026)</h6>
+                <small class="text-muted">Tính lương theo hợp đồng lao động, phụ cấp và thưởng KPI buồng phòng</small>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="alert('Đã xuất file bảng lương Excel: BangLuong_KimLongEcoStay_10_2026.xlsx')">
+                  <i class="bi bi-file-earmark-excel me-1"></i>Xuất Excel
+                </button>
+                <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="alert('Đã tạo phiếu lương PDF cho toàn bộ 7 nhân sự!')">
+                  <i class="bi bi-printer me-1"></i>In Phiếu Lương
+                </button>
+              </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white mb-3">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="ps-4">Mã NV</th>
+                      <th>Họ và Tên</th>
+                      <th>Chức Danh</th>
+                      <th>Lương Cơ Bản</th>
+                      <th>Phụ Cấp</th>
+                      <th>Thưởng KPI</th>
+                      <th>Thực Lĩnh</th>
+                      <th>Trạng Thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV001</td>
+                      <td><strong>Trần Mạnh Cường</strong></td>
+                      <td>CEO / Host</td>
+                      <td>15.000.000 đ</td>
+                      <td>2.000.000 đ</td>
+                      <td><span class="text-success fw-bold">+3.000.000 đ</span></td>
+                      <td><strong class="text-success fs-6">Theo CSDL</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV002</td>
+                      <td><strong>Lê Thị Mai Lan</strong></td>
+                      <td>CFO / Kế Toán</td>
+                      <td>10.500.000 đ</td>
+                      <td>1.500.000 đ</td>
+                      <td><span class="text-success fw-bold">+2.000.000 đ</span></td>
+                      <td><strong class="text-success fs-6">14.000.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV003</td>
+                      <td><strong>Nguyễn Văn An</strong></td>
+                      <td>COO / Vận Hành</td>
+                      <td>8.500.000 đ</td>
+                      <td>1.200.000 đ</td>
+                      <td><span class="text-success fw-bold">+1.500.000 đ</span></td>
+                      <td><strong class="text-success fs-6">11.200.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV004</td>
+                      <td><strong>Hoàng Nhật Linh</strong></td>
+                      <td>CMO / Tiếp Thị</td>
+                      <td>8.500.000 đ</td>
+                      <td>1.200.000 đ</td>
+                      <td><span class="text-success fw-bold">+1.500.000 đ</span></td>
+                      <td><strong class="text-success fs-6">11.200.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV005</td>
+                      <td><strong>Phạm Quỳnh Anh</strong></td>
+                      <td>CTO / IoT Hub</td>
+                      <td>9.000.000 đ</td>
+                      <td>1.500.000 đ</td>
+                      <td><span class="text-success fw-bold">+2.000.000 đ</span></td>
+                      <td><strong class="text-success fs-6">12.500.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV006</td>
+                      <td><strong>Đặng Thu Thảo</strong></td>
+                      <td>Lễ Tân Ca Sáng</td>
+                      <td>5.500.000 đ</td>
+                      <td>800.000 đ</td>
+                      <td><span class="text-success fw-bold">+1.000.000 đ</span></td>
+                      <td><strong class="text-success fs-6">7.300.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                    <tr>
+                      <td class="ps-4 font-monospace fw-bold text-primary">NV007</td>
+                      <td><strong>Trần Quốc Bảo</strong></td>
+                      <td>Lễ Tân Ca Chiều</td>
+                      <td>4.000.000 đ</td>
+                      <td>500.000 đ</td>
+                      <td><span class="text-success fw-bold">+700.000 đ</span></td>
+                      <td><strong class="text-success fs-6">5.200.000 đ</strong></td>
+                      <td><span class="badge bg-success">Đã duyệt chi</span></td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="table-light fw-bold">
+                    <tr>
+                      <td colspan="3" class="ps-4 text-dark">TỔNG CỘNG QUỸ LƯƠNG THÁNG 10</td>
+                      <td>61.000.000 đ</td>
+                      <td>8.700.000 đ</td>
+                      <td class="text-success">+11.700.000 đ</td>
+                      <td class="text-success fs-5">Theo CSDL</td>
+                      <td><span class="badge bg-primary">100% Đã chi trả</span></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. VẬN HÀNH DỰ ÁN / BUỒNG PHÒNG, ĐIỀU PHỐI GIAO PHÒNG & TRA CỨU KHÓA IOT -->
+          <div class="tab-pane fade" id="tab-pane-duan" role="tabpanel">
+            <!-- Sub-navigation cho phân hệ Vận Hành Dự Án / Phòng -->
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white mb-4">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex flex-wrap gap-2" id="duanSubNavGroup">
+                  <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold duan-subnav-btn" data-sub="ALL" onclick="filterDuanSubSection('ALL', this)">
+                    <i class="bi bi-grid-1x2-fill me-1"></i>Tất Cả Nghiệp Vụ Vận Hành
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold duan-subnav-btn" data-sub="ROOMS" onclick="filterDuanSubSection('ROOMS', this)">
+                    <i class="bi bi-house-gear-fill me-1"></i>05 Buồng Phòng &amp; Khóa IoT
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold duan-subnav-btn" data-sub="DELIVERY" onclick="filterDuanSubSection('DELIVERY', this)">
+                    <i class="bi bi-bicycle me-1"></i>Giao Phòng (Room Delivery)
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold duan-subnav-btn" data-sub="LOOKUP" onclick="filterDuanSubSection('LOOKUP', this)">
+                    <i class="bi bi-key-fill me-1"></i>Tra Cứu Khóa &amp; Mã PIN
+                  </button>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="renderDuanOperationsHub(); showKleToast('Đã đồng bộ dữ liệu Vận hành Phòng, Giao phòng & Gateway SmartLock IoT!', 'success');">
+                    <i class="bi bi-arrow-repeat me-1"></i>Đồng Bộ Vận Hành
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- PHẦN 4A: TÌNH TRẠNG 05 BUỒNG PHÒNG SINH THÁI & KHÓA SMARTLOCK IOT -->
+            <div id="duanRoomsSection" class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                  <h6 class="fw-bold font-serif mb-0" style="color: #14452F;"><i class="bi bi-houses-fill me-2" style="color: #1E6B45;"></i>1. Tình Trạng 05 Buồng Phòng Sinh Thái &amp; Khóa Thông Minh SmartLock IoT</h6>
+                  <small class="text-muted">Bảo mật mã PIN 6 số (mặc định ẩn ••••••) • Chỉ kích hoạt PIN khách khi phòng Đã đặt / Đang lưu trú • Ghi nhận Audit Log tự động</small>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <select id="duanRoomStatusFilterSelect" class="form-select form-select-sm rounded-pill px-3" style="width: auto; font-size: 12.5px;" onchange="renderDuanRoomsGrid()">
+                    <option value="ALL">Tất cả trạng thái (05 phòng)</option>
+                    <option value="EMPTY">Phòng trống</option>
+                    <option value="READY">Đã sẵn sàng</option>
+                    <option value="BOOKED">Đã đặt phòng</option>
+                    <option value="WAITING_CHECKIN">Đang chờ Check-in</option>
+                    <option value="OCCUPIED">Đang lưu trú</option>
+                    <option value="WAITING_CHECKOUT">Chờ Check-out</option>
+                    <option value="CLEANING">Đang vệ sinh</option>
+                    <option value="MAINTENANCE">Đang bảo trì</option>
+                  </select>
+                  <span class="badge rounded-pill px-3 py-1.5" style="background: #E8F1E9; color: #14452F; border: 1px solid #1E6B45;">
+                    <i class="bi bi-wifi me-1"></i>Gateway Zigbee 3.0 Online (5/5 Khóa)
+                  </span>
+                </div>
+              </div>
+
+              <div class="row g-3" id="duanRoomsGridContainer">
+                <!-- Rendered dynamically by renderDuanRoomsGrid() with masked PIN security & 8-state logic -->
+              </div>
+            </div>
+
+            <!-- PHẦN 4B: ĐIỀU PHỐI GIAO PHÒNG (ROOM DELIVERY DISPATCH & TRACKING) -->
+            <div id="duanDeliverySection" class="mb-4">
+              <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div>
+                    <h6 class="fw-bold font-serif mb-0" style="color: #14452F;">
+                      <i class="bi bi-bicycle me-2" style="color: #1E6B45;"></i>2. Nghiệp Vụ Giao Phòng (Room Delivery &amp; Theo Dõi Đơn Phục Vụ Tận Phòng)
+                    </h6>
+                    <small class="text-muted">Chức năng nội bộ điều phối giao món ăn, trà cung đình &amp; đặc sản tới 5 phòng EcoStay</small>
+                  </div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="openOrderTrackingModal()">
+                      <i class="bi bi-search me-1"></i>Mở Cửa Sổ Tra Cứu Giao Phòng
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="renderDuanOperationsHub()">
+                      <i class="bi bi-arrow-clockwise me-1"></i>Cập Nhật Đơn Giao Phòng
+                    </button>
+                  </div>
+                </div>
+                <div class="p-3 bg-light border-bottom">
+                  <div class="row g-2 align-items-center">
+                    <div class="col-md-7">
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="bi bi-search text-success"></i></span>
+                        <input type="text" id="duanDeliverySearchInput" class="form-control" placeholder="Tìm theo mã phòng (KLE-R101...), tên khách, SĐT hoặc mã đơn (KLE-ORD-...)..." oninput="renderDuanOperationsHub()">
+                      </div>
+                    </div>
+                    <div class="col-md-5 text-md-end small text-muted">
+                      <i class="bi bi-info-circle me-1 text-success"></i>Cập nhật trạng thái trực tiếp: <strong>Chờ tiếp nhận → Đang chuẩn bị → Đang giao phòng → Hoàn tất</strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                    <thead class="table-light">
+                      <tr>
+                        <th class="ps-4">Mã Đơn / Thời Gian</th>
+                        <th>Khách Lưu Trú / SĐT</th>
+                        <th>Phòng Giao Tới</th>
+                        <th>Khung Giờ &amp; Ghi Chú</th>
+                        <th>Danh Sách Món / Đặc Sản</th>
+                        <th>Tổng Thanh Toán</th>
+                        <th>Trạng Thái Giao Phòng</th>
+                        <th class="text-end pe-4">Điều Phối Nhanh</th>
+                      </tr>
+                    </thead>
+                    <tbody id="duanDeliveryTableBody">
+                      <!-- Rendered dynamically by renderDuanOperationsHub() -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- PHẦN 4C: TRA CỨU KHÓA, MÃ PIN SMARTLOCK & NHẬT KÝ BẢO MẬT (AUDIT LOG) -->
+            <div id="duanLookupSection" class="mb-2">
+              <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div>
+                    <h6 class="fw-bold font-serif mb-0" style="color: #14452F;">
+                      <i class="bi bi-key-fill me-2" style="color: #D4AF37;"></i>3. Tra Cứu Khóa, Quản Lý Mã PIN SmartLock IoT &amp; Nhật Ký Bảo Mật (Audit Log)
+                    </h6>
+                    <small class="text-muted">Mặc định ẩn mã PIN (••••••) • Chỉ vai trò được cấp quyền mới được xem hoặc cấp lại PIN • Lưu vết Audit Log mọi thao tác</small>
+                  </div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="openLookupModal()">
+                      <i class="bi bi-box-arrow-up-right me-1"></i>Mở Hộp Thoại Tra Cứu Khóa
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="openKeypadModal('102')">
+                      <i class="bi bi-cpu me-1"></i>Mở Bàn Phím SmartLock IoT
+                    </button>
+                  </div>
+                </div>
+
+                <div class="p-4">
+                  <div class="row g-3 align-items-end mb-3">
+                    <div class="col-md-8">
+                      <label class="form-label small fw-bold" style="color: #14452F;">Nhập Mã Đặt Phòng (Booking Code) hoặc Số Điện Thoại Khách Hàng:</label>
+                      <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-shield-lock-fill text-success"></i></span>
+                        <input type="text" id="duanLookupSearchInput" class="form-control font-monospace" placeholder="VD: KLE-20261015-88, KLE-20261018-01, 0905123456, R102..." oninput="handleDuanInlineLookup()">
+                        <button class="btn btn-success fw-bold px-4" type="button" onclick="handleDuanInlineLookup()">
+                          <i class="bi bi-search me-1"></i>Tra Cứu Mã Khóa
+                        </button>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="d-flex flex-wrap gap-1.5">
+                        <span class="small text-muted w-100 mb-1">Tra cứu mẫu nhanh:</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='KLE-20261015-88'; handleDuanInlineLookup();">KLE-20261015-88 (Đã cọc)</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='KLE-20261018-01'; handleDuanInlineLookup();">KLE-20261018-01 (Chờ cọc)</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0.5 px-2.5" style="font-size: 11.5px;" onclick="document.getElementById('duanLookupSearchInput').value='0912334455'; handleDuanInlineLookup();">SĐT 0912334455</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Kết quả tra cứu nhanh -->
+                  <div id="duanLookupResultWrap" class="mb-3 d-none"></div>
+
+                  <!-- Bảng tổng hợp Mã Khóa PIN đang hiệu lực -->
+                  <div class="table-responsive border rounded-3 mb-4">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                      <thead class="table-light">
+                        <tr>
+                          <th class="ps-3">Mã Đặt Phòng</th>
+                          <th>Khách Hàng / SĐT</th>
+                          <th>Buồng Phòng</th>
+                          <th>Nhận Phòng - Trả Phòng</th>
+                          <th>Trạng Thái Phòng &amp; Cọc</th>
+                          <th>Mã PIN SmartLock (Bảo Mật)</th>
+                          <th class="text-end pe-3">Thao Tác Khóa</th>
+                        </tr>
+                      </thead>
+                      <tbody id="duanActivePinTableBody">
+                        <!-- Rendered dynamically by renderDuanOperationsHub() -->
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Nhật ký bảo mật thao tác xem / cấp lại PIN (Audit Log) -->
+                  <div class="border rounded-3 overflow-hidden">
+                    <div class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <span class="fw-bold small" style="color: #14452F;">
+                        <i class="bi bi-journal-check me-1 text-success"></i>Nhật Ký Bảo Mật Thao Tác Mã PIN (SmartLock Audit Log)
+                      </span>
+                      <span class="badge bg-white text-secondary border" style="font-size: 11px;">Mã PIN luôn được che (••••XX) trong nhật ký bảo mật</span>
+                    </div>
+                    <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                      <table class="table table-sm table-hover align-middle mb-0" style="font-size: 12.5px;">
+                        <thead class="table-light">
+                          <tr>
+                            <th class="ps-3">Thời Gian</th>
+                            <th>Hành Động</th>
+                            <th>Phòng / Mã Đơn</th>
+                            <th>Mã PIN (Đã Che)</th>
+                            <th>Người Thực Hiện (Vai Trò)</th>
+                            <th class="pe-3">Ghi Chú Bảo Mật</th>
+                          </tr>
+                        </thead>
+                        <tbody id="duanPinAuditLogTableBody">
+                          <!-- Rendered dynamically by renderPinAuditLogs() -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10. QUẢN LÝ KẾT NỐI & ĐỒNG BỘ SQL SERVER HAI CHIỀU (ADMIN ONLY) -->
+          <div class="tab-pane fade" id="tab-pane-sql-sync" role="tabpanel">
+            <!-- Top Diagnostic KPI Cards -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white" style="border-left: 4px solid #1E6B45 !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-bold text-uppercase" style="font-size: 11px;">Trạng Thái SQL Server</span>
+                    <i class="bi bi-database-fill-check text-success fs-5"></i>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 my-1">
+                    <span class="badge bg-success rounded-pill px-2.5 py-1" id="sqlSyncDbStatusBadge">Đang kiểm tra...</span>
+                    <span class="small font-monospace text-muted" id="sqlSyncLatencyBadge">-- ms</span>
+                  </div>
+                  <small class="text-muted text-truncate d-block" id="sqlSyncServerVersionText" style="font-size: 11px;">localhost\SQLEXPRESS • KimLongEcoStayDB</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white" style="border-left: 4px solid #D4AF37 !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-bold text-uppercase" style="font-size: 11px;">Đồng Bộ Thời Gian Thực</span>
+                    <i class="bi bi-broadcast-pin text-warning fs-5"></i>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 my-1">
+                    <span class="badge bg-success rounded-pill px-2.5 py-1" id="sqlSyncSignalrBadge">SignalR: Connected</span>
+                  </div>
+                  <small class="text-muted font-monospace d-block" id="sqlSyncCtVersionBadge" style="font-size: 11px;">Change Tracking Ver: #0</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white" style="border-left: 4px solid #14452F !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-bold text-uppercase" style="font-size: 11px;">Lần Đồng Bộ Gần Nhất</span>
+                    <i class="bi bi-clock-history text-dark fs-5"></i>
+                  </div>
+                  <h6 class="fw-bold text-dark font-monospace my-1" id="sqlSyncLastTimeText">Vừa đồng bộ</h6>
+                  <small class="text-muted font-monospace text-truncate d-block" id="sqlSyncMaskedConnText" style="font-size: 10.5px;">Server=localhost\SQLEXPRESS;Database=KimLongEcoStayDB;***</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white" style="border-left: 4px solid #15803D !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-bold text-uppercase" style="font-size: 11px;">Giao Dịch Ghi Hai Chiều</span>
+                    <i class="bi bi-arrow-left-right text-success fs-5"></i>
+                  </div>
+                  <h6 class="fw-bold text-success font-monospace my-1" id="sqlSyncWriteStatsText">0 Thành công / 0 Lỗi</h6>
+                  <small class="text-muted d-block" style="font-size: 11px;">Bảo vệ Optimistic Concurrency (SyncVersion)</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Bar & Action Buttons -->
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-3">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="fw-bold mb-0.5" style="color: #14452F;">
+                    <i class="bi bi-hdd-network-fill text-success me-1"></i>Trung Tâm Điều Khiển Đồng Bộ Hai Chiều (Website ↔ SQL Server 2025)
+                  </h6>
+                  <p class="small text-muted mb-0">
+                    Mọi thao tác trên Website đều ghi trực tiếp vào SQL Server qua Transaction, và mọi thay đổi trong SSMS tự động đẩy ngược về trình duyệt qua SignalR Change Tracking.
+                  </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="testSqlConnectionNow()">
+                    <i class="bi bi-plug-fill me-1"></i>Kiểm tra kết nối
+                  </button>
+                  <button type="button" class="btn btn-sm btn-warning text-dark rounded-pill px-3 fw-bold" onclick="forceFullSqlResync()">
+                    <i class="bi bi-arrow-repeat me-1"></i>Đồng bộ lại dữ liệu
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="reloadSqlDataNow()">
+                    <i class="bi bi-cloud-arrow-down-fill me-1"></i>Tải lại dữ liệu
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold" onclick="scrollToSqlSyncLogs()">
+                    <i class="bi bi-journal-code me-1"></i>Xem nhật ký
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live SQL Table Counts Grid & Interactive Two-Way Test Suite -->
+            <div class="row g-3 mb-3">
+              <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0 small text-uppercase" style="color: #14452F;">
+                      <i class="bi bi-table text-success me-1"></i>Số Lượng Bản Ghi Thực Tế Trong SQL Server (KimLongEcoStayDB)
+                    </h6>
+                    <span class="badge bg-light text-success border font-monospace" id="sqlSyncTotalRowsBadge">9 Bảng dữ liệu</span>
+                  </div>
+                  <div class="row g-2" id="sqlSyncTableCountsGrid">
+                    <!-- Populated dynamically by renderAdminSqlSyncDashboard() -->
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                  <h6 class="fw-bold mb-1 small text-uppercase" style="color: #14452F;">
+                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Kiểm Thử Đồng Bộ Hai Chiều &amp; Chống Ghi Đè (Live Verification)
+                  </h6>
+                  <p class="small text-muted mb-2" style="font-size: 11.5px;">
+                    Thực thi kiểm thử trực tiếp với SQL Server để xác minh luồng <code>WEB_TO_SQL</code>, <code>SQL_TO_WEB</code> và kiểm soát xung đột <code>409 Conflict</code>.
+                  </p>
+                  <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-success text-start rounded-3 py-1.5 px-3 d-flex justify-content-between align-items-center" onclick="runLiveWebToSqlTest()">
+                      <span><i class="bi bi-cloud-upload-fill me-2"></i>1. Test Chiều 1 (Website ➔ SQL Server Transaction)</span>
+                      <span class="badge bg-success-subtle text-success border">WEB_TO_SQL</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary text-start rounded-3 py-1.5 px-3 d-flex justify-content-between align-items-center" onclick="runLiveConcurrencyConflictTest()">
+                      <span><i class="bi bi-shield-exclamation me-2"></i>2. Test Chống Ghi Đè (Optimistic Concurrency 409)</span>
+                      <span class="badge bg-primary-subtle text-primary border">SyncVersion</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-dark text-start rounded-3 py-1.5 px-3 d-flex justify-content-between align-items-center" onclick="KleAiAssistant.open(); KleAiAssistant.sendQuickPrompt('Tổng hợp trạng thái đồng bộ SQL Server, tồn kho sản phẩm và công suất 5 buồng phòng hiện tại')">
+                      <span><i class="bi bi-stars text-warning me-2"></i>3. Test AI Assistant Truy Vấn Dữ Liệu SQL Thực Tế</span>
+                      <span class="badge bg-warning text-dark">OpenAI + SQL</span>
+                    </button>
+                  </div>
+                  <div id="sqlSyncTestResultAlert" class="alert alert-light border small mt-2 mb-0 py-1.5 px-2.5 d-none" style="font-size: 11.5px;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Sync Audit Logs Table -->
+            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden" id="sqlSyncLogsCardSection">
+              <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="fw-bold mb-0" style="color: #14452F;">
+                    <i class="bi bi-journal-check text-success me-1"></i>Nhật Ký Đồng Bộ Cơ Sở Dữ Liệu Hai Chiều (dbo.SyncAuditLogs)
+                  </h6>
+                  <small class="text-muted">Theo dõi thời gian thực mọi sự kiện <code>WEB_TO_SQL</code> (Website ghi SQL) và <code>SQL_TO_WEB</code> (Trigger SSMS đẩy lên Website)</small>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                  <div class="input-group input-group-sm" style="width: 210px;">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" id="sqlSyncLogSearchInput" class="form-control" placeholder="Tìm mã bản ghi, tóm tắt..." oninput="renderSqlSyncAuditLogsTable()">
+                  </div>
+                  <select id="sqlSyncLogDirFilter" class="form-select form-select-sm" style="width: 150px;" onchange="renderSqlSyncAuditLogsTable()">
+                    <option value="ALL">Tất cả chiều đồng bộ</option>
+                    <option value="WEB_TO_SQL">WEB_TO_SQL (Web ➔ SQL)</option>
+                    <option value="SQL_TO_WEB">SQL_TO_WEB (SSMS ➔ Web)</option>
+                  </select>
+                  <select id="sqlSyncLogEntityFilter" class="form-select form-select-sm" style="width: 155px;" onchange="renderSqlSyncAuditLogsTable()">
+                    <option value="ALL">Tất cả bảng SQL</option>
+                    <option value="SpecialtyProducts">SpecialtyProducts</option>
+                    <option value="Rooms">Rooms</option>
+                    <option value="Bookings">Bookings</option>
+                    <option value="RoomDeliveries">RoomDeliveries</option>
+                    <option value="SmartLockPins">SmartLockPins</option>
+                    <option value="LocalPartners">LocalPartners</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-responsive" style="max-height: 360px; overflow-y: auto;">
+                <table class="table table-hover align-middle mb-0 small">
+                  <thead class="table-light sticky-top">
+                    <tr>
+                      <th class="ps-4">ID / Thời Gian</th>
+                      <th>Chiều Đồng Bộ</th>
+                      <th>Bảng Dữ Liệu</th>
+                      <th>Khóa Chính</th>
+                      <th>Hành Động</th>
+                      <th>Người Thực Hiện</th>
+                      <th>Ver</th>
+                      <th class="pe-4">Tóm Tắt Thay Đổi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sqlSyncAuditLogsTableBody">
+                    <tr><td colspan="8" class="text-center py-4 text-muted">Đang tải nhật ký đồng bộ từ SQL Server...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>

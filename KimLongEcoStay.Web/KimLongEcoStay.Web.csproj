@@ -19,4 +19,10 @@
     <ProjectReference Include="..\Plugins\KimLongEcoStay.StateStore.DI\KimLongEcoStay.StateStore.DI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="AdminTemplates\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

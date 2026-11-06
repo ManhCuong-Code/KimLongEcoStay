@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     deliveryCountdownInterval: null,
     deliverySecondsLeft: 900, // 15 phút = 900 giây
     currentPinInput: "",
-    lastGeneratedPin: "686899",
     isBikingSimulation: false,
     bikingInterval: null
   };
@@ -443,41 +442,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const checkinDate = checkinInput.value;
       const checkoutDate = checkoutInput.value;
 
-      // Tạo mã PIN ngẫu nhiên 6 chữ số
-      const generatedPin = Math.floor(100000 + Math.random() * 900000).toString();
-      state.lastGeneratedPin = generatedPin;
       const bookingCode = "KLE-" + Math.floor(1000 + Math.random() * 9000);
 
       bookingModal.classList.remove("active");
 
-      // Cập nhật preset PIN trong phân hệ Smart Lock
-      updatePresetPins(generatedPin, state.selectedRoom.name);
+      // Cập nhật thông báo bảo mật trong phân hệ Smart Lock
+      updatePresetPins(state.selectedRoom.name);
 
-      // Gửi email xác nhận kèm mã PIN tới hòm thư thật của khách hàng
-      if (guestEmail) {
-        try {
-          fetch("https://formsubmit.co/ajax/" + encodeURIComponent(guestEmail), {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            },
-            body: JSON.stringify({
-              _subject: `[Kim Long EcoStay] Xác Nhận Đặt Phòng & Mã PIN SmartLock #${bookingCode}`,
-              "Mã Đặt Phòng": bookingCode,
-              "Khách Hàng": guestName,
-              "Số Điện Thoại": guestPhone,
-              "Hòm Thư Nhận": guestEmail,
-              "Căn Phòng": state.selectedRoom.name,
-              "Thời Gian": `${checkinDate} đến ${checkoutDate}`,
-              "MÃ PIN SMARTLOCK 24/7": generatedPin,
-              "Hướng Dẫn Nhận Phòng": `Đến trước cửa phòng ${state.selectedRoom.name}, bấm mã PIN 6 số: ${generatedPin} rồi bấm phím # để mở khóa tự động trong 10 giây!`
-            })
-          }).catch(err => console.log("Email dispatch:", err));
-        } catch (e) {}
-      }
-
-      // Hiển thị hộp thoại xác nhận chuyên nghiệp, mã PIN thật và nút mở email
+      // Hiển thị hộp thoại xác nhận chờ đối soát cọc (PIN chỉ được cấp từ Backend sau đối soát)
       showBookingSuccessModal({
         bookingCode,
         guestName,
@@ -485,14 +457,13 @@ document.addEventListener("DOMContentLoaded", () => {
         guestEmail,
         roomName: state.selectedRoom.name,
         checkinDate,
-        checkoutDate,
-        generatedPin
+        checkoutDate
       });
     });
   }
 
   // =========================================================================
-  // 3. PHÂN HỆ 2: MÔ PHỎNG SMART LOCK CHECK-IN 10 GIÂY
+  // 3. PHÂN HỆ 2: MÔ PHỎNG SMART LOCK CHECK-IN 10 GIÂY (XÁC THỰC QUA BACKEND API)
   // =========================================================================
   const lockPinDisplay = document.getElementById("lock-pin-display");
   const lockFeedback = document.getElementById("lock-feedback-status");
@@ -500,30 +471,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const keypadBtns = document.querySelectorAll(".keypad-btn");
   const presetPinContainer = document.getElementById("preset-pins-list");
 
-  function updatePresetPins(newPin = "686899", roomName = "Phòng Eco-Nest Ban Mai") {
+  function updatePresetPins(roomName = "Phòng Eco-Nest Ban Mai") {
     if (!presetPinContainer) return;
     presetPinContainer.innerHTML = `
-      <button class="btn-preset-pin active-pin" data-pin="${newPin}">
-        ★ PIN mới nhận phòng: ${newPin} (${roomName})
-      </button>
-      <button class="btn-preset-pin" data-pin="686899">
-        Mã PIN mẫu 1: 686899 (Phòng R101)
-      </button>
-      <button class="btn-preset-pin" data-pin="779922">
-        Mã PIN mẫu 2: 779922 (Garden Suite R201)
-      </button>
-      <button class="btn-preset-pin" data-pin="123456">
-        Mã PIN sai thử nghiệm: 123456
-      </button>
+      <div class="small text-muted p-2 border rounded bg-light">
+        🔒 <strong>Bảo mật SmartLock Zero-Trust:</strong> Mã PIN không được lưu trữ hoặc hiển thị công khai trên Frontend. Mã PIN chỉ được cấp một lần từ Backend sau khi đối soát cọc thành công (${roomName}).
+      </div>
     `;
-
-    document.querySelectorAll(".btn-preset-pin").forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.currentPinInput = btn.dataset.pin;
-        updateLockDisplay();
-        playKeyBeep(700, 0.08);
-      });
-    });
   }
 
   function updateLockDisplay() {
@@ -537,35 +491,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function checkSmartLockPin() {
-    const validPins = [
-      state.lastGeneratedPin,
-      "686899", "123888", "779922", "998833", "369852"
-    ];
+  async function checkSmartLockPin() {
+    const enteredPin = (state.currentPinInput || "").trim();
+    if (enteredPin.length !== 6) return;
 
-    if (validPins.includes(state.currentPinInput)) {
-      playSuccessTone();
-      lockStatusBadge.textContent = "● ĐÃ MỞ CHỐT (UNLOCKED)";
-      lockStatusBadge.style.color = "#34D399";
-      lockFeedback.className = "lock-feedback-status success";
-      lockFeedback.innerHTML = `
-        <div style="font-size: 15px; margin-bottom: 4px;">✅ MỞ KHÓA THÀNH CÔNG TRONG 2 GIÂY!</div>
-        <div style="font-size: 12.5px; line-height: 1.5; color: #E2E8F0;">
-          • Cửa phòng đã mở chốt an toàn.<br>
-          • Cảm biến IoT tự động kích hoạt: <strong>Đèn ngủ ánh vàng & Điều hòa 24°C đã bật</strong> mát mẻ chào đón bạn.<br>
-          • Mật khẩu Wi-Fi Mesh: <strong>KimLongEcoStay@2026</strong>.<br>
-          • Quý khách có thể quét mã QR trên bàn để bắt đầu Tour Audio Guide và gọi món nóng sốt!
-        </div>
-      `;
-    } else {
+    try {
+      const res = await fetch("/api/smartlock/verify-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomNumber: state.selectedRoom ? state.selectedRoom.id : "KLE-R102",
+          pin: enteredPin
+        })
+      });
+      const result = await res.json().catch(() => ({}));
+
+      if (res.ok && result && result.verified) {
+        playSuccessTone();
+        lockStatusBadge.textContent = "● ĐÃ MỞ CHỐT (UNLOCKED)";
+        lockStatusBadge.style.color = "#34D399";
+        lockFeedback.className = "lock-feedback-status success";
+        lockFeedback.innerHTML = `
+          <div style="font-size: 15px; margin-bottom: 4px;">✅ MỞ KHÓA THÀNH CÔNG!</div>
+          <div style="font-size: 12.5px; line-height: 1.5; color: #E2E8F0;">
+            • Cửa phòng đã mở chốt an toàn sau khi xác thực SHA-256 tại Backend.<br>
+            • Cảm biến IoT tự động kích hoạt: <strong>Đèn ngủ ánh vàng & Điều hòa 24°C đã bật</strong> chào đón quý khách.
+          </div>
+        `;
+      } else {
+        playErrorTone();
+        lockStatusBadge.textContent = res.status === 429
+          ? "● TẠM KHÓA BẢO MẬT (LOCKED 15M)"
+          : "● TỪ CHỐI TRUY CẬP (ACCESS DENIED)";
+        lockStatusBadge.style.color = "#F87171";
+        lockFeedback.className = "lock-feedback-status error";
+        lockFeedback.innerHTML = `
+          ❌ ${(result && result.message) ? result.message : "MÃ PIN KHÔNG HỢP LỆ HOẶC CHƯA ĐƯỢC CẤP QUYỀN!"}
+        `;
+      }
+    } catch (err) {
       playErrorTone();
-      lockStatusBadge.textContent = "● TỪ CHỐI TRUY CẬP (ACCESS DENIED)";
+      lockStatusBadge.textContent = "● LỖI KẾT NỐI XÁC THỰC";
       lockStatusBadge.style.color = "#F87171";
       lockFeedback.className = "lock-feedback-status error";
-      lockFeedback.innerHTML = `
-        ❌ MÃ PIN KHÔNG CHÍNH XÁC!<br>
-        <small style="color: #CBD5E1;">Vui lòng kiểm tra lại tin nhắn Zalo/SMS hoặc bấm vào nút PIN mẫu bên cạnh để thử nghiệm.</small>
-      `;
+      lockFeedback.textContent = "Không thể kết nối máy chủ xác thực SmartLock.";
     }
   }
 
@@ -971,7 +940,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <small style="color: var(--c-text-muted);">${p.house}</small>
           </td>
           <td>${p.landArea}</td>
-          <td><span style="background: #DCFCE7; color: #15803D; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11.5px;">10.000.000 đ/tháng</span></td>
+          <td><span style="background: #DCFCE7; color: #15803D; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11.5px;">Theo hợp đồng đối tác</span></td>
           <td><strong>${p.doubleIncome}</strong></td>
           <td><small style="color: #0F172A;">${p.agriSupport}</small></td>
         </tr>
@@ -989,7 +958,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =========================================================================
-  // HỘP THOẠI XÁC NHẬN ĐẶT PHÒNG & MÃ PIN GỬI VỀ EMAIL THẬT
+  // HỘP THOẠI XÁC NHẬN ĐẶT PHÒNG (PIN CHỈ CẤP TỪ BACKEND SAU ĐỐI SOÁT CỌC)
   // =========================================================================
   function showBookingSuccessModal(data) {
     let modal = document.getElementById("booking-success-popup-modal");
@@ -1004,108 +973,50 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.appendChild(modal);
     }
 
-    const mailtoUrl = `mailto:${encodeURIComponent(data.guestEmail)}?subject=${encodeURIComponent(`[Kim Long EcoStay] Xác Nhận Đặt Phòng & Mã PIN SmartLock #${data.bookingCode}`)}&body=${encodeURIComponent(
-`Kính gửi quý khách ${data.guestName},
-
-Kim Long EcoStay xin chân thành cảm ơn quý khách đã tin tưởng đặt phòng nghỉ dưỡng tại Nhà Vườn Sinh Thái Kim Long - Cố Đô Huế!
-
-THÔNG TIN ĐƠN ĐẶT PHÒNG:
-• Mã đặt phòng: #${data.bookingCode}
-• Căn phòng: ${data.roomName}
-• Thời gian lưu trú: Từ ${data.checkinDate} đến ${data.checkoutDate}
-• Khách hàng: ${data.guestName}
-• Số điện thoại: ${data.guestPhone}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔑 MÃ PIN SMARTLOCK 24/7 NHẬN PHÒNG TỰ ĐỘNG: 【 ${data.generatedPin} 】
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-HƯỚNG DẪN MỞ PHÒNG TRONG 10 GIÂY:
-1. Khi đến trước cửa phòng ${data.roomName}, quý khách chạm tay vào bàn phím số để sáng đèn.
-2. Nhập chính xác 6 chữ số: ${data.generatedPin}
-3. Bấm phím [#] để mở chốt cửa an toàn.
-Hệ thống cảm biến IoT sẽ tự động bật đèn ngủ ấm áp và điều hòa nhiệt độ phòng đón chào quý khách!
-
-Mật khẩu Wi-Fi Mesh toàn homestay: KimLongEcoStay@2026
-Hotline hỗ trợ 24/7: 0905.888.666
-
-Kính chúc quý khách có một kỳ nghỉ an yên và trọn vẹn tại Cố Đô Huế!
-Kim Long EcoStay Team`
-    )}`;
-
     modal.innerHTML = `
       <div style="background: #ffffff; border-radius: 20px; max-width: 580px; width: 100%; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.35); font-family: 'Plus Jakarta Sans', sans-serif;">
         <div style="background: linear-gradient(135deg, #073B2B, #0E5E45); color: #fff; padding: 24px 28px; text-align: center;">
           <div style="display: inline-block; background: #D4AF37; color: #031F17; font-weight: 800; font-size: 11px; padding: 4px 12px; border-radius: 20px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
-            ✓ Xác Nhận Đặt Phòng Thành Công
+            ✓ Đã Tiếp Nhận Yêu Cầu Đặt Phòng
           </div>
           <h2 style="font-family: 'Playfair Display', Georgia, serif; margin: 0 0 6px 0; font-size: 24px; color: #fff;">
             Chào Mừng Đến Kim Long EcoStay
           </h2>
           <p style="margin: 0; color: rgba(255,255,255,0.85); font-size: 13.5px;">
-            Đơn phòng <strong>#${data.bookingCode}</strong> đã được xác nhận giữ chỗ thành công
+            Đơn phòng <strong>#${data.bookingCode}</strong> đang ở trạng thái chờ đối soát cọc
           </p>
         </div>
 
         <div style="padding: 24px 28px;">
-          <!-- Hộp mã PIN to nổi bật -->
           <div style="background: linear-gradient(135deg, #031F17, #073B2B); border-radius: 14px; padding: 18px 20px; text-align: center; color: #fff; margin-bottom: 20px; border: 1px solid rgba(212,175,55,0.4);">
             <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #D4AF37; font-weight: 700; margin-bottom: 6px;">
-              🔑 MÃ PIN SMARTLOCK MỞ PHÒNG 24/7 (CHECK-IN 10 GIÂY)
+              🔑 MÃ PIN SMARTLOCK BẢO MẬT
             </div>
-            <div style="font-size: 38px; font-weight: 900; letter-spacing: 8px; color: #34D399; font-family: monospace;">
-              ${data.generatedPin}
+            <div style="font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #FBBF24; font-family: monospace;">
+              ••••••
             </div>
-            <div style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 6px;">
-              Đến trước cửa phòng, bấm <strong>${data.generatedPin}</strong> rồi bấm phím <strong>#</strong> để mở khóa
-            </div>
-          </div>
-
-          <!-- Trạng thái email thật -->
-          <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 12px;">
-            <div style="font-size: 24px;">📧</div>
-            <div style="font-size: 13px; color: #166534; line-height: 1.5;">
-              <strong style="color: #15803D;">Đã gửi thông tin & mã PIN tới email thật:</strong><br>
-              <span style="font-family: monospace; font-size: 14px; font-weight: 700; color: #0F172A;">${data.guestEmail || 'Email khách hàng'}</span><br>
-              <span style="font-size: 12px; color: #15803D;">Vui lòng kiểm tra Hộp thư đến (Inbox) hoặc Thư rác (Spam) trong hòm thư của bạn.</span>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 6px;">
+              Mã PIN chỉ được khởi tạo tại Backend và gửi riêng qua kênh bảo mật sau khi hoàn tất đối soát tiền cọc 50%.
             </div>
           </div>
 
-          <!-- Chi tiết phòng -->
           <div style="background: #F8FAF8; border-radius: 10px; padding: 12px 16px; margin-bottom: 22px; font-size: 13px; color: #334155; line-height: 1.6;">
             <div>• <strong>Căn phòng:</strong> ${data.roomName}</div>
-            <div>• <strong>Khách lưu trú:</strong> ${data.guestName} (${data.guestPhone})</div>
+            <div>• <strong>Khách lưu trú:</strong> ${data.guestName}</div>
             <div>• <strong>Lịch trình:</strong> ${data.checkinDate} → ${data.checkoutDate}</div>
           </div>
 
-          <!-- Các nút hành động -->
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <a href="${mailtoUrl}" target="_blank" style="background: linear-gradient(135deg, #D97706, #B45309); color: #fff; text-decoration: none; text-align: center; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(217,119,6,0.25);">
-              ✉️ Mở Hòm Thư Email Nhận Mã PIN Ngay
-            </a>
-            <div style="display: flex; gap: 10px;">
-              <button id="btn-popup-try-smartlock" style="flex: 1; background: #073B2B; color: #fff; border: none; padding: 11px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;">
-                🔑 Thử Mở Khóa SmartLock 10s
-              </button>
-              <button id="btn-popup-close-modal" style="flex: 1; background: #E2E8F0; color: #334155; border: none; padding: 11px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;">
-                Đóng Cửa Sổ
-              </button>
-            </div>
+          <div style="display: flex; gap: 10px;">
+            <button id="btn-popup-close-modal" style="flex: 1; background: #073B2B; color: #fff; border: none; padding: 11px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;">
+              Đã Hiểu & Đóng Cửa Sổ
+            </button>
           </div>
         </div>
       </div>
     `;
 
-    document.getElementById("btn-popup-try-smartlock").onclick = () => {
-      modal.remove();
-      switchTab("smartlock");
-      state.currentPinInput = data.generatedPin;
-      updateLockDisplay();
-      setTimeout(checkSmartLockPin, 400);
-    };
-
     document.getElementById("btn-popup-close-modal").onclick = () => {
       modal.remove();
-      switchTab("smartlock");
       state.currentPinInput = "";
       updateLockDisplay();
     };

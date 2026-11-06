@@ -31,7 +31,6 @@ const ECOSTAY_DATA = {
       view: "View trực diện cánh đồng lúa Kim Long & Đón bình minh",
       bedType: "01 Giường đôi Queen Size (Gỗ thông tự nhiên, đệm organic)",
       smartLockId: "LOCK-KL-101",
-      defaultPin: "686899",
       features: [
         "Khóa điện tử thông minh IoT (Mở cửa bằng PIN/QR 10 giây)",
         "Ban công kính panorama ngắm đồng lúa & hít gió sông Hương",
@@ -56,7 +55,6 @@ const ECOSTAY_DATA = {
       view: "View hướng hoàng hôn sông Hương & Rặng tre ngà",
       bedType: "01 Giường đôi Queen Size (Gỗ mộc, rèm thô tự nhiên)",
       smartLockId: "LOCK-KL-102",
-      defaultPin: "123888",
       features: [
         "Khóa thông minh không chạm nhận phòng trong 10 giây",
         "Cửa sổ góc ngắm hoàng hôn ráng vàng trên sông Hương",
@@ -80,7 +78,6 @@ const ECOSTAY_DATA = {
       view: "View toàn cảnh vườn cây ăn quả cổ thụ & Lối dạo lát gạch Bát Tràng",
       bedType: "01 Giường King Size + 01 Sofa Bed đọc sách",
       smartLockId: "LOCK-KL-201",
-      defaultPin: "779922",
       features: [
         "Khóa thông minh mở cửa 1 chạm hoặc quét mã QR qua điện thoại",
         "Khu vực hiên trà thưởng nguyệt phong cách Cố đô Huế",
@@ -105,7 +102,6 @@ const ECOSTAY_DATA = {
       view: "View trực diện sân vườn cỏ tự nhiên an toàn cho trẻ nhỏ & Luống rau sạch",
       bedType: "02 Giường đôi cỡ lớn (Nệm sinh học, chất liệu kháng khuẩn)",
       smartLockId: "LOCK-KL-202",
-      defaultPin: "998833",
       features: [
         "Hệ thống Smart Lock kiểm soát ra vào độc lập 24/7",
         "Khoảng sân riêng biệt rợp bóng cây cho trẻ em vui chơi an toàn",
@@ -129,7 +125,6 @@ const ECOSTAY_DATA = {
       view: "View hồ cá hoa súng & Rặng chuối ngự ven bờ",
       bedType: "01 Giường Queen Size thủ công mỹ nghệ Huế",
       smartLockId: "LOCK-KL-203",
-      defaultPin: "369852",
       features: [
         "Khóa điện tử ngoài trời chống nước chuẩn IP66 cao cấp",
         "Bộ ấm trà Cung Đình và bộ cờ tướng thư giãn",
@@ -585,29 +580,11 @@ const ECOSTAY_DATA = {
     }
   ],
 
-  // 4. BẢNG SỐ LIỆU VẬN HÀNH DÀNH CHO CỔNG CHỦ VƯỜN & ADMIN DASHBOARD
+  // 4. TIÊU CHUẨN VẬN HÀNH BUỒNG PHÒNG SINH THÁI (DỮ LIỆU QUẢN TRỊ ĐÃ CHUYỂN VÀO BACKEND)
   operationalMetrics: {
-    fixedLeasePerHouse: "10.000.000 VNĐ / tháng / căn",
     totalHouses: 2,
     totalRooms: 5,
-    farmerPartners: [
-      {
-        farmerName: "Bác Nguyễn Văn Hải (Bác Hai)",
-        house: "Nhà Vườn Hương Sen (Căn 01 - 2 phòng ngủ)",
-        landArea: "1.200m² vườn cây & ruộng lúa liên kề",
-        leaseStatus: "Đã chi trả tháng hiện tại (10.000.000đ vào ngày 01)",
-        doubleIncome: "20.000.000đ/tháng (10tr tiền thuê + 10tr lương buồng phòng & vườn)",
-        agriSupport: "Đã cấp 100% men vi sinh EM & bao tiêu 180kg bưởi thanh trà"
-      },
-      {
-        farmerName: "Bác Trần Thị Lệ (Bác Ba Lệ)",
-        house: "Nhà Vườn Nguyệt Biều (Căn 02 - 3 phòng ngủ)",
-        landArea: "1.650m² nhà rường truyền thống & ao súng",
-        leaseStatus: "Đã chi trả tháng hiện tại (10.000.000đ vào ngày 01)",
-        doubleIncome: "20.000.000đ/tháng (10tr tiền thuê + 10tr lương nhân sự vận hành)",
-        agriSupport: "Cam kết bao tiêu rau màu sạch và hỗ trợ giống vụ Đông Xuân"
-      }
-    ],
+    farmerPartners: [],
     sopHousekeeping8Steps: [
       { step: 1, title: "Thu gom & phân loại rác sinh thái (hữu cơ ủ phân bón, không ni-lông 1 lần)" },
       { step: 2, title: "Tháo giặt ga gối bằng nước giặt sinh học sả chanh tự ủ, phơi nắng đồng lúa" },
@@ -616,16 +593,8 @@ const ECOSTAY_DATA = {
       { step: 5, title: "Trải ga giường trắng phẳng góc 45 độ, đệm organic thông thoáng thơm nắng" },
       { step: 6, title: "Bổ sung đồ tiêu hao thảo mộc: xà phòng bồ hòn, dầu gội tràm, trà sen, nước chai thủy tinh" },
       { step: 7, title: "Đốt đèn xông tinh dầu tràm quế Cố đô, kiểm tra điều hòa và tín hiệu Wi-Fi mesh" },
-      { step: 8, title: "Kiểm tra mức pin khóa Smart Lock (nếu < 20% thay ngay), kích hoạt mã PIN mới" }
-    ],
-    mvpFinancialSummary: {
-      totalCapex: "750.000.000 VNĐ (Vốn đầu tư ban đầu MVP 5 phòng mẫu)",
-      monthlyFixedOpex: "28.000.000 VNĐ / tháng (Định phí hoạt động FC: Thù lao 15M, Mkt 8M, AWS/IoT 2.5M, Khấu hao 2.5M)",
-      directCostPerNight: "325.500 VNĐ / đêm phòng (Biến phí VC: chia sẻ chủ vườn 30% 205.5k, giặt ủi/điện nước 80k, công dọn 40k)",
-      adrAvgPrice: "685.000 VNĐ / đêm phòng (Giá bán bình quân ADR)",
-      breakEvenRooms: "63.0 đêm / tháng (Hòa vốn hợp nhất: 2.10 phòng/ngày ~ 42.0% công suất)",
-      currentMonthOccupancy: "60.0% (Mục tiêu Năm 1: Doanh thu 1.303.050.000 VNĐ, Lợi nhuận ròng 317.856.000 VNĐ)"
-    }
+      { step: 8, title: "Kiểm tra mức pin khóa Smart Lock (nếu < 20% thay ngay), xác thực mã khóa tại Backend" }
+    ]
   }
 };
 

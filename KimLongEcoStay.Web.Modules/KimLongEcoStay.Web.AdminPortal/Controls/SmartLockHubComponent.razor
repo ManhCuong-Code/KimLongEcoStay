@@ -49,19 +49,16 @@
                             <h6 class="fw-bold text-success mb-1">@dev.RoomName</h6>
                             <div class="text-muted small mb-3">Thiết bị ID: <code>@dev.DeviceId</code></div>
 
-                            <!-- Khung mã PIN hiện hành (Mặc định ẩn •••••• kèm nút Hiện/Ẩn) -->
+                            <!-- Khung mã PIN hiện hành (Chỉ lưu & hiển thị băm SHA-256 ẩn ••••••) -->
                             <div class="p-3 rounded-3 bg-light border text-center mb-3">
-                                <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 11px;">Mã PIN SmartLock Bảo Mật:</small>
+                                <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 11px;">Mã PIN SmartLock Bảo Mật (SHA-256):</small>
                                 @if (!string.IsNullOrWhiteSpace(dev.AssignedGuestName) && !dev.AssignedGuestName.Contains("Trống"))
                                 {
                                     <div class="d-inline-flex align-items-center justify-content-center gap-2">
-                                        <span class="fs-3 fw-bold font-monospace text-success" style="letter-spacing: 3px;">
-                                            @(IsPinRevealed(dev.RoomNumber) ? dev.CurrentPin : "••••••")
+                                        <span class="fs-4 fw-bold font-monospace text-success" style="letter-spacing: 3px;">
+                                            ••••••
                                         </span>
-                                        <button type="button" class="btn btn-sm btn-outline-success rounded-circle p-1" style="width:30px;height:30px;"
-                                                @onclick="() => TogglePinReveal(dev)" title="Hiện / Ẩn mã PIN (Ghi nhận Audit Log)">
-                                            <i class="bi @(IsPinRevealed(dev.RoomNumber) ? "bi-eye-slash" : "bi-eye")"></i>
-                                        </button>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">SHA-256</span>
                                     </div>
                                     <div class="small text-muted mt-1" style="font-size: 11.5px;">
                                         <i class="bi bi-person-fill text-success me-1"></i>@dev.AssignedGuestName (@dev.AssignedGuestPhone)

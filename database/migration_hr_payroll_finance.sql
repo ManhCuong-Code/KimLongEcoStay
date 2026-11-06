@@ -22,19 +22,19 @@ GO
 IF NOT EXISTS (SELECT 1 FROM dbo.AppUsers WHERE Username = 'ketoan')
 BEGIN
     INSERT INTO dbo.AppUsers (Username, PasswordHash, FullName, Email, Role, IsActive)
-    VALUES ('ketoan', '123456', N'Trần Minh Khoa (Kế Toán Trưởng - CFO)', 'ketoan@kimlongecostay.vn', 'Accountant', 1);
+    VALUES ('ketoan', 'DCB6A6365E422125D9A6F92A5D2B674F68F949276610324BD813BD696871A787|9E28CDD21EA2D58E931C16F5C79AAB3F2D2E6C691681A0DF2161218D017C1962', N'Trần Minh Khoa (Kế Toán Trưởng - CFO)', 'ketoan@kimlongecostay.vn', 'Accountant', 1);
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.AppUsers WHERE Username = 'nhansu')
 BEGIN
     INSERT INTO dbo.AppUsers (Username, PasswordHash, FullName, Email, Role, IsActive)
-    VALUES ('nhansu', '123456', N'Trần Viết Mạnh Cường (Trưởng Phòng Nhân Sự - COO)', 'nhansu@kimlongecostay.vn', 'HR', 1);
+    VALUES ('nhansu', '3E032EFBC4A078338B88E7E90F2F97284CB57914C26BDAC671035F240815EAB1|AB41C0B964F70E32DA2FCE2748A2B4DEEDDC968D5DACD45F714A27714095C7EE', N'Trần Viết Mạnh Cường (Trưởng Phòng Nhân Sự - COO)', 'nhansu@kimlongecostay.vn', 'HR', 1);
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.AppUsers WHERE Username = 'quanly')
 BEGIN
     INSERT INTO dbo.AppUsers (Username, PasswordHash, FullName, Email, Role, IsActive)
-    VALUES ('quanly', '123456', N'Trần Thị Thu (Giám Đốc Quản Lý - CEO)', 'ceo@kimlongecostay.vn', 'Manager', 1);
+    VALUES ('quanly', '8ED86C2BC9F61C30F419F3655B6FDA16B55CF5A18B6A3A97A59B7FD2453248E5|BE562922CC11AB91A18657DCE425148427B090688284A76236B55AC4EE2C46AC', N'Trần Thị Thu (Giám Đốc Quản Lý - CEO)', 'ceo@kimlongecostay.vn', 'Manager', 1);
 END
 GO
 

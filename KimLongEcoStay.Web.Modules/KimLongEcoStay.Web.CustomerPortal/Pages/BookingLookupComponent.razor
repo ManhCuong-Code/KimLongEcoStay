@@ -1,5 +1,6 @@
 @page "/lookup"
 @page "/tracuu"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Administrator,Staff,Manager,HR")]
 @rendermode InteractiveServer
 
 @using KimLongEcoStay.CoreBusiness.Models
@@ -51,11 +52,9 @@
 
         <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mt-3 pt-2 border-top text-muted small">
             <span>
-                <i class="bi bi-lightbulb-fill text-warning me-1"></i>Mã mẫu thử nghiệm: 
-                <a href="javascript:void(0)" class="badge bg-light text-dark text-decoration-none border me-1" @onclick='() => SetSampleCode("KLE-20261015-01")'>KLE-20261015-01</a>
-                <a href="javascript:void(0)" class="badge bg-light text-dark text-decoration-none border" @onclick='() => SetSampleCode("0912.345.678")'>0912.345.678</a>
+                <i class="bi bi-shield-lock-fill text-success me-1"></i>Phân hệ nội bộ: Chỉ nhân sự được cấp quyền mới được phép tra cứu.
             </span>
-            <span><i class="bi bi-shield-check text-success me-1"></i>Bảo mật thông tin khách hàng</span>
+            <span><i class="bi bi-shield-check text-success me-1"></i>Bảo mật thông tin khách hàng &amp; SHA-256 PIN</span>
         </div>
     </div>
 

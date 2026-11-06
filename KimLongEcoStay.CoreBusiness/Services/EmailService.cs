@@ -174,6 +174,34 @@ namespace KimLongEcoStay.CoreBusiness.Services
             return await SendEmailAsync(recipient, subject, html, EmailTemplateType.TEA_SERVICE_CONFIRMED, request.BookingCode);
         }
 
+        private static EmailSendResult CreateRedactedHistoryEntry(EmailSendResult source)
+        {
+            string safeHtml = System.Text.RegularExpressions.Regex.Replace(
+                source.HtmlContent ?? string.Empty,
+                @"(<div class=""pin-code"">)\s*\d{6}\s*(</div>)",
+                "$1••••••$2");
+            safeHtml = System.Text.RegularExpressions.Regex.Replace(
+                safeHtml,
+                @"(Nhập\s+)\d{6}(\s+➔\s+Bấm\s+#)",
+                "$1••••••$2");
+
+            return new EmailSendResult
+            {
+                EmailId = source.EmailId,
+                IsSuccess = source.IsSuccess,
+                IsSimulated = source.IsSimulated,
+                RecipientEmail = source.RecipientEmail,
+                Subject = source.Subject,
+                StatusMessage = source.StatusMessage,
+                ErrorDetails = source.ErrorDetails,
+                SentAt = source.SentAt,
+                RetryCount = source.RetryCount,
+                HtmlContent = safeHtml,
+                AssociatedBookingCode = source.AssociatedBookingCode,
+                TemplateType = source.TemplateType
+            };
+        }
+
         // =========================================================================
         // 8. PHƯƠNG THỨC GỬI EMAIL CHÍNH VỚI CHỐNG LỖI & THỬ LẠI
         // =========================================================================
@@ -195,7 +223,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 result.IsSuccess = true;
                 result.IsSimulated = true;
                 result.StatusMessage = $"Email [{templateType}] đã gửi thành công tới {toEmail} qua Cổng Kim Long EcoStay Gateway lúc {result.SentAt:HH:mm:ss dd/MM/yyyy}.";
-                _sentEmailHistory.Add(result);
+                _sentEmailHistory.Add(CreateRedactedHistoryEntry(result));
                 return result;
             }
 
@@ -229,7 +257,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
                     result.IsSuccess = true;
                     result.IsSimulated = false;
                     result.StatusMessage = $"Email đã gửi thành công qua SMTP tới {toEmail} lúc {result.SentAt:HH:mm:ss dd/MM/yyyy}.";
-                    _sentEmailHistory.Add(result);
+                    _sentEmailHistory.Add(CreateRedactedHistoryEntry(result));
                     return result;
                 }
                 catch (Exception ex)
@@ -242,14 +270,14 @@ namespace KimLongEcoStay.CoreBusiness.Services
                         result.IsSuccess = true;
                         result.IsSimulated = true;
                         result.StatusMessage = $"Email đã được lưu vào hàng đợi gửi ngoại tuyến tới {toEmail} (Lưu ý mạng: {ex.Message}).";
-                        _sentEmailHistory.Add(result);
+                        _sentEmailHistory.Add(CreateRedactedHistoryEntry(result));
                         return result;
                     }
                     await Task.Delay(500 * attempts);
                 }
             }
 
-            _sentEmailHistory.Add(result);
+            _sentEmailHistory.Add(CreateRedactedHistoryEntry(result));
             return result;
         }
 
@@ -340,7 +368,7 @@ namespace KimLongEcoStay.CoreBusiness.Services
 
         public string GenerateDepositConfirmedHtml(Order order, string smartLockPin, string roomName, decimal depositPaid, decimal remainingBalance)
         {
-            string pin = !string.IsNullOrEmpty(smartLockPin) ? smartLockPin : "839201";
+            string pin = !string.IsNullOrEmpty(smartLockPin) ? smartLockPin : "••••••";
             string room = !string.IsNullOrEmpty(roomName) ? roomName : "Phòng Nghỉ Dưỡng Sinh Thái Kim Long";
             string uniqueId = order.UniqueId ?? "KLE-2026";
             string customerName = order.CustomerName ?? "Quý Khách";

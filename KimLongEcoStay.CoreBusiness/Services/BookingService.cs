@@ -111,15 +111,13 @@ namespace KimLongEcoStay.CoreBusiness.Services
         }
 
         /// <summary>
-        /// Tính năng Khóa thông minh SmartLock IoT Cloud 10s: Tự động sinh mã PIN mở cửa an toàn 6 chữ số
+        /// Tính năng Khóa thông minh SmartLock IoT Cloud 10s:
+        /// Sinh mã PIN 6 chữ số ngẫu nhiên an toàn mật mã (CSPRNG), tuyệt đối không suy đoán được từ mã đơn hay SĐT.
         /// </summary>
         public string GenerateSmartLockPin(string bookingCode, string phone)
         {
-            string cleanCode = (bookingCode ?? "KLE").Trim();
-            string cleanPhone = (phone ?? "000000").Trim();
-            int seed = Math.Abs((cleanCode + cleanPhone).GetHashCode());
-            int pin = 100000 + (seed % 900000);
-            return pin.ToString();
+            int pin = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000);
+            return pin.ToString("D6");
         }
 
         /// <summary>

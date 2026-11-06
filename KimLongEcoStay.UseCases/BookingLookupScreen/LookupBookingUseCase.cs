@@ -61,7 +61,6 @@ namespace KimLongEcoStay.UseCases.BookingLookupScreen
                 order.LineItems = _orderRepository.GetLineItemsByOrderId(order.OrderID ?? 0).ToList();
             }
 
-            string pin = _bookingService.GenerateSmartLockPin(order.UniqueId ?? "KLE", order.CustomerAddress ?? "000000");
             string roomName = order.LineItems?.FirstOrDefault()?.Product?.Name ?? "Buồng phòng sinh thái Kim Long";
 
             DateTime checkInDate = order.DatePlaced?.AddDays(1) ?? DateTime.Today.AddDays(1);
@@ -73,7 +72,7 @@ namespace KimLongEcoStay.UseCases.BookingLookupScreen
             return new BookingLookupDetail
             {
                 Order = order,
-                SmartLockPin = pin,
+                SmartLockPin = "••••••", // Luôn ẩn mã PIN theo chính sách bảo mật Backend
                 PinValidity = $"Hiệu lực từ 14:00 ngày {checkInDate:dd/MM/yyyy} đến 12:00 ngày kết thúc lưu trú",
                 RoomName = roomName,
                 BatteryLevel = 94,
