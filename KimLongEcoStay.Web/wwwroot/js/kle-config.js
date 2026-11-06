@@ -35,6 +35,7 @@
   var loc = window.location;
   var isLocal = (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1');
   var isGitHubPages = loc.hostname.endsWith('github.io');
+  var isAzure = loc.hostname.endsWith('.azurewebsites.net');
 
   /**
    * Xác định API Base URL chuẩn xác theo môi trường hiện tại
@@ -59,7 +60,12 @@
       return DEVELOPMENT_API_URL;
     }
 
-    // 2. Môi trường GitHub Pages (manhcuong-code.github.io)
+    // 2. Môi trường Azure App Service (*.azurewebsites.net)
+    if (isAzure) {
+      return loc.origin;
+    }
+
+    // 3. Môi trường GitHub Pages (manhcuong-code.github.io)
     if (isGitHubPages) {
       if (PRODUCTION_API_URL && PRODUCTION_API_URL.startsWith('https://')) {
         return PRODUCTION_API_URL.replace(/\/+$/, '');
@@ -68,7 +74,7 @@
       return null;
     }
 
-    // 3. Môi trường domain riêng có Backend đồng hành
+    // 4. Môi trường domain riêng có Backend đồng hành
     return loc.origin;
   }
 
@@ -77,6 +83,7 @@
     developmentApiUrl: DEVELOPMENT_API_URL,
     isLocal: isLocal,
     isGitHubPages: isGitHubPages,
+    isAzure: isAzure,
 
     /**
      * Kiểm tra Backend đã được cấu hình hợp lệ hay chưa

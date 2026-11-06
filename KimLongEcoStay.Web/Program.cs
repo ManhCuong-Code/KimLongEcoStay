@@ -35,6 +35,8 @@ using KimLongEcoStay.UseCases.AdminPortal.FinancialManagementScreen;
 using KimLongEcoStay.Web.Services;
 using System.Text.Json;
 using System.Text;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 // 0. NẠP BIẾN MÔI TRƯỜNG TỪ FILE .env (BẢO MẬT TUYỆT ĐỐI API KEY & SQL CONNECTION)
 EnvConfigurationLoader.LoadDotEnv();
@@ -52,6 +54,28 @@ if (!string.IsNullOrWhiteSpace(cloudPort))
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSignalR();
+
+// Data Protection Keys Persistence for Azure App Service & Multi-instance / Restart resilience
+var dpKeysFolder = Environment.GetEnvironmentVariable("DATA_PROTECTION_KEYS_PATH");
+if (string.IsNullOrWhiteSpace(dpKeysFolder))
+{
+    var homePath = Environment.GetEnvironmentVariable("HOME"); // Azure App Service persistent storage root
+    if (!string.IsNullOrWhiteSpace(homePath))
+    {
+        dpKeysFolder = Path.Combine(homePath, "ASP.NET", "DataProtection-Keys");
+    }
+}
+if (!string.IsNullOrWhiteSpace(dpKeysFolder))
+{
+    try
+    {
+        Directory.CreateDirectory(dpKeysFolder);
+        builder.Services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo(dpKeysFolder))
+            .SetApplicationName("KimLongEcoStay");
+    }
+    catch { }
+}
 
 // 2. COOKIE AUTHENTICATION & AUTHORIZATION (BẢO MẬT TUYỆT ĐỐI RBAC BACKEND)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -140,6 +164,13 @@ builder.Services.AddCors(options =>
                 // 3. Cho phép tên miền chính thức và subdomain Kim Long EcoStay
                 if (uri.Host.EndsWith(".kimlongecostay.vn", StringComparison.OrdinalIgnoreCase) ||
                     uri.Host.Equals("kimlongecostay.vn", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                // 3B. Cho phép Azure App Service domains (*.azurewebsites.net)
+                if (uri.Host.EndsWith(".azurewebsites.net", StringComparison.OrdinalIgnoreCase) ||
+                    uri.Host.Equals("azurewebsites.net", StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }

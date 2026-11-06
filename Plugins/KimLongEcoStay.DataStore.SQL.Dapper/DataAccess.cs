@@ -17,8 +17,12 @@ namespace KimLongEcoStay.DataStore.SQL.Dapper
 
         public DataAccess(IConfiguration configuration)
         {
-            var conn = configuration.GetConnectionString("KimLongEcoStayConnection")
-                ?? "Server=localhost\\SQLEXPRESS;Database=KimLongEcoStayDB;Trusted_Connection=True;TrustServerCertificate=True;";
+            var envConn = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING");
+            var conn = !string.IsNullOrWhiteSpace(envConn)
+                ? envConn
+                : (configuration.GetConnectionString("KimLongEcoStayConnection")
+                    ?? configuration.GetConnectionString("DefaultConnection")
+                    ?? "Server=localhost\\SQLEXPRESS;Database=KimLongEcoStayDB;Trusted_Connection=True;TrustServerCertificate=True;");
 
             // Tự động chuyển chuỗi kết nối sang SQL Server Container nếu chạy trên Linux / GitHub Codespaces
             if (!OperatingSystem.IsWindows() && conn.Contains("localhost\\SQLEXPRESS"))

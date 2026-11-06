@@ -1,0 +1,62 @@
+name: Deploy Kim Long EcoStay to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'KimLongEcoStay.Web/**'
+      - 'KimLongEcoStay.CoreBusiness/**'
+      - 'KimLongEcoStay.UseCases/**'
+      - 'KimLongEcoStay.Web.Modules/**'
+      - 'Plugins/**'
+      - '.github/workflows/azure-app-service.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build .NET 10 Solution & Deploy to Azure App Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK (10.0.x Preview)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          include-prerelease: true
+
+      - name: Restore NuGet Packages
+        run: dotnet restore KimLongEcoStay.sln
+
+      - name: Build Solution (Release)
+        run: dotnet build KimLongEcoStay.sln --no-restore -c Release
+
+      - name: Run xUnit Unit Tests
+        run: dotnet test KimLongEcoStay.Tests/KimLongEcoStay.Tests.csproj --no-build -c Release
+
+      - name: Publish ASP.NET Core Blazor Web App
+        run: |
+          dotnet publish KimLongEcoStay.Web/KimLongEcoStay.Web.csproj \
+            --no-build \
+            -c Release \
+            -o ./publish_azure \
+            --nologo
+
+      - name: Deploy to Azure App Service
+        if: "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE != '' }}"
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME || 'kimlong-ecostay' }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./publish_azure
+
+      - name: Notice when Secret is Pending
+        if: "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE == '' }}"
+        run: |
+          echo "::warning title=Azure Deployment Pending::Chưa cấu hình secret AZURE_WEBAPP_PUBLISH_PROFILE trong GitHub Repository Settings. Vui lòng tải Publish Profile từ Azure Portal và dán vào GitHub Secrets theo hướng dẫn."

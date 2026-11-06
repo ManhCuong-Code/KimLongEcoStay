@@ -49,7 +49,8 @@ namespace KimLongEcoStay.Web.Services
         {
             _hubContext = hubContext;
             var envConn = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING");
-            var cfgConn = configuration.GetConnectionString("KimLongEcoStayConnection");
+            var cfgConn = configuration.GetConnectionString("KimLongEcoStayConnection") 
+                ?? configuration.GetConnectionString("DefaultConnection");
             _connectionString = !string.IsNullOrWhiteSpace(envConn)
                 ? envConn
                 : (!string.IsNullOrWhiteSpace(cfgConn)
