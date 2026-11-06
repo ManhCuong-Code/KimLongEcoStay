@@ -60,3 +60,4 @@ jobs:
         if: "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE == '' }}"
         run: |
           echo "::warning title=Azure Deployment Pending::Chưa cấu hình secret AZURE_WEBAPP_PUBLISH_PROFILE trong GitHub Repository Settings. Vui lòng tải Publish Profile từ Azure Portal và dán vào GitHub Secrets theo hướng dẫn."
+
