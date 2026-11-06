@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <base href="/" />
     <!-- Cấu hình Backend & Môi trường nạp đầu tiên -->
     <script src="js/kle-config.js"></script>
@@ -3343,6 +3346,25 @@
             <i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống
           </button>
         </form>
+
+        <!-- Tài khoản mẫu để kiểm thử -->
+        <div class="p-2.5 rounded-3 mb-3" style="background: #F4F7F4; border: 1px dashed rgba(30, 107, 69, 0.35);">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <span class="small fw-bold" style="font-size: 11px; color: #14452F;"><i class="bi bi-person-badge me-1"></i>Tài khoản mẫu (Mật khẩu: 123456):</span>
+          </div>
+          <div class="d-flex flex-wrap gap-1">
+            <button type="button" class="btn btn-sm btn-outline-success py-0 px-2" style="font-size: 10.5px;" onclick="fillLoginCredentials('admin', '123456')">admin (CEO)</button>
+            <button type="button" class="btn btn-sm btn-outline-success py-0 px-2" style="font-size: 10.5px;" onclick="fillLoginCredentials('letan', '123456')">letan (Lễ Tân)</button>
+            <button type="button" class="btn btn-sm btn-outline-success py-0 px-2" style="font-size: 10.5px;" onclick="fillLoginCredentials('ketoan', '123456')">ketoan (Kế Toán)</button>
+            <button type="button" class="btn btn-sm btn-outline-success py-0 px-2" style="font-size: 10.5px;" onclick="fillLoginCredentials('nhansu', '123456')">nhansu (Nhân Sự)</button>
+          </div>
+        </div>
+
+        <div class="mb-3 text-center">
+          <a href="login/" class="btn btn-outline-dark btn-sm w-100" style="font-size: 11.5px; border-color: #CAD5CD;">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Mở Trang Đăng Nhập Riêng Biệt (/login/)
+          </a>
+        </div>
 
         <div class="border-top pt-3 text-center" style="border-color: #DDE5DF !important;">
           <div class="small text-muted" style="font-size: 11.5px;">
@@ -9281,8 +9303,25 @@ window.openLoginModal = function(alertMsg) {
   var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : (window.KLE_CONFIG ? window.KLE_CONFIG.getApiBase() : null);
   var btn = document.querySelector('#klePortalLoginForm button[type="submit"]');
 
+  var alertBox = document.getElementById('kleLoginAlertBox');
+  var alertText = document.getElementById('kleLoginAlertText');
+
   if (!apiBase && window.location.hostname.endsWith('github.io')) {
-    alertMsg = alertMsg || '⚠️ Backend chưa được cấu hình. Hệ thống đang chạy trên GitHub Pages ở chế độ Xem Trước Tĩnh. Vui lòng cấu hình productionApiUrl trong js/kle-config.js.';
+    if (alertBox && alertText) {
+      alertText.innerHTML = `
+        <div class="fw-bold mb-1"><i class="bi bi-shield-exclamation me-1"></i>Backend chưa được cấu hình</div>
+        <div style="font-size: 11.5px; line-height: 1.45;">
+          Hệ thống đang chạy trên GitHub Pages ở chế độ <strong>Xem Trước Tĩnh</strong>. 
+          Vui lòng dán URL Backend HTTPS / Tunnel (từ <code>MO_CONG_ONLINE_INTERNET.bat</code>) để kết nối trực tiếp:
+        </div>
+        <div class="input-group input-group-sm mt-2">
+          <input type="url" id="modalManualBackendUrl" class="form-control font-monospace" placeholder="https://xxxx.lhr.life" style="font-size:11px;">
+          <button class="btn btn-dark fw-bold" type="button" onclick="connectModalManualBackend()" style="font-size:11px;">Kết Nối</button>
+        </div>
+      `;
+      alertBox.className = 'alert alert-warning border-warning small py-2 px-3 rounded-3 mb-3';
+      alertBox.classList.remove('d-none');
+    }
     if (btn) {
       btn.disabled = true;
       btn.innerHTML = '<i class="bi bi-lock-fill me-1"></i>Backend Chưa Được Cấu Hình';
@@ -9292,17 +9331,15 @@ window.openLoginModal = function(alertMsg) {
       btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
     }
-  }
-
-  var alertBox = document.getElementById('kleLoginAlertBox');
-  var alertText = document.getElementById('kleLoginAlertText');
-  if (alertBox && alertText) {
-    if (alertMsg) {
-      alertText.textContent = alertMsg;
-      alertBox.classList.remove('d-none');
-    } else {
-      alertText.textContent = '';
-      alertBox.classList.add('d-none');
+    if (alertBox && alertText) {
+      if (alertMsg) {
+        alertText.innerHTML = alertMsg;
+        alertBox.className = 'alert alert-warning border-warning small py-2 px-3 rounded-3 mb-3';
+        alertBox.classList.remove('d-none');
+      } else {
+        alertText.innerHTML = '';
+        alertBox.classList.add('d-none');
+      }
     }
   }
 
@@ -9310,6 +9347,37 @@ window.openLoginModal = function(alertMsg) {
   if (loginModalEl && typeof bootstrap !== 'undefined') {
     var loginInst = bootstrap.Modal.getOrCreateInstance(loginModalEl);
     loginInst.show();
+  }
+};
+
+window.fillLoginCredentials = function(u, p) {
+  var uEl = document.getElementById('adminLoginUser') || document.getElementById('kleLoginUsername');
+  var pEl = document.getElementById('adminLoginPass') || document.getElementById('kleLoginPassword');
+  if (uEl) uEl.value = u;
+  if (pEl) pEl.value = p;
+};
+
+window.connectModalManualBackend = async function() {
+  var inp = document.getElementById('modalManualBackendUrl');
+  var val = (inp ? inp.value : '').trim().replace(/\/+$/, '');
+  if (!val || (!val.startsWith('https://') && !val.startsWith('http://localhost') && !val.startsWith('http://127.0.0.1'))) {
+    showKleToast('Vui lòng nhập đúng định dạng URL Backend HTTPS (VD: https://xxxx.lhr.life).', 'warning');
+    return;
+  }
+  showKleToast('Đang kết nối tới máy chủ ' + val + '...', 'info');
+  try {
+    var resp = await fetch(val + '/api/health', { method: 'GET' });
+    if (resp.ok) {
+      if (window.KLE_CONFIG && typeof window.KLE_CONFIG.setManualBackendUrl === 'function') {
+        window.KLE_CONFIG.setManualBackendUrl(val);
+      }
+      showKleToast('Kết nối máy chủ Backend HTTPS thành công!', 'success');
+      openLoginModal('Đã kết nối máy chủ xác thực: ' + val);
+    } else {
+      showKleToast('Máy chủ phản hồi mã lỗi HTTP ' + resp.status, 'danger');
+    }
+  } catch(e) {
+    showKleToast('Không thể kết nối đến máy chủ (' + e.message + ')', 'danger');
   }
 };
 

@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Đăng Nhập Cổng Điều Hành — Kim Long EcoStay</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -357,8 +360,11 @@
         if (box) box.classList.add('d-none');
       }
 
-      // 3. Resolve API Base from KLE_CONFIG
+      // 3. Resolve API Base from KLE_CONFIG or active session
       function getApiBase() {
+        if (window.__activeManualBackend) {
+          return window.__activeManualBackend;
+        }
         if (window.KLE_CONFIG && typeof window.KLE_CONFIG.getApiBase === 'function') {
           return window.KLE_CONFIG.getApiBase();
         }
@@ -368,6 +374,50 @@
         }
         return null;
       }
+
+      // Quick connect manual backend (Tunnel HTTPS từ MO_CONG_ONLINE_INTERNET.bat hoặc VPS)
+      window.connectManualBackend = async function() {
+        var inp = document.getElementById('manualBackendUrlInp');
+        var val = (inp ? inp.value : '').trim().replace(/\/+$/, '');
+        if (!val || (!val.startsWith('https://') && !val.startsWith('http://localhost') && !val.startsWith('http://127.0.0.1'))) {
+          showAlert('Vui lòng nhập đúng định dạng URL Backend HTTPS (VD: https://xxxx.lhr.life hoặc https://api.kimlongecostay.vn).', 'warning');
+          return;
+        }
+        showAlert('Đang kiểm tra kết nối tới máy chủ ' + val + '...', 'info');
+        try {
+          var resp = await fetch(val + '/api/health', { method: 'GET' });
+          if (resp.ok) {
+            window.__activeManualBackend = val;
+            if (window.KLE_CONFIG && typeof window.KLE_CONFIG.setManualBackendUrl === 'function') {
+              window.KLE_CONFIG.setManualBackendUrl(val);
+            }
+            showAlert('Kết nối máy chủ Backend HTTPS thành công! Form đăng nhập đã sẵn sàng.', 'success');
+            var banner = document.getElementById('backendStatusBanner');
+            if (banner) {
+              banner.className = 'alert alert-success border-success small py-1.5 px-3 rounded-3 mb-3';
+              banner.innerHTML = `<i class="bi bi-check-circle-fill me-1 text-success"></i>Đã kết nối máy chủ xác thực: <span class="font-monospace fw-semibold">${val}</span> <a href="javascript:void(0)" onclick="disconnectManualBackend()" class="text-danger ms-2 small text-decoration-none">[Ngắt]</a>`;
+            }
+            var btn = document.getElementById('loginSubmitBtn');
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
+            }
+          } else {
+            showAlert('Máy chủ phản hồi mã lỗi HTTP ' + resp.status + '. Vui lòng kiểm tra lại dịch vụ Backend.', 'danger');
+          }
+        } catch(e) {
+          showAlert('Không thể kết nối đến máy chủ (' + e.message + '). Đảm bảo Backend đang mở cổng và hỗ trợ HTTPS/CORS.', 'danger');
+        }
+      };
+
+      window.disconnectManualBackend = function() {
+        window.__activeManualBackend = null;
+        if (window.KLE_CONFIG && typeof window.KLE_CONFIG.clearManualBackendUrl === 'function') {
+          window.KLE_CONFIG.clearManualBackendUrl();
+        }
+        initEnvironment();
+        showAlert('Đã ngắt kết nối máy chủ thủ công.', 'info');
+      };
 
       // 4. Initial Environment Check
       function initEnvironment() {
@@ -383,7 +433,14 @@
               <div class="fw-bold mb-1"><i class="bi bi-shield-exclamation me-1"></i>Backend chưa được cấu hình</div>
               <div style="font-size: 11.5px; line-height: 1.45;">
                 Hệ thống đang chạy trên GitHub Pages ở chế độ <strong>Xem Trước Tĩnh</strong>. 
-                Vui lòng triển khai Backend HTTPS và cấu hình <code>productionApiUrl</code> trong <code>js/kle-config.js</code> để kích hoạt xác thực thực tế.
+                Vui lòng cấu hình <code>productionApiUrl</code> trong <code>js/kle-config.js</code> hoặc dán URL Backend HTTPS / Tunnel (từ <code>MO_CONG_ONLINE_INTERNET.bat</code>) để kết nối trực tiếp.
+              </div>
+              <div class="mt-2 pt-2 border-top border-warning-subtle">
+                <label class="form-label" style="font-size:11px; margin-bottom:3px;"><i class="bi bi-link-45deg me-1"></i>Kết nối nhanh máy chủ Backend HTTPS / Tunnel:</label>
+                <div class="input-group input-group-sm">
+                  <input type="url" id="manualBackendUrlInp" class="form-control font-monospace" placeholder="https://xxxx.lhr.life" style="font-size:11px;">
+                  <button class="btn btn-dark fw-bold" type="button" onclick="connectManualBackend()" style="font-size:11px;">Kết Nối</button>
+                </div>
               </div>
             `;
             banner.classList.remove('d-none');
@@ -394,10 +451,16 @@
           }
         } else {
           // Backend online / configured
-          if (banner && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+          if (banner) {
+            var isManual = !!(window.__activeManualBackend || (typeof localStorage !== 'undefined' && localStorage.getItem('kle_manual_backend_url')));
             banner.className = 'alert alert-success border-success small py-1.5 px-3 rounded-3 mb-3';
-            banner.innerHTML = `<i class="bi bi-hdd-network-fill me-1 text-success"></i>Máy chủ xác thực: <span class="font-monospace fw-semibold">${apiBase}</span>`;
+            banner.innerHTML = `<i class="bi bi-hdd-network-fill me-1 text-success"></i>Máy chủ xác thực: <span class="font-monospace fw-semibold">${apiBase}</span>` +
+              (isManual ? ` <a href="javascript:void(0)" onclick="disconnectManualBackend()" class="text-danger ms-2 small text-decoration-none">[Ngắt]</a>` : '');
             banner.classList.remove('d-none');
+          }
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
           }
           // Check if user is ALREADY authenticated
           checkExistingSession(apiBase);

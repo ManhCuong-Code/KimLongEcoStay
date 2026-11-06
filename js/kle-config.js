@@ -41,6 +41,16 @@
    * @returns {string|null} URL gốc của Backend hoặc null nếu chưa cấu hình
    */
   function getApiBase() {
+    // 0. Manual Tunnel / Custom Backend URL (nếu người dùng cấu hình nhanh qua giao diện để test)
+    var manual = null;
+    try {
+      manual = (typeof window !== 'undefined' && window.__activeManualBackend) ||
+               (typeof localStorage !== 'undefined' && localStorage.getItem('kle_manual_backend_url'));
+    } catch(e) {}
+    if (manual && (manual.startsWith('https://') || manual.startsWith('http://localhost') || manual.startsWith('http://127.0.0.1'))) {
+      return manual.replace(/\/+$/, '');
+    }
+
     // 1. Môi trường phát triển cục bộ (Local Development)
     if (isLocal) {
       if (loc.port === '5204' || loc.port === '5000' || loc.port === '7120') {
@@ -81,6 +91,28 @@
     getApiBase: getApiBase,
 
     /**
+     * Cài đặt URL máy chủ thủ công (Tunnel HTTPS / VPS)
+     */
+    setManualBackendUrl: function(url) {
+      if (!url) {
+        window.__activeManualBackend = null;
+        try { localStorage.removeItem('kle_manual_backend_url'); } catch(e) {}
+        return;
+      }
+      var clean = url.trim().replace(/\/+$/, '');
+      window.__activeManualBackend = clean;
+      try { localStorage.setItem('kle_manual_backend_url', clean); } catch(e) {}
+    },
+
+    /**
+     * Xóa cấu hình máy chủ thủ công
+     */
+    clearManualBackendUrl: function() {
+      window.__activeManualBackend = null;
+      try { localStorage.removeItem('kle_manual_backend_url'); } catch(e) {}
+    },
+
+    /**
      * Ghép đường dẫn endpoint với API Base an toàn
      * @param {string} endpoint - Ví dụ '/api/auth/login'
      * @returns {string|null} - URL đầy đủ hoặc null nếu chưa cấu hình
@@ -93,3 +125,4 @@
     }
   };
 })(window);
+
