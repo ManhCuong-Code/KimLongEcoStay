@@ -2,6 +2,8 @@
 <html lang="vi"><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="/" />
+    <!-- Cấu hình Backend & Môi trường nạp đầu tiên -->
+    <script src="js/kle-config.js"></script>
     <script>
         // Single Page Apps for GitHub Pages - Dynamic Base & Redirect Handler
         (function(l) {
@@ -18,6 +20,7 @@
                 }).join('?');
                 var basePathPrefix = isGitHubProject ? '/KimLongEcoStay' : '';
                 var targetPath = decoded.startsWith('/') ? decoded : '/' + decoded;
+                window.__initialSpaRoute = targetPath;
                 window.history.replaceState(null, null,
                     basePathPrefix + targetPath + l.hash
                 );
@@ -26,6 +29,7 @@
                 var p = q.get('p') || q.get('route') || '';
                 if (p) {
                     if (p.indexOf('/') !== 0) p = '/' + p;
+                    window.__initialSpaRoute = p;
                     var basePathPrefix = isGitHubProject ? '/KimLongEcoStay' : '';
                     window.history.replaceState(null, null,
                         basePathPrefix + p + l.hash
@@ -3328,7 +3332,12 @@
             <label for="adminLoginPass" class="form-label small fw-bold mb-1" style="color: #26352B;">
               <i class="bi bi-key-fill me-1" style="color: #14452F;"></i>Mật Khẩu Xác Thực
             </label>
-            <input type="password" id="adminLoginPass" class="form-control kle-login-input" placeholder="Nhập mật khẩu điều hành" required>
+            <div class="input-group">
+              <input type="password" id="adminLoginPass" class="form-control kle-login-input" placeholder="Nhập mật khẩu điều hành" required autocomplete="current-password">
+              <button class="btn btn-outline-secondary border-start-0" type="button" id="adminLoginPassToggle" onclick="toggleLoginPasswordVisibility('adminLoginPass', this)" style="border-color: #DDE5DF; background: #fff;" title="Hiện/ẩn mật khẩu">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
           </div>
           <button type="submit" class="btn kle-btn-login-primary w-100 mb-3">
             <i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống
@@ -7011,39 +7020,14 @@ window.KleSqlSyncEngine = {
   clientId: 'WEB-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
 
   resolveApiBase: function() {
-    var loc = window.location;
-    // 1. Kiểm tra cấu hình URL tùy chỉnh từ LocalStorage nếu quản trị viên hoặc tester đã thiết lập
-    try {
-      var customBackend = (typeof localStorage !== 'undefined' ? localStorage.getItem('kle_custom_backend_url') : '') || '';
-      if (customBackend && (customBackend.startsWith('https://') || (loc.hostname === 'localhost' && customBackend.startsWith('http://')))) {
-        return customBackend.replace(/\/+$/, '');
-      }
-    } catch(e) {}
-
-    if (loc.protocol === 'http:' || loc.protocol === 'https:') {
-      // 2. Môi trường phát triển cục bộ (Local Development)
-      if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
-        if (loc.port === '5204' || loc.port === '5000' || loc.port === '7120') {
-          return loc.origin;
-        }
-        return 'http://127.0.0.1:5204';
-      }
-
-      // 3. Môi trường GitHub Pages (manhcuong-code.github.io)
-      if (loc.hostname.endsWith('github.io')) {
-        // Tuyệt đối không hardcode localhost trên trình duyệt khách hàng truy cập GitHub Pages!
-        var prodApi = (window.KLE_CONFIG && window.KLE_CONFIG.productionApiUrl) ? window.KLE_CONFIG.productionApiUrl : '';
-        if (prodApi && prodApi.startsWith('https://')) {
-          return prodApi.replace(/\/+$/, '');
-        }
-        // Khi chưa gắn HTTPS Backend Production, trả về rỗng để hiển thị trạng thái Offline / Static Preview an toàn
-        return '';
-      }
-
-      // 4. Môi trường triển khai domain riêng có Backend đồng hành
-      return loc.origin;
+    if (window.KLE_CONFIG && typeof window.KLE_CONFIG.getApiBase === 'function') {
+      return window.KLE_CONFIG.getApiBase();
     }
-    return '';
+    var loc = window.location;
+    if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
+      return loc.origin.includes('5204') ? loc.origin : 'http://127.0.0.1:5204';
+    }
+    return null;
   },
 
   getActorHeaders: function() {
@@ -7073,6 +7057,11 @@ window.KleSqlSyncEngine = {
 
   pollDiagnosticsQuietly: function() {
     var self = this;
+    if (!this.apiBaseUrl) {
+      this.isBackendOnline = false;
+      this.updateSqlSyncDashboardUi();
+      return;
+    }
     fetch(this.apiBaseUrl + '/api/sync/diagnostics', { method: 'GET' })
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(diag) {
@@ -7093,7 +7082,7 @@ window.KleSqlSyncEngine = {
 
   hydrateFromSql: function(showToastOnComplete) {
     var self = this;
-    if (!this.apiBaseUrl && window.location.hostname.endsWith('github.io')) {
+    if (!this.apiBaseUrl) {
       return Promise.resolve(null);
     }
     var isAuth = (typeof isAuthenticated === 'function') ? isAuthenticated() : false;
@@ -7311,7 +7300,7 @@ window.KleSqlSyncEngine = {
 
   connectSignalR: function() {
     var self = this;
-    if (typeof signalR === 'undefined') return;
+    if (typeof signalR === 'undefined' || !this.apiBaseUrl) return;
     try {
       this.hubConnection = new signalR.HubConnectionBuilder()
         .withUrl(this.apiBaseUrl + '/hubs/ecostay-sync')
@@ -8366,6 +8355,21 @@ window.KleAiAssistant = {
       return { role: m.role, content: m.content };
     });
 
+    if (!KleSqlSyncEngine.apiBaseUrl) {
+      if (thinkingEl) thinkingEl.classList.add('d-none');
+      self.isSending = false;
+      var replyText = 'ℹ️ **[Phản hồi chế độ tĩnh - Static Preview]:**\n' + self.buildLocalGroundedFallback(text, roleKey);
+      conv.messages.push({
+        role: 'assistant',
+        content: replyText,
+        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        provider: 'Động Cơ Cục Bộ (Static)'
+      });
+      self.saveConversations();
+      self.renderMessages();
+      return;
+    }
+
     fetch(KleSqlSyncEngine.apiBaseUrl + '/api/ai/chat', {
       method: 'POST',
       headers: KleSqlSyncEngine.getActorHeaders(),
@@ -9062,7 +9066,7 @@ window.getAllowedModulesForCurrentUser = function() {
 
 window.getFirstAllowedModule = function() {
   var allowed = getAllowedModulesForCurrentUser();
-  return allowed.length > 0 ? allowed[0] : 'reconciliation';
+  return allowed.length > 0 ? allowed[0] : '';
 };
 
 // 3. canAccessModule: Kiểm tra danh sách phân hệ được Backend cấp quyền
@@ -9089,9 +9093,9 @@ window.checkAuthSession = async function(forceRefresh) {
     return window.__kleAuth;
   }
 
-  var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : '';
-  if (!apiBase && window.location.hostname.endsWith('github.io')) {
-    // Chế độ tĩnh trên GitHub Pages: Khách vãng lai chưa đăng nhập
+  var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : (window.KLE_CONFIG ? window.KLE_CONFIG.getApiBase() : null);
+  if (!apiBase) {
+    // Chế độ tĩnh trên GitHub Pages khi chưa có Backend HTTPS: Khách vãng lai chưa đăng nhập
     window.__kleAuth = {
       state: 'UNAUTHENTICATED',
       user: null,
@@ -9113,9 +9117,23 @@ window.checkAuthSession = async function(forceRefresh) {
 
     if (resp.ok) {
       var data = await resp.json().catch(function() { return null; });
-      if (data && data.isAuthenticated && data.currentUser) {
+      if (data && data.isAuthenticated && data.currentUser && data.currentUser.role) {
         var normRole = normalizeRoleKey(data.currentUser.role);
-        var roleCfg = window.KLE_RBAC_CONFIG[normRole] || window.KLE_RBAC_CONFIG['ADMIN'];
+        if (!normRole || normRole === 'CUSTOMER') {
+          // Vai trò khách hàng hoặc không hợp lệ: từ chối quyền quản trị
+          window.__kleAuth = { state: 'UNAUTHENTICATED', user: null, allowedModules: [], lastChecked: Date.now() };
+          syncNavbarSession();
+          return window.__kleAuth;
+        }
+
+        var roleCfg = window.KLE_RBAC_CONFIG[normRole];
+        if (!roleCfg || !Array.isArray(data.allowedModules) || data.allowedModules.length === 0) {
+          // Backend không trả danh sách quyền hợp lệ: từ chối cấp quyền, không dùng fallback tĩnh
+          window.__kleAuth = { state: 'UNAUTHENTICATED', user: null, allowedModules: [], lastChecked: Date.now() };
+          syncNavbarSession();
+          return window.__kleAuth;
+        }
+
         window.__kleAuth = {
           state: 'AUTHENTICATED',
           user: {
@@ -9123,10 +9141,10 @@ window.checkAuthSession = async function(forceRefresh) {
             name: data.currentUser.name || data.currentUser.username,
             role: normRole,
             roleKey: normRole,
-            roleTitle: data.currentUser.roleTitle || (roleCfg ? roleCfg.roleTitle : normRole),
-            badgeTitle: roleCfg ? roleCfg.badgeTitle : normRole
+            roleTitle: data.currentUser.roleTitle || roleCfg.roleTitle,
+            badgeTitle: roleCfg.badgeTitle
           },
-          allowedModules: Array.isArray(data.allowedModules) ? data.allowedModules : (roleCfg ? roleCfg.allowedModules : []),
+          allowedModules: data.allowedModules,
           lastChecked: Date.now()
         };
       } else {
@@ -9143,7 +9161,14 @@ window.checkAuthSession = async function(forceRefresh) {
     }
   } catch(err) {
     // Lỗi mạng hoặc máy chủ không phản hồi: KHÔNG ĐƯỢC mặc định là đã đăng nhập!
-    window.__kleAuth = { state: 'UNAUTHENTICATED', user: null, allowedModules: [], lastChecked: Date.now(), error: err.message };
+    var hadAuth = (window.__kleAuth && window.__kleAuth.state === 'AUTHENTICATED');
+    window.__kleAuth = {
+      state: hadAuth ? 'OFFLINE' : 'UNAUTHENTICATED',
+      user: hadAuth ? window.__kleAuth.user : null,
+      allowedModules: hadAuth ? window.__kleAuth.allowedModules : [],
+      lastChecked: Date.now(),
+      error: err.message
+    };
   }
 
   syncNavbarSession();
@@ -9253,6 +9278,22 @@ window.openLoginModal = function(alertMsg) {
   if (userInp) userInp.value = '';
   if (passInp) passInp.value = '';
 
+  var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : (window.KLE_CONFIG ? window.KLE_CONFIG.getApiBase() : null);
+  var btn = document.querySelector('#klePortalLoginForm button[type="submit"]');
+
+  if (!apiBase && window.location.hostname.endsWith('github.io')) {
+    alertMsg = alertMsg || '⚠️ Backend chưa được cấu hình. Hệ thống đang chạy trên GitHub Pages ở chế độ Xem Trước Tĩnh. Vui lòng cấu hình productionApiUrl trong js/kle-config.js.';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bi bi-lock-fill me-1"></i>Backend Chưa Được Cấu Hình';
+    }
+  } else {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
+    }
+  }
+
   var alertBox = document.getElementById('kleLoginAlertBox');
   var alertText = document.getElementById('kleLoginAlertText');
   if (alertBox && alertText) {
@@ -9279,7 +9320,20 @@ window.onCloseLoginModal = function() {
   }
 };
 
-// 7. handleAdminLogin: Gửi xác thực thực tế tới Backend, không cấp quyền bằng username
+window.toggleLoginPasswordVisibility = function(inputId, btn) {
+  var inp = document.getElementById(inputId);
+  if (!inp) return;
+  var icon = btn ? btn.querySelector('i') : null;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    if (icon) icon.className = 'bi bi-eye-slash';
+  } else {
+    inp.type = 'password';
+    if (icon) icon.className = 'bi bi-eye';
+  }
+};
+
+// 7. handleAdminLogin: Gửi xác thực thực tế tới Backend, xác minh qua /api/auth/me, không cấp quyền dự phòng
 window.handleAdminLogin = async function(e) {
   if (e) e.preventDefault();
   var uEl = document.getElementById('adminLoginUser') || document.getElementById('kleLoginUsername');
@@ -9291,6 +9345,23 @@ window.handleAdminLogin = async function(e) {
   var alertText = document.getElementById('kleLoginAlertText');
   if (alertBox && alertText) alertBox.classList.add('d-none');
 
+  var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : (window.KLE_CONFIG ? window.KLE_CONFIG.getApiBase() : null);
+  var btn = document.querySelector('#klePortalLoginForm button[type="submit"]');
+
+  if (!apiBase) {
+    var noBackendMsg = 'Backend chưa được cấu hình. Hệ thống đang chạy trên GitHub Pages ở chế độ Xem Trước Tĩnh. Vui lòng cấu hình productionApiUrl trong js/kle-config.js.';
+    showKleToast(noBackendMsg, 'warning');
+    if (alertBox && alertText) {
+      alertText.textContent = noBackendMsg;
+      alertBox.classList.remove('d-none');
+    }
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bi bi-lock-fill me-1"></i>Backend Chưa Được Cấu Hình';
+    }
+    return;
+  }
+
   if (!rawUser || !rawPass) {
     showKleToast('Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu.', 'warning');
     if (alertBox && alertText) {
@@ -9300,11 +9371,9 @@ window.handleAdminLogin = async function(e) {
     return;
   }
 
-  var btn = document.querySelector('#klePortalLoginForm button[type="submit"]');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang xác thực...'; }
 
   try {
-    var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : '';
     var resp = await fetch(apiBase + '/api/auth/login', {
       method: 'POST',
       headers: {
@@ -9317,38 +9386,57 @@ window.handleAdminLogin = async function(e) {
     var data = await resp.json().catch(function() { return {}; });
 
     if (resp.ok && data.success) {
-      var normRole = normalizeRoleKey(data.user ? data.user.role : 'ADMIN');
-      var roleCfg = window.KLE_RBAC_CONFIG[normRole] || window.KLE_RBAC_CONFIG['ADMIN'];
-      
-      // Lưu thông tin hiển thị DUY NHẤT trong bộ nhớ RAM, không cấp quyền bằng LocalStorage
-      window.__kleAuth = {
-        state: 'AUTHENTICATED',
-        user: {
-          username: data.user.username,
-          name: data.user.name || data.user.fullName || data.user.username,
-          role: normRole,
-          roleKey: normRole,
-          roleTitle: data.user.roleTitle || (roleCfg ? roleCfg.roleTitle : normRole),
-          badgeTitle: roleCfg ? roleCfg.badgeTitle : normRole
-        },
-        allowedModules: Array.isArray(data.allowedModules) ? data.allowedModules : (roleCfg ? roleCfg.allowedModules : []),
-        lastChecked: Date.now()
-      };
+      // Xác minh lại danh tính thực tế và phiên làm việc phía Backend qua GET /api/auth/me
+      var verifyResp = await fetch(apiBase + '/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      var verifyData = await verifyResp.json().catch(function() { return {}; });
 
-      // Xóa các key session cũ khỏi LocalStorage
-      localStorage.removeItem('kle_session');
+      if (verifyResp.ok && verifyData && verifyData.isAuthenticated && verifyData.currentUser) {
+        var normRole = normalizeRoleKey(verifyData.currentUser.role);
+        if (!normRole || normRole === 'CUSTOMER') {
+          throw new Error('Tài khoản của bạn không có thẩm quyền truy cập Cổng Điều Hành Quản Trị.');
+        }
 
-      syncNavbarSession();
-      var loginModalEl = document.getElementById('kleLoginModal');
-      if (loginModalEl && typeof bootstrap !== 'undefined') {
-        var lInst = bootstrap.Modal.getInstance(loginModalEl);
-        if (lInst) lInst.hide();
+        var roleCfg = window.KLE_RBAC_CONFIG[normRole];
+        if (!roleCfg || !Array.isArray(verifyData.allowedModules) || verifyData.allowedModules.length === 0) {
+          throw new Error('Tài khoản chưa được máy chủ cấp quyền phân hệ nào.');
+        }
+
+        // Lưu thông tin hiển thị DUY NHẤT trong bộ nhớ RAM, không cấp quyền bằng LocalStorage
+        window.__kleAuth = {
+          state: 'AUTHENTICATED',
+          user: {
+            username: verifyData.currentUser.username,
+            name: verifyData.currentUser.name || verifyData.currentUser.username,
+            role: normRole,
+            roleKey: normRole,
+            roleTitle: verifyData.currentUser.roleTitle || roleCfg.roleTitle,
+            badgeTitle: roleCfg.badgeTitle
+          },
+          allowedModules: verifyData.allowedModules,
+          lastChecked: Date.now()
+        };
+
+        // Xóa các key session cũ khỏi LocalStorage
+        localStorage.removeItem('kle_session');
+
+        syncNavbarSession();
+        var loginModalEl = document.getElementById('kleLoginModal');
+        if (loginModalEl && typeof bootstrap !== 'undefined') {
+          var lInst = bootstrap.Modal.getInstance(loginModalEl);
+          if (lInst) lInst.hide();
+        }
+
+        showKleToast('Đăng nhập thành công! Chào mừng ' + window.__kleAuth.user.name, 'success');
+        setTimeout(function() {
+          openAdminPortalModal();
+        }, 300);
+      } else {
+        throw new Error('Máy chủ không xác nhận Cookie phiên làm việc (/api/auth/me không thành công).');
       }
-
-      showKleToast('Đăng nhập thành công! Chào mừng ' + window.__kleAuth.user.name, 'success');
-      setTimeout(function() {
-        openAdminPortalModal();
-      }, 300);
     } else {
       // Đăng nhập thất bại: reset state, không giữ lại quyền cũ, không chuyển vào Dashboard
       window.__kleAuth = {
@@ -9363,6 +9451,10 @@ window.handleAdminLogin = async function(e) {
       var errMsg = data.message || data.error || 'Tên đăng nhập hoặc mật khẩu không chính xác.';
       if (resp.status === 429) {
         errMsg = data.message || 'Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu quá 5 lần liên tiếp.';
+      } else if (resp.status === 403) {
+        errMsg = 'Tài khoản không được cấp quyền truy cập hệ thống quản trị.';
+      } else if (resp.status === 404) {
+        errMsg = 'Không tìm thấy cổng xác thực trên máy chủ (404).';
       }
       showKleToast(errMsg, 'warning');
       if (alertBox && alertText) {
@@ -9377,22 +9469,28 @@ window.handleAdminLogin = async function(e) {
       allowedModules: [],
       lastChecked: Date.now()
     };
-    showKleToast('Lỗi kết nối máy chủ xác thực: ' + err.message, 'warning');
+    var connErr = 'Lỗi kết nối máy chủ xác thực: ' + (err.message || 'NetworkError');
+    showKleToast(connErr, 'warning');
     if (alertBox && alertText) {
-      alertText.textContent = 'Lỗi kết nối máy chủ xác thực. Vui lòng thử lại sau.';
+      alertText.textContent = connErr;
       alertBox.classList.remove('d-none');
     }
   } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống'; }
+    if (btn && !(!apiBase && window.location.hostname.endsWith('github.io'))) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
+    }
   }
 };
 
 // 8. quickLoginRole: Đăng nhập mô phỏng DEV (Chặn 100% trên Production)
 window.quickLoginRole = async function(roleKey) {
-  var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : '';
-  if (!apiBase && window.location.hostname.endsWith('github.io')) {
+  var isProd = window.location.hostname.endsWith('github.io') || (window.KLE_CONFIG && !window.KLE_CONFIG.isLocal);
+  if (isProd) {
     showKleToast('Chức năng đăng nhập mô phỏng bị vô hiệu hóa hoàn toàn trên môi trường Production.', 'warning');
     openLoginModal('Chức năng mô phỏng bị vô hiệu hóa trên Production. Vui lòng đăng nhập với tài khoản và mật khẩu.');
+    return;
+  }
     return;
   }
 
@@ -10839,7 +10937,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // Parse initial route from pathname or query param (?p=... or ?route=...)
   var searchParams = new URLSearchParams(window.location.search);
-  var initialRoute = searchParams.get('route') || searchParams.get('p') || '';
+  var initialRoute = window.__initialSpaRoute || searchParams.get('route') || searchParams.get('p') || '';
   if (!initialRoute) {
     var path = window.location.pathname;
     var basePath = getBaseUrl();

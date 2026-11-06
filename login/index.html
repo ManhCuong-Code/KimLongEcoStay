@@ -2,15 +2,549 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <title>Kim Long EcoStay — Đăng Nhập Cổng Điều Hành</title>
-  <script>
-    window.location.replace('../?route=login');
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập Cổng Điều Hành — Kim Long EcoStay</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" sizes="64x64" href="../favicon.png">
+  <link rel="alternate icon" href="../favicon.ico">
+
+  <!-- Cấu hình Backend & Môi trường -->
+  <script src="../js/kle-config.js"></script>
+
+  <style>
+    :root {
+      --kle-deep-green: #14452F;
+      --kle-plant-green: #1E6B45;
+      --kle-imperial-gold: #D4AF37;
+      --kle-warm-white: #F7F8F4;
+      --kle-dark-bg: #092217;
+      --kle-card-border: rgba(212, 175, 55, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 50% 20%, #175439 0%, var(--kle-deep-green) 50%, var(--kle-dark-bg) 100%);
+      color: #26352B;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 1rem;
+    }
+
+    .font-serif {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      margin: auto;
+    }
+
+    .login-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1px solid var(--kle-card-border);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+      animation: cardFadeIn 0.4s ease-out;
+    }
+
+    @keyframes cardFadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card-header {
+      background: linear-gradient(135deg, var(--kle-deep-green) 0%, var(--kle-plant-green) 100%);
+      padding: 1.85rem 1.5rem 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .brand-emblem {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 0.75rem;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px solid var(--kle-imperial-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--kle-imperial-gold);
+      font-size: 26px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    }
+
+    .login-badge {
+      display: inline-block;
+      background: var(--kle-imperial-gold);
+      color: var(--kle-deep-green);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 3px 12px;
+      border-radius: 50px;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-card-body {
+      padding: 1.75rem 1.5rem;
+      background: #FFFFFF;
+    }
+
+    .form-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #2D3748;
+      margin-bottom: 0.35rem;
+    }
+
+    .kle-input {
+      border: 1.5px solid #DDE5DF;
+      border-radius: 10px;
+      padding: 0.65rem 0.9rem;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      background-color: #FAFCF9;
+    }
+
+    .kle-input:focus {
+      background-color: #FFFFFF;
+      border-color: var(--kle-plant-green);
+      box-shadow: 0 0 0 3px rgba(30, 107, 69, 0.18);
+      outline: none;
+    }
+
+    .input-group .btn-toggle-eye {
+      border: 1.5px solid #DDE5DF;
+      border-left: none;
+      background: #FAFCF9;
+      color: #5A6A5E;
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+
+    .input-group .btn-toggle-eye:hover {
+      background: #EDF3EE;
+      color: var(--kle-deep-green);
+    }
+
+    .btn-login-submit {
+      background: linear-gradient(135deg, var(--kle-deep-green) 0%, var(--kle-plant-green) 100%);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14.5px;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 6px 18px rgba(20, 69, 47, 0.28);
+      transition: all 0.25s ease;
+    }
+
+    .btn-login-submit:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0F3624 0%, #175439 100%);
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(20, 69, 47, 0.35);
+    }
+
+    .btn-login-submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .back-home-link {
+      color: #64748B;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.2s;
+    }
+
+    .back-home-link:hover {
+      color: var(--kle-deep-green);
+      text-decoration: underline;
+    }
+
+    .footer-text {
+      color: rgba(247, 248, 244, 0.7);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+  </style>
 </head>
-<body style="background: #14452F; color: #F7F8F4; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-  <div style="text-align: center;">
-    <h2 style="color: #D4AF37;">🌿 Kim Long EcoStay</h2>
-    <p>Đang mở Cổng Đăng Nhập Hệ Thống...</p>
+<body>
+
+  <!-- Top bar logo link -->
+  <div class="text-center mb-3">
+    <a href="../" class="text-decoration-none">
+      <span class="fs-5 fw-bold text-white font-serif">
+        🌿 Kim Long EcoStay
+      </span>
+      <span class="d-block text-warning small" style="font-size: 11px; letter-spacing: 1px;">
+        HUẾ HERITAGE ECO RESORT
+      </span>
+    </a>
   </div>
+
+  <div class="login-container">
+    <div class="login-card">
+      
+      <!-- Card Header -->
+      <div class="login-card-header">
+        <div class="brand-emblem">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <div>
+          <span class="login-badge">
+            <i class="bi bi-person-badge-fill me-1"></i>CỔNG ĐIỀU HÀNH NỘI BỘ • RBAC
+          </span>
+        </div>
+        <h4 class="fw-bold font-serif text-white mb-1">Đăng Nhập Hệ Thống</h4>
+        <p class="small mb-0" style="color: rgba(247, 248, 244, 0.85); font-size: 12.5px;">
+          Xác thực bảo mật phiên Cookie & phân quyền vai trò
+        </p>
+      </div>
+
+      <!-- Card Body -->
+      <div class="login-card-body">
+        
+        <!-- JavaScript Disabled Warning -->
+        <noscript>
+          <div class="alert alert-danger small p-3 rounded-3 text-center mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            Trình duyệt của bạn đang tắt JavaScript. Vui lòng bật JavaScript để sử dụng Cổng Điều Hành hoặc quay lại <a href="../" class="alert-link">Trang Chủ</a>.
+          </div>
+        </noscript>
+
+        <!-- Backend Environment Status Banner -->
+        <div id="backendStatusBanner" class="mb-3 d-none"></div>
+
+        <!-- Alert Box for Error / Success Messages -->
+        <div id="loginAlertBox" class="alert small py-2 px-3 rounded-3 mb-3 d-none">
+          <div class="d-flex align-items-center">
+            <i id="loginAlertIcon" class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+            <span id="loginAlertText"></span>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="standaloneLoginForm" onsubmit="handleStandaloneLogin(event)" autocomplete="on">
+          <div class="mb-3">
+            <label for="loginUsername" class="form-label">
+              <i class="bi bi-person-fill me-1" style="color: var(--kle-deep-green);"></i>Tài Khoản / Tên Đăng Nhập
+            </label>
+            <input type="text" 
+                   id="loginUsername" 
+                   name="username" 
+                   class="form-control kle-input" 
+                   placeholder="Nhập tên đăng nhập hoặc email công vụ" 
+                   autocomplete="username" 
+                   required>
+          </div>
+
+          <div class="mb-3">
+            <label for="loginPassword" class="form-label">
+              <i class="bi bi-key-fill me-1" style="color: var(--kle-deep-green);"></i>Mật Khẩu Xác Thực
+            </label>
+            <div class="input-group">
+              <input type="password" 
+                     id="loginPassword" 
+                     name="password" 
+                     class="form-control kle-input" 
+                     placeholder="Nhập mật khẩu điều hành" 
+                     autocomplete="current-password" 
+                     required>
+              <button class="btn btn-toggle-eye" 
+                      type="button" 
+                      id="togglePassBtn" 
+                      onclick="togglePasswordVisibility()" 
+                      title="Hiện/Ẩn mật khẩu"
+                      aria-label="Hiện hoặc ẩn mật khẩu">
+                <i class="bi bi-eye" id="togglePassIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="loginSubmitBtn" class="btn btn-login-submit w-100 mb-3">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống
+          </button>
+        </form>
+
+        <!-- Bottom Action Links -->
+        <div class="pt-3 border-top text-center" style="border-color: #E2E8F0 !important;">
+          <a href="../" class="back-home-link">
+            <i class="bi bi-arrow-left"></i>Quay lại Trang Chủ Kim Long EcoStay
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="footer-text">
+    <div>Bảo mật đa tầng với Cookie HttpOnly, CSRF Protection & Giới hạn truy cập Brute-force.</div>
+    <div style="opacity: 0.7; font-size: 11px; margin-top: 3px;">© 2026 Kim Long EcoStay. Cố Đô Huế. All rights reserved.</div>
+  </div>
+
+  <!-- Client-side Logic -->
+  <script>
+    (function() {
+      'use strict';
+
+      // 1. Password Visibility Toggle
+      window.togglePasswordVisibility = function() {
+        var pwdInp = document.getElementById('loginPassword');
+        var icon = document.getElementById('togglePassIcon');
+        if (!pwdInp || !icon) return;
+        if (pwdInp.type === 'password') {
+          pwdInp.type = 'text';
+          icon.className = 'bi bi-eye-slash';
+        } else {
+          pwdInp.type = 'password';
+          icon.className = 'bi bi-eye';
+        }
+      };
+
+      // 2. Alert Box Helper
+      function showAlert(msg, type) {
+        var box = document.getElementById('loginAlertBox');
+        var text = document.getElementById('loginAlertText');
+        var icon = document.getElementById('loginAlertIcon');
+        if (!box || !text) return;
+        text.textContent = msg;
+        box.className = 'alert small py-2 px-3 rounded-3 mb-3';
+        if (type === 'danger' || type === 'error') {
+          box.classList.add('alert-danger', 'border-danger');
+          if (icon) icon.className = 'bi bi-exclamation-octagon-fill me-2 text-danger fs-6';
+        } else if (type === 'warning') {
+          box.classList.add('alert-warning', 'border-warning');
+          if (icon) icon.className = 'bi bi-exclamation-triangle-fill me-2 text-warning fs-6';
+        } else if (type === 'info') {
+          box.classList.add('alert-info', 'border-info');
+          if (icon) icon.className = 'bi bi-info-circle-fill me-2 text-info fs-6';
+        } else {
+          box.classList.add('alert-success', 'border-success');
+          if (icon) icon.className = 'bi bi-check-circle-fill me-2 text-success fs-6';
+        }
+        box.classList.remove('d-none');
+      }
+
+      function hideAlert() {
+        var box = document.getElementById('loginAlertBox');
+        if (box) box.classList.add('d-none');
+      }
+
+      // 3. Resolve API Base from KLE_CONFIG
+      function getApiBase() {
+        if (window.KLE_CONFIG && typeof window.KLE_CONFIG.getApiBase === 'function') {
+          return window.KLE_CONFIG.getApiBase();
+        }
+        var loc = window.location;
+        if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
+          return loc.origin.includes('5204') ? loc.origin : 'http://127.0.0.1:5204';
+        }
+        return null;
+      }
+
+      // 4. Initial Environment Check
+      function initEnvironment() {
+        var apiBase = getApiBase();
+        var banner = document.getElementById('backendStatusBanner');
+        var btn = document.getElementById('loginSubmitBtn');
+
+        if (!apiBase) {
+          // GitHub Pages without HTTPS Backend configured
+          if (banner) {
+            banner.className = 'alert alert-warning border-warning small py-2 px-3 rounded-3 mb-3';
+            banner.innerHTML = `
+              <div class="fw-bold mb-1"><i class="bi bi-shield-exclamation me-1"></i>Backend chưa được cấu hình</div>
+              <div style="font-size: 11.5px; line-height: 1.45;">
+                Hệ thống đang chạy trên GitHub Pages ở chế độ <strong>Xem Trước Tĩnh</strong>. 
+                Vui lòng triển khai Backend HTTPS và cấu hình <code>productionApiUrl</code> trong <code>js/kle-config.js</code> để kích hoạt xác thực thực tế.
+              </div>
+            `;
+            banner.classList.remove('d-none');
+          }
+          if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-lock-fill me-1"></i>Backend Chưa Được Cấu Hình';
+          }
+        } else {
+          // Backend online / configured
+          if (banner && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+            banner.className = 'alert alert-success border-success small py-1.5 px-3 rounded-3 mb-3';
+            banner.innerHTML = `<i class="bi bi-hdd-network-fill me-1 text-success"></i>Máy chủ xác thực: <span class="font-monospace fw-semibold">${apiBase}</span>`;
+            banner.classList.remove('d-none');
+          }
+          // Check if user is ALREADY authenticated
+          checkExistingSession(apiBase);
+        }
+      }
+
+      // 5. Check Existing Session on page load
+      async function checkExistingSession(apiBase) {
+        try {
+          var resp = await fetch(apiBase + '/api/auth/me', {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          if (resp.ok) {
+            var data = await resp.json().catch(function() { return null; });
+            if (data && data.isAuthenticated && data.currentUser && data.currentUser.role) {
+              showAlert('Đã nhận diện phiên làm việc hợp lệ. Đang chuyển vào Bảng Điều Hành...', 'success');
+              var btn = document.getElementById('loginSubmitBtn');
+              if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang chuyển hướng...';
+              }
+              setTimeout(function() {
+                window.location.replace('../?route=admin');
+              }, 600);
+            }
+          }
+        } catch(e) {
+          // Ignore network errors on passive check
+        }
+      }
+
+      // 6. Handle Form Submission
+      window.handleStandaloneLogin = async function(e) {
+        if (e) e.preventDefault();
+        hideAlert();
+
+        var apiBase = getApiBase();
+        if (!apiBase) {
+          showAlert('Backend chưa được cấu hình. Không thể gửi thông tin xác thực.', 'warning');
+          return;
+        }
+
+        var uInp = document.getElementById('loginUsername');
+        var pInp = document.getElementById('loginPassword');
+        var btn = document.getElementById('loginSubmitBtn');
+
+        var username = (uInp ? uInp.value : '').trim();
+        var password = (pInp ? pInp.value : '').trim();
+
+        if (!username || !password) {
+          showAlert('Vui lòng điền đầy đủ Tên đăng nhập và Mật khẩu.', 'warning');
+          return;
+        }
+
+        // Set Loading state
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xác thực an toàn...';
+        }
+
+        try {
+          var resp = await fetch(apiBase + '/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ username: username, password: password })
+          });
+
+          var data = await resp.json().catch(function() { return {}; });
+
+          if (resp.ok && data.success) {
+            // Xác minh lại với GET /api/auth/me để chắc chắn Cookie phiên đã được lưu
+            var verifyResp = await fetch(apiBase + '/api/auth/me', {
+              method: 'GET',
+              credentials: 'include',
+              headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            var verifyData = await verifyResp.json().catch(function() { return {}; });
+
+            if (verifyResp.ok && verifyData && verifyData.isAuthenticated && verifyData.currentUser) {
+              var role = (verifyData.currentUser.role || '').toUpperCase();
+              if (role === 'CUSTOMER') {
+                showAlert('Tài khoản của bạn là tài khoản Khách hàng, không có quyền truy cập Cổng Điều Hành.', 'warning');
+                if (btn) {
+                  btn.disabled = false;
+                  btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
+                }
+                return;
+              }
+
+              showAlert('Xác thực thành công! Chào mừng ' + (verifyData.currentUser.name || verifyData.currentUser.username) + '. Đang mở Bảng Điều Hành...', 'success');
+              if (btn) {
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang vào hệ thống...';
+              }
+              setTimeout(function() {
+                window.location.replace('../?route=admin');
+              }, 700);
+            } else {
+              showAlert('Máy chủ đã xác thực tài khoản nhưng phiên Cookie chưa được ghi nhận. Vui lòng kiểm tra cấu hình Cookie của trình duyệt.', 'danger');
+              if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
+              }
+            }
+          } else {
+            var errMsg = data.message || data.error || 'Tên đăng nhập hoặc mật khẩu không chính xác.';
+            if (resp.status === 429) {
+              errMsg = data.message || 'Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu quá 5 lần liên tiếp.';
+            } else if (resp.status === 403) {
+              errMsg = 'Tài khoản không được cấp quyền truy cập hệ thống quản trị.';
+            } else if (resp.status === 404) {
+              errMsg = 'Không tìm thấy cổng xác thực trên máy chủ (404).';
+            }
+            showAlert(errMsg, 'danger');
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
+            }
+          }
+        } catch(err) {
+          showAlert('Lỗi kết nối máy chủ xác thực (' + (err.message || 'NetworkError') + '). Vui lòng kiểm tra mạng hoặc liên hệ quản trị viên.', 'danger');
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống';
+          }
+        }
+      };
+
+      // 7. Initialize on DOM load
+      document.addEventListener('DOMContentLoaded', initEnvironment);
+
+      // 8. Global Error Handler
+      window.onerror = function(msg) {
+        var banner = document.getElementById('backendStatusBanner');
+        if (banner) {
+          banner.className = 'alert alert-danger small py-2 px-3 rounded-3 mb-3';
+          banner.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i>Đã xảy ra lỗi khởi chạy giao diện. Vui lòng <a href="../" class="alert-link">quay lại Trang Chủ</a> hoặc tải lại trang.';
+          banner.classList.remove('d-none');
+        }
+        return false;
+      };
+    })();
+  </script>
 </body>
 </html>

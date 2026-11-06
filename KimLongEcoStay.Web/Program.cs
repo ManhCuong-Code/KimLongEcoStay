@@ -88,6 +88,22 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             ctx.Response.Redirect(ctx.RedirectUri);
             return Task.CompletedTask;
         };
+        options.Events.OnSigningIn = ctx =>
+        {
+            var origin = ctx.Request.Headers.Origin.ToString();
+            bool isCrossDomain = !string.IsNullOrEmpty(origin) && !origin.Contains("localhost") && !origin.Contains("127.0.0.1");
+            if (ctx.Request.IsHttps || isCrossDomain)
+            {
+                ctx.CookieOptions.SameSite = SameSiteMode.None;
+                ctx.CookieOptions.Secure = true;
+            }
+            else
+            {
+                ctx.CookieOptions.SameSite = SameSiteMode.Lax;
+                ctx.CookieOptions.Secure = ctx.Request.IsHttps;
+            }
+            return Task.CompletedTask;
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -490,11 +506,14 @@ app.MapPost("/api/auth/login", async (HttpContext context, IUserRepository userR
 app.MapPost("/api/auth/logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    var origin = context.Request.Headers.Origin.ToString();
+    bool isCrossDomain = !string.IsNullOrEmpty(origin) && !origin.Contains("localhost") && !origin.Contains("127.0.0.1");
+    bool isHttpsOrCross = context.Request.IsHttps || isCrossDomain;
     context.Response.Cookies.Delete("KimLongEcoStay.Auth.Cookie", new CookieOptions
     {
         HttpOnly = true,
-        Secure = context.Request.IsHttps,
-        SameSite = SameSiteMode.Lax,
+        Secure = isHttpsOrCross,
+        SameSite = isHttpsOrCross ? SameSiteMode.None : SameSiteMode.Lax,
         Path = "/"
     });
     return Results.Ok(new { success = true, message = "Đã đăng xuất và kết thúc phiên làm việc an toàn trên máy chủ." });
