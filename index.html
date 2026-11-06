@@ -2615,7 +2615,7 @@
         <div class="row g-4 align-items-start">
           <div class="col-md-5">
             <div class="rounded-4 overflow-hidden shadow-sm border bg-white position-relative">
-              <img id="detailProductImg" src="images/mon_banhuot.jpg" alt="Sản phẩm" class="img-fluid w-100" style="height: 270px; object-fit: cover;" onerror="this.src='images/hero_ecostay.jpg'">
+              <img id="detailProductImg" src="images/mon_banhuot.jpg" alt="Sản phẩm" class="img-fluid w-100" style="height: 270px; object-fit: cover;" onerror="this.src='images/mon_banhuot.jpg'">
               <span class="badge bg-success position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm" id="detailProductStockBadge">Còn hàng</span>
               <span class="badge bg-dark bg-opacity-75 text-warning position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1" style="font-size: 10px;" id="detailProductSampleBadge">Dữ liệu mẫu liên kết</span>
             </div>
@@ -4171,6 +4171,16 @@ function matchesProductCategory(prodCategory, selectedCat) {
   return false;
 }
 
+window.getProductCategoryFallback = function(category) {
+  var cat = String(category || '').trim();
+  if (cat.includes('Đặc sản')) return 'images/qua_mutgung.jpg';
+  if (cat.includes('nhà vườn') || cat.includes('Nông sản')) return 'images/nongsan_thanhtra.jpg';
+  if (cat.includes('uống') || cat.includes('trà') || cat.includes('Trà')) return 'images/tra_cung_dinh.jpg';
+  if (cat.includes('Ẩm thực') || cat.includes('món ăn')) return 'images/mon_banhuot.jpg';
+  if (cat.includes('Quà') || cat.includes('Trải nghiệm')) return 'images/qua_setquatang.jpg';
+  return 'images/mon_banhuot.jpg';
+};
+
 window.renderSpecialties = function() {
   var container = document.getElementById('specialtyProductGrid') || document.getElementById('specialtiesGrid');
   if (!container) return;
@@ -4271,7 +4281,7 @@ window.renderSpecialties = function() {
       <div class="col-12 col-sm-6 col-md-6 col-xl-3 d-flex">
         <div class="card border-0 rounded-4 shadow-sm overflow-hidden specialty-product-card kle-product-card bg-white w-100">
           <div class="kle-product-img-wrap" style="cursor: pointer;" onclick="openProductDetailModal('${p.id}')">
-            <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='images/hero_ecostay.jpg';">
+            <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src=getProductCategoryFallback('${p.category}');">
             <span class="badge position-absolute top-0 start-0 m-3 rounded-pill px-2.5 py-1 shadow-sm fw-bold" style="font-size: 11px; ${catStyle}">
               ${p.category}
             </span>
@@ -4388,6 +4398,7 @@ window.openProductDetailModal = function(id) {
   var partnerTitle = partnerObj ? partnerObj.name : (p.partnerName || 'Đối tác địa phương Kim Long');
 
   document.getElementById('detailProductImg').src = p.img;
+  document.getElementById('detailProductImg').onerror = function() { this.src = getProductCategoryFallback(p.category); };
   document.getElementById('detailProductName').textContent = p.name;
   document.getElementById('detailProductCategory').textContent = p.category;
   if (document.getElementById('detailProductCodeBadge')) document.getElementById('detailProductCodeBadge').textContent = 'Mã: ' + p.id;
@@ -7001,16 +7012,35 @@ window.KleSqlSyncEngine = {
 
   resolveApiBase: function() {
     var loc = window.location;
+    // 1. Kiểm tra cấu hình URL tùy chỉnh từ LocalStorage nếu quản trị viên hoặc tester đã thiết lập
+    try {
+      var customBackend = (typeof localStorage !== 'undefined' ? localStorage.getItem('kle_custom_backend_url') : '') || '';
+      if (customBackend && (customBackend.startsWith('https://') || (loc.hostname === 'localhost' && customBackend.startsWith('http://')))) {
+        return customBackend.replace(/\/+$/, '');
+      }
+    } catch(e) {}
+
     if (loc.protocol === 'http:' || loc.protocol === 'https:') {
+      // 2. Môi trường phát triển cục bộ (Local Development)
       if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
         if (loc.port === '5204' || loc.port === '5000' || loc.port === '7120') {
           return loc.origin;
         }
-        return 'http://localhost:5204';
+        return 'http://127.0.0.1:5204';
       }
+
+      // 3. Môi trường GitHub Pages (manhcuong-code.github.io)
       if (loc.hostname.endsWith('github.io')) {
+        // Tuyệt đối không hardcode localhost trên trình duyệt khách hàng truy cập GitHub Pages!
+        var prodApi = (window.KLE_CONFIG && window.KLE_CONFIG.productionApiUrl) ? window.KLE_CONFIG.productionApiUrl : '';
+        if (prodApi && prodApi.startsWith('https://')) {
+          return prodApi.replace(/\/+$/, '');
+        }
+        // Khi chưa gắn HTTPS Backend Production, trả về rỗng để hiển thị trạng thái Offline / Static Preview an toàn
         return '';
       }
+
+      // 4. Môi trường triển khai domain riêng có Backend đồng hành
       return loc.origin;
     }
     return '';
@@ -7756,10 +7786,13 @@ window.KleSqlSyncEngine = {
     if (dbBadge) {
       if (this.isBackendOnline && diag && diag.isConnected) {
         dbBadge.className = 'badge bg-success rounded-pill px-2.5 py-1';
-        dbBadge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>SQL Connected';
+        dbBadge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>SQL Connected (Live)';
+      } else if (!this.isBackendOnline) {
+        dbBadge.className = 'badge bg-danger rounded-pill px-2.5 py-1';
+        dbBadge.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>SQL Offline';
       } else {
         dbBadge.className = 'badge bg-warning text-dark rounded-pill px-2.5 py-1';
-        dbBadge.innerHTML = '<i class="bi bi-cloud-slash me-1"></i>Local Fallback';
+        dbBadge.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i>SQL Lỗi Kết Nối';
       }
     }
     if (latBadge && diag) {
@@ -7771,13 +7804,13 @@ window.KleSqlSyncEngine = {
     if (sigBadge) {
       if (this.signalRConnected) {
         sigBadge.className = 'badge bg-success rounded-pill px-2.5 py-1';
-        sigBadge.innerHTML = '<i class="bi bi-wifi me-1"></i>SignalR: Real-time Active';
+        sigBadge.innerHTML = '<i class="bi bi-broadcast me-1"></i>SignalR Connected';
       } else if (this.isBackendOnline) {
-        sigBadge.className = 'badge bg-info text-dark rounded-pill px-2.5 py-1';
-        sigBadge.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>REST Sync Active';
+        sigBadge.className = 'badge bg-warning text-dark rounded-pill px-2.5 py-1';
+        sigBadge.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>SignalR Disconnected (REST Poll)';
       } else {
         sigBadge.className = 'badge bg-secondary rounded-pill px-2.5 py-1';
-        sigBadge.textContent = 'Offline Mode';
+        sigBadge.innerHTML = '<i class="bi bi-wifi-off me-1"></i>SignalR Offline';
       }
     }
     if (ctBadge && diag) {
@@ -8116,16 +8149,27 @@ window.KleAiAssistant = {
 
   checkBackendAiStatus: function() {
     var badgeEl = document.getElementById('kleAiProviderBadge');
-    fetch(KleSqlSyncEngine.apiBaseUrl + '/api/ai/status')
+    var apiBase = KleSqlSyncEngine.resolveApiBase();
+    if (!apiBase && window.location.hostname.endsWith('github.io')) {
+      if (badgeEl) {
+        badgeEl.innerHTML = '<span class="kle-ai-dot-offline" style="background:#94A3B8; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px;"></span>AI Concierge • Chế Độ Tĩnh (Offline)';
+      }
+      return;
+    }
+    fetch(apiBase + '/api/ai/status')
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(st) {
         if (badgeEl && st) {
-          badgeEl.innerHTML = '<span class="kle-ai-dot-online"></span>' + (st.openAiConfigured ? ('OpenAI (' + (st.model || 'gpt-4o-mini') + ') • SQL Live') : 'AI Hybrid • SQL Grounded');
+          if (st.openAiConfigured) {
+            badgeEl.innerHTML = '<span class="kle-ai-dot-online" style="background:#10B981; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px;"></span>OpenAI (' + (st.model || 'gpt-4o-mini') + ') • SQL Live';
+          } else {
+            badgeEl.innerHTML = '<span class="kle-ai-dot-fallback" style="background:#F59E0B; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px;"></span>Động Cơ SQL Nội Bộ • Fallback';
+          }
         }
       })
       .catch(function() {
         if (badgeEl) {
-          badgeEl.innerHTML = '<span class="kle-ai-dot-online"></span>AI Concierge • Local Grounded';
+          badgeEl.innerHTML = '<span class="kle-ai-dot-offline" style="background:#EF4444; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px;"></span>AI Concierge • Backend Offline (Dự Phòng)';
         }
       });
   },
@@ -8338,8 +8382,12 @@ window.KleAiAssistant = {
         if (thinkingEl) thinkingEl.classList.add('d-none');
         self.isSending = false;
 
+        var isFallback = (!data || !data.provider || data.provider.includes('LocalSqlEngine') || data.provider.includes('Fallback') || !data.reply);
         var replyText = (data && data.reply) ? data.reply : self.buildLocalGroundedFallback(text, roleKey);
-        var providerLabel = (data && data.provider) ? (data.provider + ' (' + (data.model || 'gpt-4o-mini') + ') • ' + (data.latencyMs || 120) + 'ms') : 'Hybrid SQL Concierge';
+        if (isFallback && !replyText.includes('[Phản hồi dự phòng]')) {
+          replyText = 'ℹ️ **[Phản hồi dự phòng cục bộ - Local Fallback]:**\n' + replyText;
+        }
+        var providerLabel = (data && data.provider) ? (data.provider + ' (' + (data.model || 'gpt-4o-mini') + ') • ' + (data.latencyMs || 120) + 'ms') : 'Động Cơ Cục Bộ (Fallback)';
 
         conv.messages.push({
           role: 'assistant',
@@ -8353,12 +8401,12 @@ window.KleAiAssistant = {
       .catch(function() {
         if (thinkingEl) thinkingEl.classList.add('d-none');
         self.isSending = false;
-        var fallbackReply = self.buildLocalGroundedFallback(text, roleKey);
+        var fallbackReply = 'ℹ️ **[Phản hồi dự phòng cục bộ - Backend Offline]:**\n' + self.buildLocalGroundedFallback(text, roleKey);
         conv.messages.push({
           role: 'assistant',
           content: fallbackReply,
           time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-          provider: 'Local Grounded Fallback'
+          provider: 'Local Fallback (Backend Offline)'
         });
         self.saveConversations();
         self.renderMessages();

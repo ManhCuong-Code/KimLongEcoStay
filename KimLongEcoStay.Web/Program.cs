@@ -102,10 +102,47 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.SetIsOriginAllowed(_ => true)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.SetIsOriginAllowed(origin =>
+        {
+            if (string.IsNullOrWhiteSpace(origin)) return false;
+            try
+            {
+                var uri = new Uri(origin);
+                // 1. Cho phép máy trạm phát triển cục bộ (localhost & 127.0.0.1)
+                if (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                    uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                // 2. Cho phép GitHub Pages chính thức của dự án
+                if (uri.Host.Equals("manhcuong-code.github.io", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                // 3. Cho phép tên miền chính thức và subdomain Kim Long EcoStay
+                if (uri.Host.EndsWith(".kimlongecostay.vn", StringComparison.OrdinalIgnoreCase) ||
+                    uri.Host.Equals("kimlongecostay.vn", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                // 4. Cho phép các origin được chỉ định qua biến môi trường CORS_ALLOWED_ORIGINS
+                var customOrigins = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
+                if (!string.IsNullOrWhiteSpace(customOrigins))
+                {
+                    var list = customOrigins.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    if (list.Any(o => o.Equals(origin, StringComparison.OrdinalIgnoreCase)))
+                        return true;
+                }
+            }
+            catch { }
+            return false;
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
@@ -509,6 +546,49 @@ app.MapGet("/api/auth/me", (HttpContext context) =>
         },
         allowedModules
     });
+});
+
+// REST API Kiểm tra sức khỏe hệ thống (/api/health)
+app.MapGet("/api/health", async (TwoWaySqlSyncService syncService, AiAssistantGatewayService aiGateway, IWebHostEnvironment env) =>
+{
+    var sw = System.Diagnostics.Stopwatch.StartNew();
+    dynamic? diag = await syncService.TestConnectionAndGetDiagnosticsAsync();
+    sw.Stop();
+
+    bool isSqlOk = diag != null && (bool?)diag?.isConnected == true;
+    string serverName = isSqlOk ? (string?)diag?.serverName ?? "localhost\\SQLEXPRESS" : "Unavailable";
+    string dbName = isSqlOk ? (string?)diag?.databaseName ?? "KimLongEcoStayDB" : "KimLongEcoStayDB";
+    long ctVer = isSqlOk ? (long?)diag?.changeTrackingVersion ?? 0L : 0L;
+    int tableCount = isSqlOk ? (int?)diag?.trackedTablesCount ?? 0 : 0;
+    var aiStatus = aiGateway.GetStatus();
+
+    var healthReport = new
+    {
+        status = isSqlOk ? "Healthy" : "Degraded",
+        timestamp = DateTime.UtcNow,
+        environment = env.EnvironmentName,
+        backend = "Online",
+        version = "v2.4.0-secured",
+        database = new
+        {
+            connected = isSqlOk,
+            serverName = serverName,
+            databaseName = dbName,
+            latencyMs = sw.ElapsedMilliseconds,
+            changeTrackingVersion = ctVer,
+            trackedTables = tableCount
+        },
+        aiGateway = aiStatus,
+        services = new
+        {
+            authentication = "Active (HttpOnly Cookie & RBAC)",
+            sqlTwoWaySync = isSqlOk ? "Active" : "Offline",
+            signalRHub = "Active (/hubs/ecostay-sync)",
+            smartLockCspRng = "Active"
+        }
+    };
+
+    return isSqlOk ? Results.Ok(healthReport) : Results.Json(healthReport, statusCode: StatusCodes.Status503ServiceUnavailable);
 });
 
 // REST API Đăng nhập mô phỏng phục vụ Development (Chặn 100% trên Production)

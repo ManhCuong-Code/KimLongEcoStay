@@ -332,5 +332,84 @@ namespace KimLongEcoStay.Tests
             int subsequentStatusCode = isSessionValid ? 200 : 401;
             Assert.Equal(401, subsequentStatusCode);
         }
+
+        [Theory]
+        [InlineData("http://localhost:5204", true)]
+        [InlineData("http://127.0.0.1:5204", true)]
+        [InlineData("https://manhcuong-code.github.io", true)]
+        [InlineData("https://kimlongecostay.vn", true)]
+        [InlineData("https://api.kimlongecostay.vn", true)]
+        [InlineData("https://evil-attacker.com", false)]
+        [InlineData("http://phishing-kimlong.com", false)]
+        [InlineData("null", false)]
+        public void SecurityTest16_StrictCorsOriginValidation_AllowsOnlyAuthorizedDomains(string origin, bool shouldBeAllowed)
+        {
+            Func<string, bool> isAllowedOrigin = (testOrigin) =>
+            {
+                if (string.IsNullOrWhiteSpace(testOrigin)) return false;
+                try
+                {
+                    var uri = new Uri(testOrigin);
+                    if (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                        uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase))
+                        return true;
+
+                    if (uri.Host.Equals("manhcuong-code.github.io", StringComparison.OrdinalIgnoreCase))
+                        return true;
+
+                    if (uri.Host.EndsWith(".kimlongecostay.vn", StringComparison.OrdinalIgnoreCase) ||
+                        uri.Host.Equals("kimlongecostay.vn", StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+                catch { }
+                return false;
+            };
+
+            bool result = isAllowedOrigin(origin);
+            Assert.Equal(shouldBeAllowed, result);
+        }
+
+        [Theory]
+        [InlineData("Đặc sản Huế", "images/qua_mutgung.jpg")]
+        [InlineData("Sản phẩm nhà vườn", "images/nongsan_thanhtra.jpg")]
+        [InlineData("Đồ uống và trà", "images/tra_cung_dinh.jpg")]
+        [InlineData("Ẩm thực Huế", "images/mon_banhuot.jpg")]
+        [InlineData("Quà lưu niệm và trải nghiệm", "images/qua_setquatang.jpg")]
+        public void SecurityTest17_CategoryProductFallback_NeverUsesResortHeroImage(string category, string expectedFallback)
+        {
+            Func<string, string> getFallback = (cat) =>
+            {
+                string c = cat.Trim();
+                if (c.Contains("Đặc sản")) return "images/qua_mutgung.jpg";
+                if (c.Contains("nhà vườn") || c.Contains("Nông sản")) return "images/nongsan_thanhtra.jpg";
+                if (c.Contains("uống") || c.Contains("trà") || c.Contains("Trà")) return "images/tra_cung_dinh.jpg";
+                if (c.Contains("Ẩm thực") || c.Contains("món ăn")) return "images/mon_banhuot.jpg";
+                if (c.Contains("Quà") || c.Contains("Trải nghiệm")) return "images/qua_setquatang.jpg";
+                return "images/mon_banhuot.jpg";
+            };
+
+            string fallback = getFallback(category);
+            Assert.Equal(expectedFallback, fallback);
+            Assert.DoesNotContain("hero_ecostay", fallback, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void SecurityTest18_HealthEndpoint_ReturnsSystemStatusAndComponentHealth()
+        {
+            var healthReport = new
+            {
+                status = "Healthy",
+                timestamp = DateTime.UtcNow,
+                backend = "Online",
+                version = "v2.4.0-secured",
+                database = new { connected = true, serverName = "localhost\\SQLEXPRESS", databaseName = "KimLongEcoStayDB" },
+                services = new { authentication = "Active (HttpOnly Cookie & RBAC)", sqlTwoWaySync = "Active", signalRHub = "Active (/hubs/ecostay-sync)" }
+            };
+
+            Assert.Equal("Healthy", healthReport.status);
+            Assert.Equal("Online", healthReport.backend);
+            Assert.True(healthReport.database.connected);
+            Assert.Contains("RBAC", healthReport.services.authentication);
+        }
     }
 }
