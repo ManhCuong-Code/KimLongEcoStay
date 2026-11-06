@@ -8964,6 +8964,16 @@ window.KLE_RBAC_CONFIG = {
   }
 };
 
+// =========================================================================
+// HỆ THỐNG XÁC THỰC BẢO MẬT BACKEND RBAC (ZERO-TRUST • IN-MEMORY SESSION)
+// =========================================================================
+window.__kleAuth = {
+  state: 'CHECKING', // 'CHECKING' | 'AUTHENTICATED' | 'UNAUTHENTICATED' | 'EXPIRED'
+  user: null,        // { username, name, role, roleKey, roleTitle, badgeTitle }
+  allowedModules: [],
+  lastChecked: 0
+};
+
 window.normalizeRoleKey = function(rawRole) {
   if (!rawRole) return null;
   var r = String(rawRole).trim().toUpperCase();
@@ -8974,24 +8984,17 @@ window.normalizeRoleKey = function(rawRole) {
   return null;
 };
 
+// 1. getKLESession: Tuyệt đối KHÔNG đọc LocalStorage để xác định danh tính hay cấp quyền
 window.getKLESession = function() {
-  try {
-    var raw = localStorage.getItem('kle_session');
-    if (!raw) return null;
-    var parsed = JSON.parse(raw);
-    if (!parsed || !parsed.role) return null;
-    var roleKey = normalizeRoleKey(parsed.roleKey || parsed.role);
-    if (!roleKey || !window.KLE_RBAC_CONFIG[roleKey]) return null;
-    parsed.roleKey = roleKey;
-    return parsed;
-  } catch (e) {
-    return null;
+  if (window.__kleAuth && window.__kleAuth.state === 'AUTHENTICATED' && window.__kleAuth.user) {
+    return window.__kleAuth.user;
   }
+  return null;
 };
 
+// 2. isAuthenticated: Xác thực dựa trên phiên được máy chủ Backend xác nhận
 window.isAuthenticated = function() {
-  var sess = getKLESession();
-  return !!(sess && sess.roleKey && window.KLE_RBAC_CONFIG[sess.roleKey]);
+  return !!(window.__kleAuth && window.__kleAuth.state === 'AUTHENTICATED' && window.__kleAuth.user);
 };
 
 window.isStaffAuthorized = function() {
@@ -9005,8 +9008,8 @@ window.getCurrentRoleConfig = function() {
 };
 
 window.getAllowedModulesForCurrentUser = function() {
-  var cfg = getCurrentRoleConfig();
-  return cfg ? cfg.allowedModules.slice() : [];
+  if (!isAuthenticated() || !window.__kleAuth) return [];
+  return Array.isArray(window.__kleAuth.allowedModules) ? window.__kleAuth.allowedModules.slice() : [];
 };
 
 window.getFirstAllowedModule = function() {
@@ -9014,18 +9017,94 @@ window.getFirstAllowedModule = function() {
   return allowed.length > 0 ? allowed[0] : 'reconciliation';
 };
 
+// 3. canAccessModule: Kiểm tra danh sách phân hệ được Backend cấp quyền
 window.canAccessModule = function(moduleId) {
-  if (!isAuthenticated()) return false;
-  var allowed = getAllowedModulesForCurrentUser();
-  return allowed.indexOf(moduleId) !== -1;
+  if (!isAuthenticated() || !window.__kleAuth) return false;
+  var norm = String(moduleId || '').trim().toLowerCase();
+  var allowed = window.__kleAuth.allowedModules || [];
+
+  // Hỗ trợ cả 2 chuẩn tên tiếng Việt & tiếng Anh
+  var aliases = [norm];
+  if (norm === 'nhanvien' || norm === 'employees') aliases = ['nhanvien', 'employees'];
+  else if (norm === 'luong' || norm === 'payrolls') aliases = ['luong', 'payrolls'];
+  else if (norm === 'dashboard' || norm === 'finance') aliases = ['dashboard', 'finance'];
+
+  return allowed.some(function(m) {
+    return aliases.indexOf(m.toLowerCase()) !== -1;
+  });
 };
 
-// Đồng bộ toàn bộ trạng thái Header, các nút tắt quản trị và khung Admin theo trạng thái đăng nhập
-window.syncNavbarSession = function() {
-  var sess = getKLESession();
-  var roleCfg = getCurrentRoleConfig();
-  var authItem = document.getElementById('topNavAuthItem');
+// 4. checkAuthSession: Truy vấn Backend qua GET /api/auth/me để xác minh Cookie phiên
+window.checkAuthSession = async function(forceRefresh) {
+  var now = Date.now();
+  if (!forceRefresh && window.__kleAuth && window.__kleAuth.lastChecked && (now - window.__kleAuth.lastChecked < 3000)) {
+    return window.__kleAuth;
+  }
 
+  var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : '';
+  if (!apiBase && window.location.hostname.endsWith('github.io')) {
+    // Chế độ tĩnh trên GitHub Pages: Khách vãng lai chưa đăng nhập
+    window.__kleAuth = {
+      state: 'UNAUTHENTICATED',
+      user: null,
+      allowedModules: [],
+      lastChecked: now
+    };
+    syncNavbarSession();
+    return window.__kleAuth;
+  }
+
+  try {
+    var resp = await fetch(apiBase + '/api/auth/me', {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+
+    window.__kleAuth.lastChecked = Date.now();
+
+    if (resp.ok) {
+      var data = await resp.json().catch(function() { return null; });
+      if (data && data.isAuthenticated && data.currentUser) {
+        var normRole = normalizeRoleKey(data.currentUser.role);
+        var roleCfg = window.KLE_RBAC_CONFIG[normRole] || window.KLE_RBAC_CONFIG['ADMIN'];
+        window.__kleAuth = {
+          state: 'AUTHENTICATED',
+          user: {
+            username: data.currentUser.username,
+            name: data.currentUser.name || data.currentUser.username,
+            role: normRole,
+            roleKey: normRole,
+            roleTitle: data.currentUser.roleTitle || (roleCfg ? roleCfg.roleTitle : normRole),
+            badgeTitle: roleCfg ? roleCfg.badgeTitle : normRole
+          },
+          allowedModules: Array.isArray(data.allowedModules) ? data.allowedModules : (roleCfg ? roleCfg.allowedModules : []),
+          lastChecked: Date.now()
+        };
+      } else {
+        window.__kleAuth = { state: 'UNAUTHENTICATED', user: null, allowedModules: [], lastChecked: Date.now() };
+      }
+    } else if (resp.status === 401) {
+      var wasAuth = (window.__kleAuth && window.__kleAuth.state === 'AUTHENTICATED');
+      window.__kleAuth = { state: wasAuth ? 'EXPIRED' : 'UNAUTHENTICATED', user: null, allowedModules: [], lastChecked: Date.now() };
+      if (wasAuth) {
+        showKleToast('Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.', 'warning');
+      }
+    } else {
+      window.__kleAuth = { state: 'UNAUTHENTICATED', user: null, allowedModules: [], lastChecked: Date.now() };
+    }
+  } catch(err) {
+    // Lỗi mạng hoặc máy chủ không phản hồi: KHÔNG ĐƯỢC mặc định là đã đăng nhập!
+    window.__kleAuth = { state: 'UNAUTHENTICATED', user: null, allowedModules: [], lastChecked: Date.now(), error: err.message };
+  }
+
+  syncNavbarSession();
+  return window.__kleAuth;
+};
+
+// 5. syncNavbarSession: Đồng bộ Header & giao diện quản trị theo trạng thái xác thực Backend
+window.syncNavbarSession = function() {
+  var authItem = document.getElementById('topNavAuthItem');
   var headerBadges = document.getElementById('adminAuthHeaderBadges');
   var headerActions = document.getElementById('adminAuthHeaderActions');
   var sessionBadge = document.getElementById('adminSessionBadge');
@@ -9033,8 +9112,12 @@ window.syncNavbarSession = function() {
   var workspace = document.getElementById('adminWorkspaceContainer');
   var sidebarNav = document.getElementById('adminSidebarNavContainer');
 
-  if (!sess || !roleCfg) {
-    // TRẠNG THÁI CHƯA ĐĂNG NHẬP (!isAuthenticated || currentUser === null)
+  var isAuth = isAuthenticated();
+  var sess = getKLESession();
+  var roleCfg = isAuth ? getCurrentRoleConfig() : null;
+
+  if (!isAuth || !sess || !roleCfg) {
+    // TRẠNG THÁI CHƯA ĐĂNG NHẬP / CHƯA XÁC THỰC
     if (authItem) {
       authItem.innerHTML = `
         <a class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 fw-semibold" href="login" onclick="openLoginModal(); return false;">
@@ -9064,7 +9147,7 @@ window.syncNavbarSession = function() {
     return;
   }
 
-  // TRẠNG THÁI ĐÃ ĐĂNG NHẬP HỢP LỆ
+  // TRẠNG THÁI ĐÃ ĐĂNG NHẬP HỢP LỆ VỚI BACKEND
   var displayUser = sess.name || roleCfg.defaultName;
   if (authItem) {
     authItem.innerHTML = `
@@ -9072,8 +9155,8 @@ window.syncNavbarSession = function() {
         <a class="btn btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm" style="background: #D4AF37; color: #14452F; border: 1px solid #D4AF37;" href="admin" onclick="openAdminPortalModal(); return false;" title="Mở Cổng Điều Hành Nội Bộ">
           <i class="bi bi-layout-sidebar-inset me-1"></i>Điều Hành
         </a>
-        <span class="badge rounded-pill d-none d-xl-inline-flex align-items-center px-2.5 py-1" style="background: rgba(255,255,255,0.14); color: #F7F8F4; border: 1px solid rgba(212,175,55,0.45);" title="${displayUser} - ${roleCfg.roleTitle}">
-          <i class="bi bi-person-check-fill me-1" style="color: #D4AF37;"></i>${displayUser} (${roleCfg.roleTitle})
+        <span class="badge rounded-pill d-none d-xl-inline-flex align-items-center px-2.5 py-1" style="background: rgba(255,255,255,0.14); color: #F7F8F4; border: 1px solid rgba(212,175,55,0.45);" title="${displayUser} - ${sess.roleTitle || roleCfg.roleTitle}">
+          <i class="bi bi-person-check-fill me-1" style="color: #D4AF37;"></i>${displayUser} (${sess.roleTitle || roleCfg.roleTitle})
         </span>
         <button type="button" class="btn btn-sm rounded-pill px-2.5 py-1 fw-bold" style="background: rgba(220,38,38,0.85); color: #fff; border: none;" onclick="handleGlobalLogout()" title="Đăng xuất">
           <i class="bi bi-box-arrow-right"></i>
@@ -9088,7 +9171,7 @@ window.syncNavbarSession = function() {
     sessionBadge.innerHTML = '<i class="bi bi-person-check-fill me-1" style="color:#1E6B45;"></i>' + displayUser;
   }
   if (roleBadge) {
-    roleBadge.textContent = roleCfg.badgeTitle;
+    roleBadge.textContent = sess.badgeTitle || roleCfg.badgeTitle;
   }
   if (workspace) {
     workspace.classList.remove('d-none');
@@ -9103,21 +9186,20 @@ window.syncNavbarSession = function() {
       btn.classList.add('d-none');
     }
   });
+
   if (window.KleAiAssistant && typeof window.KleAiAssistant.refreshRoleContext === 'function') {
     window.KleAiAssistant.refreshRoleContext();
   }
 };
 
-// Mở Modal Đăng Nhập Cổng Điều Hành (Chỉ hiển thị form đăng nhập, không lộ bất kỳ tab quản trị nào)
+// 6. openLoginModal & onCloseLoginModal
 window.openLoginModal = function(alertMsg) {
-  // Nếu đang mở Admin Modal thì đóng ngay lập tức
   var adminModalEl = document.getElementById('adminPortalModal');
   if (adminModalEl && typeof bootstrap !== 'undefined') {
     var adminInst = bootstrap.Modal.getInstance(adminModalEl);
     if (adminInst) adminInst.hide();
   }
 
-  // Luôn xóa trắng ô nhập để tuyệt đối không hiển thị thông tin tài khoản mặc định
   var userInp = document.getElementById('adminLoginUser') || document.getElementById('kleLoginUsername');
   var passInp = document.getElementById('adminLoginPass') || document.getElementById('kleLoginPassword');
   if (userInp) userInp.value = '';
@@ -9149,7 +9231,7 @@ window.onCloseLoginModal = function() {
   }
 };
 
-// Xử lý submit form đăng nhập
+// 7. handleAdminLogin: Gửi xác thực thực tế tới Backend, không cấp quyền bằng username
 window.handleAdminLogin = async function(e) {
   if (e) e.preventDefault();
   var uEl = document.getElementById('adminLoginUser') || document.getElementById('kleLoginUsername');
@@ -9157,8 +9239,16 @@ window.handleAdminLogin = async function(e) {
   var rawUser = (uEl ? uEl.value : '').trim();
   var rawPass = (pEl ? pEl.value : '').trim();
 
+  var alertBox = document.getElementById('kleLoginAlertBox');
+  var alertText = document.getElementById('kleLoginAlertText');
+  if (alertBox && alertText) alertBox.classList.add('d-none');
+
   if (!rawUser || !rawPass) {
     showKleToast('Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu.', 'warning');
+    if (alertBox && alertText) {
+      alertText.textContent = 'Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu.';
+      alertBox.classList.remove('d-none');
+    }
     return;
   }
 
@@ -9169,7 +9259,10 @@ window.handleAdminLogin = async function(e) {
     var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : '';
     var resp = await fetch(apiBase + '/api/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
       credentials: 'include',
       body: JSON.stringify({ username: rawUser, password: rawPass })
     });
@@ -9177,51 +9270,161 @@ window.handleAdminLogin = async function(e) {
 
     if (resp.ok && data.success) {
       var normRole = normalizeRoleKey(data.user ? data.user.role : 'ADMIN');
-      var sessionObj = {
-        username: data.user.username,
-        name: data.user.fullName || data.user.username,
-        role: normRole,
-        roleTitle: data.user.roleTitle || normRole,
-        loginTime: new Date().toISOString()
+      var roleCfg = window.KLE_RBAC_CONFIG[normRole] || window.KLE_RBAC_CONFIG['ADMIN'];
+      
+      // Lưu thông tin hiển thị DUY NHẤT trong bộ nhớ RAM, không cấp quyền bằng LocalStorage
+      window.__kleAuth = {
+        state: 'AUTHENTICATED',
+        user: {
+          username: data.user.username,
+          name: data.user.name || data.user.fullName || data.user.username,
+          role: normRole,
+          roleKey: normRole,
+          roleTitle: data.user.roleTitle || (roleCfg ? roleCfg.roleTitle : normRole),
+          badgeTitle: roleCfg ? roleCfg.badgeTitle : normRole
+        },
+        allowedModules: Array.isArray(data.allowedModules) ? data.allowedModules : (roleCfg ? roleCfg.allowedModules : []),
+        lastChecked: Date.now()
       };
-      localStorage.setItem('kle_session', JSON.stringify(sessionObj));
+
+      // Xóa các key session cũ khỏi LocalStorage
+      localStorage.removeItem('kle_session');
+
       syncNavbarSession();
-      closeLoginModal();
-      showKleToast('Đăng nhập thành công! Chào mừng ' + sessionObj.name, 'success');
+      var loginModalEl = document.getElementById('kleLoginModal');
+      if (loginModalEl && typeof bootstrap !== 'undefined') {
+        var lInst = bootstrap.Modal.getInstance(loginModalEl);
+        if (lInst) lInst.hide();
+      }
+
+      showKleToast('Đăng nhập thành công! Chào mừng ' + window.__kleAuth.user.name, 'success');
       setTimeout(function() {
         openAdminPortalModal();
       }, 300);
     } else {
+      // Đăng nhập thất bại: reset state, không giữ lại quyền cũ, không chuyển vào Dashboard
+      window.__kleAuth = {
+        state: 'UNAUTHENTICATED',
+        user: null,
+        allowedModules: [],
+        lastChecked: Date.now()
+      };
+      localStorage.removeItem('kle_session');
+      syncNavbarSession();
+
+      var errMsg = data.message || data.error || 'Tên đăng nhập hoặc mật khẩu không chính xác.';
       if (resp.status === 429) {
-        showKleToast('Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu quá 5 lần.', 'warning');
-      } else {
-        showKleToast(data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác.', 'warning');
+        errMsg = data.message || 'Tài khoản đã bị tạm khóa 15 phút do nhập sai mật khẩu quá 5 lần liên tiếp.';
+      }
+      showKleToast(errMsg, 'warning');
+      if (alertBox && alertText) {
+        alertText.textContent = errMsg;
+        alertBox.classList.remove('d-none');
       }
     }
   } catch(err) {
+    window.__kleAuth = {
+      state: 'UNAUTHENTICATED',
+      user: null,
+      allowedModules: [],
+      lastChecked: Date.now()
+    };
     showKleToast('Lỗi kết nối máy chủ xác thực: ' + err.message, 'warning');
+    if (alertBox && alertText) {
+      alertText.textContent = 'Lỗi kết nối máy chủ xác thực. Vui lòng thử lại sau.';
+      alertBox.classList.remove('d-none');
+    }
   } finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập Hệ Thống'; }
   }
 };
 
-// Đăng nhập bảo mật yêu cầu xác thực máy chủ
-window.quickLoginRole = function(roleKey) {
-  openLoginModal('Vui lòng đăng nhập với mật khẩu xác thực để thiết lập phiên làm việc an toàn.');
+// 8. quickLoginRole: Đăng nhập mô phỏng DEV (Chặn 100% trên Production)
+window.quickLoginRole = async function(roleKey) {
+  var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : '';
+  if (!apiBase && window.location.hostname.endsWith('github.io')) {
+    showKleToast('Chức năng đăng nhập mô phỏng bị vô hiệu hóa hoàn toàn trên môi trường Production.', 'warning');
+    openLoginModal('Chức năng mô phỏng bị vô hiệu hóa trên Production. Vui lòng đăng nhập với tài khoản và mật khẩu.');
+    return;
+  }
+
+  try {
+    var resp = await fetch(apiBase + '/api/auth/dev-simulation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include',
+      body: JSON.stringify({ role: roleKey })
+    });
+    var data = await resp.json().catch(function() { return {}; });
+
+    if (resp.ok && data.success) {
+      var normRole = normalizeRoleKey(data.user ? data.user.role : roleKey);
+      var roleCfg = window.KLE_RBAC_CONFIG[normRole] || window.KLE_RBAC_CONFIG['ADMIN'];
+      window.__kleAuth = {
+        state: 'AUTHENTICATED',
+        user: {
+          username: data.user.username,
+          name: data.user.name || data.user.fullName,
+          role: normRole,
+          roleKey: normRole,
+          roleTitle: data.user.roleTitle || (roleCfg ? roleCfg.roleTitle : normRole),
+          badgeTitle: roleCfg ? roleCfg.badgeTitle : normRole,
+          isDevSimulation: true
+        },
+        allowedModules: roleCfg ? roleCfg.allowedModules : [],
+        lastChecked: Date.now()
+      };
+      syncNavbarSession();
+      var loginModalEl = document.getElementById('kleLoginModal');
+      if (loginModalEl && typeof bootstrap !== 'undefined') {
+        var lInst = bootstrap.Modal.getInstance(loginModalEl);
+        if (lInst) lInst.hide();
+      }
+      showKleToast('Đã kích hoạt phiên mô phỏng Development cho ' + normRole, 'info');
+      setTimeout(function() {
+        openAdminPortalModal();
+      }, 300);
+    } else {
+      var msg = data.message || 'Chức năng đăng nhập mô phỏng đã bị từ chối bởi máy chủ bảo mật.';
+      showKleToast(msg, 'warning');
+      openLoginModal(msg);
+    }
+  } catch(err) {
+    showKleToast('Chức năng mô phỏng không khả dụng (Chỉ áp dụng trên máy chủ Development).', 'warning');
+    openLoginModal('Vui lòng đăng nhập với tài khoản và mật khẩu được cấp.');
+  }
 };
 
 window.quickLoginAs = function(displayName, role) {
-  openLoginModal('Vui lòng đăng nhập với mật khẩu xác thực để thiết lập phiên làm việc an toàn.');
+  quickLoginRole(role);
 };
 
-// Đăng xuất toàn cục: xóa sạch trạng thái đăng nhập, xóa thông tin người dùng, ẩn toàn bộ giao diện quản trị
+// 9. handleGlobalLogout: Thu hồi phiên máy chủ qua POST /api/auth/logout và xóa bộ nhớ
 window.handleGlobalLogout = async function() {
+  var serverRevoked = false;
   try {
     var apiBase = window.KleSqlSyncEngine ? KleSqlSyncEngine.resolveApiBase() : '';
-    await fetch(apiBase + '/api/auth/logout', { method: 'POST', credentials: 'include' });
-  } catch(e) {}
+    var resp = await fetch(apiBase + '/api/auth/logout', {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'include'
+    });
+    serverRevoked = resp.ok;
+  } catch(e) {
+    serverRevoked = false;
+  }
+
+  // Xóa sạch trạng thái đăng nhập khỏi bộ nhớ ứng dụng
+  window.__kleAuth = {
+    state: 'UNAUTHENTICATED',
+    user: null,
+    allowedModules: [],
+    lastChecked: Date.now()
+  };
   localStorage.removeItem('kle_session');
-  syncNavbarSession();
 
   var adminModalEl = document.getElementById('adminPortalModal');
   if (adminModalEl && typeof bootstrap !== 'undefined') {
@@ -9235,9 +9438,16 @@ window.handleGlobalLogout = async function() {
     if (lInst) lInst.hide();
   }
 
+  syncNavbarSession();
+
   var basePath = getBaseUrl();
   window.history.pushState({ route: '' }, '', basePath);
-  showKleToast('Đã đăng xuất an toàn khỏi hệ thống quản trị.', 'info');
+
+  if (serverRevoked) {
+    showKleToast('Đã đăng xuất và kết thúc phiên làm việc an toàn trên máy chủ.', 'info');
+  } else {
+    showKleToast('Đã xóa phiên trên trình duyệt. Lưu ý: Máy chủ không phản hồi để xác nhận thu hồi phiên phía backend.', 'warning');
+  }
 };
 
 // Render Sidebar dọc bên trái theo đúng danh sách phân hệ được cấp quyền của vai trò hiện tại
@@ -10363,8 +10573,12 @@ window.navigateToRoute = function(route) {
   activateRoute(cleanRoute);
 };
 
-window.openAdminPortalModal = function(subTab) {
+window.openAdminPortalModal = async function(subTab) {
   var cleanSub = normalizeRoute(subTab);
+
+  if (window.__kleAuth && window.__kleAuth.state === 'CHECKING') {
+    await checkAuthSession();
+  }
 
   // Nếu người dùng gọi route 'login' hoặc chưa đăng nhập -> Chỉ hiển thị Modal Đăng Nhập Cổng Điều Hành
   if (cleanSub === 'login') {
@@ -10377,7 +10591,7 @@ window.openAdminPortalModal = function(subTab) {
   }
 
   if (!isAuthenticated()) {
-    openLoginModal('Khu vực Quản trị yêu cầu xác thực bảo mật. Vui lòng đăng nhập hoặc chọn vai trò mô phỏng bên dưới.');
+    openLoginModal('Khu vực Quản trị yêu cầu xác thực bảo mật. Vui lòng đăng nhập với tài khoản và mật khẩu được cấp.');
     return;
   }
 
@@ -10541,7 +10755,8 @@ window.addEventListener('popstate', function() {
 });
 
 // Khởi chạy ứng dụng & đồng bộ trạng thái xác thực khi tải trang
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+  await checkAuthSession();
   syncNavbarSession();
   wireHeritageCardButtons();
 

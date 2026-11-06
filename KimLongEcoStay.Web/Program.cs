@@ -335,7 +335,8 @@ app.MapPost("/authenticate", async (HttpContext context, IUserRepository userRep
     AppUser? user = await userRepo.AuthenticateAsync(username, password);
     if (user == null)
     {
-        int count = att.lockoutUntil > DateTime.UtcNow ? att.count + 1 : 1;
+        int currentCount = (att.lockoutUntil > DateTime.MinValue && att.lockoutUntil <= DateTime.UtcNow) ? 0 : att.count;
+        int count = currentCount + 1;
         DateTime lockout = count >= 5 ? DateTime.UtcNow.AddMinutes(15) : DateTime.MinValue;
         loginAttempts[attemptKey] = (count, lockout);
 
@@ -356,7 +357,7 @@ app.MapPost("/authenticate", async (HttpContext context, IUserRepository userRep
     }
 }).DisableAntiforgery();
 
-// REST API Đăng Nhập Bảo Mật (/api/auth/login) có kiểm soát Brute-force
+// REST API Đăng Nhập Bảo Mật (/api/auth/login) có kiểm soát Brute-force & xác thực mật khẩu băm muối
 app.MapPost("/api/auth/login", async (HttpContext context, IUserRepository userRepo) =>
 {
     try
@@ -367,7 +368,7 @@ app.MapPost("/api/auth/login", async (HttpContext context, IUserRepository userR
 
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
-            return Results.BadRequest(new { success = false, error = "Tên đăng nhập và mật khẩu không được để trống." });
+            return Results.BadRequest(new { success = false, message = "Tên đăng nhập và mật khẩu không được để trống." });
         }
 
         string clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "local";
@@ -379,14 +380,15 @@ app.MapPost("/api/auth/login", async (HttpContext context, IUserRepository userR
             return Results.Json(new
             {
                 success = false,
-                error = $"Tài khoản tạm khóa an toàn do đăng nhập sai quá 5 lần. Vui lòng thử lại sau {remainingMins} phút."
+                message = $"Tài khoản tạm khóa an toàn do đăng nhập sai quá 5 lần. Vui lòng thử lại sau {remainingMins} phút."
             }, statusCode: 429);
         }
 
         AppUser? user = await userRepo.AuthenticateAsync(username, password);
         if (user == null)
         {
-            int count = att.lockoutUntil > DateTime.UtcNow ? att.count + 1 : 1;
+            int currentCount = (att.lockoutUntil > DateTime.MinValue && att.lockoutUntil <= DateTime.UtcNow) ? 0 : att.count;
+            int count = currentCount + 1;
             DateTime lockout = count >= 5 ? DateTime.UtcNow.AddMinutes(15) : DateTime.MinValue;
             loginAttempts[attemptKey] = (count, lockout);
 
@@ -395,32 +397,55 @@ app.MapPost("/api/auth/login", async (HttpContext context, IUserRepository userR
                 return Results.Json(new
                 {
                     success = false,
-                    error = "Đăng nhập sai 5 lần liên tiếp. Tài khoản tạm khóa an toàn trong 15 phút."
+                    message = "Đăng nhập sai 5 lần liên tiếp. Tài khoản tạm khóa an toàn trong 15 phút."
                 }, statusCode: 429);
             }
 
             return Results.Json(new
             {
                 success = false,
-                error = $"Tên đăng nhập hoặc mật khẩu không chính xác. Quý khách còn {5 - count} lần thử."
+                message = "Tên đăng nhập hoặc mật khẩu không chính xác."
             }, statusCode: 401);
         }
 
         loginAttempts.TryRemove(attemptKey, out _);
         await SignInUserAsync(context, user);
 
+        string[] allowedModules = user.Role.ToUpperInvariant() switch
+        {
+            "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "finance", "nhanvien", "employees", "luong", "payrolls", "duan", "sql-sync" },
+            "STAFF" or "LETAN" or "RECEPTIONIST" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
+            "ACCOUNTANT" or "CFO" or "KETOAN" => new[] { "dashboard", "finance", "reconciliation", "luong", "payrolls", "emaillogs" },
+            "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU" => new[] { "nhanvien", "employees", "duan", "partners-admin" },
+            _ => Array.Empty<string>()
+        };
+
+        string roleTitle = user.Role.ToUpperInvariant() switch
+        {
+            "ADMIN" or "ADMINISTRATOR" => "Admin (CEO)",
+            "STAFF" or "LETAN" or "RECEPTIONIST" => "Lễ Tân",
+            "ACCOUNTANT" or "CFO" or "KETOAN" => "Kế Toán Trưởng",
+            "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU" => "Nhân Sự / Vận Hành",
+            _ => user.Role
+        };
+
         return Results.Ok(new
         {
             success = true,
-            username = user.Username,
-            name = user.FullName,
-            role = user.Role,
+            user = new
+            {
+                username = user.Username,
+                name = user.FullName,
+                role = user.Role,
+                roleTitle
+            },
+            allowedModules,
             redirectUrl = user.Role.Equals("Customer", StringComparison.OrdinalIgnoreCase) ? "/" : "/admin"
         });
     }
     catch (Exception ex)
     {
-        return Results.BadRequest(new { success = false, error = ex.Message });
+        return Results.BadRequest(new { success = false, message = "Lỗi xử lý yêu cầu đăng nhập: " + ex.Message });
     }
 }).DisableAntiforgery();
 
@@ -428,26 +453,48 @@ app.MapPost("/api/auth/login", async (HttpContext context, IUserRepository userR
 app.MapPost("/api/auth/logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    return Results.Ok(new { success = true, message = "Đã đăng xuất phiên làm việc an toàn." });
+    context.Response.Cookies.Delete("KimLongEcoStay.Auth.Cookie", new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = context.Request.IsHttps,
+        SameSite = SameSiteMode.Lax,
+        Path = "/"
+    });
+    return Results.Ok(new { success = true, message = "Đã đăng xuất và kết thúc phiên làm việc an toàn trên máy chủ." });
 }).DisableAntiforgery();
 
-// REST API Kiểm tra thông tin phiên (/api/auth/me)
+// REST API Kiểm tra thông tin phiên (/api/auth/me) - Trả 401 khi chưa xác thực
 app.MapGet("/api/auth/me", (HttpContext context) =>
 {
     var user = context.User;
     if (user?.Identity?.IsAuthenticated != true)
     {
-        return Results.Ok(new { isAuthenticated = false, currentUser = (object?)null, allowedModules = Array.Empty<string>() });
+        return Results.Json(new
+        {
+            isAuthenticated = false,
+            currentUser = (object?)null,
+            allowedModules = Array.Empty<string>(),
+            message = "Phiên làm việc chưa được xác thực hoặc đã hết hạn (401 Unauthorized)."
+        }, statusCode: StatusCodes.Status401Unauthorized);
     }
 
     string roleClaim = user.FindFirst("UserRole")?.Value ?? user.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
     string[] allowedModules = roleClaim.ToUpperInvariant() switch
     {
-        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan", "sql-sync" },
-        "STAFF" or "LETAN" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
-        "ACCOUNTANT" or "CFO" => new[] { "dashboard", "reconciliation", "luong", "emaillogs" },
-        "HR" or "COO" or "MANAGER" => new[] { "nhanvien", "duan", "partners-admin" },
+        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "finance", "nhanvien", "employees", "luong", "payrolls", "duan", "sql-sync" },
+        "STAFF" or "LETAN" or "RECEPTIONIST" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
+        "ACCOUNTANT" or "CFO" or "KETOAN" => new[] { "dashboard", "finance", "reconciliation", "luong", "payrolls", "emaillogs" },
+        "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU" => new[] { "nhanvien", "employees", "duan", "partners-admin" },
         _ => Array.Empty<string>()
+    };
+
+    string roleTitle = roleClaim.ToUpperInvariant() switch
+    {
+        "ADMIN" or "ADMINISTRATOR" => "Admin (CEO)",
+        "STAFF" or "LETAN" or "RECEPTIONIST" => "Lễ Tân",
+        "ACCOUNTANT" or "CFO" or "KETOAN" => "Kế Toán Trưởng",
+        "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU" => "Nhân Sự / Vận Hành",
+        _ => roleClaim
     };
 
     return Results.Ok(new
@@ -457,11 +504,59 @@ app.MapGet("/api/auth/me", (HttpContext context) =>
         {
             name = user.Identity.Name,
             username = user.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-            role = roleClaim
+            role = roleClaim,
+            roleTitle
         },
         allowedModules
     });
 });
+
+// REST API Đăng nhập mô phỏng phục vụ Development (Chặn 100% trên Production)
+app.MapPost("/api/auth/dev-simulation", async (HttpContext context, IWebHostEnvironment env) =>
+{
+    // BẮT BUỘC KIỂM TRA MÔI TRƯỜNG THỰC TẾ PHÍA BACKEND
+    if (!env.IsDevelopment())
+    {
+        return Results.Json(new
+        {
+            success = false,
+            message = "Chức năng đăng nhập mô phỏng (Quick Login) bị vô hiệu hóa hoàn toàn trên môi trường Production."
+        }, statusCode: StatusCodes.Status403Forbidden);
+    }
+
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        string role = doc.RootElement.TryGetProperty("role", out var rp) ? (rp.GetString() ?? "").Trim().ToUpperInvariant() : "";
+
+        var devUser = role switch
+        {
+            "ADMIN" or "CEO" => new AppUser { Id = 9991, Username = "dev_admin", FullName = "[DEV MÔ PHỎNG] Admin CEO", Role = "Admin", Email = "dev-admin@kle.local" },
+            "RECEPTIONIST" or "STAFF" or "LETAN" => new AppUser { Id = 9992, Username = "dev_letan", FullName = "[DEV MÔ PHỎNG] Lễ Tân", Role = "Staff", Email = "dev-letan@kle.local" },
+            "ACCOUNTANT" or "CFO" or "KETOAN" => new AppUser { Id = 9993, Username = "dev_ketoan", FullName = "[DEV MÔ PHỎNG] Kế Toán", Role = "Accountant", Email = "dev-ketoan@kle.local" },
+            "HR_OPS" or "HR" or "NHANSU" => new AppUser { Id = 9994, Username = "dev_nhansu", FullName = "[DEV MÔ PHỎNG] Nhân Sự", Role = "HR", Email = "dev-nhansu@kle.local" },
+            _ => null
+        };
+
+        if (devUser == null)
+        {
+            return Results.BadRequest(new { success = false, message = "Vai trò mô phỏng không hợp lệ." });
+        }
+
+        await SignInUserAsync(context, devUser);
+        return Results.Ok(new
+        {
+            success = true,
+            isDevSimulation = true,
+            user = new { username = devUser.Username, name = devUser.FullName, role = devUser.Role, roleTitle = devUser.FullName },
+            message = "Đã kích hoạt phiên mô phỏng Development (Chỉ phục vụ kiểm thử giao diện cục bộ)."
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, message = ex.Message });
+    }
+}).DisableAntiforgery();
 
 // Chuyển hướng GET /authenticate về /login
 app.MapGet("/authenticate", (HttpContext context) =>
@@ -682,9 +777,9 @@ static string[]? GetAllowedRolesForModule(string moduleId)
         "tea-admin" => new[] { "Admin", "Staff" },
         "partners-admin" => new[] { "Admin", "HR" },
         "emaillogs" => new[] { "Admin", "Staff", "Accountant" },
-        "dashboard" => new[] { "Admin", "Accountant" },
-        "nhanvien" => new[] { "Admin", "HR" },
-        "luong" => new[] { "Admin", "Accountant" },
+        "dashboard" or "finance" => new[] { "Admin", "Accountant" },
+        "nhanvien" or "employees" => new[] { "Admin", "HR" },
+        "luong" or "payrolls" => new[] { "Admin", "Accountant" },
         "sql-sync" => new[] { "Admin" },
         _ => null
     };
@@ -703,8 +798,30 @@ static string? ExtractAdminModuleHtml(string moduleId)
     if (templatePath == null) return null;
 
     string allHtml = File.ReadAllText(templatePath, Encoding.UTF8);
-    string targetTag = $"id=\"tab-pane-{moduleId}\"";
+    string normMod = (moduleId ?? "").Trim().ToLowerInvariant();
+    string targetTag = $"id=\"tab-pane-{normMod}\"";
     int startIndex = allHtml.IndexOf(targetTag, StringComparison.OrdinalIgnoreCase);
+
+    // Thử các tên alias phổ biến nếu chưa tìm thấy
+    if (startIndex == -1)
+    {
+        string? altMod = normMod switch
+        {
+            "employees" => "nhanvien",
+            "nhanvien" => "employees",
+            "payrolls" => "luong",
+            "luong" => "payrolls",
+            "finance" => "dashboard",
+            "dashboard" => "finance",
+            _ => null
+        };
+        if (altMod != null)
+        {
+            targetTag = $"id=\"tab-pane-{altMod}\"";
+            startIndex = allHtml.IndexOf(targetTag, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
     if (startIndex == -1) return null;
 
     int divStart = allHtml.LastIndexOf("<div", startIndex, StringComparison.OrdinalIgnoreCase);

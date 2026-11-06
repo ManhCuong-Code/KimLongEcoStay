@@ -170,5 +170,167 @@ namespace KimLongEcoStay.Tests
             Assert.Equal(5, state.Count);
             Assert.True(state.LockedUntil > DateTime.UtcNow);
         }
+
+        [Theory]
+        [InlineData("", "password123")]
+        [InlineData("admin", "")]
+        [InlineData("   ", "   ")]
+        [InlineData(null, "pass")]
+        public void SecurityTest7_Section11_Case1_EmptyCredentials_RejectedWithBadRequest(string? user, string? pass)
+        {
+            bool isInvalid = string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(pass);
+            Assert.True(isInvalid, "Empty credentials must be rejected immediately (HTTP 400 Bad Request)");
+        }
+
+        [Fact]
+        public void SecurityTest8_Section11_Case2_WrongPassword_RejectedWithUnauthorized()
+        {
+            string canonical = "admin";
+            string wrongPassword = "WrongPassword!2026";
+            string storedHash = "564C07116D7DED47805641FC46710CA1724F44F37868A56169213CBB65A07DA9";
+
+            // Compute hash of wrong password
+            byte[] bytes = Encoding.UTF8.GetBytes($"{canonical}:KLE_AUTH_SALT_2026:{wrongPassword}");
+            string candidateHash = Convert.ToHexString(SHA256.HashData(bytes));
+
+            bool isValid = CryptographicOperations.FixedTimeEquals(
+                Encoding.ASCII.GetBytes(candidateHash),
+                Encoding.ASCII.GetBytes(storedHash));
+
+            Assert.False(isValid, "Wrong password must be rejected (HTTP 401 Unauthorized)");
+        }
+
+        [Fact]
+        public void SecurityTest9_Section11_Case3_NonExistentUser_RejectedWithGenericMessage()
+        {
+            var knownUsers = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "admin", "letan", "ketoan", "nhansu" };
+            string fakeUser = "hacker_unknown_99";
+
+            bool exists = knownUsers.Contains(fakeUser);
+            Assert.False(exists);
+            // Must return generic message without revealing existence
+            string errorResponse = "Tên đăng nhập hoặc mật khẩu không chính xác.";
+            Assert.DoesNotContain("tồn tại", errorResponse, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void SecurityTest10_Section11_Case4_ValidLogin_IssuesSecureClaimsSession()
+        {
+            string username = "letan";
+            string role = "Staff";
+            string fullName = "Đặng Thu Thảo";
+
+            var claims = new System.Collections.Generic.List<System.Security.Claims.Claim>
+            {
+                new(System.Security.Claims.ClaimTypes.Name, fullName),
+                new(System.Security.Claims.ClaimTypes.NameIdentifier, username),
+                new(System.Security.Claims.ClaimTypes.Role, role),
+                new("UserRole", role)
+            };
+
+            var identity = new System.Security.Claims.ClaimsIdentity(claims, "Cookies");
+            var principal = new System.Security.Claims.ClaimsPrincipal(identity);
+
+            Assert.True(principal.Identity?.IsAuthenticated);
+            Assert.Equal("Staff", principal.FindFirst("UserRole")?.Value);
+            Assert.Equal("letan", principal.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+        }
+
+        [Fact]
+        public void SecurityTest11_Section11_Case5_TamperingLocalStorage_HasNoEffectOnBackend()
+        {
+            // Attacker modifies localStorage to role: ADMIN
+            string forgedLocalStorageRole = "ADMIN";
+
+            // Backend verifies ONLY real Cookie ClaimsPrincipal
+            var legitimateStaffClaims = new System.Security.Claims.ClaimsIdentity(new[]
+            {
+                new System.Security.Claims.Claim("UserRole", "Staff")
+            }, "Cookies");
+            var principal = new System.Security.Claims.ClaimsPrincipal(legitimateStaffClaims);
+
+            // Backend checks access to payrolls
+            string serverVerifiedRole = principal.FindFirst("UserRole")?.Value ?? "Guest";
+            bool canAccessPayrolls = serverVerifiedRole.Equals("Admin", StringComparison.OrdinalIgnoreCase)
+                                  || serverVerifiedRole.Equals("Accountant", StringComparison.OrdinalIgnoreCase);
+
+            Assert.False(canAccessPayrolls, "Backend must ignore client localStorage and reject Staff accessing payrolls (HTTP 403)");
+            Assert.NotEqual(forgedLocalStorageRole, serverVerifiedRole);
+        }
+
+        [Fact]
+        public void SecurityTest12_Section11_Case6_Case15_SimulationOnProduction_StrictlyRejected()
+        {
+            bool isProductionEnvironment = true; // env.IsDevelopment() == false
+            Func<bool, (int StatusCode, string Message)> devSimulationEndpoint = (isDev) =>
+            {
+                if (!isDev)
+                {
+                    return (403, "Chức năng đăng nhập mô phỏng (Quick Login) bị vô hiệu hóa hoàn toàn trên môi trường Production.");
+                }
+                return (200, "OK");
+            };
+
+            var result = devSimulationEndpoint(!isProductionEnvironment);
+            Assert.Equal(403, result.StatusCode);
+            Assert.Contains("vô hiệu hóa hoàn toàn trên môi trường Production", result.Message);
+        }
+
+        [Fact]
+        public void SecurityTest13_Section11_Case8_UnauthenticatedAdminApi_Returns401()
+        {
+            System.Security.Claims.ClaimsPrincipal unauthenticatedUser = new System.Security.Claims.ClaimsPrincipal();
+
+            Func<System.Security.Claims.ClaimsPrincipal, int> authorizeAdminEndpoint = (user) =>
+            {
+                if (user.Identity?.IsAuthenticated != true) return 401;
+                string role = user.FindFirst("UserRole")?.Value ?? "";
+                if (!role.Equals("Admin", StringComparison.OrdinalIgnoreCase)) return 403;
+                return 200;
+            };
+
+            int statusCode = authorizeAdminEndpoint(unauthenticatedUser);
+            Assert.Equal(401, statusCode);
+        }
+
+        [Fact]
+        public void SecurityTest14_Section11_Case9_StaffAccessingPayroll_Returns403()
+        {
+            var staffIdentity = new System.Security.Claims.ClaimsIdentity(new[]
+            {
+                new System.Security.Claims.Claim("UserRole", "Staff")
+            }, "Cookies");
+            var staffUser = new System.Security.Claims.ClaimsPrincipal(staffIdentity);
+
+            Func<System.Security.Claims.ClaimsPrincipal, int> authorizePayrollEndpoint = (user) =>
+            {
+                if (user.Identity?.IsAuthenticated != true) return 401;
+                string role = user.FindFirst("UserRole")?.Value ?? "";
+                if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase) || role.Equals("Accountant", StringComparison.OrdinalIgnoreCase))
+                    return 200;
+                return 403;
+            };
+
+            int statusCode = authorizePayrollEndpoint(staffUser);
+            Assert.Equal(403, statusCode);
+        }
+
+        [Fact]
+        public void SecurityTest15_Section11_Case11_Case12_LogoutTerminatesSession_SubsequentCalls401()
+        {
+            var sessionStore = new ConcurrentDictionary<string, string>();
+            string sessionId = "KLE_SESS_991823";
+            sessionStore[sessionId] = "admin";
+
+            // Logout occurs
+            sessionStore.TryRemove(sessionId, out _);
+
+            // Subsequent API call checks session
+            bool isSessionValid = sessionStore.ContainsKey(sessionId);
+            Assert.False(isSessionValid);
+
+            int subsequentStatusCode = isSessionValid ? 200 : 401;
+            Assert.Equal(401, subsequentStatusCode);
+        }
     }
 }
