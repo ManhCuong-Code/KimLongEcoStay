@@ -9,6 +9,7 @@
 @inject NavigationManager NavManager
 @inject KimLongEcoStay.Web.Services.TwoWaySqlSyncService SqlSyncService
 @inject KimLongEcoStay.Web.Services.AiAssistantGatewayService AiGatewayService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Trung Tâm Quản Trị &amp; Vận Hành - Kim Long EcoStay</PageTitle>
 
@@ -231,6 +232,63 @@
                     </div>
                 </div>
             }
+            else if (mainTab == "partners-admin" && CanAccessModule("partners-admin"))
+            {
+                <div class="card border-0 shadow-sm rounded-4 mb-4 p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div>
+                            <h5 class="fw-bold mb-1" style="color: #14452F;">
+                                <i class="bi bi-geo-alt-fill text-success me-2"></i>Quản Lý Mạng Lưới Đối Tác &amp; Tọa Độ Bản Đồ Số GIS
+                            </h5>
+                            <small class="text-muted">Định vị các nhà vườn, quán ăn truyền thống, điểm trải nghiệm và kiểm tra tọa độ GPS trên hệ thống bản đồ số Kim Long EcoStay.</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="if (window.adminMapController) window.adminMapController.centerToHomestay();">
+                                <i class="bi bi-crosshair me-1"></i>Về Tâm Kim Long
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="if (window.adminMapController) window.adminMapController.reloadMap();">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Tải lại bản đồ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bản đồ Leaflet -->
+                    <div class="position-relative mb-4" style="height: 440px; width: 100%; border-radius: 14px; overflow: hidden; border: 1.5px solid #E2E8F0;">
+                        <div id="admin-leaflet-map" style="height: 100%; width: 100%; min-height: 440px; z-index: 1;"></div>
+                        <div id="adminMapFallbackNotice" class="alert alert-warning position-absolute top-50 start-50 translate-middle shadow-lg d-none text-center" style="z-index: 1000; min-width: 320px;">
+                            <i class="bi bi-exclamation-triangle-fill fs-3 text-warning mb-2 d-block"></i>
+                            <div class="fw-bold mb-1">Đang tải lớp bản đồ dự phòng</div>
+                            <p class="small mb-2 text-muted">Vui lòng bấm nút bên dưới nếu bạn muốn thử tải lại lớp bản đồ chính.</p>
+                            <button type="button" class="btn btn-sm btn-dark rounded-pill px-3" onclick="if (window.adminMapController) window.adminMapController.reloadMap();">Thử Tải Lại</button>
+                        </div>
+                    </div>
+
+                    <!-- Hướng dẫn và thông số tọa độ -->
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <div class="small text-muted fw-bold">TRUNG TÂM KIM LONG ECOSTAY</div>
+                                <div class="fs-6 fw-bold text-success mt-1">16.4560° N, 107.5495° E</div>
+                                <small class="text-muted">Kim Long, Phường Kim Long, TP. Huế</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <div class="small text-muted fw-bold">NHÀ CUNG CẤP BẢN ĐỒ</div>
+                                <div class="fs-6 fw-bold text-primary mt-1">CartoDB • OSM • Esri</div>
+                                <small class="text-muted">Tự động chuyển đổi lớp dự phòng</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <div class="small text-muted fw-bold">TƯƠNG TÁC CHỌN TỌA ĐỘ</div>
+                                <div class="fs-6 fw-bold text-dark mt-1">Click &amp; Drag Pin</div>
+                                <small class="text-muted">Tự động bắt tọa độ Vĩ độ / Kinh độ</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
             else
             {
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
@@ -300,6 +358,18 @@
         var auth = await AuthStateProvider.GetAuthenticationStateAsync();
         currentUser = auth.User;
         mainTab = GetAllowedModuleIds().FirstOrDefault() ?? "reconciliation";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (mainTab == "partners-admin")
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", "if (window.adminMapController) setTimeout(function() { window.adminMapController.initOrResize(); }, 150);");
+            }
+            catch { }
+        }
     }
 
     protected override void OnParametersSet()

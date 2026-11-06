@@ -1,4 +1,4 @@
-﻿          <div class="tab-pane fade" id="tab-pane-reconciliation" role="tabpanel">
+          <div class="tab-pane fade" id="tab-pane-reconciliation" role="tabpanel">
             <!-- Thống kê tài chính & đối soát -->
             <div class="row g-3 mb-4">
               <div class="col-xl-3 col-md-6">
@@ -377,6 +377,41 @@
                 <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openAdminPartnerForm()">
                   <i class="bi bi-plus-lg me-1"></i>Thêm Địa Điểm Đối Tác Mới
                 </button>
+              </div>
+            </div>
+
+            <!-- BẢN ĐỒ GIS QUẢN TRỊ TƯƠNG TÁC (ADMIN INTERACTIVE LEAFLET MAP) -->
+            <div class="card border-0 rounded-4 shadow-sm bg-white p-3 mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <strong class="text-dark"><i class="bi bi-map-fill text-success me-1"></i>Bản Đồ Số Mạng Lưới Đối Tác &amp; Kim Long EcoStay</strong>
+                  <span id="adminMapStatusBadge" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Đang kết nối bản đồ...</span>
+                </div>
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.adminMapController.setTileLayer('osm')" id="btnLayerOsm">OSM Chuẩn</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm active" onclick="window.adminMapController.setTileLayer('carto')" id="btnLayerCarto">Vệ Tinh / Sạch</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.adminMapController.setTileLayer('esri')" id="btnLayerEsri">Esri Dự Phòng</button>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="window.adminMapController.centerToHomestay()" title="Đưa bản đồ về tâm điểm Kim Long EcoStay">
+                    <i class="bi bi-crosshair me-1"></i>Về Tâm Kim Long
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5" onclick="window.adminMapController.reloadMap()" title="Làm mới và tải lại bản đồ">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Tải lại
+                  </button>
+                </div>
+              </div>
+              <div class="small text-muted mb-2">
+                <i class="bi bi-info-circle me-1"></i><strong>Hướng dẫn chọn tọa độ:</strong> Nhấp vào bất kỳ điểm nào trên bản đồ để tự động gán tọa độ GPS (Vĩ độ / Kinh độ) vào biểu mẫu bên dưới. Kéo ghim xanh để tinh chỉnh chính xác vị trí.
+              </div>
+              <div class="position-relative" style="height: 440px; width: 100%; border-radius: 14px; overflow: hidden; border: 1.5px solid #E2E8F0;">
+                <div id="admin-leaflet-map" style="height: 100%; width: 100%; min-height: 440px; z-index: 1;"></div>
+                <div id="adminMapFallbackNotice" class="alert alert-warning position-absolute top-50 start-50 translate-middle shadow-lg d-none text-center" style="z-index: 1000; min-width: 320px;">
+                  <i class="bi bi-exclamation-triangle-fill fs-3 text-warning mb-2 d-block"></i>
+                  <div class="fw-bold mb-1">Đang tải lớp bản đồ dự phòng</div>
+                  <p class="small mb-2 text-muted">Vui lòng bấm nút bên dưới nếu bạn muốn thử tải lại lớp bản đồ chính.</p>
+                  <button type="button" class="btn btn-sm btn-dark rounded-pill px-3" onclick="window.adminMapController.reloadMap()">Thử Tải Lại</button>
+                </div>
               </div>
             </div>
 
