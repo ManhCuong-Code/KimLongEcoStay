@@ -36,6 +36,7 @@
   var isLocal = (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1');
   var isGitHubPages = loc.hostname.endsWith('github.io');
   var isAzure = loc.hostname.endsWith('.azurewebsites.net');
+  var isRender = loc.hostname.endsWith('.onrender.com');
 
   /**
    * Xác định API Base URL chuẩn xác theo môi trường hiện tại
@@ -60,8 +61,8 @@
       return DEVELOPMENT_API_URL;
     }
 
-    // 2. Môi trường Azure App Service (*.azurewebsites.net)
-    if (isAzure) {
+    // 2. Môi trường Azure App Service (*.azurewebsites.net) hoặc Render (*.onrender.com)
+    if (isAzure || isRender) {
       return loc.origin;
     }
 
@@ -84,6 +85,7 @@
     isLocal: isLocal,
     isGitHubPages: isGitHubPages,
     isAzure: isAzure,
+    isRender: isRender,
 
     /**
      * Kiểm tra Backend đã được cấu hình hợp lệ hay chưa

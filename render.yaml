@@ -1,20 +1,27 @@
 # =========================================================================
-# RENDER.COM BLUEPRINT CHO KIM LONG ECOSTAY (.NET 10 BACKEND)
-# Miễn phí (Free Tier), tự động build Dockerfile và cấp HTTPS công khai
+# RENDER BLUEPRINT CHO KIM LONG ECOSTAY (.NET 10 BLAZOR SERVER + API)
+# Tự động build Dockerfile, kiểm thử CI và cấp HTTPS công khai 24/7
 # =========================================================================
+
 services:
   - type: web
-    name: kimlong-ecostay-backend
+    name: kimlong-ecostay
     env: docker
     dockerfilePath: ./Dockerfile
-    plan: free
-    region: singapore
+    plan: starter # Đề xuất gói Starter ($7/tháng) để chạy liên tục 24/7 không bị ngủ đông; hoặc đổi thành 'free'
+    region: singapore # Trung tâm dữ liệu Singapore - Tối ưu độ trễ thấp nhất về Việt Nam (~30ms)
     branch: main
     autoDeploy: true
+    healthCheckPath: /api/health # Render Health Check endpoint tự động giám sát và khởi động lại khi gặp sự cố
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: ASPNETCORE_URLS
-        value: http://0.0.0.0:5204
       - key: PORT
-        value: 5204
+        value: "10000"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: DOTNET_RUNNING_IN_CONTAINER
+        value: "true"
+      # Biến môi trường chuỗi kết nối SQL Server (Bảo mật: Nhập trực tiếp trên Render Dashboard)
+      - key: ConnectionStrings__DefaultConnection
+        sync: false

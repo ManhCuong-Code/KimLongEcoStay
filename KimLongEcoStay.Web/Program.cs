@@ -175,6 +175,13 @@ builder.Services.AddCors(options =>
                     return true;
                 }
 
+                // 3C. Cho phép Render domains (*.onrender.com)
+                if (uri.Host.EndsWith(".onrender.com", StringComparison.OrdinalIgnoreCase) ||
+                    uri.Host.Equals("onrender.com", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
                 // 4. Cho phép các origin được chỉ định qua biến môi trường CORS_ALLOWED_ORIGINS
                 var customOrigins = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
                 if (!string.IsNullOrWhiteSpace(customOrigins))
@@ -256,12 +263,15 @@ builder.Services.AddHostedService<SqlChangeTrackingHostedService>();
 var app = builder.Build();
 
 // 5. MIDDLEWARE PIPELINE
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
                        Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto |
                        Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedHost
-});
+};
+forwardedHeadersOptions.KnownIPNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 var configuredPathBase = Environment.GetEnvironmentVariable("ASPNETCORE_PATHBASE") ?? "";
 if (!string.IsNullOrWhiteSpace(configuredPathBase))
