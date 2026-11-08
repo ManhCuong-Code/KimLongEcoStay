@@ -326,6 +326,17 @@
         var uri = new Uri(NavManager.Uri);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
+        if (gmailStatus.IsConnected)
+        {
+            if (query["gmail_status"] == "connected")
+            {
+                alertMessage = "🎉 Chúc mừng! Đã kết nối và xác thực thành công tài khoản Google Gmail với Kim Long EcoStay.";
+                isAlertError = false;
+            }
+            // Bỏ qua các thông báo lỗi cũ tồn tại trên thanh địa chỉ URL nếu hệ thống đã kết nối thành công
+            return;
+        }
+
         if (query["gmail_status"] == "connected")
         {
             alertMessage = "🎉 Chúc mừng! Đã kết nối và xác thực thành công tài khoản Google Gmail với Kim Long EcoStay.";

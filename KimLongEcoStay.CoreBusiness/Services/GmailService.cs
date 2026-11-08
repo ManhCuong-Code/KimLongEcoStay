@@ -506,15 +506,27 @@ namespace KimLongEcoStay.CoreBusiness.Services
         {
             try
             {
-                var filePath = GetTokenFilePath();
-                var dir = Path.GetDirectoryName(filePath);
-                if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
-
                 var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(filePath, json);
+                var candidates = new[]
+                {
+                    Path.Combine(AppContext.BaseDirectory, "data", "gmail_token.json"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "data", "gmail_token.json"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "KimLongEcoStay", "data", "gmail_token.json")
+                };
+
+                foreach (var filePath in candidates)
+                {
+                    try
+                    {
+                        var dir = Path.GetDirectoryName(filePath);
+                        if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
+                        {
+                            Directory.CreateDirectory(dir);
+                        }
+                        File.WriteAllText(filePath, json);
+                    }
+                    catch { }
+                }
             }
             catch (Exception ex)
             {
