@@ -37,6 +37,7 @@ using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using System.IO;
+using System.Security.Cryptography;
 
 // 0. NẠP BIẾN MÔI TRƯỜNG TỪ FILE .env (BẢO MẬT TUYỆT ĐỐI API KEY & SQL CONNECTION)
 EnvConfigurationLoader.LoadDotEnv();
@@ -218,8 +219,55 @@ builder.Services.AddScoped<IFinancialRepository, KimLongEcoStay.DataStore.SQL.Da
 
 // 4. CORE SERVICES & USE CASES (PART 1, 2, 3, 4)
 var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>() ?? new EmailSettings();
+
+// Nạp các biến môi trường cho dịch vụ Email thật (Resend, SendGrid, SMTP)
+var envEmailApiKey = Environment.GetEnvironmentVariable("EMAIL_API_KEY")
+    ?? Environment.GetEnvironmentVariable("RESEND_API_KEY")
+    ?? Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
+if (!string.IsNullOrWhiteSpace(envEmailApiKey)) emailSettings.ApiKey = envEmailApiKey.Trim();
+
+var envEmailProvider = Environment.GetEnvironmentVariable("EMAIL_PROVIDER");
+if (!string.IsNullOrWhiteSpace(envEmailProvider)) emailSettings.Provider = envEmailProvider.Trim();
+
+var envEmailFrom = Environment.GetEnvironmentVariable("EMAIL_FROM") ?? Environment.GetEnvironmentVariable("MAIL_FROM");
+if (!string.IsNullOrWhiteSpace(envEmailFrom)) emailSettings.SenderEmail = envEmailFrom.Trim();
+
+var envEmailFromName = Environment.GetEnvironmentVariable("EMAIL_FROM_NAME");
+if (!string.IsNullOrWhiteSpace(envEmailFromName)) emailSettings.SenderName = envEmailFromName.Trim();
+
+var envAdminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+if (!string.IsNullOrWhiteSpace(envAdminEmail)) emailSettings.AdminEmail = envAdminEmail.Trim();
+
+var envSmtpPass = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+if (!string.IsNullOrWhiteSpace(envSmtpPass)) emailSettings.SenderPassword = envSmtpPass.Trim();
+
+// Google Gmail API OAuth 2.0 Credentials
+var envGmailClientId = Environment.GetEnvironmentVariable("GMAIL_CLIENT_ID");
+if (!string.IsNullOrWhiteSpace(envGmailClientId)) emailSettings.GmailClientId = envGmailClientId.Trim();
+
+var envGmailClientSecret = Environment.GetEnvironmentVariable("GMAIL_CLIENT_SECRET");
+if (!string.IsNullOrWhiteSpace(envGmailClientSecret)) emailSettings.GmailClientSecret = envGmailClientSecret.Trim();
+
+var envGmailRedirectUri = Environment.GetEnvironmentVariable("GMAIL_REDIRECT_URI");
+if (!string.IsNullOrWhiteSpace(envGmailRedirectUri)) emailSettings.GmailRedirectUri = envGmailRedirectUri.Trim();
+
+var envGmailSender = Environment.GetEnvironmentVariable("GMAIL_SENDER");
+if (!string.IsNullOrWhiteSpace(envGmailSender))
+{
+    emailSettings.GmailSender = envGmailSender.Trim();
+    if (string.IsNullOrWhiteSpace(envEmailFrom)) emailSettings.SenderEmail = envGmailSender.Trim();
+}
+
+var envGmailRefreshToken = Environment.GetEnvironmentVariable("GMAIL_REFRESH_TOKEN");
+if (!string.IsNullOrWhiteSpace(envGmailRefreshToken)) emailSettings.GmailRefreshToken = envGmailRefreshToken.Trim();
+
 builder.Services.AddSingleton(emailSettings);
-builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddHttpClient<IGmailService, GmailService>();
+builder.Services.AddSingleton<IGmailService>(sp =>
+    new GmailService(emailSettings, sp.GetRequiredService<IHttpClientFactory>().CreateClient()));
+builder.Services.AddHttpClient<IEmailService, EmailService>();
+builder.Services.AddSingleton<IEmailService>(sp =>
+    new EmailService(emailSettings, sp.GetRequiredService<IHttpClientFactory>().CreateClient(), sp.GetRequiredService<IGmailService>()));
 builder.Services.AddSingleton<IHomestayAiService, HomestayAiService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 
@@ -611,44 +659,76 @@ app.MapGet("/api/auth/me", (HttpContext context) =>
 // REST API Kiểm tra sức khỏe hệ thống (/api/health)
 app.MapGet("/api/health", async (TwoWaySqlSyncService syncService, AiAssistantGatewayService aiGateway, IWebHostEnvironment env) =>
 {
-    var sw = System.Diagnostics.Stopwatch.StartNew();
-    dynamic? diag = await syncService.TestConnectionAndGetDiagnosticsAsync();
-    sw.Stop();
-
-    bool isSqlOk = diag != null && (bool?)diag?.isConnected == true;
-    string serverName = isSqlOk ? (string?)diag?.serverName ?? "localhost\\SQLEXPRESS" : "Unavailable";
-    string dbName = isSqlOk ? (string?)diag?.databaseName ?? "KimLongEcoStayDB" : "KimLongEcoStayDB";
-    long ctVer = isSqlOk ? (long?)diag?.changeTrackingVersion ?? 0L : 0L;
-    int tableCount = isSqlOk ? (int?)diag?.trackedTablesCount ?? 0 : 0;
-    var aiStatus = aiGateway.GetStatus();
-
-    var healthReport = new
+    try
     {
-        status = isSqlOk ? "Healthy" : "Degraded",
-        timestamp = DateTime.UtcNow,
-        environment = env.EnvironmentName,
-        backend = "Online",
-        version = "v2.4.0-secured",
-        database = new
-        {
-            connected = isSqlOk,
-            serverName = serverName,
-            databaseName = dbName,
-            latencyMs = sw.ElapsedMilliseconds,
-            changeTrackingVersion = ctVer,
-            trackedTables = tableCount
-        },
-        aiGateway = aiStatus,
-        services = new
-        {
-            authentication = "Active (HttpOnly Cookie & RBAC)",
-            sqlTwoWaySync = isSqlOk ? "Active" : "Offline",
-            signalRHub = "Active (/hubs/ecostay-sync)",
-            smartLockCspRng = "Active"
-        }
-    };
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        dynamic? diag = await syncService.TestConnectionAndGetDiagnosticsAsync();
+        sw.Stop();
 
-    return isSqlOk ? Results.Ok(healthReport) : Results.Json(healthReport, statusCode: StatusCodes.Status503ServiceUnavailable);
+        bool isSqlOk = false;
+        try { isSqlOk = diag != null && (bool?)diag?.isConnected == true; } catch { }
+
+        string serverName = "Unavailable";
+        try { serverName = isSqlOk ? (string?)diag?.serverName ?? "localhost" : "Unavailable"; } catch { }
+
+        string dbName = "KimLongEcoStayDB";
+        try { dbName = (string?)diag?.databaseName ?? "KimLongEcoStayDB"; } catch { }
+
+        long ctVer = 0L;
+        try { ctVer = (long?)diag?.changeTrackingVersion ?? 0L; } catch { }
+
+        int tableCount = 0;
+        try { tableCount = (int?)diag?.trackedTablesCount ?? 0; } catch { }
+
+        var aiStatus = aiGateway.GetStatus();
+
+        var healthReport = new
+        {
+            status = isSqlOk ? "Healthy" : "Degraded",
+            timestamp = DateTime.UtcNow,
+            environment = env.EnvironmentName,
+            backend = "Online",
+            version = "v2.5.0-secured",
+            database = new
+            {
+                connected = isSqlOk,
+                serverName = serverName,
+                databaseName = dbName,
+                latencyMs = sw.ElapsedMilliseconds,
+                changeTrackingVersion = ctVer,
+                trackedTables = tableCount
+            },
+            aiGateway = aiStatus,
+            emailService = new
+            {
+                provider = emailSettings.Provider,
+                hasApiKey = !string.IsNullOrWhiteSpace(emailSettings.ApiKey),
+                sender = emailSettings.SenderEmail,
+                adminRecipient = emailSettings.AdminEmail
+            },
+            services = new
+            {
+                authentication = "Active (HttpOnly Cookie & RBAC)",
+                sqlTwoWaySync = isSqlOk ? "Active" : "Offline",
+                signalRHub = "Active (/hubs/ecostay-sync)",
+                smartLockCspRng = "Active",
+                httpsEmailEngine = "Active"
+            }
+        };
+
+        return Results.Ok(healthReport);
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new
+        {
+            status = "Degraded",
+            timestamp = DateTime.UtcNow,
+            backend = "Online",
+            version = "v2.5.0-secured",
+            error = ex.Message
+        });
+    }
 });
 
 // REST API Đăng nhập mô phỏng phục vụ Development (Chặn 100% trên Production)
@@ -830,12 +910,57 @@ app.MapGet("/api/public/catalog", async (TwoWaySqlSyncService syncService) =>
 });
 
 // 2. Tiếp nhận đơn đặt phòng công khai (Trạng thái PENDING_DEPOSIT, chưa cấp PIN)
-app.MapPost("/api/public/bookings", async (HttpContext context, TwoWaySqlSyncService syncService) =>
+app.MapPost("/api/public/bookings", async (HttpContext context, TwoWaySqlSyncService syncService, IEmailService emailService) =>
 {
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
-        var res = await syncService.UpsertBookingAsync(doc.RootElement, "OnlineGuest");
+        var root = doc.RootElement;
+        var res = await syncService.UpsertBookingAsync(root, "OnlineGuest");
+
+        // Parse booking info for email dispatch
+        string orderCode = root.TryGetProperty("orderCode", out var ocp) ? (ocp.GetString() ?? "").Trim() : "";
+        string guestName = root.TryGetProperty("name", out var np) ? (np.GetString() ?? "Quý Khách").Trim() : "Quý Khách";
+        string guestPhone = root.TryGetProperty("phone", out var php) ? (php.GetString() ?? "").Trim() : "";
+        string guestEmail = root.TryGetProperty("email", out var ep) ? (ep.GetString() ?? "").Trim() : "";
+        string roomName = root.TryGetProperty("roomName", out var rnp) ? (rnp.GetString() ?? "Eco-Nest Ban Mai").Trim() : "Eco-Nest Ban Mai";
+        decimal total = root.TryGetProperty("totalPrice", out var tp) && tp.TryGetDecimal(out var tpd) ? tpd : 780000;
+        decimal deposit = root.TryGetProperty("depositRequired", out var dp) && dp.TryGetDecimal(out var dpd) ? dpd : Math.Round(total * 0.5m, 0);
+
+        string checkInStr = root.TryGetProperty("checkIn", out var cip) ? (cip.GetString() ?? "") : "";
+        string checkOutStr = root.TryGetProperty("checkOut", out var cop) ? (cop.GetString() ?? "") : "";
+        DateTime checkIn = DateTime.TryParse(checkInStr, out var cidt) ? cidt : DateTime.Today;
+        DateTime checkOut = DateTime.TryParse(checkOutStr, out var codt) ? codt : DateTime.Today.AddDays(1);
+
+        var order = new Order
+        {
+            UniqueId = orderCode,
+            CustomerName = guestName,
+            CustomerEmail = guestEmail,
+            CustomerAddress = guestPhone,
+            DatePlaced = checkIn,
+            DateProcessed = checkOut
+        };
+        order.AddProduct(1, 1, (double)total);
+
+        string transferCode = $"KLE {orderCode.Replace("-", "")} COC50";
+        string vietQrUrl = $"https://api.vietqr.io/image/970422-0905123456-compact2.png?amount={deposit}&addInfo={Uri.EscapeDataString(transferCode)}&accountName=KIM%20LONG%20ECOSTAY";
+
+        // Gửi email tiếp nhận kèm VietQR cho khách
+        if (!string.IsNullOrWhiteSpace(guestEmail))
+        {
+            _ = Task.Run(async () =>
+            {
+                try { await emailService.SendBookingRequestReceivedEmailAsync(order, roomName, deposit, vietQrUrl); } catch { }
+            });
+        }
+
+        // Gửi email thông báo cho Admin
+        _ = Task.Run(async () =>
+        {
+            try { await emailService.SendAdminNewBookingAlertEmailAsync(order, roomName, deposit); } catch { }
+        });
+
         return Results.Ok(res);
     }
     catch (Exception ex)
@@ -1343,7 +1468,7 @@ app.MapPost("/api/sync/bookings", async (HttpContext context, TwoWaySqlSyncServi
     }
 }).DisableAntiforgery();
 
-app.MapPost("/api/sync/bookings/{orderCode}/reconcile", async (string orderCode, HttpContext context, TwoWaySqlSyncService syncService) =>
+app.MapPost("/api/sync/bookings/{orderCode}/reconcile", async (string orderCode, HttpContext context, TwoWaySqlSyncService syncService, IEmailService emailService) =>
 {
     var authCheck = AuthorizeRole(context, "Admin", "Staff", "Accountant");
     if (authCheck != null) return authCheck;
@@ -1351,15 +1476,417 @@ app.MapPost("/api/sync/bookings/{orderCode}/reconcile", async (string orderCode,
     try
     {
         using var doc = await JsonDocument.ParseAsync(context.Request.Body);
-        string status = doc.RootElement.TryGetProperty("status", out var sp) ? (sp.GetString() ?? "CONFIRMED") : "CONFIRMED";
+        var root = doc.RootElement;
+        string status = root.TryGetProperty("status", out var sp) ? (sp.GetString() ?? "CONFIRMED") : "CONFIRMED";
         string actor = context.User.Identity?.Name ?? "Kế Toán / Lễ Tân";
-        var res = await syncService.ReconcileBookingAsync(orderCode, status, actor);
+        dynamic res = await syncService.ReconcileBookingAsync(orderCode, status, actor);
+
+        string? generatedPin = null;
+        try { generatedPin = (string?)res?.oneTimePin; } catch { }
+
+        // Nếu đối soát cọc thành công (CONFIRMED) và có mã PIN được cấp
+        if (status.Equals("CONFIRMED", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(generatedPin))
+        {
+            string guestName = root.TryGetProperty("guestName", out var gnp) ? (gnp.GetString() ?? "").Trim() : "";
+            string guestEmail = root.TryGetProperty("guestEmail", out var gep) ? (gep.GetString() ?? "").Trim() : "";
+            string roomName = root.TryGetProperty("roomName", out var rnp) ? (rnp.GetString() ?? "").Trim() : "";
+            string checkInStr = root.TryGetProperty("checkIn", out var cip) ? (cip.GetString() ?? "") : "";
+            string checkOutStr = root.TryGetProperty("checkOut", out var cop) ? (cop.GetString() ?? "") : "";
+
+            DateTime checkIn = DateTime.TryParse(checkInStr, out var cid) ? cid : DateTime.Today;
+            DateTime checkOut = DateTime.TryParse(checkOutStr, out var cod) ? cod : DateTime.Today.AddDays(1);
+
+            if (string.IsNullOrWhiteSpace(guestName)) guestName = "Quý Khách";
+            if (string.IsNullOrWhiteSpace(roomName)) roomName = "Phòng Lưu Trú Kim Long EcoStay";
+
+            if (!string.IsNullOrWhiteSpace(guestEmail))
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await emailService.SendSmartLockPinEmailAsync(
+                            guestName,
+                            guestEmail,
+                            orderCode,
+                            roomName,
+                            generatedPin,
+                            checkIn,
+                            checkOut);
+                    }
+                    catch { }
+                });
+            }
+
+            // Gửi bản sao thông báo tới Admin
+            if (!string.IsNullOrWhiteSpace(emailSettings.AdminEmail) && !emailSettings.AdminEmail.Equals(guestEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await emailService.SendEmailAsync(
+                            emailSettings.AdminEmail,
+                            $"[KLE RECONCILE] Đã Đối Soát Cọc Đơn #{orderCode} & Cấp Mã PIN Thành Công",
+                            $"<h3>Đối Soát Cọc Thành Công #{orderCode}</h3><p><strong>Khách:</strong> {guestName} ({guestEmail})</p><p><strong>Phòng:</strong> {roomName}</p><p><strong>Mã PIN cấp:</strong> {generatedPin}</p><p><strong>Người duyệt:</strong> {actor}</p>",
+                            EmailTemplateType.DEPOSIT_CONFIRMED,
+                            orderCode);
+                    }
+                    catch { }
+                });
+            }
+        }
+
         return Results.Ok(res);
     }
     catch (Exception ex)
     {
         return Results.BadRequest(new { success = false, error = ex.Message });
     }
+}).DisableAntiforgery();
+
+// =========================================================================
+// 6D. API CÔNG KHAI: ĐẶT DỊCH VỤ TRÀ CUNG ĐÌNH, GIAO PHÒNG & LIÊN HỆ
+// =========================================================================
+
+// 1. Đặt lịch trải nghiệm trà Cung Đình Huế công khai
+app.MapPost("/api/public/tea-booking", async (HttpContext context, IEmailService emailService, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        var root = doc.RootElement;
+        string bookingCode = root.TryGetProperty("bookingCode", out var bcp) ? (bcp.GetString() ?? "").Trim() : "";
+        if (string.IsNullOrWhiteSpace(bookingCode))
+            bookingCode = $"TEA-{DateTime.UtcNow:yyyyMMdd}-{RandomNumberGenerator.GetInt32(1000, 9999)}";
+
+        string serviceCode = root.TryGetProperty("serviceCode", out var scp) ? (scp.GetString() ?? "TEA-HOMESTAY") : "TEA-HOMESTAY";
+        string serviceName = root.TryGetProperty("serviceName", out var snp) ? (snp.GetString() ?? "Thưởng Trà Cung Đình Tại Homestay") : "Thưởng Trà Cung Đình Tại Homestay";
+        string customerName = root.TryGetProperty("customerName", out var cnp) ? (cnp.GetString() ?? "Quý Khách").Trim() : "Quý Khách";
+        string phone = root.TryGetProperty("phone", out var php) ? (php.GetString() ?? "").Trim() : "";
+        string email = root.TryGetProperty("email", out var emp) ? (emp.GetString() ?? "").Trim() : "";
+        string dateStr = root.TryGetProperty("date", out var dp) ? (dp.GetString() ?? "") : "";
+        DateTime bookingDate = DateTime.TryParse(dateStr, out var bdt) ? bdt.Date : DateTime.Today.AddDays(1);
+        string timeSlot = root.TryGetProperty("timeSlot", out var tsp) ? (tsp.GetString() ?? "15:30 - 16:30") : "15:30 - 16:30";
+        int guests = root.TryGetProperty("guests", out var gp) && gp.TryGetInt32(out var gi) ? gi : 2;
+        decimal total = root.TryGetProperty("total", out var tp) && tp.TryGetDecimal(out var td) ? td : 170000;
+        string notes = root.TryGetProperty("notes", out var ntp) ? (ntp.GetString() ?? "") : "";
+
+        var req = new TeaBookingRequest
+        {
+            BookingCode = bookingCode,
+            TeaServiceName = serviceName,
+            CustomerName = customerName,
+            CustomerPhone = phone,
+            CustomerEmail = email,
+            BookingDate = bookingDate,
+            TimeSlot = timeSlot,
+            NumberOfGuests = guests,
+            TotalAmount = total,
+            Notes = notes,
+            Status = "PENDING_CONFIRMATION"
+        };
+
+        // Gửi email thật cho khách và cho Admin
+        var guestResult = await emailService.SendTeaBookingEmailAsync(req);
+        var adminResult = await emailService.SendAdminTeaBookingAlertEmailAsync(req);
+
+        return Results.Ok(new
+        {
+            success = true,
+            bookingCode = bookingCode,
+            message = "Tiếp nhận đặt lịch trải nghiệm trà Cung Đình thành công! Lễ tân sẽ liên hệ xác nhận bàn trà.",
+            emailSent = guestResult.IsSuccess,
+            adminNotified = adminResult.IsSuccess
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// 2. Đơn hàng ẩm thực & đặc sản giao tận buồng phòng
+app.MapPost("/api/public/room-delivery", async (HttpContext context, IEmailService emailService, TwoWaySqlSyncService syncService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        var root = doc.RootElement;
+        string orderCode = root.TryGetProperty("orderCode", out var ocp) ? (ocp.GetString() ?? "").Trim() : "";
+        if (string.IsNullOrWhiteSpace(orderCode))
+            orderCode = $"KLE-DELIV-{DateTime.UtcNow:yyyyMMdd}-{RandomNumberGenerator.GetInt32(100, 999)}";
+
+        string customerName = root.TryGetProperty("customerName", out var cnp) ? (cnp.GetString() ?? "Quý Khách").Trim() : "Quý Khách";
+        string phone = root.TryGetProperty("phone", out var php) ? (php.GetString() ?? "").Trim() : "";
+        string email = root.TryGetProperty("email", out var emp) ? (emp.GetString() ?? "").Trim() : "";
+        string roomName = root.TryGetProperty("roomName", out var rnp) ? (rnp.GetString() ?? "Phòng Lưu Trú").Trim() : "Phòng Lưu Trú";
+        string deliveryMethod = root.TryGetProperty("deliveryMethod", out var dmp) ? (dmp.GetString() ?? "ROOM_DELIVERY") : "ROOM_DELIVERY";
+        decimal total = root.TryGetProperty("total", out var tp) && tp.TryGetDecimal(out var td) ? td : 0;
+        string paymentMethod = root.TryGetProperty("paymentMethod", out var pmp) ? (pmp.GetString() ?? "VIETQR") : "VIETQR";
+        string notes = root.TryGetProperty("serviceNotes", out var snp) ? (snp.GetString() ?? "") : "";
+
+        var order = new Order
+        {
+            UniqueId = orderCode,
+            CustomerName = customerName,
+            CustomerEmail = email,
+            CustomerAddress = $"{phone} ({roomName})",
+            DatePlaced = DateTime.Now
+        };
+        order.AddProduct(1, 1, (double)total);
+
+        // Gửi email cho khách
+        var guestResult = await emailService.SendSpecialtyOrderEmailAsync(order, 0);
+
+        // Thông báo cho admin
+        if (!string.IsNullOrWhiteSpace(emailSettings.AdminEmail))
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await emailService.SendEmailAsync(
+                        emailSettings.AdminEmail,
+                        $"[KLE ORDER] Đơn Ẩm Thực Giao Phòng #{orderCode} - {customerName} ({roomName})",
+                        $"<h3>Đơn Hàng Giao Phòng Mới #{orderCode}</h3><p><strong>Khách:</strong> {customerName} - {phone}</p><p><strong>Phòng:</strong> {roomName}</p><p><strong>Tổng tiền:</strong> {total:N0} VNĐ</p><p><strong>PTTT:</strong> {paymentMethod}</p><p><strong>Ghi chú:</strong> {notes}</p>",
+                        EmailTemplateType.SPECIALTY_ORDER_CONFIRMED,
+                        orderCode);
+                }
+                catch { }
+            });
+        }
+
+        // Trạng thái thanh toán ban đầu: Nếu VietQR thì Đang chờ xác nhận thanh toán (không tự động đánh dấu PAID)
+        string initialStatus = paymentMethod.Equals("VIETQR", StringComparison.OrdinalIgnoreCase) ? "WAITING_CONFIRMATION" : "PENDING";
+
+        return Results.Ok(new
+        {
+            success = true,
+            orderCode,
+            status = initialStatus,
+            message = "Đã tiếp nhận đơn hàng ẩm thực và giao phòng! Bếp đang chuẩn bị món nóng.",
+            emailSent = guestResult.IsSuccess
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// 3. Tiếp nhận thư liên hệ và hỏi đáp từ khách
+app.MapPost("/api/public/contact", async (HttpContext context, IEmailService emailService) =>
+{
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        var root = doc.RootElement;
+        string name = root.TryGetProperty("name", out var np) ? (np.GetString() ?? "").Trim() : "";
+        string email = root.TryGetProperty("email", out var ep) ? (ep.GetString() ?? "").Trim() : "";
+        string phone = root.TryGetProperty("phone", out var pp) ? (pp.GetString() ?? "").Trim() : "";
+        string subject = root.TryGetProperty("subject", out var sp) ? (sp.GetString() ?? "Liên hệ tư vấn Kim Long EcoStay").Trim() : "Liên hệ tư vấn Kim Long EcoStay";
+        string message = root.TryGetProperty("message", out var mp) ? (mp.GetString() ?? "").Trim() : "";
+
+        if (string.IsNullOrWhiteSpace(name) || (string.IsNullOrWhiteSpace(email) && string.IsNullOrWhiteSpace(phone)))
+        {
+            return Results.BadRequest(new { success = false, message = "Vui lòng nhập Họ tên và ít nhất một phương thức liên hệ (Email hoặc SĐT)." });
+        }
+
+        var guestRes = await emailService.SendCustomerContactConfirmedEmailAsync(name, email, subject, message);
+        var adminRes = await emailService.SendAdminNewContactAlertEmailAsync(name, email, phone, subject, message);
+
+        return Results.Ok(new
+        {
+            success = true,
+            message = "Gửi thông tin liên hệ thành công. Kim Long EcoStay sẽ phản hồi quý khách sớm nhất!",
+            guestEmailSent = guestRes.IsSuccess,
+            adminEmailSent = adminRes.IsSuccess
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// 4. Danh sách các gói trải nghiệm trà Cung Đình
+app.MapGet("/api/public/tea-services", () =>
+{
+    return Results.Ok(new[]
+    {
+        new { code = "TEA-HOMESTAY", name = "Thưởng Trà Cung Đình Tại Homestay", price = 85000, priceType = "người", maxCapacity = 8, schedule = "08:30 • 15:30 • 19:30" },
+        new { code = "TEA-CAKES", name = "Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế", price = 135000, priceType = "người", maxCapacity = 12, schedule = "09:00 • 15:00" },
+        new { code = "TEA-COUPLE", name = "Gói Thưởng Trà Cặp Đôi & Nhóm Bạn", price = 250000, priceType = "gói", maxCapacity = 4, schedule = "Theo yêu cầu hẹn trước" },
+        new { code = "TEA-CULTURE", name = "Gói Trải Nghiệm Văn Hóa Huế Kết Hợp Giới Thiệu Trà", price = 390000, priceType = "gói", maxCapacity = 6, schedule = "15:30 - 17:00 hàng ngày" }
+    });
+});
+
+// 5. Endpoint kiểm thử gửi email thật (dành cho Admin / Lễ tân)
+app.MapPost("/api/admin/email/test", async (HttpContext context, IEmailService emailService) =>
+{
+    try
+    {
+        string targetEmail = "";
+        if (context.Request.ContentLength > 0)
+        {
+            using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+            targetEmail = doc.RootElement.TryGetProperty("recipientEmail", out var rp) ? (rp.GetString() ?? "").Trim() : "";
+        }
+        if (string.IsNullOrWhiteSpace(targetEmail))
+            targetEmail = !string.IsNullOrWhiteSpace(emailSettings.AdminEmail) ? emailSettings.AdminEmail : "titanio741@gmail.com";
+
+        string testPin = RandomNumberGenerator.GetInt32(100000, 1000000).ToString("D6");
+        var res = await emailService.SendSmartLockPinEmailAsync(
+            "Quản Trị Viên (Thử Nghiệm Gửi Email)",
+            targetEmail,
+            "TEST-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss"),
+            "Eco-Nest Ban Mai (KLE-R101)",
+            testPin,
+            DateTime.Today,
+            DateTime.Today.AddDays(2));
+
+        return Results.Ok(new
+        {
+            success = res.IsSuccess,
+            provider = res.ProviderUsed,
+            recipient = targetEmail,
+            statusMessage = res.StatusMessage,
+            errorDetails = res.ErrorDetails,
+            testPin = "••••••",
+            sentAt = res.SentAt
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// =========================================================================
+// GOOGLE GMAIL API v1 & OAUTH 2.0 WEB SERVER FLOW ENDPOINTS
+// =========================================================================
+
+// 5.1. Khởi tạo quy trình cấp quyền OAuth 2.0 với Google
+app.MapGet("/api/admin/gmail/connect", (HttpContext context, IGmailService gmailService) =>
+{
+    try
+    {
+        if (!gmailService.IsConfigured)
+        {
+            return Results.BadRequest(new { success = false, error = "Chưa cấu hình GMAIL_CLIENT_ID hoặc GMAIL_CLIENT_SECRET trong biến môi trường hoặc .env." });
+        }
+
+        string state = gmailService.CreateCsrfState();
+        string redirectUri = !string.IsNullOrWhiteSpace(emailSettings.GmailRedirectUri)
+            ? emailSettings.GmailRedirectUri
+            : $"{context.Request.Scheme}://{context.Request.Host}/api/admin/gmail/oauth2callback";
+
+        string authUrl = gmailService.GetAuthorizationUrl(redirectUri, state);
+        return Results.Redirect(authUrl);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(detail: ex.Message, title: "Lỗi tạo đường dẫn ủy quyền Google OAuth");
+    }
+});
+
+// 5.2. Callback nhận Authorization Code từ Google và đổi lấy Access/Refresh Token
+app.MapGet("/api/admin/gmail/oauth2callback", async (HttpContext context, IGmailService gmailService) =>
+{
+    string? error = context.Request.Query["error"];
+    if (!string.IsNullOrWhiteSpace(error))
+    {
+        string desc = context.Request.Query["error_description"].ToString();
+        if (string.IsNullOrWhiteSpace(desc)) desc = error;
+        return Results.Redirect($"/admin?tab=emaillogs&gmail_error={Uri.EscapeDataString(desc)}");
+    }
+
+    string? state = context.Request.Query["state"];
+    if (string.IsNullOrWhiteSpace(state) || !gmailService.ValidateCsrfState(state))
+    {
+        return Results.Redirect("/admin?tab=emaillogs&gmail_error=" + Uri.EscapeDataString("Mã bảo mật CSRF state không hợp lệ hoặc đã hết hạn. Vui lòng thử bấm 'Kết nối' lại."));
+    }
+
+    string? code = context.Request.Query["code"];
+    if (string.IsNullOrWhiteSpace(code))
+    {
+        return Results.Redirect("/admin?tab=emaillogs&gmail_error=" + Uri.EscapeDataString("Không nhận được authorization code từ Google OAuth."));
+    }
+
+    string redirectUri = !string.IsNullOrWhiteSpace(emailSettings.GmailRedirectUri)
+        ? emailSettings.GmailRedirectUri
+        : $"{context.Request.Scheme}://{context.Request.Host}/api/admin/gmail/oauth2callback";
+
+    var result = await gmailService.ExchangeCodeForTokenAsync(code, redirectUri);
+    if (result.Success)
+    {
+        return Results.Redirect("/admin?tab=emaillogs&gmail_status=connected");
+    }
+    else
+    {
+        return Results.Redirect($"/admin?tab=emaillogs&gmail_error={Uri.EscapeDataString(result.Message)}");
+    }
+});
+
+// 5.3. Trạng thái kết nối Google Gmail API
+app.MapGet("/api/admin/gmail/status", (IGmailService gmailService) =>
+{
+    return Results.Ok(gmailService.GetConnectionStatus());
+});
+
+// 5.4. Thử nghiệm gửi email thực tế qua Gmail API
+app.MapPost("/api/admin/gmail/test", async (HttpContext context, IEmailService emailService, IGmailService gmailService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin", "Staff");
+    if (authCheck != null) return authCheck;
+
+    try
+    {
+        string targetEmail = "";
+        if (context.Request.ContentLength > 0)
+        {
+            using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+            targetEmail = doc.RootElement.TryGetProperty("recipientEmail", out var rp) ? (rp.GetString() ?? "").Trim() : "";
+        }
+        if (string.IsNullOrWhiteSpace(targetEmail))
+            targetEmail = gmailService.SenderEmail;
+
+        string testPin = RandomNumberGenerator.GetInt32(100000, 1000000).ToString("D6");
+        var res = await emailService.SendSmartLockPinEmailAsync(
+            "Quản Trị Viên (Thử Nghiệm Gmail API)",
+            targetEmail,
+            "GMAIL-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss"),
+            "Eco-Nest Ban Mai (KLE-R101)",
+            testPin,
+            DateTime.Today,
+            DateTime.Today.AddDays(2));
+
+        return Results.Ok(new
+        {
+            success = res.IsSuccess,
+            provider = res.ProviderUsed,
+            recipient = targetEmail,
+            statusMessage = res.StatusMessage,
+            errorDetails = res.ErrorDetails,
+            testPin = "••••••",
+            sentAt = res.SentAt
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, error = ex.Message });
+    }
+}).DisableAntiforgery();
+
+// 5.5. Ngắt kết nối tài khoản Google Gmail
+app.MapPost("/api/admin/gmail/disconnect", (HttpContext context, IGmailService gmailService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin");
+    if (authCheck != null) return authCheck;
+
+    gmailService.Disconnect();
+    return Results.Ok(new { success = true, message = "Đã ngắt kết nối Gmail API thành công." });
 }).DisableAntiforgery();
 
 // Đơn Giao Tận Phòng
@@ -1464,8 +1991,8 @@ app.MapGet("/api/email-logs", (IEmailService emailService) =>
 app.MapPost("/api/email-logs/retry/{logId}", async (string logId, IEmailService emailService) =>
 {
     var result = await emailService.RetryEmailAsync(logId);
-    return result.IsSuccess 
-        ? Results.Ok(new { success = true, message = $"Đã kích hoạt gửi lại email {logId}" }) 
+    return result.IsSuccess
+        ? Results.Ok(new { success = true, message = $"Đã kích hoạt gửi lại email {logId}" })
         : Results.NotFound(new { success = false, message = !string.IsNullOrEmpty(result.ErrorDetails) ? result.ErrorDetails : result.StatusMessage });
 }).RequireAuthorization("StaffOnly");
 
@@ -1507,7 +2034,7 @@ app.MapPost("/api/webhook/payment", async (HttpContext context, IEmailService em
         // Tự động kích hoạt email xác nhận tương ứng
         if (type.Equals("DEPOSIT_50", StringComparison.OrdinalIgnoreCase))
         {
-            string pin = new Random().Next(100000, 999999).ToString();
+            string pin = RandomNumberGenerator.GetInt32(100000, 1000000).ToString("D6");
             await emailService.SendDepositConfirmedEmailAsync(dummyOrder, pin, "Phòng Sinh Thái Kim Long", amount, amount);
         }
         else if (type.Equals("REMAINING_BALANCE", StringComparison.OrdinalIgnoreCase))

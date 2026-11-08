@@ -1,0 +1,76 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
+
+<!-- =========================================================================
+     MỤC 3: MẠNG LƯỚI ĐỐI TÁC ĐỊA PHƯƠNG KIM LONG (LOCAL PARTNERS DIRECTORY)
+     ID: local-partners
+     ========================================================================= -->
+<div id="local-partners" class="mb-5 pt-4" style="scroll-margin-top: 96px; padding-top: 30px;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 bg-white p-3 p-md-4 rounded-4 border shadow-sm">
+            <div>
+                <span class="badge rounded-pill px-3 py-1 mb-2 text-white" style="background: #15803D; font-size: 11.5px; letter-spacing: 0.5px;">
+                    <i class="bi bi-diagram-3-fill me-1"></i>MẠNG LƯỚI ĐỐI TÁC ĐỊA PHƯƠNG KIM LONG
+                </span>
+                <h3 class="font-serif fw-bold text-dark mb-1" style="font-size: 24px;">
+                    Danh Sách Nhà Vườn, Quán Ăn, Cơ Sở Đặc Sản &amp; Điểm Trải Nghiệm Liên Kết
+                </h3>
+                <p class="text-muted small mb-0">
+                    Khám phá 10 đối tác bản địa uy tín kết nối trực tiếp với Kim Long EcoStay. Quý khách có thể xem giới thiệu, danh mục sản phẩm cung cấp hoặc định vị vị trí trên bản đồ di sản.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge bg-warning bg-opacity-25 text-dark border border-warning rounded-pill px-3 py-2">
+                    <i class="bi bi-check-circle-fill text-success me-1"></i>100% Đối Tác Bản Địa Xác Thực
+                </span>
+                <a href="#specialties" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="window.scrollToSection('specialties'); return false;">
+                    <i class="bi bi-basket2-fill me-1"></i>Xem Tất Cả Sản Phẩm
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4" id="partnerDirectoryGrid">
+            <!-- 10 Thẻ đối tác được hiển thị đầy đủ -->
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     MODAL CHI TIẾT ĐỐI TÁC LIÊN KẾT (PARTNER DETAIL MODAL)
+     ========================================================================= -->
+<div class="modal fade" id="partnerDetailModal" tabindex="-1" aria-labelledby="partnerDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #14452F, #0E5E45);">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shop fs-4 text-warning"></i>
+                    <div>
+                        <h5 class="modal-title font-serif fw-bold mb-0" id="partnerDetailModalName">Chi Tiết Đối Tác Liên Kết</h5>
+                        <small class="text-light opacity-75" id="partnerDetailModalCategory">Mạng lưới nhà vườn &amp; đặc sản Kim Long</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-4" id="partnerDetailModalBody">
+                <!-- Nội dung đối tác và các sản phẩm liên kết cập nhật động -->
+            </div>
+            <div class="modal-footer bg-light border-top d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                <div class="d-flex gap-2">
+                    <a href="tel:0905123456" id="partnerDetailModalCallBtn" class="btn btn-outline-success rounded-pill px-3">
+                        <i class="bi bi-telephone-fill me-1"></i>Gọi Đối Tác
+                    </a>
+                    <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" id="partnerDetailModalViewProdsBtn">
+                        <i class="bi bi-basket2-fill me-1"></i>Xem Sản Phẩm Của Đối Tác
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Component lifecycle
+}

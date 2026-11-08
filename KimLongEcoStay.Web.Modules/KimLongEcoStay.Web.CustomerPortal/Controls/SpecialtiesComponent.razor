@@ -1,0 +1,252 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
+
+<!-- =========================================================================
+     MỤC 1: SẢN PHẨM & ĐẶC SẢN KIM LONG (SPECIALTIES & ROOM DELIVERY)
+     ID: specialties
+     ========================================================================= -->
+<div class="specialty-section mt-5" id="specialties" style="scroll-margin-top: 96px; padding-top: 30px;">
+    <div class="container">
+        <div class="section-heading-wrap text-center mb-4">
+            <span class="section-tag" style="background: rgba(184, 134, 11, 0.15); color: #B8860B; padding: 6px 18px; border-radius: 30px; font-weight: 700; font-size: 12px; letter-spacing: 1px;">
+                <i class="bi bi-basket2-fill me-1"></i>SẢN PHẨM NHÀ VƯỜN, ĐẶC SẢN &amp; GIAO TẬN PHÒNG
+            </span>
+            <h2 class="section-main-title font-serif fw-bold text-dark mt-2 mb-2" style="font-size: 32px;">
+                Cửa Hàng Đặc Sản &amp; Ẩm Thực Phục Vụ Tận Phòng
+            </h2>
+            <p class="section-main-sub mx-auto text-muted" style="max-width: 860px; font-size: 15px; line-height: 1.7;">
+                Bộ sưu tập 30 sản phẩm phong phú từ mạng lưới nhà vườn Kim Long: <strong>A. Đặc sản Huế</strong>, <strong>B. Sản phẩm nhà vườn</strong>, <strong>C. Đồ uống và trà</strong>, <strong>D. Ẩm thực Huế (giao tận phòng trong 15-30 phút)</strong> và <strong>E. Quà lưu niệm &amp; trải nghiệm</strong>.
+                <span class="d-block small text-secondary mt-1"><i class="bi bi-info-circle me-1 text-warning"></i>Khách lưu trú tại Kim Long EcoStay có thể đặt món trực tiếp giao tận cửa buồng phòng!</span>
+            </p>
+
+            <!-- Thanh tìm kiếm, lọc danh mục, lọc đối tác, khoảng giá và sắp xếp -->
+            <div class="bg-white p-3 p-md-4 rounded-4 shadow-sm border mt-4 text-start">
+                <div class="row g-3 align-items-center">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                            <input type="text" id="specialtySearchInput" class="form-control bg-light border-start-0 py-2" placeholder="Tìm mứt gừng, bưởi, bún bò, trà sen..." oninput="window.filterSpecialties()" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small text-muted fw-bold text-nowrap"><i class="bi bi-shop text-success me-1"></i>Đối tác:</label>
+                            <select id="specialtyPartnerSelect" class="form-select form-select-sm rounded-pill" onchange="window.filterSpecialties()">
+                                <option value="ALL">Tất cả đối tác cung cấp</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small text-muted fw-bold text-nowrap"><i class="bi bi-tag-fill text-warning me-1"></i>Mức giá:</label>
+                            <select id="specialtyPriceFilter" class="form-select form-select-sm rounded-pill" onchange="window.filterSpecialties()">
+                                <option value="ALL">Mọi mức giá</option>
+                                <option value="under50">Dưới 50.000 đ</option>
+                                <option value="50to100">50.000 đ - 100.000 đ</option>
+                                <option value="100to200">100.000 đ - 200.000 đ</option>
+                                <option value="above200">Trên 200.000 đ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="d-flex align-items-center justify-content-lg-end gap-2">
+                            <label class="small text-muted fw-bold text-nowrap"><i class="bi bi-sort-down me-1"></i>Sắp xếp:</label>
+                            <select id="specialtySortSelect" class="form-select form-select-sm rounded-pill" onchange="window.filterSpecialties()">
+                                <option value="featured">Nổi bật nhất</option>
+                                <option value="price-asc">Giá bán: Thấp đến Cao</option>
+                                <option value="price-desc">Giá bán: Cao đến Thấp</option>
+                                <option value="name-asc">Tên sản phẩm: A - Z</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 pt-2 border-top">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex gap-2 flex-wrap" id="specialtyCatFilters">
+                                <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold kle-spec-filter-btn active" onclick="window.setSpecialtyCategory('ALL', this)">
+                                    <i class="bi bi-grid-fill me-1"></i>Tất Cả (30)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="window.setSpecialtyCategory('Đặc sản Huế', this)">
+                                    <i class="bi bi-gift-fill me-1 text-danger"></i>A. Đặc Sản Huế
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="window.setSpecialtyCategory('Sản phẩm nhà vườn', this)">
+                                    <i class="bi bi-tree-fill me-1 text-success"></i>B. Nông Sản Nhà Vườn
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="window.setSpecialtyCategory('Đồ uống và trà', this)">
+                                    <i class="bi bi-cup-hot-fill me-1 text-warning"></i>C. Trà &amp; Đồ Uống
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="window.setSpecialtyCategory('Ẩm thực Huế', this)">
+                                    <i class="bi bi-egg-fried me-1 text-danger"></i>D. Ẩm Thực Giao Phòng
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold kle-spec-filter-btn" onclick="window.setSpecialtyCategory('Quà lưu niệm', this)">
+                                    <i class="bi bi-stars me-1 text-info"></i>E. Quà Lưu Niệm
+                                </button>
+                            </div>
+                            <div class="small text-muted" id="specialtyResultsCount">
+                                Hiển thị <strong>30</strong> sản phẩm
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lưới sản phẩm & đặc sản -->
+        <div class="row g-4" id="specialtiesGrid">
+            <!-- Nội dung 30 thẻ sản phẩm được render tự động qua JavaScript -->
+        </div>
+
+        <!-- Phân trang danh mục sản phẩm -->
+        <div class="d-flex justify-content-center align-items-center gap-2 mt-4" id="specialtiesPagination">
+            <!-- Nút phân trang tự động tạo -->
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     MODAL CHI TIẾT SẢN PHẨM & ĐẶC SẢN (PRODUCT DETAIL MODAL)
+     ========================================================================= -->
+<div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #14452F, #0E5E45);">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-basket2-fill fs-4 text-warning"></i>
+                    <div>
+                        <h5 class="modal-title font-serif fw-bold mb-0" id="productDetailModalTitle">Chi Tiết Sản Phẩm &amp; Đặc Sản</h5>
+                        <small class="text-light opacity-75" id="productDetailModalCategory">Sản phẩm nhà vườn Kim Long</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-4" id="productDetailModalBody">
+                <!-- Nội dung cập nhật động qua JavaScript -->
+            </div>
+            <div class="modal-footer bg-light border-top d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-success rounded-pill px-3" id="productDetailCartBtn">
+                        <i class="bi bi-cart-plus me-1"></i>Thêm Vào Giỏ
+                    </button>
+                    <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" id="productDetailDeliverBtn">
+                        <i class="bi bi-box-seam me-1"></i>Đặt Giao Tận Phòng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     MODAL ĐẶT GIAO TẬN BUỒNG PHÒNG (ROOM DELIVERY MODAL)
+     ========================================================================= -->
+<div class="modal fade" id="roomDeliveryModal" tabindex="-1" aria-labelledby="roomDeliveryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #14452F, #0E5E45);">
+                <div>
+                    <h5 class="modal-title font-serif fw-bold mb-0" id="roomDeliveryModalLabel">
+                        <i class="bi bi-bell-fill me-2 text-warning"></i>Đặt Ẩm Thực &amp; Đặc Sản Giao Tận Phòng
+                    </h5>
+                    <small class="text-light opacity-75">Phục vụ nóng hổi trong 15 - 30 phút</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <form onsubmit="window.handleRoomDeliverySubmit(event)">
+                <div class="modal-body p-4">
+                    <input type="hidden" id="deliveryProductId" value="" />
+                    <input type="hidden" id="deliveryProductName" value="" />
+                    <input type="hidden" id="deliveryUnitPrice" value="0" />
+
+                    <!-- Tóm tắt món ăn -->
+                    <div class="p-3 bg-light rounded-3 mb-3 border d-flex align-items-center justify-content-between">
+                        <div>
+                            <strong class="text-dark d-block font-serif" id="deliveryDisplayProdName">Tên món ăn / sản phẩm</strong>
+                            <small class="text-muted" id="deliveryDisplaySupplier">Cung cấp bởi: Đối tác Kim Long</small>
+                        </div>
+                        <span class="fs-5 fw-bold text-success font-monospace" id="deliveryDisplayPrice">0 đ</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Số Phòng Lưu Trú *</label>
+                            <input type="text" id="deliveryRoomNumber" class="form-control" placeholder="VD: Eco-Nest 101" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Số Lượng *</label>
+                            <input type="number" id="deliveryQuantity" class="form-control" min="1" max="20" value="1" oninput="window.calculateDeliveryTotal()" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Tên Khách Hàng *</label>
+                            <input type="text" id="deliveryCustomerName" class="form-control" placeholder="Nguyễn Văn A" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Số Điện Thoại Nhận Hàng *</label>
+                            <input type="tel" id="deliveryPhone" class="form-control" placeholder="0905 123 456" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Phương Thức Thanh Toán</label>
+                            <select id="deliveryPaymentMethod" class="form-select">
+                                <option value="CASH_ROOM">Tính vào tiền phòng / Thanh toán khi nhận</option>
+                                <option value="VIETQR">Chuyển khoản VietQR</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Thời Gian Giao Món</label>
+                            <select id="deliveryTimeMode" class="form-select">
+                                <option value="ASAP">Giao ngay (15 - 30 phút chuẩn bị món nóng)</option>
+                                <option value="MORNING">Ăn sáng (07:00 - 08:30 sáng mai)</option>
+                                <option value="LUNCH">Ăn trưa (11:30 - 13:00)</option>
+                                <option value="DINNER">Ăn tối (18:30 - 20:00)</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Yêu Cầu Hương Vị / Bổ Sung (Tùy chọn)</label>
+                            <textarea id="deliveryNotes" class="form-control" rows="2" placeholder="VD: Không lấy cay, thêm rau sống, nhiều ớt xanh..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <span class="fw-bold text-dark">Tổng tiền thanh toán:</span>
+                        <span class="fs-4 fw-bold text-success font-monospace" id="deliveryTotalDisplay">0 đ</span>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow" id="deliverySubmitBtn">
+                        <i class="bi bi-send-check-fill me-1"></i>Xác Nhận Đặt Món
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     MODAL THÀNH CÔNG ĐẶT GIAO PHÒNG (DELIVERY SUCCESS MODAL)
+     ========================================================================= -->
+<div class="modal fade" id="deliverySuccessModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-4 text-center p-4">
+            <div class="mx-auto mb-3 text-success">
+                <i class="bi bi-box2-heart-fill" style="font-size: 56px;"></i>
+            </div>
+            <h5 class="font-serif fw-bold text-dark mb-1">Đã Đặt Món Thành Công!</h5>
+            <p class="text-muted small mb-3">
+                Bếp và đội ngũ đối tác đang chuẩn bị món ăn tươi nóng để giao tận buồng phòng cho quý khách.
+            </p>
+            <div class="p-2 bg-light rounded-3 mb-3 border">
+                <small class="text-muted d-block">Mã đơn giao phòng:</small>
+                <strong class="font-monospace text-success fs-5" id="deliverySuccessCode">DELIV-000000</strong>
+            </div>
+            <button type="button" class="btn btn-success rounded-pill w-100 fw-bold" data-bs-dismiss="modal">
+                Đã Rõ, Cảm Ơn!
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Component lifecycle
+}

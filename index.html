@@ -759,9 +759,14 @@
                     <span class="fs-5 fw-bold text-success font-monospace">85,000 đ</span>
                     <small class="text-muted">/người</small>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-HOMESTAY', 'Thưởng Trà Cung Đình Tại Homestay', 85000, 'người', 8)">
-                    Đặt Chỗ <i class="bi bi-arrow-right"></i>
-                  </button>
+                  <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="window.openTeaDetailModal('TEA-HOMESTAY')" title="Xem chi tiết gói trà">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-HOMESTAY', 'Thưởng Trà Cung Đình Tại Homestay', 85000, 'người', 8)">
+                      Đặt Chỗ <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -797,9 +802,14 @@
                     <span class="fs-5 fw-bold text-success font-monospace">135,000 đ</span>
                     <small class="text-muted">/người</small>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-CAKES', 'Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế', 135000, 'người', 12)">
-                    Đặt Chỗ <i class="bi bi-arrow-right"></i>
-                  </button>
+                  <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="window.openTeaDetailModal('TEA-CAKES')" title="Xem chi tiết gói trà">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-CAKES', 'Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế', 135000, 'người', 12)">
+                      Đặt Chỗ <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -835,9 +845,14 @@
                     <span class="fs-5 fw-bold text-success font-monospace">250,000 đ</span>
                     <small class="text-muted">/gói 2-4 khách</small>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-COUPLE', 'Gói Thưởng Trà Cặp Đôi & Nhóm Bạn', 250000, 'gói', 4)">
-                    Đặt Chỗ <i class="bi bi-arrow-right"></i>
-                  </button>
+                  <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="window.openTeaDetailModal('TEA-COUPLE')" title="Xem chi tiết gói trà">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-COUPLE', 'Gói Thưởng Trà Cặp Đôi & Nhóm Bạn', 250000, 'gói', 4)">
+                      Đặt Chỗ <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -873,9 +888,14 @@
                     <span class="fs-5 fw-bold text-success font-monospace">390,000 đ</span>
                     <small class="text-muted">/gói 4-6 khách</small>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-CULTURE', 'Gói Trải Nghiệm Văn Hóa Huế Kết Hợp Giới Thiệu Trà', 390000, 'gói', 6)">
-                    Đặt Chỗ <i class="bi bi-arrow-right"></i>
-                  </button>
+                  <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="window.openTeaDetailModal('TEA-CULTURE')" title="Xem chi tiết gói trà">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openTeaBookingModal('TEA-CULTURE', 'Gói Trải Nghiệm Văn Hóa Huế Kết Hợp Giới Thiệu Trà', 390000, 'gói', 6)">
+                      Đặt Chỗ <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2493,29 +2513,32 @@
                   <div class="d-flex align-items-center gap-2">
                     <div class="spinner-grow spinner-grow-sm text-warning" role="status"></div>
                     <div>
-                      <strong class="small text-dark d-block">Trạng thái: Đang chờ đối soát cọc</strong>
-                      <small class="text-muted" id="payLiveStatusText">Hệ thống đang lắng nghe webhook ngân hàng...</small>
+                      <strong class="small text-dark d-block">Trạng thái: Đang chờ xác nhận thanh toán</strong>
+                      <small class="text-muted" id="payLiveStatusText">Hệ thống đang lắng nghe webhook ngân hàng hoặc chờ đối soát...</small>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="triggerManualReconciliationCheck()">
+                  <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="triggerManualReconciliationCheck()">
                     <i class="bi bi-arrow-repeat me-1"></i>Kiểm Tra
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Testing & Demo Bypass for Administrator/User Simulation -->
+            <!-- Đối soát giao dịch từ Quản trị viên & Xác thực Ngân hàng -->
             <div class="mt-4 pt-3 border-top text-center">
               <small class="text-muted d-block mb-2">
-                <i class="bi bi-info-circle me-1"></i>[CHỨC NĂNG KIỂM THỬ ĐỐI SOÁT & PHÊ DUYỆT CỌC]:
+                <i class="bi bi-shield-check me-1"></i>[QUY TRÌNH ĐỐI SOÁT &amp; PHÊ DUYỆT CỌC]:
               </small>
               <div class="d-flex gap-2 justify-content-center flex-wrap">
-                <button type="button" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm" onclick="simulateSuccessfulReconciliation()">
-                  <i class="bi bi-patch-check-fill me-1 text-warning"></i>Xác Nhận Đã Nhận Cọc (Mô Phỏng Đối Soát Thành Công)
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4 fw-bold" onclick="triggerManualReconciliationCheck()">
+                  <i class="bi bi-search me-1"></i>Tôi Đã Chuyển Khoản — Kiểm Tra Giao Dịch
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 kle-admin-shortcut-btn d-none" data-rbac-module="reconciliation" onclick="openAdminReconciliationTab()">
-                  <i class="bi bi-shield-lock me-1"></i>Mở Admin Portal Duyệt Thủ Công
+                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 kle-admin-shortcut-btn" data-rbac-module="reconciliation" onclick="openAdminPortalModal('reconciliation')">
+                  <i class="bi bi-shield-lock me-1"></i>Lễ Tân / Admin Duyệt Cọc &amp; Cấp PIN
                 </button>
+              </div>
+              <div class="small text-muted mt-2">
+                <em>Lưu ý: Hệ thống chỉ cấp mã PIN SmartLock và chuyển sang Đã Thanh Toán khi tài khoản ngân hàng thực nhận được tiền.</em>
               </div>
             </div>
           </div>
@@ -2925,8 +2948,8 @@
 
         <!-- Màn hình thành công -->
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mt-3 d-none text-center" id="cartOrderQrContainer">
-          <div class="badge bg-success px-3 py-1.5 rounded-pill mb-2 fs-6">
-            <i class="bi bi-check-circle-fill me-1"></i>ĐÃ ĐẶT GIAO TẬN PHÒNG THÀNH CÔNG
+          <div class="badge bg-warning text-dark px-3 py-1.5 rounded-pill mb-2 fs-6" id="cartSuccessStatusBadge">
+            <i class="bi bi-clock-history me-1"></i>ĐANG CHỜ XÁC NHẬN THANH TOÁN (VIETQR)
           </div>
           <h4 class="fw-bold font-serif text-dark mb-1" id="cartSuccessOrderCode">KLE-DELIV-20261029-01</h4>
           <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
@@ -3026,6 +3049,35 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- =========================================================================
+     MODAL CHI TIẾT TRÀ CUNG ĐÌNH (TEA DETAIL MODAL)
+     ========================================================================= -->
+<div class="modal fade" id="teaDetailModal" tabindex="-1" aria-labelledby="teaDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #14452F, #0E5E45);">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-flower1 fs-4 text-warning"></i>
+                    <div>
+                        <h5 class="modal-title font-serif fw-bold mb-0" id="teaDetailModalTitle">Chi Tiết Trải Nghiệm Trà Cung Đình</h5>
+                        <small class="text-light opacity-75">Nghi thức thưởng trà tao nhã chốn Cố Đô</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-4" id="teaDetailModalBody">
+                <!-- Nội dung được cập nhật động bằng JavaScript -->
+            </div>
+            <div class="modal-footer bg-light border-top d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-success rounded-pill px-4 fw-bold" id="teaDetailModalBookBtn">
+                    <i class="bi bi-calendar-check me-1"></i>Đặt Gói Trải Nghiệm Này
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- =========================================================================
@@ -6217,13 +6269,13 @@ window.handleCartCheckout = function() {
     shippingFee: shippingFee,
     total: total,
     paymentMethod: paymentMethod,
-    paymentStatus: (paymentMethod === 'VIETQR' ? 'PAID' : 'UNPAID'),
+    paymentStatus: (paymentMethod === 'VIETQR' ? 'WAITING_CONFIRMATION' : 'UNPAID'),
     status: 'PENDING',
     statusHistory: [
       {
         status: 'PENDING',
         time: nowIso,
-        note: 'Đơn hàng giao tận phòng được gửi thành công tới bộ phận bếp Kim Long EcoStay.'
+        note: (paymentMethod === 'VIETQR' ? 'Đang chờ xác nhận thanh toán chuyển khoản VietQR.' : 'Đơn hàng giao tận phòng được gửi thành công tới bếp.')
       }
     ],
     createdAt: nowIso,
@@ -6234,6 +6286,25 @@ window.handleCartCheckout = function() {
   specialtyOrders.unshift(newOrder);
   localStorage.setItem('kle_specialty_orders', JSON.stringify(specialtyOrders));
 
+  // Gửi API lên backend thực tế
+  var apiBase = (typeof kleConfig !== 'undefined' && kleConfig.getApiBase) ? kleConfig.getApiBase() : '';
+  fetch((apiBase || '') + '/api/public/room-delivery', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      orderCode: orderCode,
+      customerName: name,
+      phone: phone,
+      email: email,
+      roomName: roomName,
+      deliveryMethod: deliveryMethod,
+      total: total,
+      paymentMethod: paymentMethod,
+      serviceNotes: serviceNotes,
+      items: cart
+    })
+  }).catch(function(err) { console.warn('Room delivery API fallback:', err); });
+
   // Ghi nhật ký email
   logEmailDispatch('SPECIALTY_ROOM_DELIVERY', orderCode, email || 'khachhang@example.com', '[Kim Long EcoStay] Tiếp Nhận Đơn Giao Tận Phòng ' + orderCode, `
     <h3>Tiếp Nhận Đơn Hàng Giao Tận Phòng Homestay</h3>
@@ -6241,7 +6312,7 @@ window.handleCartCheckout = function() {
     <p><strong>Địa điểm giao:</strong> ${roomName} ${roomNumber ? ('(' + roomNumber + ')') : ''}</p>
     <p><strong>Thời gian nhận mong muốn:</strong> ${deliveryTime}</p>
     <p><strong>Ghi chú phục vụ:</strong> ${serviceNotes || 'Không có'}</p>
-    <p><strong>Tổng thanh toán:</strong> ${total.toLocaleString('vi-VN')} đ (${paymentMethod === 'VIETQR' ? 'Chuyển khoản VietQR' : 'Tiền mặt khi nhận phòng'})</p>
+    <p><strong>Tổng thanh toán:</strong> ${total.toLocaleString('vi-VN')} đ (${paymentMethod === 'VIETQR' ? 'Chuyển khoản VietQR (Chờ đối soát)' : 'Tiền mặt khi nhận phòng'})</p>
     <p>Bếp đang chuẩn bị món nóng hổi và sẽ mang lên phòng cho quý khách.</p>
   `, 'DELIVERED');
 
@@ -6251,6 +6322,17 @@ window.handleCartCheckout = function() {
 
   var qrContainer = document.getElementById('cartOrderQrContainer');
   if (qrContainer) qrContainer.classList.remove('d-none');
+
+  var badgeEl = document.getElementById('cartSuccessStatusBadge');
+  if (badgeEl) {
+    if (paymentMethod === 'VIETQR') {
+      badgeEl.className = 'badge bg-warning text-dark px-3 py-1.5 rounded-pill mb-2 fs-6';
+      badgeEl.innerHTML = '<i class="bi bi-clock-history me-1"></i>ĐANG CHỜ XÁC NHẬN THANH TOÁN (VIETQR)';
+    } else {
+      badgeEl.className = 'badge bg-success px-3 py-1.5 rounded-pill mb-2 fs-6';
+      badgeEl.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ TIẾP NHẬN ĐƠN GIAO TẬN PHÒNG';
+    }
+  }
 
   if (document.getElementById('cartSuccessOrderCode')) document.getElementById('cartSuccessOrderCode').textContent = orderCode;
   if (document.getElementById('cartSuccessRoomBadge')) {
@@ -6476,10 +6558,134 @@ window.lookupOrderTracking = function() {
 // =========================================================================
 // MỤC 2: TRẢI NGHIỆM TRÀ CUNG ĐÌNH HUẾ (ROYAL TEA EXPERIENCES)
 // =========================================================================
-window.openTeaBookingModal = function(serviceCode) {
+window.openTeaDetailModal = function(serviceCode) {
+  var packages = {
+    'TEA-HOMESTAY': {
+      code: 'TEA-HOMESTAY',
+      name: 'Thưởng Trà Cung Đình Tại Homestay',
+      price: 85000,
+      priceType: 'người',
+      maxCapacity: 8,
+      duration: '45 phút',
+      img: 'images/nha_ruong_2.jpg',
+      schedule: '08:30 • 15:30 • 19:30',
+      story: 'Trải nghiệm thưởng trà truyền thống trong không gian thanh tịnh của nhà rường Kim Long. Quý khách được phục vụ ấm trà sen Tịnh Tâm hoặc thảo mộc 16 vị Cung Đình hãm trong ấm đất nung, kèm mứt gừng cay nồng cổ truyền xứ Huế.',
+      ingredients: ['Hoa sen trắng Tịnh Tâm ướp trà Tân Cương', 'Thảo mộc 16 vị: cúc chi, kỷ tử, táo đỏ, cam thảo...', 'Nước giếng đá tinh khiết đun bếp than nhẹ', 'Mứt gừng Kim Long sên đường cát giòn cay'],
+      protocol: 'Rót trà 3 tuần, thưởng hương hoa sen, nhấp ngụm đầu chậm rãi để cảm nhận vị chát thanh dịu rồi ngọt hậu sâu lắng.',
+      cakesIncluded: 'Mứt gừng lát Kim Long & Kẹo cau mộc xứ Huế.'
+    },
+    'TEA-CAKES': {
+      code: 'TEA-CAKES',
+      name: 'Trải Nghiệm Thưởng Trà Kết Hợp Bánh Huế',
+      price: 135000,
+      priceType: 'người',
+      maxCapacity: 12,
+      duration: '60 phút',
+      img: 'images/mon_banhkhoai.jpg',
+      schedule: '09:00 • 15:00',
+      story: 'Sự kết hợp hoàn hảo giữa văn hóa ẩm trà Cung Đình và nghệ thuật làm bánh tiến vua tinh xảo của các nghệ nhân Kim Long.',
+      ingredients: ['Trà Hoàng Triều thảo mộc cao cấp', 'Bánh đậu xanh trái cây nặn thủ công', 'Bánh sen nướng giòn xốp', 'Mè xửng giòn mè rang Thiên Hương'],
+      protocol: 'Thưởng bánh trước khi nhấp trà để vị bùi ngọt của bánh hòa quyện nâng tầm hương thơm thảo mộc.',
+      cakesIncluded: 'Mẹt bánh tiến vua 4 loại: Đậu xanh trái cây, Bánh sen nướng, Mè xửng giòn, Mứt gừng sấy dẻo.'
+    },
+    'TEA-COUPLE': {
+      code: 'TEA-COUPLE',
+      name: 'Gói Thưởng Trà Cặp Đôi & Nhóm Bạn',
+      price: 250000,
+      priceType: 'gói (2-4 người)',
+      maxCapacity: 4,
+      duration: '75 phút',
+      img: 'images/nha_ruong_1.jpg',
+      schedule: 'Linh hoạt theo yêu cầu hẹn trước',
+      story: 'Bàn trà riêng tư bài trí lãng mạn giữa vườn bưởi Thanh Trà hoặc chòi vọng cảnh ngắm hoàng hôn sông Hương, thắp nến hoa sen lung linh.',
+      ingredients: ['2 ấm trà tùy chọn (Trà Sen Tịnh Tâm & Trà Quý Phi)', 'Khay bánh Huế nghệ nhân đặc biệt', 'Hoa sen tươi trang trí bàn trà', 'Đèn lồng thắp sáng buổi tối'],
+      protocol: 'Không gian riêng tư tuyệt đối, nhân viên phục vụ sẵn sàng hỗ trợ chụp ảnh kỷ niệm phong cách Cố đô.',
+      cakesIncluded: 'Khay bánh hoa đăng cao cấp & đĩa trái cây tươi vườn nhà theo mùa.'
+    },
+    'TEA-CULTURE': {
+      code: 'TEA-CULTURE',
+      name: 'Gói Trải Nghiệm Văn Hóa Huế Kết Hợp Giới Thiệu Trà',
+      price: 390000,
+      priceType: 'gói trải nghiệm',
+      maxCapacity: 6,
+      duration: '90 phút',
+      img: 'images/song_huong_hoanghon.jpg',
+      schedule: '15:30 - 17:00 hàng ngày',
+      story: 'Workshop chuyên sâu cùng nghệ nhân văn hóa Huế: lắng nghe lịch sử trà đạo triều Nguyễn, học kỹ thuật ướp trà sen sống và tự tay pha ấm trà chuẩn mực hoàng gia.',
+      ingredients: ['Bông sen tươi Hồ Tịnh Tâm để thực hành ướp trà', 'Bộ đồ trà tử sa cao cấp', 'Nguyên liệu 16 vị thảo mộc chuẩn ngự y', 'Chứng nhận trải nghiệm văn hóa Cố Đô'],
+      protocol: 'Nghệ nhân trực tiếp hướng dẫn nghi thức bái trà, hãm trà, dâng trà và luận đàm thi ca di sản.',
+      cakesIncluded: 'Trọn bộ điểm tâm Cung Đình và tặng 1 túi trà sen thành phẩm do chính tay bạn ướp.'
+    }
+  };
+
+  var tea = packages[serviceCode] || packages['TEA-HOMESTAY'];
+  var titleEl = document.getElementById('teaDetailModalTitle');
+  var bodyEl = document.getElementById('teaDetailModalBody');
+  var bookBtn = document.getElementById('teaDetailModalBookBtn');
+
+  if (titleEl) titleEl.textContent = tea.name;
+  if (bodyEl) {
+    bodyEl.innerHTML = `
+      <div class="row g-4">
+        <div class="col-md-5">
+          <div class="rounded-4 overflow-hidden border shadow-sm" style="max-height: 260px;">
+            <img src="${tea.img}" alt="${tea.name}" class="w-100 h-100" style="object-fit: cover;" onerror="this.src='images/hero_ecostay.jpg'" />
+          </div>
+          <div class="mt-3 p-3 bg-light rounded-3 text-center border">
+            <span class="fs-4 fw-bold text-success font-monospace">${tea.price.toLocaleString('vi-VN')} đ</span>
+            <small class="text-muted d-block">/${tea.priceType}</small>
+            <span class="badge bg-success bg-opacity-25 text-success border border-success rounded-pill px-3 py-1 mt-2">
+              <i class="bi bi-clock me-1"></i>Thời lượng: ${tea.duration}
+            </span>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <h5 class="fw-bold font-serif text-dark mb-2">${tea.name}</h5>
+          <p class="text-muted" style="line-height: 1.7;">${tea.story}</p>
+          <div class="mb-3">
+            <strong class="text-success small fw-bold text-uppercase d-block mb-1">
+              <i class="bi bi-flower1 me-1"></i>Nguyên liệu trà &amp; thảo mộc:
+            </strong>
+            <ul class="small text-secondary mb-0 ps-3" style="line-height: 1.6;">
+              ${tea.ingredients.map(function(ing) { return '<li>' + ing + '</li>'; }).join('')}
+            </ul>
+          </div>
+          <div class="mb-3">
+            <strong class="text-warning small fw-bold text-uppercase d-block mb-1">
+              <i class="bi bi-egg-fried me-1"></i>Bánh &amp; mứt đi kèm:
+            </strong>
+            <div class="small text-dark p-2 bg-light rounded-3 border">${tea.cakesIncluded}</div>
+          </div>
+          <div class="p-2 bg-light rounded-3 border small text-muted">
+            <i class="bi bi-info-circle me-1 text-warning"></i><strong>Lịch phục vụ:</strong> ${tea.schedule}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (bookBtn) {
+    bookBtn.onclick = function() {
+      var modalEl = document.getElementById('teaDetailModal');
+      if (modalEl && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+      window.openTeaBookingModal(tea.code, tea.name, tea.price, tea.priceType, tea.maxCapacity);
+    };
+  }
+
+  var mEl = document.getElementById('teaDetailModal');
+  if (mEl && window.bootstrap) bootstrap.Modal.getOrCreateInstance(mEl).show();
+};
+
+window.openTeaBookingModal = function(serviceCode, optName, optPrice, optPriceType, optMaxCapacity) {
   var services = getTeaServices();
-  var service = services.find(function(s) { return s.code === serviceCode; }) || services[0];
-  if (!service) return;
+  var service = (services && services.find(function(s) { return s.code === serviceCode; })) || {
+    code: serviceCode || 'TEA-HOMESTAY',
+    name: optName || 'Thưởng Trà Cung Đình Tại Homestay',
+    price: optPrice || 85000,
+    priceType: optPriceType || 'người',
+    maxCapacity: optMaxCapacity || 8,
+    remainingSlots: 8
+  };
 
   document.getElementById('teaServiceCode').value = service.code;
   document.getElementById('teaServiceName').value = service.name;
@@ -6487,65 +6693,62 @@ window.openTeaBookingModal = function(serviceCode) {
   document.getElementById('teaServicePriceType').value = service.priceType;
   document.getElementById('teaServiceMaxCapacity').value = service.maxCapacity;
 
-  document.getElementById('teaModalSelectedTitle').textContent = service.name;
-  document.getElementById('teaModalSelectedPrice').textContent = service.price.toLocaleString('vi-VN') + ' đ';
-  document.getElementById('teaModalSelectedCapacity').textContent = service.maxCapacity + ' khách (Còn ' + service.remainingSlots + ' chỗ)';
+  var cardTitle = document.getElementById('teaModalCardTitle') || document.getElementById('teaModalSelectedTitle');
+  if (cardTitle) cardTitle.textContent = service.name;
+  var selPrice = document.getElementById('teaModalSelectedPrice');
+  if (selPrice) selPrice.textContent = service.price.toLocaleString('vi-VN') + ' đ';
+  var selCap = document.getElementById('teaModalSelectedCapacity');
+  if (selCap) selCap.textContent = service.maxCapacity + ' khách (Còn ' + (service.remainingSlots || service.maxCapacity) + ' chỗ)';
 
   var guestsInput = document.getElementById('teaGuestsCount');
-  guestsInput.value = (service.priceType.includes('gói') || service.priceType.includes('trải nghiệm')) ? 2 : 2;
-  guestsInput.max = service.maxCapacity;
+  if (guestsInput) {
+    guestsInput.value = (service.priceType.includes('gói') || service.priceType.includes('trải nghiệm')) ? 2 : 2;
+    guestsInput.max = service.maxCapacity;
+  }
 
   calculateTeaBookingTotal();
-  var modal = new bootstrap.Modal(document.getElementById('teaBookingModal'));
-  modal.show();
+  var modalEl = document.getElementById('teaBookingModal');
+  if (modalEl && window.bootstrap) {
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  }
 };
 
 window.calculateTeaBookingTotal = function() {
-  var unitPrice = parseInt(document.getElementById('teaServiceUnitPrice').value) || 85000;
-  var priceType = document.getElementById('teaServicePriceType').value;
-  var guests = parseInt(document.getElementById('teaGuestsCount').value) || 1;
-  var maxCapacity = parseInt(document.getElementById('teaServiceMaxCapacity').value) || 10;
+  var unitPrice = parseInt(document.getElementById('teaServiceUnitPrice')?.value || 85000);
+  var priceType = document.getElementById('teaServicePriceType')?.value || 'người';
+  var guests = parseInt(document.getElementById('teaGuestsCount')?.value || 1);
+  var maxCapacity = parseInt(document.getElementById('teaServiceMaxCapacity')?.value || 10);
 
   if (guests > maxCapacity) {
     alert('Sức chứa tối đa của không gian trà này là ' + maxCapacity + ' người. Vui lòng điều chỉnh số lượng hoặc chọn gói khác.');
     guests = maxCapacity;
-    document.getElementById('teaGuestsCount').value = maxCapacity;
+    var gInput = document.getElementById('teaGuestsCount');
+    if (gInput) gInput.value = maxCapacity;
   }
 
   var total = (priceType.includes('gói') || priceType.includes('trải nghiệm')) ? unitPrice : (unitPrice * guests);
-  document.getElementById('teaBookingTotalDisplay').textContent = total.toLocaleString('vi-VN') + ' đ';
+  var totalDisplay = document.getElementById('teaBookingTotalDisplay');
+  if (totalDisplay) totalDisplay.textContent = total.toLocaleString('vi-VN') + ' đ';
 };
 
 window.handleTeaBookingSubmit = function(e) {
-  e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
 
-  var code = document.getElementById('teaServiceCode').value;
-  var name = document.getElementById('teaServiceName').value;
-  var date = document.getElementById('teaBookingDate').value;
-  var timeSlot = document.getElementById('teaTimeSlot').value;
-  var guests = parseInt(document.getElementById('teaGuestsCount').value) || 2;
-  var customerName = document.getElementById('teaCustomerName').value.trim();
-  var customerPhone = document.getElementById('teaCustomerPhone').value.trim();
-  var customerEmail = document.getElementById('teaCustomerEmail').value.trim();
-  var unitPrice = parseInt(document.getElementById('teaServiceUnitPrice').value) || 85000;
-  var priceType = document.getElementById('teaServicePriceType').value;
+  var code = document.getElementById('teaServiceCode')?.value || 'TEA-HOMESTAY';
+  var name = document.getElementById('teaServiceName')?.value || 'Thưởng Trà Cung Đình Tại Homestay';
+  var date = document.getElementById('teaBookingDate')?.value || '';
+  var timeSlot = document.getElementById('teaTimeSlot')?.value || '15:30 - 16:30';
+  var guests = parseInt(document.getElementById('teaGuestsCount')?.value || 2);
+  var customerName = (document.getElementById('teaCustomerName')?.value || 'Khách Quý').trim();
+  var customerPhone = (document.getElementById('teaCustomerPhone')?.value || '').trim();
+  var customerEmail = (document.getElementById('teaCustomerEmail')?.value || '').trim();
+  var unitPrice = parseInt(document.getElementById('teaServiceUnitPrice')?.value || 85000);
+  var priceType = document.getElementById('teaServicePriceType')?.value || 'người';
   var total = (priceType.includes('gói') || priceType.includes('trải nghiệm')) ? unitPrice : (unitPrice * guests);
 
   var bookingCode = 'TEA-' + Math.floor(100000 + Math.random() * 900000);
 
-  // Giảm số chỗ còn lại
-  var services = getTeaServices();
-  var s = services.find(function(item) { return item.code === code; });
-  if (s) {
-    if (s.remainingSlots < guests && !priceType.includes('gói')) {
-      alert('Rất tiếc! Suất trà vào khung giờ này hiện chỉ còn ' + s.remainingSlots + ' chỗ. Không đủ cho ' + guests + ' khách.');
-      return;
-    }
-    s.remainingSlots = Math.max(0, s.remainingSlots - (priceType.includes('gói') ? 1 : guests));
-    saveTeaServices(services);
-  }
-
-  // Lưu yêu cầu
+  // Lưu yêu cầu vào LocalStorage
   var teaBookings = JSON.parse(localStorage.getItem('kle_tea_bookings') || '[]');
   teaBookings.unshift({
     bookingCode: bookingCode,
@@ -6563,18 +6766,39 @@ window.handleTeaBookingSubmit = function(e) {
   });
   localStorage.setItem('kle_tea_bookings', JSON.stringify(teaBookings));
 
+  // Gửi API thật tới Backend ASP.NET Core
+  fetch('/api/public/tea-booking', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      bookingCode: bookingCode,
+      serviceCode: code,
+      serviceName: name,
+      customerName: customerName,
+      phone: customerPhone,
+      email: customerEmail,
+      date: date,
+      timeSlot: timeSlot,
+      guests: guests,
+      total: total
+    })
+  }).catch(function() {});
+
   // Ghi log email
-  logEmailDispatch('TEA_SERVICE', bookingCode, customerEmail, '[Kim Long EcoStay] Xác Nhận Yêu Cầu Đặt Trải Nghiệm Trà Cung Đình ' + bookingCode, `
-    <h3>Tiếp nhận yêu cầu thưởng trà Cung Đình Huế</h3>
-    <p>Kính chào ${customerName},</p>
-    <p>Kim Long EcoStay đã tiếp nhận yêu cầu đặt lịch <strong>${name}</strong> vào ngày <strong>${date}</strong> (${timeSlot}) cho ${guests} người.</p>
-    <p>Tổng chi phí dự kiến: <strong>${total.toLocaleString('vi-VN')} đ</strong>. Bộ phận Trà quán sẽ liên hệ qua SĐT ${customerPhone} để xác nhận chỗ ngồi đẹp nhất bên vườn sông Hương.</p>
-  `, 'DELIVERED');
+  if (typeof logEmailDispatch === 'function') {
+    logEmailDispatch('TEA_SERVICE', bookingCode, customerEmail, '[Kim Long EcoStay] Xác Nhận Yêu Cầu Đặt Trải Nghiệm Trà Cung Đình ' + bookingCode, `
+      <h3>Tiếp nhận yêu cầu thưởng trà Cung Đình Huế</h3>
+      <p>Kính chào ${customerName},</p>
+      <p>Kim Long EcoStay đã tiếp nhận yêu cầu đặt lịch <strong>${name}</strong> vào ngày <strong>${date}</strong> (${timeSlot}) cho ${guests} người.</p>
+      <p>Tổng chi phí dự kiến: <strong>${total.toLocaleString('vi-VN')} đ</strong>. Bộ phận Trà quán sẽ liên hệ qua SĐT ${customerPhone} để xác nhận chỗ ngồi đẹp nhất bên vườn sông Hương.</p>
+    `, 'DELIVERED');
+  }
 
   alert('Gửi yêu cầu đặt lịch trà Cung Đình thành công!\nMã đặt lịch: ' + bookingCode + '\nHomestay sẽ liên hệ xác nhận bàn trà của quý khách trong ít phút.');
   var modalEl = document.getElementById('teaBookingModal');
-  var modalInst = bootstrap.Modal.getInstance(modalEl);
-  if (modalInst) modalInst.hide();
+  if (modalEl && window.bootstrap) {
+    bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+  }
 };
 
 // =========================================================================

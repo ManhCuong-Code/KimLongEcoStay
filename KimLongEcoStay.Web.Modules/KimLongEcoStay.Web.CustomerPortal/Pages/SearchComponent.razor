@@ -288,6 +288,16 @@
     </div>
 
     <!-- ==========================================================================
+         SẢN PHẨM & ĐẶC SẢN KIM LONG (SPECIALTIES)
+         ========================================================================== -->
+    <SpecialtiesComponent />
+
+    <!-- ==========================================================================
+         TRẢI NGHIỆM TRÀ CUNG ĐÌNH HUẾ (ROYAL TEA)
+         ========================================================================== -->
+    <RoyalTeaComponent />
+
+    <!-- ==========================================================================
          4. TRẢI NGHIỆM TOUR DI SẢN THÔNG MINH (SMART HERITAGE TOUR)
          ========================================================================== -->
     <div class="experience-story-card" id="smart-tour">
@@ -397,6 +407,11 @@
      ========================================================================== -->
 <HeritageMapComponent IsEmbedded="true" />
 
+<!-- ==========================================================================
+     7. MẠNG LƯỚI ĐỐI TÁC ĐỊA PHƯƠNG KIM LONG (LOCAL PARTNERS)
+     ========================================================================== -->
+<LocalPartnersComponent />
+
 @code {
     private IEnumerable<Product>? allProducts;
     private IEnumerable<Product>? filteredProducts;
@@ -475,15 +490,28 @@
     {
         if (firstRender)
         {
+            await Task.Delay(150);
+            try { await jsRuntime.InvokeVoidAsync("initAllSections"); } catch { }
+
             var uri = navigationManager.Uri;
-            if (uri.Contains("#heritage-map") || uri.EndsWith("/map") || uri.EndsWith("/heritage-map"))
+            if (uri.Contains("#royal-tea"))
             {
-                await Task.Delay(300);
+                try { await jsRuntime.InvokeVoidAsync("scrollToSection", "royal-tea"); } catch { }
+            }
+            else if (uri.Contains("#specialties"))
+            {
+                try { await jsRuntime.InvokeVoidAsync("scrollToSection", "specialties"); } catch { }
+            }
+            else if (uri.Contains("#local-partners"))
+            {
+                try { await jsRuntime.InvokeVoidAsync("scrollToSection", "local-partners"); } catch { }
+            }
+            else if (uri.Contains("#heritage-map") || uri.EndsWith("/map") || uri.EndsWith("/heritage-map"))
+            {
                 try { await jsRuntime.InvokeVoidAsync("scrollToSection", "heritage-map"); } catch { }
             }
             else if (uri.Contains("#rooms") || uri.EndsWith("/products") || uri.EndsWith("/rooms") || uri.EndsWith("/product") || uri.EndsWith("/room"))
             {
-                await Task.Delay(200);
                 await ScrollToRooms();
             }
         }

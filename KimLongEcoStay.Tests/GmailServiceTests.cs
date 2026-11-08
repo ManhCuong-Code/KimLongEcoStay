@@ -1,0 +1,115 @@
+using System;
+using KimLongEcoStay.CoreBusiness.Models;
+using KimLongEcoStay.CoreBusiness.Services;
+using Xunit;
+
+namespace KimLongEcoStay.Tests
+{
+    public class GmailServiceTests
+    {
+        [Fact]
+        public void GmailService_IsConfigured_ReturnsTrueWhenCredentialsProvided()
+        {
+            var settings = new EmailSettings
+            {
+                GmailClientId = "mock-client-id.apps.googleusercontent.com",
+                GmailClientSecret = "mock-client-secret"
+            };
+            var service = new GmailService(settings);
+
+            Assert.True(service.IsConfigured);
+        }
+
+        [Fact]
+        public void GmailService_IsConfigured_ReturnsFalseWhenCredentialsMissing()
+        {
+            var settings = new EmailSettings
+            {
+                GmailClientId = "",
+                GmailClientSecret = ""
+            };
+            var service = new GmailService(settings);
+
+            Assert.False(service.IsConfigured);
+        }
+
+        [Fact]
+        public void GmailService_CreateCsrfState_ValidatesOnlyOnce()
+        {
+            var settings = new EmailSettings
+            {
+                GmailClientId = "test-id",
+                GmailClientSecret = "test-secret"
+            };
+            var service = new GmailService(settings);
+
+            string state = service.CreateCsrfState();
+            Assert.False(string.IsNullOrWhiteSpace(state));
+
+            // Lần 1: Xác thực thành công
+            bool validFirstTime = service.ValidateCsrfState(state);
+            Assert.True(validFirstTime);
+
+            // Lần 2 (Replay Attack): Phải bị từ chối
+            bool validSecondTime = service.ValidateCsrfState(state);
+            Assert.False(validSecondTime);
+        }
+
+        [Fact]
+        public void GmailService_ValidateCsrfState_RejectsRandomState()
+        {
+            var service = new GmailService(new EmailSettings());
+            bool valid = service.ValidateCsrfState("tampered-or-fake-state");
+            Assert.False(valid);
+        }
+
+        [Fact]
+        public void GmailService_GetAuthorizationUrl_ContainsRequiredParametersAndSendScope()
+        {
+            var settings = new EmailSettings
+            {
+                GmailClientId = "375783123528-mock.apps.googleusercontent.com",
+                GmailClientSecret = "mock-secret",
+                GmailRedirectUri = "http://localhost:5204/api/admin/gmail/oauth2callback"
+            };
+            var service = new GmailService(settings);
+
+            string state = service.CreateCsrfState();
+            string authUrl = service.GetAuthorizationUrl(settings.GmailRedirectUri, state);
+
+            Assert.Contains("https://accounts.google.com/o/oauth2/v2/auth", authUrl);
+            Assert.Contains("client_id=375783123528-mock.apps.googleusercontent.com", authUrl);
+            Assert.Contains("scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.send", authUrl);
+            Assert.Contains("access_type=offline", authUrl);
+            Assert.Contains("prompt=consent", authUrl);
+            Assert.Contains($"state={state}", authUrl);
+        }
+
+        [Fact]
+        public void GmailService_GetConnectionStatus_NeverExposesClientSecretOrRefreshToken()
+        {
+            var settings = new EmailSettings
+            {
+                GmailClientId = "public-client-id",
+                GmailClientSecret = "SUPER_SECRET_KEY_12345",
+                GmailRefreshToken = "SECRET_REFRESH_TOKEN_67890",
+                GmailSender = "titanio741@gmail.com"
+            };
+            var service = new GmailService(settings);
+            var status = service.GetConnectionStatus();
+
+            Assert.True(status.IsConfigured);
+            Assert.True(status.IsConnected);
+            Assert.Equal("titanio741@gmail.com", status.SenderEmail);
+
+            // Đảm bảo kiểu dữ liệu status không có thuộc tính chứa secret / token
+            var properties = typeof(GmailConnectionStatus).GetProperties();
+            foreach (var prop in properties)
+            {
+                Assert.DoesNotContain("Secret", prop.Name, StringComparison.OrdinalIgnoreCase);
+                Assert.DoesNotContain("Token", prop.Name.Replace("TokenExpiresAt", ""));
+            }
+        }
+    }
+}
+

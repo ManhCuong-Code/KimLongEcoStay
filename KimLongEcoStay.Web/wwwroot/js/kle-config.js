@@ -16,7 +16,7 @@
  *    thay vì âm thầm gửi dữ liệu nhạy cảm đến các domain không xác định.
  */
 
-(function(window) {
+(function (window) {
   'use strict';
 
   // -----------------------------------------------------------------------
@@ -47,8 +47,8 @@
     var manual = null;
     try {
       manual = (typeof window !== 'undefined' && window.__activeManualBackend) ||
-               (typeof localStorage !== 'undefined' && localStorage.getItem('kle_manual_backend_url'));
-    } catch(e) {}
+        (typeof localStorage !== 'undefined' && localStorage.getItem('kle_manual_backend_url'));
+    } catch (e) { }
     if (manual && (manual.startsWith('https://') || manual.startsWith('http://localhost') || manual.startsWith('http://127.0.0.1'))) {
       return manual.replace(/\/+$/, '');
     }
@@ -90,7 +90,7 @@
     /**
      * Kiểm tra Backend đã được cấu hình hợp lệ hay chưa
      */
-    isBackendConfigured: function() {
+    isBackendConfigured: function () {
       return getApiBase() !== null;
     },
 
@@ -102,23 +102,23 @@
     /**
      * Cài đặt URL máy chủ thủ công (Tunnel HTTPS / VPS)
      */
-    setManualBackendUrl: function(url) {
+    setManualBackendUrl: function (url) {
       if (!url) {
         window.__activeManualBackend = null;
-        try { localStorage.removeItem('kle_manual_backend_url'); } catch(e) {}
+        try { localStorage.removeItem('kle_manual_backend_url'); } catch (e) { }
         return;
       }
       var clean = url.trim().replace(/\/+$/, '');
       window.__activeManualBackend = clean;
-      try { localStorage.setItem('kle_manual_backend_url', clean); } catch(e) {}
+      try { localStorage.setItem('kle_manual_backend_url', clean); } catch (e) { }
     },
 
     /**
      * Xóa cấu hình máy chủ thủ công
      */
-    clearManualBackendUrl: function() {
+    clearManualBackendUrl: function () {
       window.__activeManualBackend = null;
-      try { localStorage.removeItem('kle_manual_backend_url'); } catch(e) {}
+      try { localStorage.removeItem('kle_manual_backend_url'); } catch (e) { }
     },
 
     /**
@@ -126,7 +126,7 @@
      * @param {string} endpoint - Ví dụ '/api/auth/login'
      * @returns {string|null} - URL đầy đủ hoặc null nếu chưa cấu hình
      */
-    resolveApiUrl: function(endpoint) {
+    resolveApiUrl: function (endpoint) {
       var base = getApiBase();
       if (base === null) return null;
       var clean = endpoint.startsWith('/') ? endpoint : '/' + endpoint;

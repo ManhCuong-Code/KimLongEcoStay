@@ -183,20 +183,30 @@ namespace KimLongEcoStay.Web.Services
                 return new
                 {
                     isSqlConnected = false,
+                    isConnected = false,
+                    latencyMs = 0,
                     backendApiStatus = "ONLINE_DEGRADED",
                     signalRStatus = "ACTIVE",
                     connectedClients = EcoStaySyncHub.ConnectedClientsCount,
-                    serverName = "localhost\\SQLEXPRESS",
+                    serverName = "Unavailable",
                     databaseName = "KimLongEcoStayDB",
+                    productVersion = "N/A",
+                    edition = "N/A",
                     maskedConnectionString = GetMaskedConnectionString(),
                     changeTrackingEnabled = false,
+                    trackedTablesCount = 0,
                     currentChangeVersion = _lastKnownChangeVersion,
+                    changeTrackingVersion = _lastKnownChangeVersion,
+                    maxAuditId = _lastKnownAuditId,
                     lastSyncTimestamp = _lastSyncTimestamp,
+                    checkedAt = DateTime.UtcNow,
                     successfulWrites = _successfulWrites,
                     failedWrites = _failedWrites,
                     lastError = ex.Message,
                     tableCounts = new { products = 0, rooms = 0, bookings = 0, deliveries = 0, partners = 0, employees = 0, payrolls = 0, transactions = 0, syncLogs = 0 },
-                    recentLogs = Array.Empty<object>()
+                    tableRowCounts = new Dictionary<string, int>(),
+                    recentLogs = Array.Empty<object>(),
+                    recentSyncLogs = Array.Empty<object>()
                 };
             }
         }

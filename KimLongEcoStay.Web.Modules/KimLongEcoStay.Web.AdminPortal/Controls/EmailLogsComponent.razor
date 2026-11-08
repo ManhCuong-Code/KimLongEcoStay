@@ -1,0 +1,466 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services.Interfaces
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IGmailService GmailService
+@inject IEmailService EmailService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+<div class="kle-email-management">
+    <!-- THẺ 1: TÍCH HỢP GOOGLE GMAIL API OAUTH 2.0 -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
+        <div class="card-header bg-white border-bottom p-3.5 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: #EA4335; color: #fff; font-size: 20px;">
+                    <i class="bi bi-google"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0.5" style="color: #14452F;">
+                        Tích Hợp Google Gmail API v1 (OAuth 2.0 Thật)
+                    </h5>
+                    <small class="text-muted">Gửi email xác thực, mã PIN SmartLock và hóa đơn trực tiếp từ hòm thư quản trị qua REST API bảo mật của Google.</small>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                @if (gmailStatus.IsConnected)
+                {
+                    <span class="badge rounded-pill px-3 py-2 text-white fw-bold" style="background: #14452F; border: 1.5px solid #2ECC71;">
+                        <i class="bi bi-check-circle-fill text-success me-1"></i>ĐÃ KẾT NỐI GMAIL API
+                    </span>
+                }
+                else
+                {
+                    <span class="badge rounded-pill px-3 py-2 text-dark fw-bold" style="background: #FEF3C7; border: 1.5px solid #F59E0B;">
+                        <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>CHƯA KẾT NỐI TÀI KHOẢN
+                    </span>
+                }
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" @onclick="LoadStatus">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Thông báo trạng thái thao tác -->
+            @if (!string.IsNullOrEmpty(alertMessage))
+            {
+                <div class="alert @(isAlertError ? "alert-danger" : "alert-success") alert-dismissible fade show rounded-3 py-2.5 px-3 mb-3 small d-flex align-items-center justify-content-between" role="alert">
+                    <div>
+                        <i class="bi @(isAlertError ? "bi-exclamation-octagon-fill text-danger" : "bi-check-circle-fill text-success") me-2 fs-6"></i>
+                        <span>@alertMessage</span>
+                    </div>
+                    <button type="button" class="btn-close btn-sm" @onclick="() => alertMessage = null"></button>
+                </div>
+            }
+
+            <!-- Lưới thông số cấu hình -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="p-3 rounded-3 border bg-light h-100">
+                        <div class="small text-muted fw-bold mb-1">ĐỊA CHỈ EMAIL GỬI THƯ</div>
+                        <div class="fs-6 fw-bold text-dark font-monospace text-truncate">
+                            <i class="bi bi-envelope-at-fill text-danger me-1"></i>@gmailStatus.SenderEmail
+                        </div>
+                        <small class="text-muted">Hòm thư quản trị viên tiếp nhận &amp; gửi</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="p-3 rounded-3 border bg-light h-100">
+                        <div class="small text-muted fw-bold mb-1">PHẠM VI QUYỀN HẠN (SCOPE)</div>
+                        <div class="fs-6 fw-bold text-primary font-monospace text-truncate" title="@gmailStatus.Scope">
+                            gmail.send
+                        </div>
+                        <small class="text-muted">Chỉ gửi thư, không đọc, không xóa</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="p-3 rounded-3 border bg-light h-100">
+                        <div class="small text-muted fw-bold mb-1">TỔNG SỐ EMAIL ĐÃ GỬI</div>
+                        <div class="fs-6 fw-bold text-success font-monospace">
+                            <i class="bi bi-send-check-fill me-1"></i>@gmailStatus.TotalSentCount thư
+                        </div>
+                        <small class="text-muted">Gửi gần nhất: @(gmailStatus.LastSentAt.HasValue ? gmailStatus.LastSentAt.Value.ToString("HH:mm:ss dd/MM") : "Chưa có")</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="p-3 rounded-3 border bg-light h-100">
+                        <div class="small text-muted fw-bold mb-1">TIÊU CHUẨN MÃ HÓA &amp; AN NINH</div>
+                        <div class="fs-6 fw-bold text-dark font-monospace">
+                            RFC 2822 • Base64Url
+                        </div>
+                        <small class="text-muted">OAuth 2.0 Web Server Flow</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khung Thao tác & Kiểm thử gửi thư -->
+            <div class="p-3.5 rounded-3 mb-3" style="background: #F8FAF9; border: 1.5px dashed #D4AF37;">
+                <div class="row align-items-center g-3">
+                    <div class="col-lg-7">
+                        <h6 class="fw-bold mb-1" style="color: #14452F;">
+                            <i class="bi bi-shield-lock-fill text-warning me-1"></i>Thao Tác Kết Nối &amp; Ủy Quyền Google OAuth 2.0
+                        </h6>
+                        <p class="small text-muted mb-0">
+                            Nhấn nút bên cạnh để chuyển tới cổng đăng nhập an toàn của Google. Sau khi cấp quyền cho Kim Long EcoStay, hệ thống sẽ tự động lưu Refresh Token bảo mật phía máy chủ và làm mới Access Token liên tục mà không cần đăng nhập lại.
+                        </p>
+                    </div>
+
+                    <div class="col-lg-5 text-lg-end d-flex flex-wrap gap-2 justify-content-lg-end">
+                        <a href="/api/admin/gmail/connect" class="btn btn-sm rounded-pill px-3.5 py-2 fw-bold text-white shadow-sm" style="background: #14452F; border: 1px solid #D4AF37;">
+                            <i class="bi bi-google me-1.5"></i>@(gmailStatus.IsConnected ? "Cấp Quyền Lại / Kết Nối Mới" : "Kết Nối Tài Khoản Google")
+                        </a>
+
+                        @if (gmailStatus.IsConnected)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-2 fw-semibold" @onclick="HandleDisconnect">
+                                <i class="bi bi-link-45deg me-1"></i>Ngắt Kết Nối
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khung Gửi Email Thử Nghiệm -->
+            <div class="p-3.5 rounded-3 bg-white border">
+                <h6 class="fw-bold mb-2" style="color: #14452F;">
+                    <i class="bi bi-send-fill text-primary me-1"></i>Gửi Thử Nghiệm Một Email Thật Qua Gmail API
+                </h6>
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-7">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                            <input type="email" class="form-control" placeholder="Nhập địa chỉ email nhận kiểm thử (mặc định: @gmailStatus.SenderEmail)" @bind="testRecipientEmail" />
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <button type="button" class="btn btn-sm rounded-pill px-3.5 py-2 fw-bold text-white w-100" style="background: #1E6B45;" @onclick="HandleSendTestEmail" disabled="@isSendingTest">
+                            @if (isSendingTest)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                <span>Đang Gửi Qua Gmail API...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-lightning-charge-fill me-1"></i>
+                                <span>Bấm Gửi Thử Mã PIN SmartLock</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+                <small class="text-muted mt-1 d-block">
+                    Hệ thống sẽ tạo mã PIN SmartLock 6 số ngẫu nhiên qua CSPRNG và gửi thông điệp HTML chuẩn thương hiệu đến hòm thư đã nhập.
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- THẺ 2: NHẬT KÝ VÀ LỊCH SỬ GỬI EMAIL GIAO DỊCH -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+        <div class="card-header bg-white border-bottom p-3.5 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold mb-0.5" style="color: #14452F;">
+                    <i class="bi bi-clock-history text-success me-2"></i>Nhật Ký Email Đã Gửi (Audit Log &amp; Re-dispatch)
+                </h5>
+                <small class="text-muted">Theo dõi toàn bộ email tự động phục vụ khách hàng, đặt phòng, cấp mã khóa IoT và thông báo nội bộ.</small>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <input type="text" class="form-control form-control-sm rounded-pill px-3" placeholder="Tìm kiếm người nhận / mã đơn..." style="max-width: 260px;" @bind="searchFilter" @bind:event="oninput" />
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            @{
+                var logs = GetFilteredLogs();
+            }
+
+            @if (logs == null || !logs.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-envelope-open text-muted" style="font-size: 40px;"></i>
+                    <p class="text-muted mt-2 mb-0">Chưa có nhật ký email nào trong phiên làm việc hiện tại.</p>
+                    <small class="text-muted">Thực hiện đặt phòng hoặc bấm "Bấm Gửi Thử Mã PIN SmartLock" để kiểm tra.</small>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="ps-4">Mã Đơn / Phiên</th>
+                                <th>Mẫu Email</th>
+                                <th>Người Nhận (To)</th>
+                                <th>Kênh Gửi (Provider)</th>
+                                <th>Thời Gian Gửi</th>
+                                <th>Trạng Thái</th>
+                                <th class="text-end pe-4">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in logs)
+                            {
+                                var l = log;
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="font-monospace fw-bold text-dark">
+                                            @(string.IsNullOrEmpty(l.AssociatedBookingCode) ? "—" : "#" + l.AssociatedBookingCode)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill px-2.5 py-1 text-dark fw-semibold" style="background: #F1F5F9; border: 1px solid #CBD5E1;">
+                                            @GetTemplateDisplayName(l.TemplateType)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="font-monospace text-primary fw-semibold">
+                                            <i class="bi bi-envelope me-1 text-muted"></i>@l.RecipientEmail
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill px-2 py-0.5 font-monospace small" style="background: #E8F0FE; color: #1967D2; border: 1px solid #D2E3FC;">
+                                            @l.ProviderUsed
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="small text-muted">@l.SentAt.ToString("HH:mm:ss dd/MM/yyyy")</span>
+                                    </td>
+                                    <td>
+                                        @if (l.IsSuccess)
+                                        {
+                                            <span class="badge rounded-pill px-2.5 py-1 bg-success text-white">
+                                                <i class="bi bi-check-circle me-1"></i>Thành công
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill px-2.5 py-1 bg-danger text-white" title="@l.ErrorDetails">
+                                                <i class="bi bi-x-circle me-1"></i>Thất bại
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 me-1" @onclick="() => PreviewEmail(l)" title="Xem trước nội dung email">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1" @onclick="() => HandleRetryEmail(l)" title="Gửi lại email này">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- MODAL XEM NỘI DUNG EMAIL -->
+@if (selectedEmailLog != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1055;">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header bg-light border-bottom p-3">
+                    <div>
+                        <h6 class="modal-title fw-bold" style="color: #14452F;">
+                            <i class="bi bi-envelope-paper-fill text-success me-2"></i>Chi Tiết Email Gửi Đi
+                        </h6>
+                        <small class="text-muted">Đến: @selectedEmailLog.RecipientEmail • Tiêu đề: @selectedEmailLog.Subject</small>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="() => selectedEmailLog = null"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="card p-3 border-0 shadow-sm rounded-3 bg-white mb-3">
+                        <div class="row g-2 small">
+                            <div class="col-md-6"><strong>Người nhận:</strong> @selectedEmailLog.RecipientEmail</div>
+                            <div class="col-md-6"><strong>Mã đơn:</strong> @(string.IsNullOrEmpty(selectedEmailLog.AssociatedBookingCode) ? "N/A" : selectedEmailLog.AssociatedBookingCode)</div>
+                            <div class="col-md-6"><strong>Kênh gửi:</strong> @selectedEmailLog.ProviderUsed</div>
+                            <div class="col-md-6"><strong>Thời gian:</strong> @selectedEmailLog.SentAt.ToString("HH:mm:ss dd/MM/yyyy")</div>
+                            <div class="col-12"><strong>Trạng thái:</strong> @selectedEmailLog.StatusMessage</div>
+                            @if (!string.IsNullOrEmpty(selectedEmailLog.ErrorDetails))
+                            {
+                                <div class="col-12 text-danger"><strong>Chi tiết lỗi:</strong> @selectedEmailLog.ErrorDetails</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card p-4 border rounded-3 bg-white">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2">Bản Xem Trước HTML Giao Diện Thư:</h6>
+                        <div class="email-preview-container" style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; background: #fff; overflow-x: auto;">
+                            @((MarkupString)selectedEmailLog.HtmlContent)
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light p-2.5">
+                    <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" @onclick="() => selectedEmailLog = null">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private GmailConnectionStatus gmailStatus = new();
+    private string? alertMessage;
+    private bool isAlertError = false;
+    private string testRecipientEmail = "";
+    private bool isSendingTest = false;
+    private string searchFilter = "";
+    private EmailSendResult? selectedEmailLog;
+
+    protected override void OnInitialized()
+    {
+        LoadStatus();
+        CheckUrlParameters();
+    }
+
+    private void CheckUrlParameters()
+    {
+        var uri = new Uri(NavManager.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        if (query["gmail_status"] == "connected")
+        {
+            alertMessage = "🎉 Chúc mừng! Đã kết nối và xác thực thành công tài khoản Google Gmail với Kim Long EcoStay.";
+            isAlertError = false;
+            LoadStatus();
+        }
+        else if (!string.IsNullOrEmpty(query["gmail_error"]))
+        {
+            alertMessage = $"Lỗi kết nối Google Gmail: {query["gmail_error"]}";
+            isAlertError = true;
+        }
+    }
+
+    private void LoadStatus()
+    {
+        gmailStatus = GmailService.GetConnectionStatus();
+        if (string.IsNullOrWhiteSpace(testRecipientEmail))
+        {
+            testRecipientEmail = gmailStatus.SenderEmail;
+        }
+    }
+
+    private async Task HandleDisconnect()
+    {
+        GmailService.Disconnect();
+        LoadStatus();
+        alertMessage = "Đã ngắt kết nối Gmail API. Bạn có thể bấm 'Kết Nối Tài Khoản Google' để cấp quyền lại bất kỳ lúc nào.";
+        isAlertError = false;
+    }
+
+    private async Task HandleSendTestEmail()
+    {
+        isSendingTest = true;
+        alertMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            string recipient = !string.IsNullOrWhiteSpace(testRecipientEmail) ? testRecipientEmail.Trim() : gmailStatus.SenderEmail;
+            string testPin = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString("D6");
+
+            var res = await EmailService.SendSmartLockPinEmailAsync(
+                "Quản Trị Viên (Thử Nghiệm Gmail API)",
+                recipient,
+                "TEST-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"),
+                "Eco-Nest Ban Mai (KLE-R101)",
+                testPin,
+                DateTime.Today,
+                DateTime.Today.AddDays(2));
+
+            LoadStatus();
+
+            if (res.IsSuccess)
+            {
+                alertMessage = $"✅ Đã gửi thành công email thử nghiệm đến {recipient} qua {res.ProviderUsed}! Vui lòng kiểm tra hộp thư đến (Inbox) hoặc Spam.";
+                isAlertError = false;
+            }
+            else
+            {
+                alertMessage = $"❌ Gửi email thất bại: {(!string.IsNullOrEmpty(res.ErrorDetails) ? res.ErrorDetails : res.StatusMessage)}";
+                isAlertError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            alertMessage = $"Lỗi xử lý gửi email: {ex.Message}";
+            isAlertError = true;
+        }
+        finally
+        {
+            isSendingTest = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleRetryEmail(EmailSendResult log)
+    {
+        try
+        {
+            var res = await EmailService.RetryEmailAsync(log.EmailId);
+            LoadStatus();
+            if (res.IsSuccess)
+            {
+                alertMessage = $"Đã gửi lại thành công email đến {log.RecipientEmail}!";
+                isAlertError = false;
+            }
+            else
+            {
+                alertMessage = $"Gửi lại thất bại: {res.ErrorDetails}";
+                isAlertError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            alertMessage = $"Lỗi khi gửi lại: {ex.Message}";
+            isAlertError = true;
+        }
+    }
+
+    private void PreviewEmail(EmailSendResult log)
+    {
+        selectedEmailLog = log;
+    }
+
+    private List<EmailSendResult> GetFilteredLogs()
+    {
+        var all = EmailService.GetSentEmailHistory();
+        if (string.IsNullOrWhiteSpace(searchFilter)) return all.ToList();
+
+        var q = searchFilter.Trim().ToLowerInvariant();
+        return all.Where(x =>
+            (x.RecipientEmail?.ToLowerInvariant().Contains(q) == true) ||
+            (x.AssociatedBookingCode?.ToLowerInvariant().Contains(q) == true) ||
+            (x.Subject?.ToLowerInvariant().Contains(q) == true) ||
+            (x.ProviderUsed?.ToLowerInvariant().Contains(q) == true)
+        ).ToList();
+    }
+
+    private string GetTemplateDisplayName(EmailTemplateType type)
+    {
+        return type switch
+        {
+            EmailTemplateType.BOOKING_REQUEST_RECEIVED => "1. Nhận Đơn & Cọc 50%",
+            EmailTemplateType.DEPOSIT_CONFIRMED => "2. Xác Nhận Cọc & Cấp PIN",
+            EmailTemplateType.REMAINING_BALANCE_REQUEST => "3. Yêu Cầu Tất Toán 50%",
+            EmailTemplateType.FULL_PAYMENT_CONFIRMED => "4. Hoàn Tất 100% (Tất Toán)",
+            EmailTemplateType.SMARTLOCK_PIN_DELIVERY => "Mã PIN SmartLock",
+            EmailTemplateType.SPECIALTY_ORDER_CONFIRMED => "Đơn Hàng Đặc Sản Huế",
+            EmailTemplateType.TEA_SERVICE_CONFIRMED => "Trà Cung Đình Khách Hàng",
+            EmailTemplateType.ADMIN_TEA_BOOKING_ALERT => "Alert Admin: Đặt Trà",
+            EmailTemplateType.ADMIN_NEW_BOOKING_ALERT => "Alert Admin: Đặt Phòng Mới",
+            EmailTemplateType.CUSTOMER_CONTACT_CONFIRMED => "Tiếp Nhận Thư Khách",
+            EmailTemplateType.ADMIN_NEW_CONTACT_ALERT => "Alert Admin: Liên Hệ Mới",
+            _ => type.ToString()
+        };
+    }
+}
+
