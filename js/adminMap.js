@@ -58,14 +58,18 @@
     this.pickerMarker = null;
     this.isInitialized = false;
     this.elementId = 'admin-leaflet-map';
+    this.dotNetRef = null;
   };
 
   /**
    * Khởi tạo hoặc lấy lại bản đồ
    */
-  AdminMapController.prototype.initMap = function(elementId, locations) {
+  AdminMapController.prototype.initMap = function(elementId, locations, dotNetRef) {
     var targetId = elementId || this.elementId;
     this.elementId = targetId;
+    if (dotNetRef) {
+      this.dotNetRef = dotNetRef;
+    }
 
     var container = document.getElementById(targetId);
     if (!container) {
@@ -339,6 +343,15 @@
     `;
 
     marker.bindPopup(popupContent, { maxWidth: 300 });
+
+    marker.on('click', function() {
+      if (self.dotNetRef) {
+        try {
+          self.dotNetRef.invokeMethodAsync('OnLocationSelected', loc.id);
+        } catch(e) {}
+      }
+    });
+
     return marker;
   };
 
@@ -355,6 +368,13 @@
     var lngInp = document.getElementById('adminPartnerLngInput');
     if (latInp) latInp.value = lat;
     if (lngInp) lngInp.value = lng;
+
+    // Báo cho Blazor Component nếu có
+    if (this.dotNetRef) {
+      try {
+        this.dotNetRef.invokeMethodAsync('OnCoordinatesPicked', Number(lat), Number(lng));
+      } catch(err) {}
+    }
 
     // Đặt pin định vị tạm thời
     this.setPickerPin(lat, lng, 'Vị trí đã chọn: ' + lat + ', ' + lng);
@@ -427,7 +447,17 @@
    */
   AdminMapController.prototype.centerToHomestay = function() {
     if (!this.mapInstance) return;
-    this.mapInstance.setView(HOMESTAY_COORDS, 16, { animate: true });
+    this.mapInstance.flyTo(HOMESTAY_COORDS, 16, { animate: true, duration: 1.0 });
+    this.invalidateSize();
+  };
+
+  /**
+   * Bay mượt tới địa điểm chỉ định trên bản đồ
+   */
+  AdminMapController.prototype.flyToLocation = function(lat, lng, zoom, label) {
+    if (!this.mapInstance) return;
+    this.mapInstance.flyTo([lat, lng], zoom || 16, { animate: true, duration: 1.2 });
+    this.setPickerPin(lat, lng, label || ('Tọa độ: ' + lat + ', ' + lng));
     this.invalidateSize();
   };
 

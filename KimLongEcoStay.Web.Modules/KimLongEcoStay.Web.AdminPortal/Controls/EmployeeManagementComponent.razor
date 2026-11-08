@@ -339,12 +339,11 @@
                     <EditForm Model="editingEmployee" OnValidSubmit="SaveEmployee">
                         <DataAnnotationsValidator />
 
-                        @if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            <div class="alert alert-danger py-2 small mb-3">
-                                <i class="bi bi-exclamation-triangle-fill me-1"></i>@errorMessage
-                            </div>
-                        }
+                        <KleNotificationCard Message="@errorMessage"
+                                             Type="NotificationType.Error"
+                                             Title="Lỗi nhập liệu"
+                                             Service="Quản Lý Nhân Sự"
+                                             OnClose="() => errorMessage = string.Empty" />
 
                         <div class="card border-0 rounded-3 p-4 bg-white shadow-sm mb-3">
                             <h6 class="fw-bold text-success border-bottom pb-2 mb-3">1. Thông Tin Định Danh & Cá Nhân</h6>

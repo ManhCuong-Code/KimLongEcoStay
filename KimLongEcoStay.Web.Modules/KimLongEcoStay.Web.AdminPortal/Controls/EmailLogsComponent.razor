@@ -42,17 +42,12 @@
         </div>
 
         <div class="card-body p-4">
-            <!-- Thông báo trạng thái thao tác -->
-            @if (!string.IsNullOrEmpty(alertMessage))
-            {
-                <div class="alert @(isAlertError ? "alert-danger" : "alert-success") alert-dismissible fade show rounded-3 py-2.5 px-3 mb-3 small d-flex align-items-center justify-content-between" role="alert">
-                    <div>
-                        <i class="bi @(isAlertError ? "bi-exclamation-octagon-fill text-danger" : "bi-check-circle-fill text-success") me-2 fs-6"></i>
-                        <span>@alertMessage</span>
-                    </div>
-                    <button type="button" class="btn-close btn-sm" @onclick="() => alertMessage = null"></button>
-                </div>
-            }
+            <!-- Thông báo trạng thái Notification Card chuẩn hóa -->
+            <KleNotificationCard Notification="@activeNotification"
+                                 RawMessage="@alertMessage"
+                                 IsError="@isAlertError"
+                                 Service="Gmail API"
+                                 OnClose="() => { activeNotification = null; alertMessage = null; }" />
 
             <!-- Lưới thông số cấu hình -->
             <div class="row g-3 mb-4">
@@ -314,6 +309,7 @@
     private bool isSendingTest = false;
     private string searchFilter = "";
     private EmailSendResult? selectedEmailLog;
+    private AppNotification? activeNotification;
 
     protected override void OnInitialized()
     {
@@ -330,23 +326,26 @@
         {
             if (query["gmail_status"] == "connected")
             {
-                alertMessage = "🎉 Chúc mừng! Đã kết nối và xác thực thành công tài khoản Google Gmail với Kim Long EcoStay.";
-                isAlertError = false;
+                activeNotification = AppNotification.Success(
+                    "Kết nối Gmail API thành công",
+                    "Đã kết nối và xác thực thành công tài khoản Google Gmail với Kim Long EcoStay qua OAuth 2.0.",
+                    service: "Gmail API",
+                    recipient: gmailStatus.SenderEmail);
             }
-            // Bỏ qua các thông báo lỗi cũ tồn tại trên thanh địa chỉ URL nếu hệ thống đã kết nối thành công
             return;
         }
 
         if (query["gmail_status"] == "connected")
         {
-            alertMessage = "🎉 Chúc mừng! Đã kết nối và xác thực thành công tài khoản Google Gmail với Kim Long EcoStay.";
-            isAlertError = false;
+            activeNotification = AppNotification.Success(
+                "Kết nối Gmail API thành công",
+                "Đã kết nối và xác thực thành công tài khoản Google Gmail với Kim Long EcoStay.",
+                service: "Gmail API");
             LoadStatus();
         }
         else if (!string.IsNullOrEmpty(query["gmail_error"]))
         {
-            alertMessage = $"Lỗi kết nối Google Gmail: {query["gmail_error"]}";
-            isAlertError = true;
+            activeNotification = AppNotification.FromRawString(query["gmail_error"]!, isError: true, defaultTitle: "Lỗi kết nối Google Gmail");
         }
     }
 
@@ -363,14 +362,16 @@
     {
         GmailService.Disconnect();
         LoadStatus();
-        alertMessage = "Đã ngắt kết nối Gmail API. Bạn có thể bấm 'Kết Nối Tài Khoản Google' để cấp quyền lại bất kỳ lúc nào.";
-        isAlertError = false;
+        activeNotification = AppNotification.Info(
+            "Đã ngắt kết nối Gmail API",
+            "Đã ngắt kết nối tài khoản Google Gmail. Bạn có thể bấm 'Kết Nối Tài Khoản Google' để cấp quyền lại bất kỳ lúc nào.",
+            service: "Gmail API");
     }
 
     private async Task HandleSendTestEmail()
     {
         isSendingTest = true;
-        alertMessage = null;
+        activeNotification = null;
         StateHasChanged();
 
         try
@@ -388,22 +389,11 @@
                 DateTime.Today.AddDays(2));
 
             LoadStatus();
-
-            if (res.IsSuccess)
-            {
-                alertMessage = $"✅ Đã gửi thành công email thử nghiệm đến {recipient} qua {res.ProviderUsed}! Vui lòng kiểm tra hộp thư đến (Inbox) hoặc Spam.";
-                isAlertError = false;
-            }
-            else
-            {
-                alertMessage = $"❌ Gửi email thất bại: {(!string.IsNullOrEmpty(res.ErrorDetails) ? res.ErrorDetails : res.StatusMessage)}";
-                isAlertError = true;
-            }
+            activeNotification = AppNotification.FromEmailResult(res, "Gửi email thử nghiệm thành công");
         }
         catch (Exception ex)
         {
-            alertMessage = $"Lỗi xử lý gửi email: {ex.Message}";
-            isAlertError = true;
+            activeNotification = AppNotification.Error("Lỗi gửi email", ex.Message, "Gmail API");
         }
         finally
         {
@@ -418,21 +408,11 @@
         {
             var res = await EmailService.RetryEmailAsync(log.EmailId);
             LoadStatus();
-            if (res.IsSuccess)
-            {
-                alertMessage = $"Đã gửi lại thành công email đến {log.RecipientEmail}!";
-                isAlertError = false;
-            }
-            else
-            {
-                alertMessage = $"Gửi lại thất bại: {res.ErrorDetails}";
-                isAlertError = true;
-            }
+            activeNotification = AppNotification.FromEmailResult(res, res.IsSuccess ? "Gửi lại email thành công" : "Gửi lại email thất bại");
         }
         catch (Exception ex)
         {
-            alertMessage = $"Lỗi khi gửi lại: {ex.Message}";
-            isAlertError = true;
+            activeNotification = AppNotification.Error("Lỗi gửi lại email", ex.Message, "Gmail API");
         }
     }
 

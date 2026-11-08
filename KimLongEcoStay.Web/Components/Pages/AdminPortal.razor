@@ -3,6 +3,8 @@
 @page "/nhanvien"
 @page "/luong"
 @page "/duan"
+@page "/bando"
+@page "/map-admin"
 @attribute [Authorize(Roles = "Admin,Administrator,Staff,Manager,HR,Accountant")]
 @rendermode InteractiveServer
 @inject AuthenticationStateProvider AuthStateProvider
@@ -82,13 +84,12 @@
         </aside>
 
         <div class="kle-admin-main">
-            @if (!string.IsNullOrEmpty(rbacNotice))
-            {
-                <div class="alert alert-warning border-warning d-flex align-items-center justify-content-between py-2 px-3 rounded-3 mb-3 small">
-                    <div><i class="bi bi-shield-exclamation me-2"></i>@rbacNotice</div>
-                    <button type="button" class="btn-close btn-sm" @onclick="() => rbacNotice = null"></button>
-                </div>
-            }
+            <!-- Thông báo Phân quyền RBAC chuẩn hóa -->
+            <KleNotificationCard RawMessage="@rbacNotice"
+                                 Type="NotificationType.Warning"
+                                 Title="Phân quyền truy cập RBAC"
+                                 Service="Hệ thống Quản Trị"
+                                 OnClose="() => rbacNotice = null" />
 
             <!-- Header của phân hệ đang mở -->
             <div class="kle-admin-module-header">
@@ -232,62 +233,9 @@
                     </div>
                 </div>
             }
-            else if (mainTab == "partners-admin" && CanAccessModule("partners-admin"))
+            else if ((mainTab == "bando" || mainTab == "partners-admin") && (CanAccessModule("bando") || CanAccessModule("partners-admin")))
             {
-                <div class="card border-0 shadow-sm rounded-4 mb-4 p-4 bg-white">
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <div>
-                            <h5 class="fw-bold mb-1" style="color: #14452F;">
-                                <i class="bi bi-geo-alt-fill text-success me-2"></i>Quản Lý Mạng Lưới Đối Tác &amp; Tọa Độ Bản Đồ Số GIS
-                            </h5>
-                            <small class="text-muted">Định vị các nhà vườn, quán ăn truyền thống, điểm trải nghiệm và kiểm tra tọa độ GPS trên hệ thống bản đồ số Kim Long EcoStay.</small>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="if (window.adminMapController) window.adminMapController.centerToHomestay();">
-                                <i class="bi bi-crosshair me-1"></i>Về Tâm Kim Long
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="if (window.adminMapController) window.adminMapController.reloadMap();">
-                                <i class="bi bi-arrow-clockwise me-1"></i>Tải lại bản đồ
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Bản đồ Leaflet -->
-                    <div class="position-relative mb-4" style="height: 440px; width: 100%; border-radius: 14px; overflow: hidden; border: 1.5px solid #E2E8F0;">
-                        <div id="admin-leaflet-map" style="height: 100%; width: 100%; min-height: 440px; z-index: 1;"></div>
-                        <div id="adminMapFallbackNotice" class="alert alert-warning position-absolute top-50 start-50 translate-middle shadow-lg d-none text-center" style="z-index: 1000; min-width: 320px;">
-                            <i class="bi bi-exclamation-triangle-fill fs-3 text-warning mb-2 d-block"></i>
-                            <div class="fw-bold mb-1">Đang tải lớp bản đồ dự phòng</div>
-                            <p class="small mb-2 text-muted">Vui lòng bấm nút bên dưới nếu bạn muốn thử tải lại lớp bản đồ chính.</p>
-                            <button type="button" class="btn btn-sm btn-dark rounded-pill px-3" onclick="if (window.adminMapController) window.adminMapController.reloadMap();">Thử Tải Lại</button>
-                        </div>
-                    </div>
-
-                    <!-- Hướng dẫn và thông số tọa độ -->
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="p-3 rounded-3 border bg-light">
-                                <div class="small text-muted fw-bold">TRUNG TÂM KIM LONG ECOSTAY</div>
-                                <div class="fs-6 fw-bold text-success mt-1">16.4560° N, 107.5495° E</div>
-                                <small class="text-muted">Kim Long, Phường Kim Long, TP. Huế</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 rounded-3 border bg-light">
-                                <div class="small text-muted fw-bold">NHÀ CUNG CẤP BẢN ĐỒ</div>
-                                <div class="fs-6 fw-bold text-primary mt-1">CartoDB • OSM • Esri</div>
-                                <small class="text-muted">Tự động chuyển đổi lớp dự phòng</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 rounded-3 border bg-light">
-                                <div class="small text-muted fw-bold">TƯƠNG TÁC CHỌN TỌA ĐỘ</div>
-                                <div class="fs-6 fw-bold text-dark mt-1">Click &amp; Drag Pin</div>
-                                <small class="text-muted">Tự động bắt tọa độ Vĩ độ / Kinh độ</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <KimLongEcoStay.Web.AdminPortal.Controls.AdminMapComponent />
             }
             else if (mainTab == "emaillogs" && CanAccessModule("emaillogs"))
             {
@@ -309,8 +257,9 @@
     private static readonly Dictionary<string, AdminModuleMeta> AllCatalog = new()
     {
         ["reconciliation"] = new("reconciliation", "Đối Soát Cọc & Phòng", "bi-cash-coin", "Kiểm tra biên lai cọc 50% VietQR, duyệt phòng và cấp mã PIN SmartLock tự động"),
+        ["bando"] = new("bando", "Bản Đồ", "bi-map-fill", "Bản đồ tương tác GIS định vị Kim Long EcoStay, tiện ích nghỉ dưỡng và quản lý địa điểm du lịch"),
         ["specialties-admin"] = new("specialties-admin", "Sản Phẩm & Đặc Sản", "bi-basket2-fill", "Quản lý danh mục 30 đặc sản, tồn kho, giá bán và đơn đặt phục vụ buồng phòng"),
-        ["partners-admin"] = new("partners-admin", "Đối Tác & Bản Đồ", "bi-geo-alt-fill", "Quản lý mạng lưới nhà vườn, làng nghề, quán ăn địa phương và tọa độ GPS bản đồ số"),
+        ["partners-admin"] = new("partners-admin", "Bản Đồ & Đối Tác", "bi-geo-alt-fill", "Quản lý mạng lưới nhà vườn, làng nghề, quán ăn địa phương và tọa độ GPS bản đồ số"),
         ["tea-admin"] = new("tea-admin", "Trà Cung Đình", "bi-cup-hot-fill", "Quản lý gói trải nghiệm thưởng trà Cung Đình Huế và duyệt lịch đặt bàn trà"),
         ["emaillogs"] = new("emaillogs", "Nhật Ký Email & Giao Dịch", "bi-envelope-check-fill", "Theo dõi lịch sử tự động gửi 4 mẫu Email xác nhận đặt phòng, cọc và tất toán"),
         ["dashboard"] = new("dashboard", "Dashboard Tài Chính", "bi-bar-chart-line-fill", "Báo cáo doanh thu, chi phí vận hành, lợi nhuận ròng (EBITDA) và công suất phòng"),
@@ -338,14 +287,14 @@
     private List<string> GetAllowedModuleIds()
     {
         if (IsAdmin)
-            return new() { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan", "sql-sync" };
+            return new() { "reconciliation", "bando", "specialties-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan", "sql-sync" };
         if (IsReceptionist)
-            return new() { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" };
+            return new() { "reconciliation", "bando", "duan", "specialties-admin", "tea-admin", "emaillogs" };
         if (IsAccountant)
             return new() { "dashboard", "reconciliation", "luong", "emaillogs" };
         if (IsHR)
-            return new() { "nhanvien", "duan", "partners-admin" };
-        return new() { "reconciliation" };
+            return new() { "nhanvien", "duan", "bando" };
+        return new() { "reconciliation", "bando" };
     }
 
     private List<AdminModuleMeta> AllowedModules => GetAllowedModuleIds()
@@ -355,7 +304,11 @@
 
     private AdminModuleMeta CurrentModule => AllCatalog.TryGetValue(mainTab, out var meta) ? meta : AllCatalog["reconciliation"];
 
-    private bool CanAccessModule(string modId) => GetAllowedModuleIds().Contains(modId);
+    private bool CanAccessModule(string modId)
+    {
+        if (modId == "partners-admin") return GetAllowedModuleIds().Contains("bando") || GetAllowedModuleIds().Contains("partners-admin");
+        return GetAllowedModuleIds().Contains(modId);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -366,7 +319,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (mainTab == "partners-admin")
+        if (mainTab == "bando" || mainTab == "partners-admin")
         {
             try
             {
@@ -380,6 +333,17 @@
     {
         var currentUri = NavManager.Uri.ToLowerInvariant();
         string? requested = null;
+        if (currentUri.Contains("/dashboard")) requested = "dashboard";
+        else if (currentUri.Contains("/nhanvien")) requested = "nhanvien";
+        else if (currentUri.Contains("/luong")) requested = "luong";
+        else if (currentUri.Contains("/duan")) requested = "duan";
+        else if (currentUri.Contains("/bando") || currentUri.Contains("/map-admin") || currentUri.Contains("/map")) requested = "bando";
+        else if (!string.IsNullOrWhiteSpace(QueryTab))
+        {
+            var qt = QueryTab.ToLowerInvariant();
+            if (qt == "partners-admin" || qt == "map" || qt == "bando") requested = "bando";
+            else requested = qt;
+        }
         if (currentUri.Contains("/dashboard")) requested = "dashboard";
         else if (currentUri.Contains("/nhanvien")) requested = "nhanvien";
         else if (currentUri.Contains("/luong")) requested = "luong";

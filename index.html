@@ -10534,10 +10534,10 @@ window.KLE_MODULES_CATALOG = {
   },
   'partners-admin': {
     id: 'partners-admin',
-    title: 'Đối Tác & Bản Đồ',
-    icon: 'bi-geo-alt-fill',
+    title: 'Bản Đồ',
+    icon: 'bi-map-fill',
     group: 'NGHIỆP VỤ KINH DOANH & LƯU TRÚ',
-    desc: 'Quản lý mạng lưới nhà vườn, làng nghề, quán ăn địa phương và tọa độ GPS bản đồ số'
+    desc: 'Bản đồ tương tác GIS định vị Kim Long EcoStay, tiện ích nghỉ dưỡng và quản lý địa điểm du lịch'
   },
   'tea-admin': {
     id: 'tea-admin',
@@ -12386,7 +12386,7 @@ window.resolveModuleIdFromRoute = function(subTab) {
   if (!clean || clean === 'admin') return getFirstAllowedModule();
   if (clean === 'reconciliation' || clean === 'doisoat') return 'reconciliation';
   if (clean === 'specialties-admin' || clean === 'dacsan') return 'specialties-admin';
-  if (clean === 'partners-admin' || clean === 'doitac') return 'partners-admin';
+  if (clean === 'partners-admin' || clean === 'doitac' || clean === 'bando' || clean === 'map' || clean === 'admin-map') return 'partners-admin';
   if (clean === 'tea-admin' || clean === 'tracungdinh') return 'tea-admin';
   if (clean === 'emaillogs' || clean === 'email') return 'emaillogs';
   if (clean === 'dashboard') return 'dashboard';
@@ -12503,7 +12503,7 @@ window.activateRoute = function(cleanRoute) {
     return;
   }
 
-  if (['dashboard', 'nhanvien', 'luong', 'duan', 'sql-sync', 'sql', 'database', 'admin', 'reconciliation', 'specialties-admin', 'partners-admin', 'tea-admin', 'emaillogs', 'doisoat', 'doitac', 'lookup', 'tracuu'].indexOf(cleanRoute) !== -1) {
+  if (['dashboard', 'nhanvien', 'luong', 'duan', 'sql-sync', 'sql', 'database', 'admin', 'reconciliation', 'specialties-admin', 'partners-admin', 'bando', 'map', 'tea-admin', 'emaillogs', 'doisoat', 'doitac', 'lookup', 'tracuu'].indexOf(cleanRoute) !== -1) {
     openAdminPortalModal(cleanRoute);
     return;
   }

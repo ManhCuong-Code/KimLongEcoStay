@@ -231,5 +231,97 @@ namespace KimLongEcoStay.Tests
             Assert.NotNull(retryResult);
             Assert.True(retryResult.IsSuccess);
         }
+
+        [Fact]
+        public void Test10_HeritageMap_LocationsIncludeCenterAndResortFacilities()
+        {
+            var locs = HeritageMapProvider.GetAllLocations();
+            Assert.NotNull(locs);
+            Assert.True(locs.Count >= 50, "Total locations should be at least 50");
+
+            var center = locs.FirstOrDefault(l => l.Id == "KLE-CENTER");
+            Assert.NotNull(center);
+            Assert.True(center.IsEcoStayCenter);
+            Assert.Equal(16.4560, center.Latitude);
+            Assert.Equal(107.5495, center.Longitude);
+
+            // Verify resort facilities
+            var nhaRuong = locs.FirstOrDefault(l => l.Id == "KLE-FACILITY-NHA-RUONG");
+            Assert.NotNull(nhaRuong);
+            Assert.Equal("Tiện Ích Khu Nghỉ Dưỡng", nhaRuong.Category);
+
+            var traThat = locs.FirstOrDefault(l => l.Id == "KLE-FACILITY-TRA-THAT");
+            Assert.NotNull(traThat);
+        }
+
+        [Fact]
+        public void Test11_HeritageMap_AddUpdateDeleteLocation_Lifecycle()
+        {
+            string testId = "TEST-MAP-LOC-01";
+            // Clean up if already exists
+            HeritageMapProvider.DeleteLocation(testId, out _);
+
+            var newLoc = new HeritageLocation
+            {
+                Id = testId,
+                Name = "Quán Cà Phê Di Sản Kim Long Mới",
+                Category = "Ẩm Thực Xứ Huế",
+                Address = "99 Kim Long, TP. Huế",
+                Latitude = 16.4570,
+                Longitude = 107.5500,
+                Summary = "Quán cà phê thử nghiệm"
+            };
+
+            // 1. Add
+            bool addOk = HeritageMapProvider.AddLocation(newLoc, out string addErr);
+            Assert.True(addOk, $"AddLocation failed: {addErr}");
+            Assert.Empty(addErr);
+
+            var fetched = HeritageMapProvider.GetLocationById(testId);
+            Assert.NotNull(fetched);
+            Assert.Equal("Quán Cà Phê Di Sản Kim Long Mới", fetched.Name);
+            Assert.True(fetched.DistanceFromEcoStayKm > 0);
+
+            // 2. Update
+            fetched.Name = "Quán Cà Phê Di Sản Kim Long Mới (Đã Cập Nhật)";
+            bool updateOk = HeritageMapProvider.UpdateLocation(fetched, out string updErr);
+            Assert.True(updateOk, $"UpdateLocation failed: {updErr}");
+
+            var updated = HeritageMapProvider.GetLocationById(testId);
+            Assert.Equal("Quán Cà Phê Di Sản Kim Long Mới (Đã Cập Nhật)", updated?.Name);
+
+            // 3. Delete
+            bool delOk = HeritageMapProvider.DeleteLocation(testId, out string delErr);
+            Assert.True(delOk, $"DeleteLocation failed: {delErr}");
+
+            var deleted = HeritageMapProvider.GetLocationById(testId);
+            Assert.Null(deleted);
+
+            // 4. Center protection
+            bool cantDeleteCenter = HeritageMapProvider.DeleteLocation("KLE-CENTER", out string centerErr);
+            Assert.False(cantDeleteCenter);
+            Assert.NotEmpty(centerErr);
+        }
+
+        [Fact]
+        public void Test12_HeritageMap_DistanceComputationIsAccurate()
+        {
+            var testLoc = new HeritageLocation
+            {
+                Id = "TEST-DIST-01",
+                Name = "Điểm Kiểm Tra Khoảng Cách",
+                Category = "Quần Thể Di Tích Cố Đô",
+                Latitude = 16.4358,
+                Longitude = 107.5681
+            };
+
+            HeritageMapProvider.AddLocation(testLoc, out _);
+            var loc = HeritageMapProvider.GetLocationById("TEST-DIST-01");
+            Assert.NotNull(loc);
+            // Distance from [16.4560, 107.5495] to [16.4358, 107.5681] should be around 2.9 - 3.2 km
+            Assert.True(loc.DistanceFromEcoStayKm >= 2.0 && loc.DistanceFromEcoStayKm <= 4.0);
+
+            HeritageMapProvider.DeleteLocation("TEST-DIST-01", out _);
+        }
     }
 }

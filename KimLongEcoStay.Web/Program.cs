@@ -555,10 +555,10 @@ app.MapPost("/api/auth/login", async (HttpContext context, IUserRepository userR
 
         string[] allowedModules = user.Role.ToUpperInvariant() switch
         {
-            "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "finance", "nhanvien", "employees", "luong", "payrolls", "duan", "sql-sync" },
-            "STAFF" or "LETAN" or "RECEPTIONIST" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
+            "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "bando", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "finance", "nhanvien", "employees", "luong", "payrolls", "duan", "sql-sync" },
+            "STAFF" or "LETAN" or "RECEPTIONIST" => new[] { "reconciliation", "bando", "duan", "specialties-admin", "tea-admin", "emaillogs" },
             "ACCOUNTANT" or "CFO" or "KETOAN" => new[] { "dashboard", "finance", "reconciliation", "luong", "payrolls", "emaillogs" },
-            "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU" => new[] { "nhanvien", "employees", "duan", "partners-admin" },
+            "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU" => new[] { "nhanvien", "employees", "duan", "bando", "partners-admin" },
             _ => Array.Empty<string>()
         };
 
@@ -626,10 +626,10 @@ app.MapGet("/api/auth/me", (HttpContext context) =>
     string roleClaim = user.FindFirst("UserRole")?.Value ?? user.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
     string[] allowedModules = roleClaim.ToUpperInvariant() switch
     {
-        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "finance", "nhanvien", "employees", "luong", "payrolls", "duan", "sql-sync" },
-        "STAFF" or "LETAN" or "RECEPTIONIST" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
+        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "bando", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "finance", "nhanvien", "employees", "luong", "payrolls", "duan", "sql-sync" },
+        "STAFF" or "LETAN" or "RECEPTIONIST" => new[] { "reconciliation", "bando", "duan", "specialties-admin", "tea-admin", "emaillogs" },
         "ACCOUNTANT" or "CFO" or "KETOAN" => new[] { "dashboard", "finance", "reconciliation", "luong", "payrolls", "emaillogs" },
-        "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU" => new[] { "nhanvien", "employees", "duan", "partners-admin" },
+        "HR" or "HR_OPS" or "COO" or "MANAGER" or "NHANSU" => new[] { "nhanvien", "employees", "duan", "bando", "partners-admin" },
         _ => Array.Empty<string>()
     };
 
@@ -805,20 +805,80 @@ app.MapGet("/api/specialties", (IProductRepository productRepo) =>
 // 1B. Mạng lưới đối tác địa phương & điểm bản đồ Kim Long
 app.MapGet("/api/partners", () =>
 {
-    var samplePartners = new[]
-    {
-        new { Id = "KLE-CENTER", Name = "Kim Long EcoStay (Tâm Điểm Xuất Phát)", Category = "Nhà vườn và homestay", PartnerGroup = "Nhà vườn và homestay", Latitude = 16.4560, Longitude = 107.5495, Address = "Khu vực Nhà vườn Kim Long, Ven Sông Hương, Phường Kim Long, TP. Huế", DistanceKm = 0.0, Phone = "0905 123 456", OpenHours = "Mở cửa 24/7 (Smart Check-in không chạm)", ImageUrl = "images/nha_ruong_1.jpg", IsActive = true, IsSample = false },
-        new { Id = "PARTNER-NV-HUONG-SEN", Name = "Nhà Vườn Sinh Thái Hương Sen Kim Long", Category = "Nhà vườn và homestay", PartnerGroup = "Nhà vườn và homestay", Latitude = 16.4572, Longitude = 107.5482, Address = "Kiệt 82 Kim Long, Phường Kim Long, TP. Huế", DistanceKm = 0.18, Phone = "0914 234 567", OpenHours = "06:30 - 21:00 hàng ngày", ImageUrl = "images/nha_ruong_1.jpg", IsActive = true, IsSample = true },
-        new { Id = "PARTNER-NV-THANH-TRA", Name = "Vườn Sinh Thái & Homestay Thanh Trà Cổ Thụ", Category = "Nhà vườn và homestay", PartnerGroup = "Nhà vườn và homestay", Latitude = 16.4585, Longitude = 107.5465, Address = "Đường Nguyễn Hoàng, Phường Kim Long, TP. Huế", DistanceKm = 0.35, Phone = "0935 345 678", OpenHours = "07:00 - 18:30 hàng ngày", ImageUrl = "images/nha_ruong_3.jpg", IsActive = true, IsSample = true },
-        new { Id = "HERITAGE-AN-HIEN", Name = "Nhà Vườn An Hiên (Đệ Nhất Nhà Vườn Xứ Huế)", Category = "Nhà vườn và homestay", PartnerGroup = "Nhà vườn và homestay", Latitude = 16.4542, Longitude = 107.5471, Address = "58 Phú Mộng, Phường Kim Long, TP. Huế", DistanceKm = 0.45, Phone = "0234 3523 456", OpenHours = "07:30 - 17:30 hàng ngày", ImageUrl = "images/nha_ruong_2.jpg", IsActive = true, IsSample = false },
-        new { Id = "FOOD-BANH-UOT", Name = "Bánh Ướt Thịt Nướng Huyền Anh (Đệ Nhất Kim Long)", Category = "Quán ăn và ẩm thực", PartnerGroup = "Quán ăn và ẩm thực", Latitude = 16.4568, Longitude = 107.5475, Address = "50/5 Kim Long, Phường Kim Long, TP. Huế", DistanceKm = 0.25, Phone = "0234 3525 655", OpenHours = "08:30 - 21:00 hàng ngày", ImageUrl = "images/mon_banhuot.jpg", IsActive = true, IsSample = false },
-        new { Id = "PARTNER-DAC-SAN-KIM-LONG", Name = "Cơ Sở Đặc Sản & Mứt Gừng Kim Long O Lành", Category = "Đặc sản và sản phẩm địa phương", PartnerGroup = "Đặc sản và sản phẩm địa phương", Latitude = 16.4578, Longitude = 107.5512, Address = "Đường Kim Long, Phường Kim Long, TP. Huế", DistanceKm = 0.28, Phone = "0905 456 789", OpenHours = "07:00 - 20:30 hàng ngày", ImageUrl = "images/qua_mutgung.jpg", IsActive = true, IsSample = true },
-        new { Id = "PARTNER-TRA-CUNG-DINH", Name = "Trà Thất & Đặc Sản Trà Cung Đình Kim Long", Category = "Đặc sản và sản phẩm địa phương", PartnerGroup = "Đặc sản và sản phẩm địa phương", Latitude = 16.4552, Longitude = 107.5525, Address = "Đường Kim Long, Phường Kim Long, TP. Huế", DistanceKm = 0.4, Phone = "0983 567 890", OpenHours = "07:30 - 21:30 hàng ngày", ImageUrl = "images/tra_cung_dinh.jpg", IsActive = true, IsSample = true },
-        new { Id = "PARTNER-HTX-NONG-SAN", Name = "HTX Nông Sản Sạch & Thanh Trà Kim Long", Category = "Đặc sản và sản phẩm địa phương", PartnerGroup = "Đặc sản và sản phẩm địa phương", Latitude = 16.4595, Longitude = 107.5450, Address = "Khu nông nghiệp bãi bồi ven sông, Kim Long, TP. Huế", DistanceKm = 0.5, Phone = "0912 678 901", OpenHours = "06:00 - 18:00 hàng ngày", ImageUrl = "images/nongsan_thanhtra.jpg", IsActive = true, IsSample = true },
-        new { Id = "EXP-ECO-BIKE-KIM-LONG", Name = "Trạm Xe Đạp Sinh Thái Eco-Bike & Bến Thuyền Kim Long", Category = "Điểm trải nghiệm", PartnerGroup = "Điểm trải nghiệm", Latitude = 16.4555, Longitude = 107.5505, Address = "Bến thuyền Kim Long ven sông Hương, TP. Huế", DistanceKm = 0.15, Phone = "0905 123 456", OpenHours = "06:00 - 21:00 hàng ngày", ImageUrl = "images/hero_ecostay.jpg", IsActive = true, IsSample = true }
-    };
-    return Results.Ok(samplePartners);
+    var locations = HeritageMapProvider.GetAllLocations();
+    return Results.Ok(locations);
 });
+
+// 1C. API Quản Lý Địa Điểm Bản Đồ Admin (Full CRUD GIS Locations)
+app.MapGet("/api/admin/locations", () =>
+{
+    return Results.Ok(HeritageMapProvider.GetAllLocations());
+});
+
+app.MapGet("/api/admin/locations/{id}", (string id) =>
+{
+    var loc = HeritageMapProvider.GetLocationById(id);
+    return loc != null ? Results.Ok(loc) : Results.NotFound(new { success = false, message = "Không tìm thấy địa điểm." });
+});
+
+app.MapPost("/api/admin/locations", async (HttpContext ctx) =>
+{
+    var authErr = AuthorizeRole(ctx, "Admin", "Administrator", "Staff", "Manager", "HR");
+    if (authErr != null) return authErr;
+
+    try
+    {
+        var newLoc = await ctx.Request.ReadFromJsonAsync<HeritageLocation>();
+        if (newLoc == null)
+            return Results.BadRequest(new { success = false, message = "Dữ liệu địa điểm không hợp lệ." });
+
+        bool ok = HeritageMapProvider.AddLocation(newLoc, out string err);
+        if (!ok)
+            return Results.BadRequest(new { success = false, message = err });
+
+        return Results.Ok(new { success = true, message = "Đã thêm địa điểm mới thành công.", location = newLoc });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, message = "Lỗi xử lý: " + ex.Message });
+    }
+}).DisableAntiforgery();
+
+app.MapPut("/api/admin/locations/{id}", async (string id, HttpContext ctx) =>
+{
+    var authErr = AuthorizeRole(ctx, "Admin", "Administrator", "Staff", "Manager", "HR");
+    if (authErr != null) return authErr;
+
+    try
+    {
+        var updated = await ctx.Request.ReadFromJsonAsync<HeritageLocation>();
+        if (updated == null)
+            return Results.BadRequest(new { success = false, message = "Dữ liệu địa điểm không hợp lệ." });
+
+        updated.Id = id;
+        bool ok = HeritageMapProvider.UpdateLocation(updated, out string err);
+        if (!ok)
+            return Results.BadRequest(new { success = false, message = err });
+
+        return Results.Ok(new { success = true, message = "Đã cập nhật thông tin địa điểm thành công.", location = updated });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, message = "Lỗi xử lý: " + ex.Message });
+    }
+}).DisableAntiforgery();
+
+app.MapDelete("/api/admin/locations/{id}", (string id, HttpContext ctx) =>
+{
+    var authErr = AuthorizeRole(ctx, "Admin", "Administrator", "Manager");
+    if (authErr != null) return authErr;
+
+    bool ok = HeritageMapProvider.DeleteLocation(id, out string err);
+    if (!ok)
+        return Results.BadRequest(new { success = false, message = err });
+
+    return Results.Ok(new { success = true, message = $"Đã xóa địa điểm '{id}' khỏi hệ thống bản đồ." });
+}).DisableAntiforgery();
 
 // 2. Danh sách dịch vụ trà Cung Đình Huế
 app.MapGet("/api/tea-services", () =>
@@ -845,10 +905,10 @@ app.MapGet("/api/rbac/me", (HttpContext context) =>
     string roleClaim = user.FindFirst("UserRole")?.Value ?? user.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
     string[] allowedModules = roleClaim.ToUpperInvariant() switch
     {
-        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan", "sql-sync" },
-        "STAFF" or "LETAN" => new[] { "reconciliation", "duan", "specialties-admin", "tea-admin", "emaillogs" },
+        "ADMIN" or "ADMINISTRATOR" => new[] { "reconciliation", "bando", "specialties-admin", "partners-admin", "tea-admin", "emaillogs", "dashboard", "nhanvien", "luong", "duan", "sql-sync" },
+        "STAFF" or "LETAN" => new[] { "reconciliation", "bando", "duan", "specialties-admin", "tea-admin", "emaillogs" },
         "ACCOUNTANT" or "CFO" => new[] { "dashboard", "reconciliation", "luong", "emaillogs" },
-        "HR" or "COO" or "MANAGER" => new[] { "nhanvien", "duan", "partners-admin" },
+        "HR" or "COO" or "MANAGER" => new[] { "nhanvien", "duan", "bando", "partners-admin" },
         _ => Array.Empty<string>()
     };
 
@@ -1040,7 +1100,7 @@ static string[]? GetAllowedRolesForModule(string moduleId)
         "duan" => new[] { "Admin", "Staff", "HR" },
         "specialties-admin" => new[] { "Admin", "Staff" },
         "tea-admin" => new[] { "Admin", "Staff" },
-        "partners-admin" => new[] { "Admin", "HR" },
+        "partners-admin" or "bando" or "map" or "admin-map" => new[] { "Admin", "Staff", "HR" },
         "emaillogs" => new[] { "Admin", "Staff", "Accountant" },
         "dashboard" or "finance" => new[] { "Admin", "Accountant" },
         "nhanvien" or "employees" => new[] { "Admin", "HR" },

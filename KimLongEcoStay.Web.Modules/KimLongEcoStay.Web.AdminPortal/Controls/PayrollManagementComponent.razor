@@ -45,14 +45,12 @@
         </div>
     </div>
 
-    <!-- Alert thông báo thao tác -->
-    @if (!string.IsNullOrEmpty(feedbackMessage))
-    {
-        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm py-2 mb-3" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i>@feedbackMessage
-            <button type="button" class="btn-close" @onclick="() => feedbackMessage = null"></button>
-        </div>
-    }
+    <!-- Notification Card chuẩn hóa thao tác tiền lương -->
+    <KleNotificationCard RawMessage="@feedbackMessage"
+                         IsError="@(feedbackMessage != null && feedbackMessage.StartsWith("Lỗi"))"
+                         Title="@(feedbackMessage != null && feedbackMessage.StartsWith("Lỗi") ? "Lỗi phân quyền lương" : "Quản lý tiền lương")"
+                         Service="Kế Toán & Tiền Lương"
+                         OnClose="() => feedbackMessage = null" />
 
     <!-- Thống kê Tóm Tắt (Chỉ hiển thị cho Quản lý / Kế toán / Nhân sự; Ẩn với Nhân viên thường) -->
     @if (IsStaffOnly)

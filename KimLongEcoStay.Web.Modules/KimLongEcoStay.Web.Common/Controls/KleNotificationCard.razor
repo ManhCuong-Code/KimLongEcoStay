@@ -1,0 +1,279 @@
+@using KimLongEcoStay.CoreBusiness.Models
+
+@if (IsVisible)
+{
+    var current = CurrentNotification;
+    if (current != null && !current.IsDismissed)
+    {
+        <div class="kle-notification-card mb-3 @GetCardClass(current.Type)" role="alert">
+            <div class="d-flex align-items-start gap-3 p-3">
+                <!-- Icon biểu tượng -->
+                <div class="kle-notification-icon flex-shrink-0 @GetIconContainerClass(current.Type)">
+                    <i class="bi @GetIconClass(current.Type)"></i>
+                </div>
+
+                <!-- Nội dung chính -->
+                <div class="flex-grow-1 min-w-0">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h6 class="kle-notification-title fw-bold mb-0">
+                                @(string.IsNullOrEmpty(current.Title) ? GetDefaultTitle(current.Type) : current.Title)
+                            </h6>
+                            @if (!string.IsNullOrEmpty(current.Service))
+                            {
+                                <span class="badge rounded-pill kle-notification-service-badge">
+                                    <i class="bi bi-gear-wide-connected me-1"></i>@current.Service
+                                </span>
+                            }
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="kle-notification-time small text-muted">
+                                <i class="bi bi-clock me-1"></i>@current.Timestamp.ToString("HH:mm:ss – dd/MM/yyyy")
+                            </span>
+                            @if (ShowCloseButton)
+                            {
+                                <button type="button" class="btn-close btn-sm ms-1 kle-notification-close" @onclick="HandleDismiss" aria-label="Đóng thông báo" title="Đóng thông báo"></button>
+                            }
+                        </div>
+                    </div>
+
+                    <p class="kle-notification-message mb-1 text-break">
+                        @current.Message
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(current.Recipient))
+                    {
+                        <div class="kle-notification-meta small mb-1 text-muted">
+                            <i class="bi bi-person-check me-1"></i>Người nhận: <strong>@current.Recipient</strong>
+                        </div>
+                    }
+
+                    <!-- Mục Chi tiết kỹ thuật có thể mở rộng -->
+                    @if (!string.IsNullOrEmpty(current.TechnicalDetails))
+                    {
+                        <div class="kle-technical-details-wrapper mt-2">
+                            <button type="button" class="btn btn-sm kle-tech-toggle-btn p-0 d-flex align-items-center gap-1" @onclick="ToggleTechnicalDetails">
+                                <i class="bi @(current.ShowTechnicalDetails ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                                <span>@(current.ShowTechnicalDetails ? "Thu gọn chi tiết kỹ thuật" : "Chi tiết kỹ thuật (MsgId, Response...)")</span>
+                            </button>
+
+                            @if (current.ShowTechnicalDetails)
+                            {
+                                <div class="kle-tech-details-box mt-2 p-2.5 rounded-2 font-monospace small">
+                                    <pre class="mb-0 text-break" style="white-space: pre-wrap; font-size: 11.5px; max-height: 160px; overflow-y: auto;">@current.TechnicalDetails</pre>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<style>
+    .kle-notification-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
+        overflow: hidden;
+    }
+    .kle-notification-card.type-success {
+        background-color: #F0FDF4;
+        border-color: #A7F3D0;
+        color: #064E3B;
+    }
+    .kle-notification-card.type-error {
+        background-color: #FEF2F2;
+        border-color: #FECACA;
+        color: #7F1D1D;
+    }
+    .kle-notification-card.type-warning {
+        background-color: #FFFBEB;
+        border-color: #FDE68A;
+        color: #78350F;
+    }
+    .kle-notification-card.type-info {
+        background-color: #EFF6FF;
+        border-color: #BFDBFE;
+        color: #1E3A8A;
+    }
+
+    .kle-notification-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .kle-notification-icon.icon-success {
+        background-color: #DCFCE7;
+        color: #15803D;
+    }
+    .kle-notification-icon.icon-error {
+        background-color: #FEE2E2;
+        color: #B91C1C;
+    }
+    .kle-notification-icon.icon-warning {
+        background-color: #FEF3C7;
+        color: #B45309;
+    }
+    .kle-notification-icon.icon-info {
+        background-color: #DBEAFE;
+        color: #1D4ED8;
+    }
+
+    .kle-notification-title {
+        font-size: 14.5px;
+        letter-spacing: -0.2px;
+    }
+    .kle-notification-service-badge {
+        font-size: 11px;
+        font-weight: 600;
+        background-color: rgba(20, 69, 47, 0.08);
+        color: #14452F;
+        border: 1px solid rgba(20, 69, 47, 0.15);
+    }
+    .kle-notification-message {
+        font-size: 13.5px;
+        line-height: 1.5;
+    }
+    .kle-tech-toggle-btn {
+        font-size: 12px;
+        color: inherit;
+        opacity: 0.8;
+        font-weight: 600;
+        background: transparent;
+        border: none;
+    }
+    .kle-tech-toggle-btn:hover {
+        opacity: 1;
+        text-decoration: underline;
+    }
+    .kle-tech-details-box {
+        background: rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        color: inherit;
+    }
+    .kle-notification-time {
+        font-size: 11.5px;
+    }
+</style>
+
+@code {
+    [Parameter] public AppNotification? Notification { get; set; }
+    [Parameter] public string? RawMessage { get; set; }
+    [Parameter] public bool IsError { get; set; } = false;
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public NotificationType Type { get; set; } = NotificationType.Info;
+    [Parameter] public string? Service { get; set; }
+    [Parameter] public string? TechnicalDetails { get; set; }
+    [Parameter] public string? Recipient { get; set; }
+    [Parameter] public bool ShowCloseButton { get; set; } = true;
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private AppNotification? derivedNotification;
+
+    private bool IsVisible
+    {
+        get
+        {
+            var cur = CurrentNotification;
+            return cur != null && !cur.IsDismissed && (!string.IsNullOrEmpty(cur.Message) || !string.IsNullOrEmpty(cur.Title));
+        }
+    }
+
+    private AppNotification? CurrentNotification
+    {
+        get
+        {
+            if (Notification != null) return Notification;
+
+            if (!string.IsNullOrWhiteSpace(RawMessage))
+            {
+                if (derivedNotification == null || derivedNotification.Message != RawMessage)
+                {
+                    derivedNotification = AppNotification.FromRawString(RawMessage, IsError, Title);
+                    if (!string.IsNullOrEmpty(Service)) derivedNotification.Service = Service;
+                    if (!string.IsNullOrEmpty(TechnicalDetails)) derivedNotification.TechnicalDetails = TechnicalDetails;
+                }
+                return derivedNotification;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Message) || !string.IsNullOrWhiteSpace(Title))
+            {
+                return new AppNotification
+                {
+                    Type = Type,
+                    Title = Title ?? GetDefaultTitle(Type),
+                    Message = Message ?? "",
+                    Service = Service,
+                    TechnicalDetails = TechnicalDetails,
+                    Recipient = Recipient
+                };
+            }
+
+            return null;
+        }
+    }
+
+    private async Task HandleDismiss()
+    {
+        var cur = CurrentNotification;
+        if (cur != null)
+        {
+            cur.IsDismissed = true;
+        }
+        if (OnClose.HasDelegate)
+        {
+            await OnClose.InvokeAsync();
+        }
+    }
+
+    private void ToggleTechnicalDetails()
+    {
+        var cur = CurrentNotification;
+        if (cur != null)
+        {
+            cur.ShowTechnicalDetails = !cur.ShowTechnicalDetails;
+        }
+    }
+
+    private string GetCardClass(NotificationType type) => type switch
+    {
+        NotificationType.Success => "type-success",
+        NotificationType.Error => "type-error",
+        NotificationType.Warning => "type-warning",
+        _ => "type-info"
+    };
+
+    private string GetIconContainerClass(NotificationType type) => type switch
+    {
+        NotificationType.Success => "icon-success",
+        NotificationType.Error => "icon-error",
+        NotificationType.Warning => "icon-warning",
+        _ => "icon-info"
+    };
+
+    private string GetIconClass(NotificationType type) => type switch
+    {
+        NotificationType.Success => "bi-check-circle-fill",
+        NotificationType.Error => "bi-x-circle-fill",
+        NotificationType.Warning => "bi-exclamation-triangle-fill",
+        _ => "bi-info-circle-fill"
+    };
+
+    private string GetDefaultTitle(NotificationType type) => type switch
+    {
+        NotificationType.Success => "Thao tác thành công",
+        NotificationType.Error => "Đã xảy ra lỗi",
+        NotificationType.Warning => "Cảnh báo hệ thống",
+        _ => "Thông tin thông báo"
+    };
+}
+

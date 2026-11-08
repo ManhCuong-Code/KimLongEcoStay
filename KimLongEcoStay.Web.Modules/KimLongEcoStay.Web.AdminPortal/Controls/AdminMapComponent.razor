@@ -1,0 +1,966 @@
+@using KimLongEcoStay.CoreBusiness.Models
+@using KimLongEcoStay.CoreBusiness.Services
+@using KimLongEcoStay.Web.Common.Controls
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<div class="kle-admin-map-container">
+    <!-- 1. THÔNG BÁO HỆ THỐNG / NOTIFICATION CARD -->
+    @if (currentNotification != null)
+    {
+        <div class="mb-3">
+            <KleNotificationCard Notification="@currentNotification" OnClose="() => currentNotification = null" />
+        </div>
+    }
+
+    <!-- 2. HEADER & THANH CÔNG CỤ ĐIỀU HÀNH BẢN ĐỒ -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+        <div class="card-body p-3 p-md-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 pb-3 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" 
+                         style="width: 48px; height: 48px; background: #14452F; color: #D4AF37; font-size: 22px; box-shadow: 0 4px 12px rgba(20,69,47,0.25);">
+                        <i class="bi bi-map-fill"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h5 class="fw-bold mb-0" style="color: #14452F; font-size: 18px;">
+                                Bản Đồ Tương Tác GIS &amp; Quản Lý Địa Điểm Kim Long EcoStay
+                            </h5>
+                            <span class="badge rounded-pill px-2.5 py-1" style="background: rgba(30,107,69,0.12); color: #14452F; border: 1px solid rgba(30,107,69,0.3); font-weight: 700;">
+                                <i class="bi bi-shield-check me-1"></i>Hệ Thống Thực Tế 100%
+                            </span>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            Định vị không gian resort, mạng lưới tiện ích nội khu, 50+ đối tác di sản, ẩm thực truyền thống và văn hóa xứ Huế.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-sm rounded-pill px-3 fw-bold" 
+                            style="background: #14452F; color: #D4AF37; border: 1px solid #D4AF37;" 
+                            @onclick="OpenAddModal">
+                        <i class="bi bi-plus-circle-fill me-1"></i>Thêm Địa Điểm Mới
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" 
+                            @onclick="CenterToHomestay" title="Căn giữa về trung tâm Kim Long EcoStay">
+                        <i class="bi bi-crosshair me-1"></i>Về Tâm Kim Long
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" 
+                            @onclick="ReloadMap" title="Tải lại toàn bộ dữ liệu và ghim bản đồ">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Tải Lại
+                    </button>
+                </div>
+            </div>
+
+            <!-- THỐNG KÊ NHANH -->
+            <div class="row g-2 g-md-3 pt-3">
+                <div class="col-6 col-md-3">
+                    <div class="p-2.5 p-md-3 rounded-3 border bg-light d-flex align-items-center gap-2.5">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white" 
+                             style="width: 36px; height: 36px; background: #14452F;">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted fw-bold" style="font-size: 11px;">TỔNG ĐỊA ĐIỂM</div>
+                            <div class="fs-6 fw-bold" style="color: #14452F;">@allLocations.Count điểm</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-2.5 p-md-3 rounded-3 border bg-light d-flex align-items-center gap-2.5">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white" 
+                             style="width: 36px; height: 36px; background: #15803D;">
+                            <i class="bi bi-house-check-fill"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted fw-bold" style="font-size: 11px;">TIỆN ÍCH NỘI KHU</div>
+                            <div class="fs-6 fw-bold text-success">@GetFacilityCount() công trình</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-2.5 p-md-3 rounded-3 border bg-light d-flex align-items-center gap-2.5">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white" 
+                             style="width: 36px; height: 36px; background: #DC2626;">
+                            <i class="bi bi-egg-fried"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted fw-bold" style="font-size: 11px;">ẨM THỰC HUẾ</div>
+                            <div class="fs-6 fw-bold text-danger">@GetCategoryCount("Ẩm Thực Xứ Huế") quán</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-2.5 p-md-3 rounded-3 border bg-light d-flex align-items-center gap-2.5">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white" 
+                             style="width: 36px; height: 36px; background: #D97706;">
+                            <i class="bi bi-flower2"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted fw-bold" style="font-size: 11px;">DI TÍCH &amp; LÀNG NGHỀ</div>
+                            <div class="fs-6 fw-bold text-warning">@(GetCategoryCount("Quần Thể Di Tích Cố Đô") + GetCategoryCount("Làng Nghề Truyền Thống")) điểm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. THANH TÌM KIẾM & BỘ LỌC DANH MỤC THỜI GIAN THỰC -->
+    <div class="card border-0 shadow-sm rounded-4 mb-3 bg-white">
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-center">
+                <!-- Ô tìm kiếm -->
+                <div class="col-lg-5 col-md-12">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control bg-light border-start-0 py-2" 
+                               placeholder="Tìm theo tên địa điểm, địa chỉ, bánh ướt, nhà rường..." 
+                               value="@searchTerm" 
+                               @oninput="OnSearchInput" />
+                        @if (!string.IsNullOrEmpty(searchTerm))
+                        {
+                            <button class="btn btn-light border" type="button" @onclick="ClearSearch">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Các nút lọc danh mục -->
+                <div class="col-lg-7 col-md-12">
+                    <div class="d-flex gap-1.5 flex-wrap justify-content-lg-end">
+                        @foreach (var cat in availableCategories)
+                        {
+                            var c = cat;
+                            var count = GetFilterCount(c);
+                            <button type="button" 
+                                    class="btn btn-sm rounded-pill px-2.5 py-1 fw-semibold @(selectedCategory == c ? "btn-success" : "btn-outline-secondary")"
+                                    style="font-size: 12px;"
+                                    @onclick="() => FilterByCategory(c)">
+                                @if (c == "Tiện Ích Khu Nghỉ Dưỡng")
+                                {
+                                    <i class="bi bi-house-check me-1"></i>
+                                }
+                                else if (c == "Quần Thể Di Tích Cố Đô")
+                                {
+                                    <i class="bi bi-bank me-1"></i>
+                                }
+                                else if (c == "Ẩm Thực Xứ Huế")
+                                {
+                                    <i class="bi bi-egg-fried me-1"></i>
+                                }
+                                else if (c == "Làng Nghề Truyền Thống")
+                                {
+                                    <i class="bi bi-flower2 me-1"></i>
+                                }
+                                else if (c == "Chùa Cổ & Tâm Linh")
+                                {
+                                    <i class="bi bi-peace me-1"></i>
+                                }
+                                else if (c == "Nhà Vườn Di Sản")
+                                {
+                                    <i class="bi bi-tree me-1"></i>
+                                }
+                                @c <span class="badge rounded-pill bg-white text-dark ms-1" style="font-size: 10px;">@count</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. KHUNG BẢN ĐỒ TƯƠNG TÁC LEAFLET & PANEL CHI TIẾT -->
+    <div class="row g-3 mb-4">
+        <!-- Khung Bản Đồ -->
+        <div class="@(selectedLocation != null ? "col-lg-8" : "col-12")">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-pill px-2.5 py-1" style="background: #14452F; color: #D4AF37; font-weight: 700;">
+                            <i class="bi bi-layers-fill me-1"></i>BẢN ĐỒ SỐ GIS
+                        </span>
+                        <span id="adminMapStatusBadge" class="small fw-semibold text-muted">
+                            <i class="bi bi-geo-alt-fill text-success me-1"></i>Đang kết nối bản đồ...
+                        </span>
+                    </div>
+
+                    <!-- Lựa chọn lớp bản đồ nền -->
+                    <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLayerOsm" @onclick='() => SetTileLayer("osm")'>
+                                OSM Chuẩn
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm active" id="btnLayerCarto" @onclick='() => SetTileLayer("carto")'>
+                                CartoDB Sạch
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLayerEsri" @onclick='() => SetTileLayer("esri")'>
+                                Esri Vệ Tinh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="position-relative" style="height: 480px; width: 100%;">
+                    <div id="admin-leaflet-map" style="height: 100%; width: 100%; min-height: 480px; z-index: 1;"></div>
+                    
+                    <!-- Chú thích bản đồ thu nhỏ -->
+                    <div class="position-absolute bottom-0 start-0 m-3 p-2 rounded-3 shadow-sm d-none d-md-flex gap-2 align-items-center flex-wrap" 
+                         style="z-index: 500; background: rgba(255,255,255,0.92); backdrop-filter: blur(4px); font-size: 11px; border: 1px solid #CBD5E1;">
+                        <span class="fw-bold text-dark"><i class="bi bi-info-circle me-1"></i>Chú thích:</span>
+                        <span class="badge" style="background: #14452F; color: #D4AF37;">🏰 EcoStay</span>
+                        <span class="badge text-white" style="background: #15803D;">🏡 Tiện ích nội khu</span>
+                        <span class="badge text-white" style="background: #DC2626;">🍲 Ẩm thực</span>
+                        <span class="badge text-white" style="background: #EA580C;">🎨 Làng nghề</span>
+                        <span class="badge text-white" style="background: #7C3AED;">🛕 Cổ tự</span>
+                        <span class="text-muted fst-italic ms-1">Nhấp lên bản đồ để lấy tọa độ</span>
+                    </div>
+
+                    <!-- Thông báo fallback nếu lỗi mạng gạch -->
+                    <div id="adminMapFallbackNotice" class="alert alert-warning position-absolute top-50 start-50 translate-middle shadow-lg d-none text-center" style="z-index: 1000; min-width: 320px;">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 text-warning mb-2 d-block"></i>
+                        <div class="fw-bold mb-1">Đang tải lớp bản đồ dự phòng</div>
+                        <p class="small mb-2 text-muted">Vui lòng bấm nút bên dưới nếu bạn muốn thử tải lại lớp bản đồ chính.</p>
+                        <button type="button" class="btn btn-sm btn-dark rounded-pill px-3" @onclick="ReloadMap">Thử Tải Lại</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Chi Tiết Địa Điểm Khi Được Chọn (Khi click Marker hoặc bấm Xem) -->
+        @if (selectedLocation != null)
+        {
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-white d-flex flex-column">
+                    <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                        <span class="badge rounded-pill px-2.5 py-1" style="background: #14452F; color: #D4AF37; font-weight: 700;">
+                            <i class="bi bi-info-circle-fill me-1"></i>THÔNG TIN CHI TIẾT
+                        </span>
+                        <button type="button" class="btn btn-sm btn-light rounded-circle" @onclick="() => selectedLocation = null">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+                    <div class="card-body p-3 overflow-auto" style="max-height: 480px;">
+                        <!-- Ảnh địa điểm -->
+                        <div class="rounded-3 overflow-hidden mb-3 position-relative" style="height: 160px; background: #F1F5F9;">
+                            <img src="@(string.IsNullOrWhiteSpace(selectedLocation.ImageUrl) ? "/images/nha_ruong_1.jpg" : selectedLocation.ImageUrl)" 
+                                 alt="@selectedLocation.Name" 
+                                 class="w-100 h-100 object-fit-cover" 
+                                 onerror="this.src='/images/nha_ruong_1.jpg';" />
+                            <span class="position-absolute top-0 end-0 m-2 badge bg-@selectedLocation.BadgeColor rounded-pill px-2.5 py-1 shadow-sm">
+                                <i class="bi @selectedLocation.IconClass me-1"></i>@selectedLocation.Category
+                            </span>
+                            @if (selectedLocation.IsEcoStayCenter)
+                            {
+                                <span class="position-absolute bottom-0 start-0 m-2 badge rounded-pill px-2.5 py-1" style="background: #14452F; color: #D4AF37; border: 1px solid #D4AF37;">
+                                    <i class="bi bi-shield-check me-1"></i>Trụ Sở Kim Long EcoStay
+                                </span>
+                            }
+                        </div>
+
+                        <!-- Tên & Mã -->
+                        <h6 class="fw-bold text-dark mb-1" style="font-size: 15px;">@selectedLocation.Name</h6>
+                        <div class="small text-muted mb-2">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>@selectedLocation.Address
+                        </div>
+
+                        <!-- Thông số tọa độ & khoảng cách -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="p-2 rounded-2 bg-light border small">
+                                    <div class="text-muted fw-bold" style="font-size: 10px;">KHOẢNG CÁCH</div>
+                                    <div class="fw-bold text-success" style="font-size: 12px;">@selectedLocation.DistanceFromEcoStayKm km</div>
+                                    <div class="text-muted text-truncate" style="font-size: 10px;">@selectedLocation.TravelEstimate</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 rounded-2 bg-light border small">
+                                    <div class="text-muted fw-bold" style="font-size: 10px;">TỌA ĐỘ GPS</div>
+                                    <div class="fw-bold font-monospace text-dark" style="font-size: 11px;">@selectedLocation.Latitude.ToString("F4"), @selectedLocation.Longitude.ToString("F4")</div>
+                                    <div class="text-muted" style="font-size: 10px;">Mã: @selectedLocation.Id</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Giờ mở cửa & Vé -->
+                        <div class="p-2 rounded-2 border bg-light mb-3 small">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted"><i class="bi bi-clock me-1"></i>Giờ mở cửa:</span>
+                                <span class="fw-semibold">@selectedLocation.OpeningHours</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted"><i class="bi bi-ticket-perforated me-1"></i>Vé / Chi phí:</span>
+                                <span class="fw-semibold text-danger">@selectedLocation.TicketInfo</span>
+                            </div>
+                        </div>
+
+                        <!-- Tóm tắt & Mô tả -->
+                        <div class="mb-3">
+                            <div class="small fw-bold text-dark mb-1">Mô Tả:</div>
+                            <p class="small text-muted mb-2" style="line-height: 1.6;">
+                                @(string.IsNullOrWhiteSpace(selectedLocation.Description) ? selectedLocation.Summary : selectedLocation.Description)
+                            </p>
+                        </div>
+
+                        <!-- Điểm nhấn trải nghiệm -->
+                        @if (selectedLocation.ExperienceHighlights != null && selectedLocation.ExperienceHighlights.Count > 0)
+                        {
+                            <div class="mb-3">
+                                <div class="small fw-bold text-dark mb-1">Điểm Nhấn Trải Nghiệm:</div>
+                                <ul class="small text-muted ps-3 mb-0">
+                                    @foreach (var h in selectedLocation.ExperienceHighlights)
+                                    {
+                                        <li class="mb-1">@h</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+
+                        <!-- Các nút thao tác -->
+                        <div class="d-flex gap-2 flex-wrap pt-2 border-top">
+                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-grow-1" 
+                                    @onclick="() => FlyToLocation(selectedLocation)">
+                                <i class="bi bi-crosshair me-1"></i>Định Vị
+                            </button>
+                            @if (!selectedLocation.IsEcoStayCenter)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1" 
+                                        @onclick="() => OpenEditModal(selectedLocation)">
+                                    <i class="bi bi-pencil-square me-1"></i>Sửa
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" 
+                                        @onclick="() => ConfirmDelete(selectedLocation)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            }
+                            <a href="@selectedLocation.GoogleMapsQueryUrl" target="_blank" rel="noopener noreferrer" 
+                               class="btn btn-sm btn-outline-secondary rounded-pill w-100 mt-1">
+                                <i class="bi bi-google me-1"></i>Mở Google Maps
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- 5. DANH SÁCH ĐỊA ĐIỂM DẠNG BẢNG (QUẢN LÝ DỮ LIỆU) -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white">
+        <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h6 class="fw-bold mb-0.5" style="color: #14452F;">
+                    <i class="bi bi-list-columns-reverse me-1"></i>Danh Mục Địa Điểm &amp; Tiện Ích Đã Đăng Ký (@filteredLocations.Count)
+                </h6>
+                <small class="text-muted">Xem danh sách, tìm kiếm, sửa thông tin, tọa độ hoặc xóa điểm khỏi bản đồ.</small>
+            </div>
+            <span class="badge rounded-pill bg-light text-dark border px-3 py-1.5 small">
+                Hiển thị: @filteredLocations.Count / @allLocations.Count địa điểm
+            </span>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px;">Ảnh</th>
+                            <th>Tên Địa Điểm</th>
+                            <th>Phân Loại</th>
+                            <th>Địa Chỉ</th>
+                            <th>Tọa Độ GPS</th>
+                            <th>Khoảng Cách</th>
+                            <th class="text-end" style="min-width: 160px;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (filteredLocations.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
+                                    Không tìm thấy địa điểm nào phù hợp với từ khóa "@searchTerm".
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var loc in filteredLocations)
+                            {
+                                var l = loc;
+                                <tr class="@(selectedLocation?.Id == l.Id ? "table-success" : "")">
+                                    <td>
+                                        <div class="rounded-2 overflow-hidden" style="width: 44px; height: 38px; background: #F1F5F9;">
+                                            <img src="@(string.IsNullOrWhiteSpace(l.ImageUrl) ? "/images/nha_ruong_1.jpg" : l.ImageUrl)" 
+                                                 alt="@l.Name" 
+                                                 class="w-100 h-100 object-fit-cover" 
+                                                 onerror="this.src='/images/nha_ruong_1.jpg';" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">
+                                            @l.Name
+                                            @if (l.IsEcoStayCenter)
+                                            {
+                                                <span class="badge bg-success ms-1" style="font-size: 10px;">Tâm điểm</span>
+                                            }
+                                        </div>
+                                        <small class="text-muted font-monospace" style="font-size: 11px;">Mã: @l.Id</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill bg-@l.BadgeColor text-white px-2 py-1" style="font-size: 11px;">
+                                            <i class="bi @l.IconClass me-1"></i>@l.Category
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 220px;" title="@l.Address">
+                                            @l.Address
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark font-monospace border">
+                                            @l.Latitude.ToString("F4"), @l.Longitude.ToString("F4")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-success fw-semibold">@l.DistanceFromEcoStayKm km</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-secondary" title="Xem chi tiết" 
+                                                    @onclick="() => SelectLocation(l)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-success" title="Định vị trên bản đồ" 
+                                                    @onclick="() => FlyToLocation(l)">
+                                                <i class="bi bi-crosshair"></i>
+                                            </button>
+                                            @if (!l.IsEcoStayCenter)
+                                            {
+                                                <button type="button" class="btn btn-outline-primary" title="Chỉnh sửa" 
+                                                        @onclick="() => OpenEditModal(l)">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger" title="Xóa" 
+                                                        @onclick="() => ConfirmDelete(l)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     6. MODAL THÊM / CHỈNH SỬA ĐỊA ĐIỂM
+     ========================================================================= -->
+@if (showFormModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1060;">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header text-white" style="background: #14452F;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi @(isEditing ? "bi-pencil-square" : "bi-plus-circle") fs-5" style="color: #D4AF37;"></i>
+                        <h5 class="modal-title fw-bold mb-0" style="color: #FFFFFF; font-size: 16px;">
+                            @(isEditing ? "Chỉnh Sửa Thông Tin Địa Điểm" : "Thêm Địa Điểm Mới Vào Bản Đồ")
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseFormModal"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    @if (!string.IsNullOrEmpty(formErrorMessage))
+                    {
+                        <div class="alert alert-danger py-2 small mb-3">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>@formErrorMessage
+                        </div>
+                    }
+
+                    <div class="row g-3">
+                        <!-- Tên địa điểm -->
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold small">Tên Địa Điểm <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" @bind="formModel.Name" placeholder="Ví dụ: Nhà Rường Hoa Sen, Quán Chè Cố Đô..." />
+                        </div>
+
+                        <!-- Phân loại -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small">Phân Loại <span class="text-danger">*</span></label>
+                            <select class="form-select" @bind="formModel.Category">
+                                <option value="Tiện Ích Khu Nghỉ Dưỡng">Tiện Ích Khu Nghỉ Dưỡng</option>
+                                <option value="Ẩm Thực Xứ Huế">Ẩm Thực Xứ Huế</option>
+                                <option value="Quần Thể Di Tích Cố Đô">Quần Thể Di Tích Cố Đô</option>
+                                <option value="Làng Nghề Truyền Thống">Làng Nghề Truyền Thống</option>
+                                <option value="Nhà Vườn Di Sản">Nhà Vườn Di Sản</option>
+                                <option value="Chùa Cổ &amp; Tâm Linh">Chùa Cổ &amp; Tâm Linh</option>
+                            </select>
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Địa Chỉ Đầy Đủ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" @bind="formModel.Address" placeholder="Ví dụ: Kiệt 82 Kim Long, Phường Kim Long, TP. Huế" />
+                        </div>
+
+                        <!-- Tọa độ GPS -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Vĩ Độ (Latitude) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-compass"></i></span>
+                                <input type="number" step="0.00001" class="form-control font-monospace" @bind="formModel.Latitude" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Kinh Độ (Longitude) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-compass"></i></span>
+                                <input type="number" step="0.00001" class="form-control font-monospace" @bind="formModel.Longitude" />
+                                <button type="button" class="btn btn-outline-success" @onclick="SetCenterCoords" title="Lấy tọa độ trung tâm Kim Long EcoStay">
+                                    <i class="bi bi-geo-alt-fill me-1"></i>Tâm EcoStay
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- URL Hình ảnh -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">URL Hình Ảnh</label>
+                            <input type="text" class="form-control" @bind="formModel.ImageUrl" placeholder="/images/nha_ruong_1.jpg hoặc https://..." />
+                            <small class="text-muted">Gợi ý: <code>/images/nha_ruong_1.jpg</code>, <code>/images/mon_banhuot.jpg</code>, <code>/images/tra_cung_dinh.jpg</code>, <code>/images/ho_sen_hue.jpg</code></small>
+                        </div>
+
+                        <!-- Giờ mở cửa & Vé -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Giờ Mở Cửa</label>
+                            <input type="text" class="form-control" @bind="formModel.OpeningHours" placeholder="07:30 - 17:30 hàng ngày" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Thông Tin Vé / Phí</label>
+                            <input type="text" class="form-control" @bind="formModel.TicketInfo" placeholder="Miễn phí tham quan hoặc từ 30.000 VNĐ" />
+                        </div>
+
+                        <!-- Tóm tắt ngắn -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Mô Tả Tóm Tắt (Summary)</label>
+                            <input type="text" class="form-control" @bind="formModel.Summary" placeholder="Câu tóm tắt ngắn 1 dòng hiển thị trên popup..." />
+                        </div>
+
+                        <!-- Mô tả chi tiết -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Nội Dung Chi Tiết</label>
+                            <textarea class="form-control" rows="3" @bind="formModel.Description" placeholder="Mô tả lịch sử, không gian, trải nghiệm đặc biệt..."></textarea>
+                        </div>
+
+                        <!-- Điểm nhấn trải nghiệm -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Điểm Nhấn Trải Nghiệm (Mỗi dòng một điểm)</label>
+                            <textarea class="form-control" rows="2" @bind="highlightsRaw" placeholder="Trải nghiệm thưởng trà sen&#10;Dạo bước dưới vườn bưởi Thanh Trà..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light p-3">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" @onclick="CloseFormModal">Hủy Bỏ</button>
+                    <button type="button" class="btn btn-success rounded-pill px-4 fw-bold" style="background: #14452F; border-color: #14452F;" @onclick="SaveLocation">
+                        <i class="bi bi-check2-circle me-1"></i>@(isEditing ? "Lưu Thay Đổi" : "Thêm Địa Điểm")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- =========================================================================
+     7. MODAL XÁC NHẬN XÓA ĐỊA ĐIỂM
+     ========================================================================= -->
+@if (locationToDelete != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1070;">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-body p-4 text-center">
+                    <div class="rounded-circle bg-danger-subtle text-danger mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; font-size: 26px;">
+                        <i class="bi bi-trash-fill"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Xác Nhận Xóa Địa Điểm?</h6>
+                    <p class="small text-muted mb-3">
+                        Bạn có chắc chắn muốn xóa <strong>@locationToDelete.Name</strong> (mã <code>@locationToDelete.Id</code>) khỏi bản đồ Kim Long EcoStay?
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-sm btn-light px-3 rounded-pill" @onclick="() => locationToDelete = null">Hủy</button>
+                        <button type="button" class="btn btn-sm btn-danger px-3 rounded-pill fw-bold" @onclick="ExecuteDelete">Xác Nhận Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<HeritageLocation> allLocations = new();
+    private List<HeritageLocation> filteredLocations = new();
+    private HeritageLocation? selectedLocation;
+    private HeritageLocation? locationToDelete;
+    private AppNotification? currentNotification;
+
+    private string searchTerm = "";
+    private string selectedCategory = "Tất Cả Địa Điểm";
+    private readonly List<string> availableCategories = new()
+    {
+        "Tất Cả Địa Điểm",
+        "Tiện Ích Khu Nghỉ Dưỡng",
+        "Quần Thể Di Tích Cố Đô",
+        "Làng Nghề Truyền Thống",
+        "Ẩm Thực Xứ Huế",
+        "Nhà Vườn Di Sản",
+        "Chùa Cổ & Tâm Linh"
+    };
+
+    // State form modal
+    private bool showFormModal = false;
+    private bool isEditing = false;
+    private HeritageLocation formModel = new();
+    private string highlightsRaw = "";
+    private string formErrorMessage = "";
+
+    private DotNetObjectReference<AdminMapComponent>? dotNetHelper;
+
+    protected override void OnInitialized()
+    {
+        LoadLocations();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetHelper = DotNetObjectReference.Create(this);
+            await InitializeLeafletMapAsync();
+        }
+    }
+
+    private void LoadLocations()
+    {
+        allLocations = HeritageMapProvider.GetAllLocations();
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var query = allLocations.AsEnumerable();
+
+        if (selectedCategory != "Tất Cả Địa Điểm")
+        {
+            query = query.Where(l => l.Category == selectedCategory);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var st = searchTerm.Trim().ToLowerInvariant();
+            query = query.Where(l =>
+                (l.Name != null && l.Name.ToLowerInvariant().Contains(st)) ||
+                (l.Address != null && l.Address.ToLowerInvariant().Contains(st)) ||
+                (l.Category != null && l.Category.ToLowerInvariant().Contains(st)) ||
+                (l.Summary != null && l.Summary.ToLowerInvariant().Contains(st)) ||
+                (l.Description != null && l.Description.ToLowerInvariant().Contains(st)) ||
+                (l.Id != null && l.Id.ToLowerInvariant().Contains(st))
+            );
+        }
+
+        filteredLocations = query.OrderBy(l => l.DistanceFromEcoStayKm).ToList();
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+        ApplyFilters();
+    }
+
+    private void FilterByCategory(string cat)
+    {
+        selectedCategory = cat;
+        ApplyFilters();
+    }
+
+    private int GetFacilityCount() => allLocations.Count(l => l.Category == "Tiện Ích Khu Nghỉ Dưỡng" || l.IsEcoStayCenter);
+    private int GetCategoryCount(string cat) => allLocations.Count(l => l.Category == cat);
+
+    private int GetFilterCount(string cat)
+    {
+        if (cat == "Tất Cả Địa Điểm") return allLocations.Count;
+        return allLocations.Count(l => l.Category == cat);
+    }
+
+    private async Task InitializeLeafletMapAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                if (window.adminMapController) {
+                    setTimeout(function() {
+                        window.adminMapController.initMap('admin-leaflet-map');
+                    }, 150);
+                }
+            ");
+        }
+        catch { }
+    }
+
+    private async Task CenterToHomestay()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", "if (window.adminMapController) window.adminMapController.centerToHomestay();");
+            currentNotification = AppNotification.Info(
+                "Đã căn giữa bản đồ về trung tâm Kim Long EcoStay (16.4560° N, 107.5495° E).",
+                "Định Vị GIS",
+                "Bản Đồ Kim Long"
+            );
+        }
+        catch { }
+    }
+
+    private async Task SetTileLayer(string provider)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", $"if (window.adminMapController) window.adminMapController.setTileLayer('{provider}');");
+        }
+        catch { }
+    }
+
+    private async Task ReloadMap()
+    {
+        LoadLocations();
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", "if (window.adminMapController) window.adminMapController.reloadMap();");
+            currentNotification = AppNotification.Success(
+                $"Đã làm mới dữ liệu bản đồ thành công ({allLocations.Count} địa điểm đang hiển thị).",
+                "Đồng Bộ Bản Đồ",
+                "Hệ Thống GIS"
+            );
+        }
+        catch { }
+    }
+
+    private void SelectLocation(HeritageLocation loc)
+    {
+        selectedLocation = loc;
+    }
+
+    private async Task FlyToLocation(HeritageLocation loc)
+    {
+        selectedLocation = loc;
+        try
+        {
+            string label = $"{loc.Name} ({loc.Latitude:F4}, {loc.Longitude:F4})";
+            await JSRuntime.InvokeVoidAsync("eval", $"if (window.adminMapController) window.adminMapController.flyToLocation({loc.Latitude}, {loc.Longitude}, 17, '{label}');");
+        }
+        catch { }
+    }
+
+    [JSInvokable]
+    public void OnLocationSelected(string locId)
+    {
+        var found = allLocations.FirstOrDefault(l => l.Id.Equals(locId, StringComparison.OrdinalIgnoreCase));
+        if (found != null)
+        {
+            selectedLocation = found;
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public void OnCoordinatesPicked(double lat, double lng)
+    {
+        if (showFormModal)
+        {
+            formModel.Latitude = lat;
+            formModel.Longitude = lng;
+            StateHasChanged();
+        }
+    }
+
+    // Modal Operations
+    private void OpenAddModal()
+    {
+        formErrorMessage = "";
+        isEditing = false;
+        formModel = new HeritageLocation
+        {
+            Id = $"LOC-{DateTime.UtcNow.Ticks % 1000000:D6}",
+            Category = selectedCategory != "Tất Cả Địa Điểm" ? selectedCategory : "Tiện Ích Khu Nghỉ Dưỡng",
+            Latitude = 16.4560,
+            Longitude = 107.5495,
+            OpeningHours = "07:30 - 17:30 hàng ngày",
+            TicketInfo = "Miễn phí tham quan",
+            ImageUrl = "/images/nha_ruong_1.jpg"
+        };
+        highlightsRaw = "";
+        showFormModal = true;
+    }
+
+    private void OpenEditModal(HeritageLocation loc)
+    {
+        formErrorMessage = "";
+        isEditing = true;
+        formModel = new HeritageLocation
+        {
+            Id = loc.Id,
+            Name = loc.Name,
+            Category = loc.Category,
+            Address = loc.Address,
+            Latitude = loc.Latitude,
+            Longitude = loc.Longitude,
+            ImageUrl = loc.ImageUrl,
+            Summary = loc.Summary,
+            Description = loc.Description,
+            OpeningHours = loc.OpeningHours,
+            TicketInfo = loc.TicketInfo,
+            BadgeColor = loc.BadgeColor,
+            IconClass = loc.IconClass
+        };
+        highlightsRaw = loc.ExperienceHighlights != null ? string.Join("\n", loc.ExperienceHighlights) : "";
+        showFormModal = true;
+    }
+
+    private void CloseFormModal()
+    {
+        showFormModal = false;
+        formErrorMessage = "";
+    }
+
+    private void SetCenterCoords()
+    {
+        formModel.Latitude = 16.4560;
+        formModel.Longitude = 107.5495;
+    }
+
+    private async Task SaveLocation()
+    {
+        formErrorMessage = "";
+        if (string.IsNullOrWhiteSpace(formModel.Name))
+        {
+            formErrorMessage = "Vui lòng nhập tên địa điểm.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(formModel.Address))
+        {
+            formErrorMessage = "Vui lòng nhập địa chỉ địa điểm.";
+            return;
+        }
+
+        if (formModel.Latitude < 8 || formModel.Latitude > 24 || formModel.Longitude < 102 || formModel.Longitude > 110.5)
+        {
+            formErrorMessage = "Tọa độ GPS không hợp lệ (Vĩ độ Việt Nam ~ 8 - 24, Kinh độ ~ 102 - 110.5).";
+            return;
+        }
+
+        // Parse highlights
+        formModel.ExperienceHighlights = highlightsRaw
+            .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(s => !string.IsNullOrEmpty(s))
+            .ToList();
+
+        if (isEditing)
+        {
+            bool ok = HeritageMapProvider.UpdateLocation(formModel, out string err);
+            if (!ok)
+            {
+                formErrorMessage = err;
+                return;
+            }
+            currentNotification = AppNotification.Success(
+                $"Đã cập nhật thông tin địa điểm '{formModel.Name}' thành công.",
+                "Cập Nhật Địa Điểm",
+                "Quản Lý Bản Đồ"
+            );
+        }
+        else
+        {
+            bool ok = HeritageMapProvider.AddLocation(formModel, out string err);
+            if (!ok)
+            {
+                formErrorMessage = err;
+                return;
+            }
+            currentNotification = AppNotification.Success(
+                $"Đã thêm mới địa điểm '{formModel.Name}' vào hệ thống bản đồ số Kim Long EcoStay.",
+                "Thêm Địa Điểm",
+                "Quản Lý Bản Đồ"
+            );
+        }
+
+        showFormModal = false;
+        LoadLocations();
+        await ReloadMap();
+    }
+
+    private void ConfirmDelete(HeritageLocation loc)
+    {
+        locationToDelete = loc;
+    }
+
+    private async Task ExecuteDelete()
+    {
+        if (locationToDelete == null) return;
+
+        string targetId = locationToDelete.Id;
+        string targetName = locationToDelete.Name;
+        locationToDelete = null;
+
+        bool ok = HeritageMapProvider.DeleteLocation(targetId, out string err);
+        if (!ok)
+        {
+            currentNotification = AppNotification.Error(
+                err,
+                "Lỗi Xóa Địa Điểm",
+                "Quản Lý Bản Đồ"
+            );
+            return;
+        }
+
+        if (selectedLocation?.Id == targetId)
+        {
+            selectedLocation = null;
+        }
+
+        currentNotification = AppNotification.Success(
+            $"Đã xóa địa điểm '{targetName}' khỏi hệ thống bản đồ thành công.",
+            "Xóa Địa Điểm",
+            "Quản Lý Bản Đồ"
+        );
+
+        LoadLocations();
+        await ReloadMap();
+    }
+
+    public void Dispose()
+    {
+        dotNetHelper?.Dispose();
+    }
+}

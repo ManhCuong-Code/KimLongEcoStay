@@ -21,14 +21,10 @@
     </div>
 
     <div class="card-body p-4">
-        @if (message != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-3" role="alert">
-                <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-                <div>@message</div>
-                <button type="button" class="btn-close" @onclick='() => message = null'></button>
-            </div>
-        }
+        <KleNotificationCard Notification="@activeNotification"
+                             RawMessage="@message"
+                             Service="SmartLock IoT Hub"
+                             OnClose="() => { activeNotification = null; message = null; }" />
 
         <!-- DANH SÁCH 5 KHÓA PHÒNG SINH THÁI -->
         <div class="row g-3 mb-4">
@@ -191,11 +187,18 @@
         }
     }
 
+    private AppNotification? activeNotification;
+
     private void HandleRegeneratePin(string roomNumber)
     {
         if (SmartLockUseCase.RegeneratePin(roomNumber, out string newPin))
         {
-            message = $"Đã cấp lại mã PIN bảo mật mới ({MaskPin(newPin)}) cho phòng {roomNumber} và ghi nhận vào Audit Log.";
+            activeNotification = AppNotification.Success(
+                "Cấp lại mã PIN SmartLock",
+                $"Đã cấp lại mã PIN bảo mật mới ({MaskPin(newPin)}) cho buồng phòng {roomNumber} và ghi nhận vào Audit Log an ninh.",
+                service: "SmartLock IoT Hub",
+                techDetails: $"Phòng: {roomNumber}\nThời gian: {DateTime.Now:HH:mm:ss dd/MM/yyyy}\nTrạng thái: ACTIVATED");
+            message = null;
             LoadData();
         }
     }
@@ -207,7 +210,12 @@
 
         if (SmartLockUseCase.RemoteUnlock(roomNumber, user))
         {
-            message = $"Lệnh mở khóa từ xa đã gửi tới phòng {roomNumber}. Chốt khóa đã mở thành công trong 1 giây.";
+            activeNotification = AppNotification.Success(
+                "Mở khóa phòng từ xa",
+                $"Lệnh mở khóa từ xa đã gửi tới phòng {roomNumber}. Chốt điện từ đã mở thành công trong 1 giây.",
+                service: "SmartLock IoT Hub",
+                techDetails: $"Lệnh: UNLOCK_DOOR\nPhòng: {roomNumber}\nNgười thực hiện: {user}");
+            message = null;
             LoadData();
         }
     }
@@ -228,11 +236,13 @@
                         };
 
             var res = await EmailService.SendBookingConfirmationEmailAsync(order, dev.CurrentPin, dev.RoomName);
-            message = $"[SmartLock IoT] {res.StatusMessage} (Mã PIN: {MaskPin(dev.CurrentPin)} - Phòng: {dev.RoomNumber})";
+            activeNotification = AppNotification.FromEmailResult(res, "Gửi PIN SmartLock qua Email");
+            message = null;
         }
         catch (Exception ex)
         {
-            message = $"Không thể gửi email: {ex.Message}";
+            activeNotification = AppNotification.Error("Lỗi gửi email SmartLock", ex.Message, "SmartLock IoT Hub");
+            message = null;
         }
     }
 }

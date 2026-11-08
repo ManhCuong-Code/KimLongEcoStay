@@ -23,14 +23,11 @@
     </div>
 
     <div class="card-body">
-        @if (notificationMessage != null)
-        {
-            <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show d-flex align-items-center" role="alert">
-                <i class="bi @(isError ? "bi-exclamation-triangle-fill" : "bi-check-circle-fill") me-2 fs-5"></i>
-                <div>@notificationMessage</div>
-                <button type="button" class="btn-close" @onclick='() => notificationMessage = null'></button>
-            </div>
-        }
+        <KleNotificationCard Notification="@activeNotification"
+                             RawMessage="@notificationMessage"
+                             IsError="@isError"
+                             Service="Lễ Tân & Check-in"
+                             OnClose="() => { activeNotification = null; notificationMessage = null; }" />
 
         @if (orders != null && orders.Any())
         {
@@ -145,6 +142,7 @@
     private IEnumerable<Order>? orders;
     private string? notificationMessage;
     private bool isError = false;
+    private AppNotification? activeNotification;
 
     protected override void OnInitialized()
     {
@@ -165,13 +163,18 @@
         if (ok)
         {
             isError = false;
-            notificationMessage = $"Check-in thành công cho đơn #{orderId}. Trạng thái buồng phòng đã chuyển sang OCCUPIED (Đang Có Khách) và kích hoạt mã khóa SmartLock.";
+            activeNotification = AppNotification.Success(
+                "Check-in thành công",
+                $"Đã hoàn tất thủ tục Check-in cho đơn #{orderId}. Buồng phòng đã chuyển sang trạng thái OCCUPIED (Đang Có Khách) và kích hoạt mã khóa SmartLock.",
+                service: "Lễ Tân & Buồng Phòng");
+            notificationMessage = null;
             LoadOrders();
         }
         else
         {
             isError = true;
-            notificationMessage = "Không thể xử lý Check-in.";
+            activeNotification = AppNotification.Error("Check-in thất bại", "Không thể xử lý Check-in. Vui lòng kiểm tra lại trạng thái đơn hoặc phân quyền.", "Lễ Tân & Buồng Phòng");
+            notificationMessage = null;
         }
     }
 
@@ -184,13 +187,18 @@
         if (ok)
         {
             isError = false;
-            notificationMessage = $"Check-out thành công cho đơn #{orderId}. Buồng phòng đã chuyển sang trạng thái CLEANING (Dọn Phòng) cho nhân viên buồng dọn dẹp trước 14:00.";
+            activeNotification = AppNotification.Success(
+                "Check-out thành công",
+                $"Đã hoàn tất thủ tục Check-out cho đơn #{orderId}. Buồng phòng đã chuyển sang trạng thái CLEANING (Dọn Phòng) cho nhân viên buồng dọn dẹp trước 14:00.",
+                service: "Lễ Tân & Buồng Phòng");
+            notificationMessage = null;
             LoadOrders();
         }
         else
         {
             isError = true;
-            notificationMessage = "Không thể xử lý Check-out.";
+            activeNotification = AppNotification.Error("Check-out thất bại", "Không thể xử lý Check-out. Vui lòng kiểm tra lại trạng thái đơn.", "Lễ Tân & Buồng Phòng");
+            notificationMessage = null;
         }
     }
 
@@ -201,7 +209,11 @@
 
         var policy = CheckInCheckOutUseCase.CancelBooking(orderId, "Lễ tân hủy theo yêu cầu", admin);
         isError = false;
-        notificationMessage = $"Đã xử lý hủy đơn #{orderId}. {policy.Message}";
+        activeNotification = AppNotification.Warning(
+            "Hủy đơn đặt phòng",
+            $"Đã xử lý hủy đơn #{orderId}. {policy.Message}",
+            service: "Chính Sách Hoàn Hủy");
+        notificationMessage = null;
         LoadOrders();
     }
 
@@ -212,12 +224,14 @@
             string pin = BookingService.GenerateSmartLockPin(ord.UniqueId ?? "KLE", ord.CustomerAddress ?? "000000");
             string room = ord.LineItems?.FirstOrDefault()?.Product?.Name ?? "Phòng Nghỉ Dưỡng Sinh Thái Kim Long";
             var res = await EmailService.SendBookingConfirmationEmailAsync(ord, pin, room);
-            notificationMessage = res.StatusMessage;
+            activeNotification = AppNotification.FromEmailResult(res, "Gửi PIN SmartLock thành công");
+            notificationMessage = null;
             isError = false;
         }
         catch (Exception ex)
         {
-            notificationMessage = $"Lỗi khi gửi email: {ex.Message}";
+            activeNotification = AppNotification.Error("Lỗi khi gửi email", ex.Message, "SmartLock PIN Delivery");
+            notificationMessage = null;
             isError = true;
         }
     }

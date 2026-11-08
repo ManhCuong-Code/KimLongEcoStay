@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\KimLongEcoStay.CoreBusiness\KimLongEcoStay.CoreBusiness.csproj" />
     <ProjectReference Include="..\..\KimLongEcoStay.UseCases\KimLongEcoStay.UseCases.csproj" />
+    <ProjectReference Include="..\KimLongEcoStay.Web.Common\KimLongEcoStay.Web.Common.csproj" />
   </ItemGroup>
 
 </Project>

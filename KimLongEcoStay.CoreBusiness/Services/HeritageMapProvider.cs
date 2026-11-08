@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using KimLongEcoStay.CoreBusiness.Models;
 
 namespace KimLongEcoStay.CoreBusiness.Services
@@ -37,6 +39,154 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 IsEcoStayCenter = true,
                 BadgeColor = "success",
                 IconClass = "bi-house-heart-fill"
+            },
+
+            // =========================================================================
+            // TIỆN ÍCH & CÔNG TRÌNH NỘI KHU KIM LONG ECOSTAY
+            // =========================================================================
+            new HeritageLocation
+            {
+                Id = "KLE-FACILITY-NHA-RUONG",
+                Name = "Nhà Rường Cổ Ban Mai (Lễ Tân & Check-in)",
+                Category = "Tiện Ích Khu Nghỉ Dưỡng",
+                Address = "Khuôn viên Kim Long EcoStay, Kiệt 82 Kim Long, TP. Huế",
+                Latitude = 16.45605,
+                Longitude = 107.54935,
+                DistanceFromEcoStayKm = 0.02,
+                TravelEstimate = "Tại homestay (20m đi bộ)",
+                ImageUrl = "/images/nha_ruong_1.jpg",
+                Summary = "Không gian nhà rường gỗ lim 3 gian cổ truyền tiếp đón khách và quầy lễ tân thông minh.",
+                Description = "Nhà rường cổ Ban Mai là trung tâm đón tiếp của Kim Long EcoStay, tích hợp hệ thống tiếp nhận khách 24/7, khóa thông minh SmartLock và khu vực thư viện văn hóa Cố Đô.",
+                ExperienceHighlights = new()
+                {
+                    "Quầy lễ tân đón tiếp 24/7 và hỗ trợ khách du lịch",
+                    "Thư viện sách cổ và không gian văn hóa di sản Huế",
+                    "Khu vực nhận xe đạp trợ lực điện Eco-Bike"
+                },
+                OpeningHours = "Mở cửa 24/7",
+                TicketInfo = "Dành riêng cho khách lưu trú & trải nghiệm",
+                BadgeColor = "success",
+                IconClass = "bi-house-check-fill"
+            },
+            new HeritageLocation
+            {
+                Id = "KLE-FACILITY-TRA-THAT",
+                Name = "Trà Thất Cung Đình Sen Ngự & Hiên Trà",
+                Category = "Tiện Ích Khu Nghỉ Dưỡng",
+                Address = "Hiên ngắm cảnh ven hồ Kim Long EcoStay, TP. Huế",
+                Latitude = 16.45618,
+                Longitude = 107.54962,
+                DistanceFromEcoStayKm = 0.03,
+                TravelEstimate = "Tại homestay (30m đi bộ)",
+                ImageUrl = "/images/tra_cung_dinh.jpg",
+                Summary = "Không gian thưởng thức 16 vị trà thảo mộc cung đình Huế bên tiếng nhạc nhã nhạc.",
+                Description = "Trà thất Sen Ngự được phục vụ trong không gian nhà rường mở lộng gió sông Hương. Khách có thể trải nghiệm nghệ thuật pha trà truyền thống với nghệ nhân.",
+                ExperienceHighlights = new()
+                {
+                    "Thưởng trà sen Cung Đình 16 vị thảo mộc thiên nhiên",
+                    "Ngắm hoa sen nở và lắng nghe nhã nhạc cung đình Huế",
+                    "Bánh mứt cổ truyền: mứt gừng, mè xửng, kẹo cau Kim Long"
+                },
+                OpeningHours = "06:30 - 22:00",
+                TicketInfo = "Menu từ 85.000 VNĐ/người (miễn phí khách VIP)",
+                BadgeColor = "warning",
+                IconClass = "bi-cup-hot-fill"
+            },
+            new HeritageLocation
+            {
+                Id = "KLE-FACILITY-ECO-BIKE",
+                Name = "Trạm Xe Đạp Trợ Lực Điện Eco-Bike & GPS Guide",
+                Category = "Tiện Ích Khu Nghỉ Dưỡng",
+                Address = "Cổng đón tiếp Kim Long EcoStay, Kiệt 82 Kim Long, TP. Huế",
+                Latitude = 16.45588,
+                Longitude = 107.54922,
+                DistanceFromEcoStayKm = 0.04,
+                TravelEstimate = "Tại homestay (40m đi bộ)",
+                ImageUrl = "/images/nha_ruong_3.jpg",
+                Summary = "Đội 10 xe đạp trợ lực điện Eco-Bike kèm giá đỡ điện thoại và thiết bị thuyết minh GPS Audio Guide.",
+                Description = "Trạm Eco-Bike cung cấp phương tiện di chuyển xanh khám phá các làng nghề, nhà vườn và lăng tẩm Cố Đô. Xe được sạc bằng năng lượng mặt trời tại chỗ.",
+                ExperienceHighlights = new()
+                {
+                    "Xe đạp trợ lực điện hiện đại vận hành êm ái",
+                    "GPS Audio Guide tự động thuyết minh khi tới di tích",
+                    "Tặng kèm bản đồ số bỏ túi và nước khoáng thảo mộc"
+                },
+                OpeningHours = "06:00 - 20:00 hàng ngày",
+                TicketInfo = "Miễn phí 100% cho khách đặt phòng trực tiếp",
+                BadgeColor = "info",
+                IconClass = "bi-bicycle"
+            },
+            new HeritageLocation
+            {
+                Id = "KLE-FACILITY-HO-SEN",
+                Name = "Hồ Sen Cảnh Quan & Chòi Vọng Cảnh Ven Sông",
+                Category = "Tiện Ích Khu Nghỉ Dưỡng",
+                Address = "Khuôn viên sinh thái Kim Long EcoStay, ven Sông Hương, TP. Huế",
+                Latitude = 16.45582,
+                Longitude = 107.54972,
+                DistanceFromEcoStayKm = 0.05,
+                TravelEstimate = "Tại homestay (50m đi bộ)",
+                ImageUrl = "/images/ho_sen_hue.jpg",
+                Summary = "Hồ sen ngát hương với cầu gỗ bắc ngang, chòi vọng cảnh ngắm hoàng hôn buông sông Hương.",
+                Description = "Không gian thiền tịnh kết hợp hồ nuôi cá koi và hoa sen trắng cổ truyền, là điểm check-in và thư giãn tuyệt vời nhất khu nghỉ dưỡng.",
+                ExperienceHighlights = new()
+                {
+                    "Chụp ảnh check-in trang phục áo dài truyền thống",
+                    "Ngắm hoàng hôn chiều tà buông xuống dòng sông Hương",
+                    "Trải nghiệm cho cá koi ăn và thiền sớm mai"
+                },
+                OpeningHours = "Mở cửa tự do",
+                TicketInfo = "Miễn phí dành cho khách homestay",
+                BadgeColor = "success",
+                IconClass = "bi-water"
+            },
+            new HeritageLocation
+            {
+                Id = "KLE-FACILITY-VUON-THANH-TRA",
+                Name = "Vườn Bưởi Thanh Trà Cổ Thụ & Trồng Rau Hữu Cơ",
+                Category = "Tiện Ích Khu Nghỉ Dưỡng",
+                Address = "Vườn phía sau Kim Long EcoStay, TP. Huế",
+                Latitude = 16.45632,
+                Longitude = 107.54942,
+                DistanceFromEcoStayKm = 0.05,
+                TravelEstimate = "Tại homestay (50m đi bộ)",
+                ImageUrl = "/images/kien_truc_vuon_hue.jpg",
+                Summary = "Vườn bưởi tiến vua Thanh Trà hơn 40 năm tuổi cùng khu vườn rau gia vị hữu cơ phục vụ bếp ăn.",
+                Description = "Khách lưu trú được trải nghiệm tự tay thu hoạch nông sản sạch, tỉa cành chăm sóc bưởi cùng gia chủ và học nấu các món ăn xứ Huế tươi ngon.",
+                ExperienceHighlights = new()
+                {
+                    "Dạo bước dưới bóng mát của rặng bưởi Thanh Trà cổ thụ",
+                    "Trải nghiệm nông nghiệp hữu cơ và thu hoạch rau thơm",
+                    "Thưởng thức gỏi bưởi tép vàng tươi rói tại vườn"
+                },
+                OpeningHours = "06:30 - 18:30 hàng ngày",
+                TicketInfo = "Miễn phí tham quan & trải nghiệm làm vườn",
+                BadgeColor = "success",
+                IconClass = "bi-tree-fill"
+            },
+            new HeritageLocation
+            {
+                Id = "KLE-FACILITY-BEN-THUYEN",
+                Name = "Bến Thuyền Rồng Du Ngoạn Sông Hương Kim Long",
+                Category = "Tiện Ích Khu Nghỉ Dưỡng",
+                Address = "Bờ sông Hương tiếp giáp Kim Long EcoStay, Phường Kim Long, TP. Huế",
+                Latitude = 16.45568,
+                Longitude = 107.54952,
+                DistanceFromEcoStayKm = 0.06,
+                TravelEstimate = "Tại homestay (60m đi bộ)",
+                ImageUrl = "/images/thuyen_rong_hue.jpg",
+                Summary = "Bến thuyền riêng kết nối các tour du thuyền rồng ngắm hoàng hôn, ca Huế và thăm chùa Thiên Mụ.",
+                Description = "Từ bến thuyền Kim Long EcoStay, du khách chỉ mất 5 phút đi thuyền rồng để đến Chùa Thiên Mụ, hoặc 15 phút xuôi về Cầu Trường Tiền ngắm thành phố lung linh về đêm.",
+                ExperienceHighlights = new()
+                {
+                    "Đón thuyền rồng ngay tại bến riêng của homestay",
+                    "Nghe ca Huế truyền thống và thả hoa đăng trên sông Hương",
+                    "Tour thuyền rồng ngắm hoàng hôn lãng mạn"
+                },
+                OpeningHours = "06:00 - 21:30",
+                TicketInfo = "Đặt tour thuyền rồng theo yêu cầu tại lễ tân",
+                BadgeColor = "info",
+                IconClass = "bi-tsunami"
             },
 
             // =========================================================================
@@ -1128,6 +1278,54 @@ namespace KimLongEcoStay.CoreBusiness.Services
                 TicketInfo = "Tham quan tự do • Đi thuyền từ 50.000 VNĐ/người",
                 BadgeColor = "warning",
                 IconClass = "bi-water"
+            },
+            new HeritageLocation
+            {
+                Id = "HERITAGE-CHUA-HUYEN-KHONG",
+                Name = "Chùa Huyền Không Sơn Thượng (Chốn Bồng Lai Thiền Tịnh)",
+                Category = "Chùa Cổ & Tâm Linh",
+                Address = "Thôn Đồng Chầm, Xã Hương Hồ, Thị xã Hương Trà, TP. Huế",
+                Latitude = 16.4850,
+                Longitude = 107.5020,
+                DistanceFromEcoStayKm = 6.2,
+                TravelEstimate = "6.2 km (~18 phút đi xe)",
+                ImageUrl = "/images/song_huong_hoanghon.jpg",
+                Summary = "Ngôi chùa Nam Tông ẩn mình giữa thung lũng rừng thông thanh tịnh tuyệt đối.",
+                Description = "Tọa lạc giữa rừng thông bạt ngàn, Huyền Không Sơn Thượng mang đậm nét kiến trúc thuần Việt giao hòa cùng thiên nhiên với các hồ sen, vườn phong lan và thư pháp nghệ thuật.",
+                ExperienceHighlights = new()
+                {
+                    "Dạo bước trên những lối mòn rợp bóng thông xanh tĩnh lặng",
+                    "Chiêm ngưỡng các câu đối thư pháp khắc trên đá và gỗ tinh tế",
+                    "Thư giãn ngắm hồ sen súng và đàn cá bơi lội thanh bình"
+                },
+                OpeningHours = "06:00 - 18:00 hàng ngày",
+                TicketInfo = "Miễn phí tham quan",
+                BadgeColor = "info",
+                IconClass = "bi-peace"
+            },
+            new HeritageLocation
+            {
+                Id = "PARTNER-LANG-NON-PHU-CAM",
+                Name = "Làng Nón Lá Cổ Truyền Phủ Cam",
+                Category = "Làng Nghề Truyền Thống",
+                Address = "Đường Đoàn Hữu Trưng, Phường Phước Vĩnh, TP. Huế",
+                Latitude = 16.4520,
+                Longitude = 107.5810,
+                DistanceFromEcoStayKm = 3.6,
+                TravelEstimate = "3.6 km (~11 phút đạp xe Eco-Bike)",
+                ImageUrl = "/images/song_huong_hoanghon.jpg",
+                Summary = "Làng nghề làm nón bài thơ và nón lá Huế truyền thống hàng trăm năm tuổi.",
+                Description = "Nghệ nhân Phủ Cam chằm nên những chiếc nón bài thơ thanh mảnh, khi soi dưới ánh mặt trời hiện lên các câu thơ và hình ảnh chùa Thiên Mụ, cầu Trường Tiền duyên dáng.",
+                ExperienceHighlights = new()
+                {
+                    "Chiêm ngưỡng nghệ nhân chằm nón bài thơ tài hoa",
+                    "Trải nghiệm tự tay xếp lá nón và chằm mũi kim đầu tiên",
+                    "Mua nón bài thơ Huế nguyên bản về làm kỷ niệm"
+                },
+                OpeningHours = "07:30 - 18:00 hàng ngày",
+                TicketInfo = "Miễn phí tham quan",
+                BadgeColor = "warning",
+                IconClass = "bi-flower2"
             }
         };
 
@@ -1190,23 +1388,297 @@ namespace KimLongEcoStay.CoreBusiness.Services
             }
         };
 
-        public static List<HeritageLocation> GetAllLocations() => _locations;
+        private static readonly object _syncLock = new();
+        private static bool _customLoaded = false;
+
+        public static List<HeritageLocation> GetAllLocations()
+        {
+            lock (_syncLock)
+            {
+                EnsureCustomLocationsLoaded();
+                return _locations.ToList();
+            }
+        }
+
+        public static HeritageLocation? GetLocationById(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return null;
+            lock (_syncLock)
+            {
+                EnsureCustomLocationsLoaded();
+                return _locations.FirstOrDefault(l => l.Id.Equals(id.Trim(), StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        public static bool AddLocation(HeritageLocation loc, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            if (loc == null)
+            {
+                errorMessage = "Dữ liệu địa điểm không hợp lệ.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(loc.Name))
+            {
+                errorMessage = "Vui lòng nhập tên địa điểm.";
+                return false;
+            }
+
+            lock (_syncLock)
+            {
+                EnsureCustomLocationsLoaded();
+
+                if (string.IsNullOrWhiteSpace(loc.Id))
+                {
+                    loc.Id = $"LOC-{DateTime.UtcNow.Ticks % 1000000:D6}";
+                }
+                else
+                {
+                    loc.Id = loc.Id.Trim().ToUpperInvariant();
+                    if (_locations.Any(l => l.Id.Equals(loc.Id, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        errorMessage = $"Mã địa điểm '{loc.Id}' đã tồn tại trong hệ thống.";
+                        return false;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(loc.ImageUrl))
+                {
+                    loc.ImageUrl = "/images/nha_ruong_1.jpg";
+                }
+
+                ComputeDistanceAndTravel(loc);
+                SetCategoryMetadata(loc);
+
+                _locations.Add(loc);
+                SaveCustomLocationsToDisk();
+                return true;
+            }
+        }
+
+        public static bool UpdateLocation(HeritageLocation updated, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            if (updated == null || string.IsNullOrWhiteSpace(updated.Id))
+            {
+                errorMessage = "Dữ liệu địa điểm cần sửa không hợp lệ.";
+                return false;
+            }
+
+            lock (_syncLock)
+            {
+                EnsureCustomLocationsLoaded();
+                var existing = _locations.FirstOrDefault(l => l.Id.Equals(updated.Id.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (existing == null)
+                {
+                    errorMessage = $"Không tìm thấy địa điểm có mã '{updated.Id}'.";
+                    return false;
+                }
+
+                existing.Name = updated.Name.Trim();
+                existing.Category = string.IsNullOrWhiteSpace(updated.Category) ? "Tiện Ích Khu Nghỉ Dưỡng" : updated.Category.Trim();
+                existing.Address = updated.Address?.Trim() ?? "";
+                existing.Latitude = updated.Latitude;
+                existing.Longitude = updated.Longitude;
+                existing.ImageUrl = string.IsNullOrWhiteSpace(updated.ImageUrl) ? "/images/nha_ruong_1.jpg" : updated.ImageUrl.Trim();
+                existing.Summary = updated.Summary?.Trim() ?? "";
+                existing.Description = updated.Description?.Trim() ?? "";
+                existing.OpeningHours = string.IsNullOrWhiteSpace(updated.OpeningHours) ? "07:30 - 17:30" : updated.OpeningHours.Trim();
+                existing.TicketInfo = string.IsNullOrWhiteSpace(updated.TicketInfo) ? "Miễn phí tham quan" : updated.TicketInfo.Trim();
+                if (updated.ExperienceHighlights != null && updated.ExperienceHighlights.Count > 0)
+                {
+                    existing.ExperienceHighlights = updated.ExperienceHighlights;
+                }
+
+                ComputeDistanceAndTravel(existing);
+                SetCategoryMetadata(existing);
+
+                SaveCustomLocationsToDisk();
+                return true;
+            }
+        }
+
+        public static bool DeleteLocation(string id, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                errorMessage = "Mã địa điểm không hợp lệ.";
+                return false;
+            }
+
+            if (id.Trim().Equals("KLE-CENTER", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = "Không thể xóa địa điểm trụ sở chính Kim Long EcoStay.";
+                return false;
+            }
+
+            lock (_syncLock)
+            {
+                EnsureCustomLocationsLoaded();
+                var existing = _locations.FirstOrDefault(l => l.Id.Equals(id.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (existing == null)
+                {
+                    errorMessage = $"Không tìm thấy địa điểm có mã '{id}'.";
+                    return false;
+                }
+
+                _locations.Remove(existing);
+                SaveCustomLocationsToDisk();
+                return true;
+            }
+        }
+
+        private static void ComputeDistanceAndTravel(HeritageLocation loc)
+        {
+            const double centerLat = 16.4560;
+            const double centerLng = 107.5495;
+
+            double dLat = (loc.Latitude - centerLat) * Math.PI / 180.0;
+            double dLon = (loc.Longitude - centerLng) * Math.PI / 180.0;
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Cos(centerLat * Math.PI / 180.0) * Math.Cos(loc.Latitude * Math.PI / 180.0) *
+                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            double distKm = Math.Round(6371.0 * c, 2);
+
+            loc.DistanceFromEcoStayKm = distKm;
+            if (distKm < 0.1)
+            {
+                loc.TravelEstimate = $"Tại khuôn viên homestay ({(int)(distKm * 1000)}m đi bộ)";
+            }
+            else if (distKm < 1.0)
+            {
+                int walkMins = (int)Math.Max(1, Math.Round(distKm * 12));
+                loc.TravelEstimate = $"{(int)(distKm * 1000)}m (~{walkMins} phút đi bộ / xe đạp)";
+            }
+            else
+            {
+                int bikeMins = (int)Math.Max(3, Math.Round(distKm * 3.2));
+                loc.TravelEstimate = $"{distKm} km (~{bikeMins} phút xe đạp Eco-Bike)";
+            }
+        }
+
+        private static void SetCategoryMetadata(HeritageLocation loc)
+        {
+            string cat = (loc.Category ?? "").ToLowerInvariant();
+            if (cat.Contains("tiện ích") || cat.Contains("trụ sở") || cat.Contains("homestay"))
+            {
+                loc.BadgeColor = "success";
+                loc.IconClass = "bi-house-check-fill";
+            }
+            else if (cat.Contains("ẩm thực") || cat.Contains("ăn"))
+            {
+                loc.BadgeColor = "danger";
+                loc.IconClass = "bi-egg-fried";
+            }
+            else if (cat.Contains("làng nghề"))
+            {
+                loc.BadgeColor = "warning";
+                loc.IconClass = "bi-flower2";
+            }
+            else if (cat.Contains("chùa") || cat.Contains("tâm linh"))
+            {
+                loc.BadgeColor = "info";
+                loc.IconClass = "bi-peace";
+            }
+            else if (cat.Contains("nhà vườn"))
+            {
+                loc.BadgeColor = "success";
+                loc.IconClass = "bi-tree-fill";
+            }
+            else
+            {
+                loc.BadgeColor = "primary";
+                loc.IconClass = "bi-bank2";
+            }
+        }
+
+        private static string GetCustomLocationsFilePath()
+        {
+            string[] candidateDirs = new[]
+            {
+                Path.Combine(Directory.GetCurrentDirectory(), "data"),
+                Path.Combine(AppContext.BaseDirectory, "data"),
+                Path.Combine(Directory.GetCurrentDirectory(), "KimLongEcoStay", "data")
+            };
+            foreach (var d in candidateDirs)
+            {
+                if (Directory.Exists(d))
+                {
+                    return Path.Combine(d, "custom_locations.json");
+                }
+            }
+            var fallback = Path.Combine(Directory.GetCurrentDirectory(), "data");
+            try { Directory.CreateDirectory(fallback); } catch { }
+            return Path.Combine(fallback, "custom_locations.json");
+        }
+
+        private static void EnsureCustomLocationsLoaded()
+        {
+            if (_customLoaded) return;
+            _customLoaded = true;
+            try
+            {
+                string path = GetCustomLocationsFilePath();
+                if (File.Exists(path))
+                {
+                    string json = File.ReadAllText(path, System.Text.Encoding.UTF8);
+                    var custom = JsonSerializer.Deserialize<List<HeritageLocation>>(json);
+                    if (custom != null && custom.Count > 0)
+                    {
+                        foreach (var c in custom)
+                        {
+                            if (string.IsNullOrWhiteSpace(c.Id)) continue;
+                            var idx = _locations.FindIndex(l => l.Id.Equals(c.Id, StringComparison.OrdinalIgnoreCase));
+                            if (idx >= 0)
+                            {
+                                _locations[idx] = c;
+                            }
+                            else
+                            {
+                                _locations.Add(c);
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private static void SaveCustomLocationsToDisk()
+        {
+            try
+            {
+                string path = GetCustomLocationsFilePath();
+                var dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                string json = JsonSerializer.Serialize(_locations, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(path, json, System.Text.Encoding.UTF8);
+            }
+            catch { }
+        }
 
         public static List<HeritageLocation> GetCraftVillages() => 
-            _locations.Where(l => l.Category == "Làng Nghề Truyền Thống").ToList();
+            GetAllLocations().Where(l => l.Category == "Làng Nghề Truyền Thống").ToList();
 
         public static List<HeritageLocation> GetMonumentSites() => 
-            _locations.Where(l => l.Category == "Quần Thể Di Tích Cố Đô").ToList();
+            GetAllLocations().Where(l => l.Category == "Quần Thể Di Tích Cố Đô").ToList();
 
         public static List<HeritageLocation> GetFoodSpots() => 
-            _locations.Where(l => l.Category == "Ẩm Thực Xứ Huế").ToList();
+            GetAllLocations().Where(l => l.Category == "Ẩm Thực Xứ Huế").ToList();
 
         public static List<HeritageLocation> GetNearbyLocations(double maxKm = 3.0) => 
-            _locations.Where(l => l.DistanceFromEcoStayKm <= maxKm).OrderBy(l => l.DistanceFromEcoStayKm).ToList();
+            GetAllLocations().Where(l => l.DistanceFromEcoStayKm <= maxKm).OrderBy(l => l.DistanceFromEcoStayKm).ToList();
 
         public static List<string> GetAllCategories() => new()
         {
             "Tất Cả Địa Điểm",
+            "Tiện Ích Khu Nghỉ Dưỡng",
             "Quần Thể Di Tích Cố Đô",
             "Làng Nghề Truyền Thống",
             "Ẩm Thực Xứ Huế",
