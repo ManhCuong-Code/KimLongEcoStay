@@ -39,7 +39,10 @@ namespace KimLongEcoStay.CoreBusiness.Services.Interfaces
         Task<EmailSendResult> SendCustomerContactConfirmedEmailAsync(string customerName, string customerEmail, string subject, string message);
         Task<EmailSendResult> SendAdminNewContactAlertEmailAsync(string customerName, string customerEmail, string customerPhone, string subject, string message);
 
-        // 11. Gửi email tổng quát & quản lý nhật ký / thử lại
+        // 11. Email hủy đặt phòng & thông tin hoàn tiền
+        Task<EmailSendResult> SendBookingCancellationEmailAsync(Order order, string roomName, string cancellationReason, decimal refundAmount = 0);
+
+        // 12. Gửi email tổng quát & quản lý nhật ký / thử lại
         Task<EmailSendResult> SendEmailAsync(string toEmail, string subject, string htmlBody, EmailTemplateType templateType = EmailTemplateType.DEPOSIT_CONFIRMED, string bookingCode = "", string? plainText = null);
         Task<EmailSendResult> RetryEmailAsync(string emailId);
         string GenerateBookingConfirmationHtml(Order order, string smartLockPin, string roomName);

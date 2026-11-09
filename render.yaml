@@ -25,3 +25,20 @@ services:
       # Biến môi trường chuỗi kết nối SQL Server (Bảo mật: Nhập trực tiếp trên Render Dashboard)
       - key: ConnectionStrings__DefaultConnection
         sync: false
+      # Google Gmail API v1 & OAuth 2.0 Web Server Flow (Bảo mật: Client Secret không lưu vào git)
+      - key: EMAIL_PROVIDER
+        value: Gmail
+      - key: GMAIL_CLIENT_ID
+        sync: false
+      - key: GMAIL_CLIENT_SECRET
+        sync: false
+      - key: GMAIL_REDIRECT_URI
+        value: https://kimlongecostay.onrender.com/api/admin/gmail/oauth2callback
+      - key: GMAIL_USER
+        value: titanio741@gmail.com
+      - key: GMAIL_SENDER
+        value: titanio741@gmail.com
+      - key: GMAIL_REFRESH_TOKEN
+        sync: false
+      - key: ADMIN_EMAIL
+        value: titanio741@gmail.com

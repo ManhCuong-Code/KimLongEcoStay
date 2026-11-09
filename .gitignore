@@ -384,6 +384,8 @@ _temp*/
 !.env.example
 **/data/gmail_token.json
 data/gmail_token.json
+**/data/gmail_config.json
+data/gmail_config.json
 **/appsettings.Development.json
 **/appsettings.Local.json
 **/*.secret.json

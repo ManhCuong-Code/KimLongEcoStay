@@ -23,14 +23,26 @@ namespace KimLongEcoStay.Tests
         [Fact]
         public void GmailService_IsConfigured_ReturnsFalseWhenCredentialsMissing()
         {
-            var settings = new EmailSettings
+            string? origId = Environment.GetEnvironmentVariable("GMAIL_CLIENT_ID");
+            string? origSec = Environment.GetEnvironmentVariable("GMAIL_CLIENT_SECRET");
+            try
             {
-                GmailClientId = "",
-                GmailClientSecret = ""
-            };
-            var service = new GmailService(settings);
+                Environment.SetEnvironmentVariable("GMAIL_CLIENT_ID", null);
+                Environment.SetEnvironmentVariable("GMAIL_CLIENT_SECRET", null);
+                var settings = new EmailSettings
+                {
+                    GmailClientId = "",
+                    GmailClientSecret = ""
+                };
+                var service = new GmailService(settings);
 
-            Assert.False(service.IsConfigured);
+                Assert.False(service.IsConfigured);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("GMAIL_CLIENT_ID", origId);
+                Environment.SetEnvironmentVariable("GMAIL_CLIENT_SECRET", origSec);
+            }
         }
 
         [Fact]
@@ -109,6 +121,39 @@ namespace KimLongEcoStay.Tests
                 Assert.DoesNotContain("Secret", prop.Name, StringComparison.OrdinalIgnoreCase);
                 Assert.DoesNotContain("Token", prop.Name.Replace("TokenExpiresAt", ""));
             }
+        }
+
+        [Fact]
+        public void GmailService_UpdateCredentials_UpdatesRuntimeConfigurationAndEffectiveCredentials()
+        {
+            var settings = new EmailSettings { IsSimulationMode = true };
+            var service = new GmailService(settings);
+
+            service.UpdateCredentials("new-client-id", "new-client-secret", "admin@kimlongecostay.vn", persist: false);
+
+            Assert.True(service.IsConfigured);
+            Assert.Equal("admin@kimlongecostay.vn", service.SenderEmail);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task EmailService_SendBookingCancellationEmailAsync_DispatchesCancellationTemplate()
+        {
+            var settings = new EmailSettings { IsSimulationMode = true };
+            var service = new EmailService(settings);
+            var order = new Order
+            {
+                UniqueId = "KLE-CANCEL-001",
+                CustomerName = "Nguyễn Văn Test",
+                CustomerEmail = "test@example.com"
+            };
+
+            var result = await service.SendBookingCancellationEmailAsync(order, "Eco-Nest Ban Mai (KLE-R101)", "Khách có việc đột xuất", 750000);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(EmailTemplateType.BOOKING_CANCELLED, result.TemplateType);
+            Assert.Contains("KLE-CANCEL-001", result.HtmlContent);
+            Assert.Contains("750,000 VNĐ", result.HtmlContent);
+            Assert.Contains("Khách có việc đột xuất", result.HtmlContent);
         }
     }
 }

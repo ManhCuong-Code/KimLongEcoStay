@@ -40,18 +40,39 @@ namespace KimLongEcoStay.CoreBusiness.Services
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(25) };
 
-            // Tự động tải token đã lưu từ đĩa hoặc biến môi trường
+            // Tự động tải cấu hình và token đã lưu từ đĩa hoặc biến môi trường
+            LoadStoredConfig();
             LoadStoredToken();
         }
 
-        public bool IsConfigured => !string.IsNullOrWhiteSpace(_settings.GmailClientId) &&
-                                    !string.IsNullOrWhiteSpace(_settings.GmailClientSecret);
+        public string EffectiveClientId =>
+            !string.IsNullOrWhiteSpace(_settings.GmailClientId)
+                ? _settings.GmailClientId.Trim()
+                : (Environment.GetEnvironmentVariable("GMAIL_CLIENT_ID") ?? string.Empty).Trim();
+
+        public string EffectiveClientSecret =>
+            !string.IsNullOrWhiteSpace(_settings.GmailClientSecret)
+                ? _settings.GmailClientSecret.Trim()
+                : (Environment.GetEnvironmentVariable("GMAIL_CLIENT_SECRET") ?? string.Empty).Trim();
+
+        public bool IsConfigured => !string.IsNullOrWhiteSpace(EffectiveClientId) &&
+                                    !string.IsNullOrWhiteSpace(EffectiveClientSecret);
 
         public bool IsConnected => _tokenData != null && !string.IsNullOrWhiteSpace(_tokenData.RefreshToken);
 
-        public string SenderEmail => !string.IsNullOrWhiteSpace(_settings.GmailSender)
-            ? _settings.GmailSender
-            : (!string.IsNullOrWhiteSpace(_settings.AdminEmail) ? _settings.AdminEmail : "titanio741@gmail.com");
+        public string SenderEmail
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(_settings.GmailSender)) return _settings.GmailSender.Trim();
+                var envUser = Environment.GetEnvironmentVariable("GMAIL_USER");
+                if (!string.IsNullOrWhiteSpace(envUser)) return envUser.Trim();
+                var envSender = Environment.GetEnvironmentVariable("GMAIL_SENDER");
+                if (!string.IsNullOrWhiteSpace(envSender)) return envSender.Trim();
+                if (!string.IsNullOrWhiteSpace(_settings.AdminEmail)) return _settings.AdminEmail.Trim();
+                return "titanio741@gmail.com";
+            }
+        }
 
         // =========================================================================
         // 1. QUẢN LÝ CSRF STATE CHO OAUTH 2.0
@@ -98,17 +119,17 @@ namespace KimLongEcoStay.CoreBusiness.Services
         // =========================================================================
         public string GetAuthorizationUrl(string redirectUri, string state)
         {
-            if (string.IsNullOrWhiteSpace(_settings.GmailClientId))
+            if (string.IsNullOrWhiteSpace(EffectiveClientId))
             {
                 throw new InvalidOperationException("Chưa cấu hình GMAIL_CLIENT_ID trong biến môi trường hoặc .env.");
             }
 
             string actualRedirect = !string.IsNullOrWhiteSpace(redirectUri)
                 ? redirectUri
-                : _settings.GmailRedirectUri;
+                : (!string.IsNullOrWhiteSpace(_settings.GmailRedirectUri) ? _settings.GmailRedirectUri : "http://localhost:5204/api/admin/gmail/oauth2callback");
 
             var urlBuilder = new StringBuilder(GoogleOAuthAuthEndpoint);
-            urlBuilder.Append("?client_id=").Append(Uri.EscapeDataString(_settings.GmailClientId.Trim()));
+            urlBuilder.Append("?client_id=").Append(Uri.EscapeDataString(EffectiveClientId));
             urlBuilder.Append("&redirect_uri=").Append(Uri.EscapeDataString(actualRedirect.Trim()));
             urlBuilder.Append("&response_type=code");
             urlBuilder.Append("&scope=").Append(Uri.EscapeDataString(GmailSendScope));
@@ -132,15 +153,15 @@ namespace KimLongEcoStay.CoreBusiness.Services
 
             string actualRedirect = !string.IsNullOrWhiteSpace(redirectUri)
                 ? redirectUri
-                : _settings.GmailRedirectUri;
+                : (!string.IsNullOrWhiteSpace(_settings.GmailRedirectUri) ? _settings.GmailRedirectUri : "http://localhost:5204/api/admin/gmail/oauth2callback");
 
             try
             {
                 var dict = new Dictionary<string, string>
                 {
                     ["code"] = code.Trim(),
-                    ["client_id"] = _settings.GmailClientId.Trim(),
-                    ["client_secret"] = _settings.GmailClientSecret.Trim(),
+                    ["client_id"] = EffectiveClientId,
+                    ["client_secret"] = EffectiveClientSecret,
                     ["redirect_uri"] = actualRedirect.Trim(),
                     ["grant_type"] = "authorization_code"
                 };
@@ -236,8 +257,8 @@ namespace KimLongEcoStay.CoreBusiness.Services
 
                 var dict = new Dictionary<string, string>
                 {
-                    ["client_id"] = _settings.GmailClientId.Trim(),
-                    ["client_secret"] = _settings.GmailClientSecret.Trim(),
+                    ["client_id"] = EffectiveClientId,
+                    ["client_secret"] = EffectiveClientSecret,
                     ["refresh_token"] = _tokenData.RefreshToken.Trim(),
                     ["grant_type"] = "refresh_token"
                 };
@@ -464,8 +485,103 @@ namespace KimLongEcoStay.CoreBusiness.Services
         }
 
         // =========================================================================
-        // 8. ĐỌC / GHI REFRESH TOKEN AN TOÀN TRÊN MÁY CHỦ
+        // 8. ĐỌC / GHI CẤU HÌNH & REFRESH TOKEN AN TOÀN TRÊN MÁY CHỦ
         // =========================================================================
+        public void UpdateCredentials(string clientId, string clientSecret, string? sender = null, string? redirectUri = null, string? refreshToken = null, bool persist = true)
+        {
+            if (!string.IsNullOrWhiteSpace(clientId)) _settings.GmailClientId = clientId.Trim();
+            if (!string.IsNullOrWhiteSpace(clientSecret)) _settings.GmailClientSecret = clientSecret.Trim();
+            if (!string.IsNullOrWhiteSpace(sender)) _settings.GmailSender = sender.Trim();
+            if (!string.IsNullOrWhiteSpace(redirectUri)) _settings.GmailRedirectUri = redirectUri.Trim();
+
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                _settings.GmailRefreshToken = refreshToken.Trim();
+                _tokenData = new GmailTokenData
+                {
+                    RefreshToken = refreshToken.Trim(),
+                    AccountEmail = SenderEmail,
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(-1),
+                    UpdatedAt = DateTime.UtcNow
+                };
+                if (persist) SaveTokenToDisk(_tokenData);
+            }
+
+            if (persist) SaveConfigToDisk();
+            _lastStatusMessage = $"Đã cập nhật cấu hình Gmail API lúc {DateTime.Now:HH:mm:ss dd/MM/yyyy}.";
+            _lastError = string.Empty;
+        }
+
+        private void LoadStoredConfig()
+        {
+            try
+            {
+                var candidates = new[]
+                {
+                    Path.Combine(AppContext.BaseDirectory, "data", "gmail_config.json"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "data", "gmail_config.json"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "KimLongEcoStay", "data", "gmail_config.json")
+                };
+
+                foreach (var p in candidates)
+                {
+                    if (File.Exists(p))
+                    {
+                        var json = File.ReadAllText(p);
+                        using var doc = JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+                        if (string.IsNullOrWhiteSpace(_settings.GmailClientId) && root.TryGetProperty("ClientId", out var cid))
+                            _settings.GmailClientId = cid.GetString() ?? "";
+                        if (string.IsNullOrWhiteSpace(_settings.GmailClientSecret) && root.TryGetProperty("ClientSecret", out var cs))
+                            _settings.GmailClientSecret = cs.GetString() ?? "";
+                        if (string.IsNullOrWhiteSpace(_settings.GmailSender) && root.TryGetProperty("SenderEmail", out var se))
+                            _settings.GmailSender = se.GetString() ?? "";
+                        if (string.IsNullOrWhiteSpace(_settings.GmailRedirectUri) && root.TryGetProperty("RedirectUri", out var ru))
+                            _settings.GmailRedirectUri = ru.GetString() ?? "";
+                        break;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void SaveConfigToDisk()
+        {
+            if (_settings.IsSimulationMode) return;
+            try
+            {
+                var configObj = new
+                {
+                    ClientId = EffectiveClientId,
+                    ClientSecret = EffectiveClientSecret,
+                    SenderEmail = SenderEmail,
+                    RedirectUri = _settings.GmailRedirectUri
+                };
+                var json = JsonSerializer.Serialize(configObj, new JsonSerializerOptions { WriteIndented = true });
+                var candidates = new[]
+                {
+                    Path.Combine(AppContext.BaseDirectory, "data", "gmail_config.json"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "data", "gmail_config.json"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "KimLongEcoStay", "data", "gmail_config.json")
+                };
+
+                foreach (var filePath in candidates)
+                {
+                    try
+                    {
+                        var dir = Path.GetDirectoryName(filePath);
+                        if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
+                        {
+                            Directory.CreateDirectory(dir);
+                        }
+                        File.WriteAllText(filePath, json);
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
         private void LoadStoredToken()
         {
             try

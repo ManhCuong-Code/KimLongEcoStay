@@ -18,7 +18,10 @@ namespace KimLongEcoStay.Web.Services
                 Path.Combine(Directory.GetCurrentDirectory(), ".env"),
                 Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"),
                 Path.Combine(AppContext.BaseDirectory, ".env"),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".env")
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".env"),
+                "/etc/secrets/.env", // Render Secret Files mount path
+                "/app/.env",         // Container runtime root path
+                Path.Combine(Directory.GetCurrentDirectory(), "data", ".env")
             };
 
             foreach (var rawPath in candidatePaths)

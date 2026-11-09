@@ -353,7 +353,78 @@ namespace KimLongEcoStay.CoreBusiness.Services
         }
 
         // =========================================================================
-        // 11. PHƯƠNG THỨC GỬI EMAIL CHÍNH (HTTPS REST API / SMTP / THỬ LẠI)
+        // 11. EMAIL THÔNG BÁO HỦY ĐẶT PHÒNG & THÔNG TIN HOÀN TIỀN
+        // =========================================================================
+        public async Task<EmailSendResult> SendBookingCancellationEmailAsync(Order order, string roomName, string cancellationReason, decimal refundAmount = 0)
+        {
+            if (order == null) throw new ArgumentNullException(nameof(order));
+
+            string recipient = !string.IsNullOrWhiteSpace(order.CustomerEmail)
+                ? order.CustomerEmail.Trim()
+                : "khachhang@kimlongecostay.vn";
+
+            string mailSubject = $"[Kim Long EcoStay] Xác Nhận Hủy Đặt Phòng #{order.UniqueId} — Thông Tin Hoàn Tiền";
+            string html = GenerateBookingCancellationHtml(order, roomName, cancellationReason, refundAmount);
+            string plainText = $"Kim Long EcoStay - Xác Nhận Hủy Đặt Phòng #{order.UniqueId}\n" +
+                               $"Kính gửi {order.CustomerName},\n" +
+                               $"Đơn đặt phòng {roomName} (#{order.UniqueId}) của quý khách đã được hủy thành công.\n" +
+                               $"Lý do: {cancellationReason}\n" +
+                               $"Số tiền hoàn lại: {refundAmount:N0} VNĐ.\n" +
+                               $"Mọi thắc mắc vui lòng liên hệ hotline: 0905.123.456.";
+
+            return await SendEmailAsync(recipient, mailSubject, html, EmailTemplateType.BOOKING_CANCELLED, order.UniqueId ?? "", plainText);
+        }
+
+        private string GenerateBookingCancellationHtml(Order order, string roomName, string cancellationReason, decimal refundAmount)
+        {
+            return $@"
+<div style=""font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; max-width:620px; margin:0 auto; border:1px solid #E2E8F0; border-radius:12px; overflow:hidden; background:#FFFFFF;"">
+    <div style=""background:#14452F; color:#FFFFFF; padding:24px; text-align:center;"">
+        <h2 style=""margin:0; font-size:22px; color:#D4AF37; font-weight:700; letter-spacing:0.5px;"">KIM LONG ECOSTAY</h2>
+        <p style=""margin:6px 0 0 0; font-size:13px; opacity:0.9;"">Di Sản Nhà Vườn Cố Đô • Thông Báo Hủy Đặt Phòng</p>
+    </div>
+    <div style=""padding:24px; color:#2D3748; line-height:1.6;"">
+        <p style=""font-size:15px;"">Kính gửi Quý khách <strong>{order.CustomerName}</strong>,</p>
+        <p style=""font-size:14px;"">Kim Long EcoStay xin xác nhận đơn đặt phòng của Quý khách đã được hủy theo yêu cầu trên hệ thống:</p>
+        
+        <div style=""background:#FEF2F2; border-left:4px solid #EF4444; border-radius:6px; padding:16px; margin:18px 0;"">
+            <table style=""width:100%; border-collapse:collapse; font-size:14px;"">
+                <tr>
+                    <td style=""padding:4px 0; color:#4B5563; width:40%;"">Mã đơn đặt phòng:</td>
+                    <td style=""padding:4px 0; font-weight:700; color:#1F2937;"">#{order.UniqueId}</td>
+                </tr>
+                <tr>
+                    <td style=""padding:4px 0; color:#4B5563;"">Không gian nghỉ dưỡng:</td>
+                    <td style=""padding:4px 0; font-weight:600; color:#14452F;"">{roomName}</td>
+                </tr>
+                <tr>
+                    <td style=""padding:4px 0; color:#4B5563;"">Lý do hủy:</td>
+                    <td style=""padding:4px 0; color:#B91C1C; font-style:italic;"">{cancellationReason}</td>
+                </tr>
+                <tr>
+                    <td style=""padding:4px 0; color:#4B5563;"">Số tiền hoàn trả:</td>
+                    <td style=""padding:4px 0; font-weight:700; color:#059669; font-size:16px;"">{(refundAmount > 0 ? $"{refundAmount:N0} VNĐ" : "0 VNĐ (Theo chính sách hủy)")}</td>
+                </tr>
+            </table>
+        </div>
+
+        <p style=""font-size:13px; color:#6B7280;"">
+            Nếu Quý khách có khoản hoàn tiền, bộ phận kế toán sẽ thực hiện chuyển khoản lại theo số tài khoản thanh toán ban đầu trong vòng 1-3 ngày làm việc.
+        </p>
+        <p style=""font-size:13px; color:#6B7280;"">
+            Chúng tôi rất tiếc chưa thể đón tiếp Quý khách lần này và hy vọng được phục vụ Quý khách trong những chuyến hành trình tới Cố Đô Huế trong tương lai!
+        </p>
+
+        <div style=""margin-top:24px; padding-top:16px; border-top:1px solid #E5E7EB; text-align:center; font-size:12px; color:#9CA3AF;"">
+            <p style=""margin:0;"">Kim Long EcoStay • 108 Kim Long, Phường Kim Long, TP. Huế</p>
+            <p style=""margin:4px 0 0 0;"">Hotline 24/7: <strong>0905.123.456</strong> | Email: lienhe@kimlongecostay.vn</p>
+        </div>
+    </div>
+</div>";
+        }
+
+        // =========================================================================
+        // 12. PHƯƠNG THỨC GỬI EMAIL CHÍNH (HTTPS REST API / SMTP / THỬ LẠI)
         // =========================================================================
         public async Task<EmailSendResult> SendEmailAsync(string toEmail, string subject, string htmlBody, EmailTemplateType templateType = EmailTemplateType.DEPOSIT_CONFIRMED, string bookingCode = "", string? plainText = null)
         {

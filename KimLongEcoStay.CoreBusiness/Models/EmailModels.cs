@@ -14,7 +14,8 @@ namespace KimLongEcoStay.CoreBusiness.Models
         SMARTLOCK_PIN_DELIVERY,     // Gửi mã PIN truy cập SmartLock bảo mật cho khách
         CUSTOMER_CONTACT_CONFIRMED, // Xác nhận đã tiếp nhận liên hệ/hỏi đáp của khách
         ADMIN_NEW_CONTACT_ALERT,    // Thông báo cho Admin khi có khách gửi liên hệ mới
-        ADMIN_TEA_BOOKING_ALERT     // Thông báo cho Admin khi có khách đặt trải nghiệm trà
+        ADMIN_TEA_BOOKING_ALERT,    // Thông báo cho Admin khi có khách đặt trải nghiệm trà
+        BOOKING_CANCELLED           // Thông báo hủy đặt phòng và thông tin hoàn tiền (nếu có)
     }
 
     public class EmailSettings

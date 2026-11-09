@@ -241,25 +241,37 @@ if (!string.IsNullOrWhiteSpace(envAdminEmail)) emailSettings.AdminEmail = envAdm
 var envSmtpPass = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
 if (!string.IsNullOrWhiteSpace(envSmtpPass)) emailSettings.SenderPassword = envSmtpPass.Trim();
 
-// Google Gmail API OAuth 2.0 Credentials
-var envGmailClientId = Environment.GetEnvironmentVariable("GMAIL_CLIENT_ID");
-if (!string.IsNullOrWhiteSpace(envGmailClientId)) emailSettings.GmailClientId = envGmailClientId.Trim();
+// Google Gmail API OAuth 2.0 Credentials (Đọc đa tầng: Environment OS, Render Dashboard, .env, builder.Configuration)
+Func<string, string?> getEnvOrConfig = key =>
+{
+    var val = Environment.GetEnvironmentVariable(key) ?? builder.Configuration[key] ?? builder.Configuration[$"GmailSettings:{key}"];
+    if (string.IsNullOrWhiteSpace(val)) return null;
+    val = val.Trim();
+    if ((val.StartsWith("\"") && val.EndsWith("\"")) || (val.StartsWith("'") && val.EndsWith("'")))
+    {
+        val = val.Substring(1, val.Length - 2).Trim();
+    }
+    return string.IsNullOrWhiteSpace(val) ? null : val;
+};
 
-var envGmailClientSecret = Environment.GetEnvironmentVariable("GMAIL_CLIENT_SECRET");
-if (!string.IsNullOrWhiteSpace(envGmailClientSecret)) emailSettings.GmailClientSecret = envGmailClientSecret.Trim();
+var envGmailClientId = getEnvOrConfig("GMAIL_CLIENT_ID");
+if (!string.IsNullOrWhiteSpace(envGmailClientId)) emailSettings.GmailClientId = envGmailClientId;
 
-var envGmailRedirectUri = Environment.GetEnvironmentVariable("GMAIL_REDIRECT_URI");
-if (!string.IsNullOrWhiteSpace(envGmailRedirectUri)) emailSettings.GmailRedirectUri = envGmailRedirectUri.Trim();
+var envGmailClientSecret = getEnvOrConfig("GMAIL_CLIENT_SECRET");
+if (!string.IsNullOrWhiteSpace(envGmailClientSecret)) emailSettings.GmailClientSecret = envGmailClientSecret;
 
-var envGmailSender = Environment.GetEnvironmentVariable("GMAIL_SENDER");
+var envGmailRedirectUri = getEnvOrConfig("GMAIL_REDIRECT_URI");
+if (!string.IsNullOrWhiteSpace(envGmailRedirectUri)) emailSettings.GmailRedirectUri = envGmailRedirectUri;
+
+var envGmailSender = getEnvOrConfig("GMAIL_USER") ?? getEnvOrConfig("GMAIL_SENDER");
 if (!string.IsNullOrWhiteSpace(envGmailSender))
 {
-    emailSettings.GmailSender = envGmailSender.Trim();
-    if (string.IsNullOrWhiteSpace(envEmailFrom)) emailSettings.SenderEmail = envGmailSender.Trim();
+    emailSettings.GmailSender = envGmailSender;
+    if (string.IsNullOrWhiteSpace(envEmailFrom)) emailSettings.SenderEmail = envGmailSender;
 }
 
-var envGmailRefreshToken = Environment.GetEnvironmentVariable("GMAIL_REFRESH_TOKEN");
-if (!string.IsNullOrWhiteSpace(envGmailRefreshToken)) emailSettings.GmailRefreshToken = envGmailRefreshToken.Trim();
+var envGmailRefreshToken = getEnvOrConfig("GMAIL_REFRESH_TOKEN");
+if (!string.IsNullOrWhiteSpace(envGmailRefreshToken)) emailSettings.GmailRefreshToken = envGmailRefreshToken;
 
 builder.Services.AddSingleton(emailSettings);
 builder.Services.AddHttpClient<IGmailService, GmailService>();
@@ -1827,6 +1839,26 @@ app.MapPost("/api/admin/email/test", async (HttpContext context, IEmailService e
 // GOOGLE GMAIL API v1 & OAUTH 2.0 WEB SERVER FLOW ENDPOINTS
 // =========================================================================
 
+// Helper hàm xác định redirect_uri chuẩn xác nhất theo tên miền thực tế (Render HTTPS hoặc Localhost)
+string DetermineGmailRedirectUri(HttpContext ctx, EmailSettings settings)
+{
+    string host = ctx.Request.Host.Value ?? "";
+    bool isCloud = !string.IsNullOrWhiteSpace(host) && !host.Contains("localhost", StringComparison.OrdinalIgnoreCase);
+
+    if (isCloud)
+    {
+        // Trên Cloud (Render, Azure, VPS), Google OAuth bắt buộc dùng https://
+        return $"https://{host}/api/admin/gmail/oauth2callback";
+    }
+
+    if (!string.IsNullOrWhiteSpace(settings.GmailRedirectUri) && settings.GmailRedirectUri.Contains("localhost", StringComparison.OrdinalIgnoreCase))
+    {
+        return settings.GmailRedirectUri.Trim();
+    }
+
+    return $"{ctx.Request.Scheme}://{ctx.Request.Host}/api/admin/gmail/oauth2callback";
+}
+
 // 5.1. Khởi tạo quy trình cấp quyền OAuth 2.0 với Google
 app.MapGet("/api/admin/gmail/connect", (HttpContext context, IGmailService gmailService) =>
 {
@@ -1834,13 +1866,15 @@ app.MapGet("/api/admin/gmail/connect", (HttpContext context, IGmailService gmail
     {
         if (!gmailService.IsConfigured)
         {
-            return Results.BadRequest(new { success = false, error = "Chưa cấu hình GMAIL_CLIENT_ID hoặc GMAIL_CLIENT_SECRET trong biến môi trường hoặc .env." });
+            if (context.Request.Headers.Accept.ToString().Contains("application/json"))
+            {
+                return Results.BadRequest(new { success = false, error = "Chưa cấu hình GMAIL_CLIENT_ID hoặc GMAIL_CLIENT_SECRET trong biến môi trường hoặc .env." });
+            }
+            return Results.Redirect("/admin?tab=emaillogs&gmail_error=" + Uri.EscapeDataString("Chưa cấu hình GMAIL_CLIENT_ID hoặc GMAIL_CLIENT_SECRET trong biến môi trường Render hoặc .env. Vui lòng bổ sung vào Render Dashboard (Environment) hoặc cấu hình trong trang Quản trị."));
         }
 
         string state = gmailService.CreateCsrfState();
-        string redirectUri = !string.IsNullOrWhiteSpace(emailSettings.GmailRedirectUri)
-            ? emailSettings.GmailRedirectUri
-            : $"{context.Request.Scheme}://{context.Request.Host}/api/admin/gmail/oauth2callback";
+        string redirectUri = DetermineGmailRedirectUri(context, emailSettings);
 
         string authUrl = gmailService.GetAuthorizationUrl(redirectUri, state);
         return Results.Redirect(authUrl);
@@ -1874,9 +1908,7 @@ app.MapGet("/api/admin/gmail/oauth2callback", async (HttpContext context, IGmail
         return Results.Redirect("/admin?tab=emaillogs&gmail_error=" + Uri.EscapeDataString("Không nhận được authorization code từ Google OAuth."));
     }
 
-    string redirectUri = !string.IsNullOrWhiteSpace(emailSettings.GmailRedirectUri)
-        ? emailSettings.GmailRedirectUri
-        : $"{context.Request.Scheme}://{context.Request.Host}/api/admin/gmail/oauth2callback";
+    string redirectUri = DetermineGmailRedirectUri(context, emailSettings);
 
     var result = await gmailService.ExchangeCodeForTokenAsync(code, redirectUri);
     if (result.Success)
@@ -1888,6 +1920,36 @@ app.MapGet("/api/admin/gmail/oauth2callback", async (HttpContext context, IGmail
         return Results.Redirect($"/admin?tab=emaillogs&gmail_error={Uri.EscapeDataString(result.Message)}");
     }
 });
+
+// 5.2b. Cấu hình trực tiếp biến môi trường Gmail API (dành cho Quản trị viên)
+app.MapPost("/api/admin/gmail/configure", async (HttpContext context, IGmailService gmailService) =>
+{
+    var authCheck = AuthorizeRole(context, "Admin");
+    if (authCheck != null) return authCheck;
+
+    try
+    {
+        using var doc = await JsonDocument.ParseAsync(context.Request.Body);
+        var root = doc.RootElement;
+        string clientId = root.TryGetProperty("clientId", out var cid) ? (cid.GetString() ?? "").Trim() : "";
+        string clientSecret = root.TryGetProperty("clientSecret", out var cs) ? (cs.GetString() ?? "").Trim() : "";
+        string sender = root.TryGetProperty("sender", out var se) ? (se.GetString() ?? "").Trim() : "";
+        string redirectUri = root.TryGetProperty("redirectUri", out var ru) ? (ru.GetString() ?? "").Trim() : "";
+        string refreshToken = root.TryGetProperty("refreshToken", out var rt) ? (rt.GetString() ?? "").Trim() : "";
+
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+        {
+            return Results.BadRequest(new { success = false, message = "Client ID và Client Secret không được để trống." });
+        }
+
+        gmailService.UpdateCredentials(clientId, clientSecret, sender, redirectUri, refreshToken);
+        return Results.Ok(new { success = true, message = "Cập nhật cấu hình Gmail API thành công!", status = gmailService.GetConnectionStatus() });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { success = false, message = $"Lỗi cập nhật cấu hình: {ex.Message}" });
+    }
+}).DisableAntiforgery();
 
 // 5.3. Trạng thái kết nối Google Gmail API
 app.MapGet("/api/admin/gmail/status", (IGmailService gmailService) =>

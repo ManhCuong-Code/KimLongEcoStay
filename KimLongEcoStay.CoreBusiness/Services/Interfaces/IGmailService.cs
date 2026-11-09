@@ -19,6 +19,7 @@ namespace KimLongEcoStay.CoreBusiness.Services.Interfaces
         Task<(bool Success, string MessageId, string? Error)> SendEmailRawAsync(string toEmail, string subject, string htmlBody, string? plainText = null);
         GmailConnectionStatus GetConnectionStatus();
         void Disconnect();
+        void UpdateCredentials(string clientId, string clientSecret, string? sender = null, string? redirectUri = null, string? refreshToken = null, bool persist = true);
     }
 }
 
